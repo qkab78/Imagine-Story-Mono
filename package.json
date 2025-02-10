@@ -1,0 +1,13 @@
+{
+  "name": "imagine-story-mono",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:api:dev": "cd apps/api && pnpm run dev",
+    "start:mobile:dev": "cd apps/mobile && pnpm expo start"
+  },
+  "keywords": [],
+  "author": "Mikabs",
+  "license": "ISC"
+}
