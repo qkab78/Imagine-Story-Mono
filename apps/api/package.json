@@ -11,7 +11,11 @@
     "test": "node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "generate": "npx kysely-codegen --out-file=types/db.ts",
+    "db:seed": "node ace seed",
+    "db:migrate": "node ace migration:run",
+    "db:rollback": "node ace migration:rollback"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
@@ -23,7 +27,7 @@
     "#events/*": "./app/events/*.js",
     "#middleware/*": "./app/middleware/*.js",
     "#validators/*": "./app/validators/*.js",
-    "#providers/*": "./providers/*.js",
+    "#providers/*": "./app/providers/*.js",
     "#policies/*": "./app/policies/*.js",
     "#abilities/*": "./app/abilities/*.js",
     "#database/*": "./database/*.js",
@@ -31,7 +35,8 @@
     "#tests/*": "./tests/*.js",
     "#config/*": "./config/*.js",
     "#types/*": "./types/*.js",
-    "#users/*": "./app/users/*.js"
+    "#users/*": "./app/users/*.js",
+    "#auth/*": "./app/auth/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",

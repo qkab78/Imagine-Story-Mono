@@ -16,7 +16,7 @@ export interface AccessTokens {
   created_at: Timestamp;
   expires_at: Timestamp | null;
   hash: string;
-  id: number;
+  id: Generated<string>;
   last_used_at: Timestamp | null;
   name: string;
   tokenable_id: string;

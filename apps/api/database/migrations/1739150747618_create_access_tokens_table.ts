@@ -1,9 +1,9 @@
-import { Kysely } from 'kysely'
+import { Kysely, sql } from 'kysely'
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('access_tokens')
-    .addColumn('id', 'integer', (col) => col.primaryKey())
+    .addColumn('id', 'uuid', (col) => col.primaryKey().defaultTo(sql`gen_random_uuid()`))
     .addColumn('tokenable_id', 'uuid', (col) => col
       .notNull()
       .references('users.id')
