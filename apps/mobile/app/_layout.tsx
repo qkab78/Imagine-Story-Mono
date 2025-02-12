@@ -6,7 +6,8 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import useAuthStore from '@/store/auth/authStore';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -15,6 +16,9 @@ const StackLayout = () => {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="(protected)" options={{ headerShown: false }} />
+      <Stack.Screen name="(protected)/home" options={{ headerShown: false }} />
+      <Stack.Screen name="(protected)/stories" />
       <Stack.Screen name="+not-found" />
     </Stack>
   )
@@ -25,6 +29,22 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+  const token = useAuthStore(state => state.token);
+  const segments = useSegments();
+  const router = useRouter();
+
+
+  useEffect(() => {
+    const isAuthGroup = segments[0] === '(protected)';
+    if (!token && isAuthGroup) {
+      console.log('No token found, redirecting to login');
+      router.replace('/');
+    } else if (token) {
+      console.log('Token found, redirecting to home');
+      router.replace('/(protected)/home');
+    }
+
+  }, [token]);
 
   useEffect(() => {
     if (loaded) {

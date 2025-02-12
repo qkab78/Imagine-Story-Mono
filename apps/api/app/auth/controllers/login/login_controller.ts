@@ -21,6 +21,14 @@ export default class LoginController {
     //@ts-ignore
     const userToLogin = await auth.use('api').authenticateAsClient(user);
 
-    return response.json({ token: userToLogin.headers?.authorization });
+    return response.json({ 
+      token: userToLogin.headers?.authorization,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullname: `${user.firstname} ${user.lastname}`,
+        avatar: ''
+      }
+    });
   }
 }
