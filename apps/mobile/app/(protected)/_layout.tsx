@@ -10,6 +10,8 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import CustomDrawerContent from '@/components/CustomDrawerContent';
+import useAuthStore from '@/store/auth/authStore';
+import { Role } from '@imagine-story/api/users/models/role';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -19,6 +21,7 @@ export default function DrawerLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../../assets/fonts/SpaceMono-Regular.ttf'),
   });
+  const user = useAuthStore(state => state.user);
 
   useEffect(() => {
     if (loaded) {
@@ -48,7 +51,10 @@ export default function DrawerLayout() {
               return <IconSymbol name="house.fill" {...props} />;
             },
           }} />
-          <Drawer.Screen name="stories" options={{
+          <Drawer.Screen
+            name="stories"
+            redirect={user?.role !== Role.CUSTOMER && user?.role !== Role.ADMIN}
+            options={{
             title: 'Stories',
             drawerLabel: 'Stories',
             drawerIcon(props) {

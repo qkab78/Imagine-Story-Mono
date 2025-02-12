@@ -27,7 +27,8 @@ export default class LoginController {
         id: user.id,
         email: user.email,
         fullname: `${user.firstname} ${user.lastname}`,
-        avatar: ''
+        role: user.role,
+        avatar: '',
       }
     });
   }
