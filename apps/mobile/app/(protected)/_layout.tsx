@@ -52,7 +52,7 @@ export default function DrawerLayout() {
             },
           }} />
           <Drawer.Screen
-            name="stories"
+            name="stories/index"
             redirect={user?.role === Role.GUEST}
             options={{
             title: 'Stories',

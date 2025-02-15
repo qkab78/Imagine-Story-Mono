@@ -10,11 +10,14 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   const colorScheme = useColorScheme();
   const { bottom } = useSafeAreaInsets();
   const user = useAuthStore(state => state.user);
-
+  const filteredRoutes = props.state.routes.filter(route => route.name !== 'stories/[slug]');
+  const filteredRoutesNames = props.state.routeNames.filter(route => route !== 'stories/[slug]');
+  const filteredProps = { ...props, state: { ...props.state, routes: filteredRoutes, routeNames: filteredRoutesNames } };
+  
   return (
     <View style={{ flex: 1 }}>
       <DrawerContentScrollView
-        {...props}
+        {...filteredProps}
         scrollEnabled={false}
       >
         <View style={{ padding: 20 }}>
@@ -28,7 +31,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
         </View>
 
         <View style={{ flex: 1 }}>
-          <DrawerItemList {...props} />
+          <DrawerItemList {...filteredProps} />
           <DrawerItem
             label="Help"
             onPress={() => alert('Link to help')}
