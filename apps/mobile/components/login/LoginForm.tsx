@@ -2,8 +2,9 @@ import { Control, Controller, useForm } from "react-hook-form";
 import { Button, TextInput, View } from "react-native";
 import { ThemedText } from "../ThemedText";
 import useAuthStore from "@/store/auth/authStore";
+import { login, LoginFormData } from "@/api/auth";
+import { useMutation } from "@tanstack/react-query";
 
-interface LoginFormData { email: string, password: string }
 interface LoginFormInputProps { name: "password" | "email", control: Control<LoginFormData>, password?: boolean }
 
 const Input = ({ name, control, password }: LoginFormInputProps) => {
@@ -28,6 +29,16 @@ const Input = ({ name, control, password }: LoginFormInputProps) => {
 
 export const LoginForm = () => {
   const { setToken, setUser } = useAuthStore((state) => state);
+  const mutation = useMutation({
+    mutationFn: (data: LoginFormData) => login(data),
+    onSuccess: (data) => {
+      if (!data.token) {
+        alert('Invalid credentials');
+      }
+      setToken(data.token);
+      setUser(data.user);
+    }
+  })
 
   const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     defaultValues: {
@@ -37,26 +48,7 @@ export const LoginForm = () => {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    const apiUrl = process.env.EXPO_PUBLIC_API_URL
-    const loginUrl = `${apiUrl}/auth/login`;
-
-    console.log(data, apiUrl, loginUrl);
-    const response = await fetch(loginUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-
-    const json = await response.json();
-
-    console.log(json);
-    if (!json.token) {
-      alert('Invalid credentials');
-    }
-    setToken(json.token);
-    setUser(json.user);
+    mutation.mutate(data);
   };
 
 
@@ -67,7 +59,7 @@ export const LoginForm = () => {
       <Input name="password" control={control} password />
       {errors.password && <ThemedText>This is required.</ThemedText>}
 
-      <Button title={isSubmitting ? "Login in..." : "Login"} onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
+      <Button title={mutation.isPending ? "Login in..." : "Login"} onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
     </View>
   );
 }
