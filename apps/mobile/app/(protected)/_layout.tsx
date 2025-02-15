@@ -53,7 +53,7 @@ export default function DrawerLayout() {
           }} />
           <Drawer.Screen
             name="stories"
-            redirect={user?.role !== Role.CUSTOMER && user?.role !== Role.ADMIN}
+            redirect={user?.role === Role.GUEST}
             options={{
             title: 'Stories',
             drawerLabel: 'Stories',

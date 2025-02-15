@@ -15,11 +15,12 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@imagine-story/api": "workspace:^",
     "@expo/vector-icons": "^14.0.2",
+    "@imagine-story/api": "workspace:^",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/drawer": "^7.1.1",
     "@react-navigation/native": "^7.0.14",
+    "@tanstack/react-query": "^5.66.0",
     "expo": "~52.0.31",
     "expo-blur": "~14.0.3",
     "expo-constants": "~17.0.5",
@@ -46,6 +47,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@tanstack/eslint-plugin-query": "^5.66.1",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.3.0",

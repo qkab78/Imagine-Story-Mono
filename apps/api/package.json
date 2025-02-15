@@ -14,8 +14,8 @@
     "typecheck": "tsc --noEmit",
     "generate": "npx kysely-codegen --out-file=types/db.ts",
     "db:seed": "node ace seed",
-    "db:migrate": "node ace migration:run",
-    "db:rollback": "node ace migration:rollback"
+    "db:migrate": "node ace kysely:migrate",
+    "db:rollback": "node ace kysely:rollback"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
