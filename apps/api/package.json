@@ -65,8 +65,10 @@
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.6.0",
     "@vinejs/vine": "^3.0.0",
+    "axios": "^1.7.9",
     "kysely": "^0.27.5",
     "luxon": "^3.5.0",
+    "openai": "^4.85.1",
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.2"
   },

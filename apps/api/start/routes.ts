@@ -23,9 +23,18 @@ router.get('/protected-route', async ({ response }: HttpContext) => {
   return response.json({ secret: 'data' })
 }).middleware(middleware.auth())
 
-router.get('/stories', [StoriesController, 'getStories']).middleware(middleware.auth())
+// Stories
+router.group(() => {
+  router.get('/', [StoriesController, 'getStories'])
+  router.get('/:slug', [StoriesController, 'getStoryBuSlug'])
+  router.group(() => {
+    router.get('/user/me', [StoriesController, 'getStoriesByAuthenticatedUserId'])
+    router.post('/', [StoriesController, 'createStory'])
+  }).middleware(middleware.auth())
+}).prefix('/stories')
 
 
+// Auth
 router
   .post('/login', [LoginController, 'login'])
   .prefix('/auth')
