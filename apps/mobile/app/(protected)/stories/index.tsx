@@ -7,14 +7,14 @@ import { Stories } from '@imagine-story/api/types/db'
 import { Link } from 'expo-router'
 import { CreatStoryForm } from '@/components/stories/CreateStoryForm'
 
-const renderStory = ({item}: ListRenderItemInfo<Stories>) => {
+const renderStory = ({ item }: ListRenderItemInfo<Stories>) => {
 
   return (
-    <View style={styles.container}>
-      <Image
+    <View style={{ padding: 20, gap: 1 }}>
+      {/* <Image
         source={{ uri: item.cover_image }}
         style={{ width: 200, height: 200 }}
-      />
+      /> */}
       <Text style={styles.title}>{item.title}</Text>
       <Link href={{
         pathname: '/stories/[slug]',
@@ -58,7 +58,6 @@ export default StoriesScreen
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: 'black',
     alignItems: 'center',
     justifyContent: 'center',
