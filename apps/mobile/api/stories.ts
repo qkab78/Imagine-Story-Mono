@@ -19,6 +19,12 @@ export const getStories = async(token: string) => {
   return stories;
 };
 
+export const getStoryBySlug = async(slug: string) => {
+  const response = await fetch(`${apiUrl}/stories/${slug}`);
+  const story: Stories = await response.json();
+  return story;
+};
+
 export const createStory = async(payload: CreateStoryFormData) => {
   const response = await fetch(`${apiUrl}/stories`, {
     method: 'POST',

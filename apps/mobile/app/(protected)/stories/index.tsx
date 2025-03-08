@@ -7,14 +7,13 @@ import { Stories } from '@imagine-story/api/types/db'
 import { Link } from 'expo-router'
 import { CreatStoryForm } from '@/components/stories/CreateStoryForm'
 
-const renderStory = ({ item }: ListRenderItemInfo<Stories>) => {
-
+const renderStory = ({ item }: ListRenderItemInfo<Stories>) => {  
   return (
-    <View style={{ padding: 20, gap: 1 }}>
-      {/* <Image
+    <View style={{ padding: 20, gap: 1, display: 'flex', alignItems: 'flex-start',}}>
+      <Image
         source={{ uri: item.cover_image }}
         style={{ width: 200, height: 200 }}
-      /> */}
+      />
       <Text style={styles.title}>{item.title}</Text>
       <Link href={{
         pathname: '/stories/[slug]',

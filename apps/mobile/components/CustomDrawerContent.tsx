@@ -10,8 +10,8 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   const colorScheme = useColorScheme();
   const { bottom } = useSafeAreaInsets();
   const user = useAuthStore(state => state.user);
-  const filteredRoutes = props.state.routes.filter(route => route.name !== 'stories/[slug]');
-  const filteredRoutesNames = props.state.routeNames.filter(route => route !== 'stories/[slug]');
+  const filteredRoutes = props.state.routes
+  const filteredRoutesNames = props.state.routeNames
   const filteredProps = { ...props, state: { ...props.state, routes: filteredRoutes, routeNames: filteredRoutesNames } };
   
   return (

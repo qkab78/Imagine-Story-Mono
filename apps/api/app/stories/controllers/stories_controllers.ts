@@ -25,7 +25,7 @@ export default class StoriesController {
 
   public async getStoryBuSlug({ request, response }: HttpContext) {
     const payload = await getStoryBySlugValidator.validate(request.params());
-    const stories = await db.selectFrom('stories').where('slug', '=', payload.slug).selectAll().execute();
+    const stories = await db.selectFrom('stories').where('slug', '=', payload.slug).selectAll().executeTakeFirst();
 
     return response.json(stories);
   }

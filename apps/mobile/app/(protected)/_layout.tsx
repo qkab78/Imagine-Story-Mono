@@ -61,6 +61,17 @@ export default function DrawerLayout() {
               return <IconSymbol name="book.fill" {...props} />;
             },
           }} />
+          <Drawer.Screen
+            name="stories/[slug]"
+            redirect={user?.role === Role.GUEST}
+            options={{
+            title: 'Stories',
+            drawerLabel: 'Stories',
+            drawerIcon(props) {
+              return <IconSymbol name="book.fill" {...props} />;
+            },
+            drawerItemStyle: { display: 'none' },
+          }} />
         </Drawer>
       </GestureHandlerRootView>
       <StatusBar style="auto" />
