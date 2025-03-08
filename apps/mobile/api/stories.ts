@@ -1,4 +1,4 @@
-import { Stories } from '@imagine-story/api/types/db';
+import type { Stories } from '@imagine-story/api/types/db';
 
 export interface CreateStoryFormData {
   title: string;

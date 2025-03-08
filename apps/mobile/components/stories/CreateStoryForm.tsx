@@ -1,8 +1,8 @@
-import { Control, Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import useAuthStore from "@/store/auth/authStore";
 import { useMutation } from "@tanstack/react-query";
 import { Input } from "../ui/Input";
-import { createStory, CreateStoryFormData } from "@/api/stories";
+import { createStory, type CreateStoryFormData } from "@/api/stories";
 import { Button, View } from "react-native";
 import { Picker } from '@react-native-picker/picker'
 import { useRef } from "react";
@@ -29,6 +29,7 @@ export const CreatStoryForm = () => {
     { id: 18, label: 'Mythe', value: 'myth' },
     { id: 19, label: 'Légende', value: 'legend' },
   ];
+  
   const pickerRef = useRef<Picker<string> | null>(null);
   const token = useAuthStore((state) => state.token!);
   const mutation = useMutation({

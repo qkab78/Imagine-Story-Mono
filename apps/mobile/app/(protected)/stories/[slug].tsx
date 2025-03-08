@@ -1,16 +1,25 @@
 import { StyleSheet, Text, View, Image } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useLocalSearchParams } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
-import { getStoryBySlug } from '@/api/stories'
 import { ScrollView } from 'react-native-gesture-handler'
+import { getStoryBySlug } from '@/api/stories'
+import { splitChapters } from '@/utils/story.utils'
+import { useNavigation } from '@react-navigation/native'
 
 const StoryScreen = () => {
+  const navigation = useNavigation();
   const { slug } = useLocalSearchParams()
   const { data, isLoading, error } = useQuery({
     queryKey: ['story', slug],
     queryFn: () => getStoryBySlug(slug as string),
   })
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: data?.title,
+    });
+  }, [navigation, data?.title]);
 
   if (isLoading) {
     return <Text>Loading...</Text>
@@ -20,25 +29,7 @@ const StoryScreen = () => {
     return <Text>Error fetching story</Text>
   }
 
-  console.log(data);
-
-  // Fonction pour découper le texte en chapitres
-  function decouperChapitres(content: string) {
-    const chapitres = content.split(/Chapitre \d+ :/).filter(Boolean);
-    return chapitres.map((contenu) => {
-      const lignes = contenu.trim().split('\n');
-      return {
-        titre: lignes[0].trim(),
-        contenu: lignes.slice(1).join('\n').trim()
-      };
-    });
-  }
-
-  // Découpage du texte en chapitres
-  const chapters = decouperChapitres(data.content);
-
-  // Affichage des chapitres
-  console.log(chapters);
+  const chapters = splitChapters(data.content);
 
   return (
     <View>
@@ -55,11 +46,15 @@ const StoryScreen = () => {
         </View>
       </View>
 
-      <ScrollView>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ display: 'flex', flexDirection: 'row' }}
+      >
         {chapters.map((chapter, index) => (
-          <View key={index} style={{ padding: 20 }}>
+          <View key={index} style={{ padding: 20, width: 400, gap: 20 }}>
             <Text>{`Chapitre ${index + 1} : ${chapter.titre}`}</Text>
-            <Text>{chapter.contenu}</Text>
+            <Text style={{ textAlign: 'justify', lineHeight: 30, fontSize: 15 }}>{chapter.contenu}</Text>
           </View>
         ))}
       </ScrollView>
