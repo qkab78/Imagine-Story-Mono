@@ -55,7 +55,9 @@ const StoryScreen = () => {
         {chapters.map((chapter, index) => (
           <View key={index} style={{ padding: 20, width: 400, gap: 20 }}>
             <Text>{`Chapitre ${index + 1} : ${chapter.titre}`}</Text>
-            <Text style={{ textAlign: 'justify', lineHeight: 30, fontSize: 15 }}>{chapter.contenu}</Text>
+            <ScrollView>
+              <Text style={{ textAlign: 'justify', lineHeight: 30, fontSize: 15 }}>{chapter.contenu}</Text>
+            </ScrollView>
           </View>
         ))}
       </ScrollView>

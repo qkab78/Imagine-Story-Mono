@@ -1,18 +1,17 @@
 import { useForm } from "react-hook-form";
 import useAuthStore from "@/store/auth/authStore";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "../ui/Input";
 import { ALLOWED_LANGUAGES, createStory, THEMES, type CreateStoryFormData } from "@/api/stories";
 import { Button, ScrollView, View } from "react-native";
 import { Picker } from '@react-native-picker/picker'
 import { useRef } from "react";
 
-
-
 export const CreatStoryForm = () => {
   const pickerRef = useRef<Picker<string> | null>(null);
   const languagePickerRef = useRef<Picker<keyof typeof ALLOWED_LANGUAGES> | null>(null);
   const token = useAuthStore((state) => state.token!);
+  const queryClient = useQueryClient()
   const mutation = useMutation({
     mutationFn: (data: CreateStoryFormData) => createStory({ ...data, token }),
     onSuccess: () => {
@@ -33,7 +32,11 @@ export const CreatStoryForm = () => {
   });
 
   const onSubmit = async (data: CreateStoryFormData) => {
-    mutation.mutate(data);
+    mutation.mutate(data, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['stories', token] });
+      }
+    });
   };
 
 
