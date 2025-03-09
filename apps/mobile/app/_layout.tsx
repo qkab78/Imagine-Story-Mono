@@ -9,7 +9,10 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import useAuthStore from '@/store/auth/authStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTamagui,TamaguiProvider, View } from 'tamagui'
+import { defaultConfig } from '@tamagui/config/v4' // for quick config install this
 
+const config = createTamagui(defaultConfig)
 const queryClient = new QueryClient();
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -64,10 +67,12 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <TamaguiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <StackLayout />
         <StatusBar style="auto" />
       </QueryClientProvider>
+      </TamaguiProvider>
     </ThemeProvider>
   );
 }
