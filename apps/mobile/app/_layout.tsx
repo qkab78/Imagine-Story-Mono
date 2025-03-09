@@ -20,9 +20,11 @@ const StackLayout = () => {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="(protected)" options={{ headerShown: false }} />
-      <Stack.Screen name="(protected)/home" options={{ headerShown: false }} />
-      <Stack.Screen name="(protected)/stories" />
+      {/* <Stack.Screen name="(protected)" options={{ headerShown: false }} /> */}
+      {/* <Stack.Screen name="(protected)/home" options={{ headerShown: false }} />
+      <Stack.Screen name="(protected)/stories" /> */}
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)/stories" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   )
@@ -38,13 +40,14 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    const isAuthGroup = segments[0] === '(protected)';
+    const isAuthGroup = segments[0] === '(protected)' || segments[0] === '(tabs)';
     if (!token && isAuthGroup) {
       console.log('No token found, redirecting to login');
       router.replace('/');
     } else if (token) {
       console.log('Token found, redirecting to home');
-      router.replace('/(protected)/home');
+      // router.replace('/(protected)/home');
+      router.replace('/(tabs)');
     }
 
   }, [token]);
@@ -62,8 +65,8 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <QueryClientProvider client={queryClient}>
-      <StackLayout />
-      <StatusBar style="auto" />
+        <StackLayout />
+        <StatusBar style="auto" />
       </QueryClientProvider>
     </ThemeProvider>
   );
