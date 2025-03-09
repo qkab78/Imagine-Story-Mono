@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, ImageBackground } from 'react-native'
 import React, { useEffect } from 'react'
 import { useLocalSearchParams } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
@@ -34,16 +34,14 @@ const StoryScreen = () => {
 
   return (
     <View>
+      <ImageBackground
+        source={{ uri: data.cover_image }}
+        style={{ width: '100%', height: 200 }}
+      />
       <View style={{ display: 'flex' }}>
-        <View style={{ paddingHorizontal: 20 }}>
-          <Image
-            source={{ uri: data.cover_image }}
-            style={{ width: 150, height: 200 }}
-          />
-        </View>
-        <View style={{ paddingHorizontal: 20 }}>
-          <Text>Title: {data.title}</Text>
-          <Text>Synopsis: {data.synopsis}</Text>
+        <View style={{ padding: 20, gap: 10 }}>
+          <Text style={{ fontSize: 20, fontWeight: '700' }}>{data.title}</Text>
+          <Text style={{ fontSize: 15, fontWeight: '300', fontStyle: 'italic' }}>{data.synopsis}</Text>
         </View>
       </View>
 
