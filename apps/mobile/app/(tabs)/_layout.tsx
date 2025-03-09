@@ -32,20 +32,32 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
           }}
         />
-        <Tabs.Screen
-          name="settings"
-          options={{
-            title: 'Settings',
-            tabBarIcon: ({ color }) => <FontAwesome size={28} name="cog" color={color} />,
-          }}
-        />
+
+        {/* Stories */}
         <Tabs.Screen
           name="stories/[slug]"
           redirect={user?.role === Role.GUEST}
           options={{
             href: null,
             headerBackButtonDisplayMode: 'default',
-            headerLeft: ({ onPress }) => <BackButton />,
+            headerLeft: () => <BackButton />,
+          }}
+        />
+        <Tabs.Screen
+          name="stories/create"
+          redirect={user?.role === Role.GUEST}
+          options={{
+            title: 'Create story',
+            tabBarIcon: ({ color }) => <FontAwesome size={28} name="amazon" color={color} />,
+          }}
+        />
+
+        {/* Settings */}
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: 'Settings',
+            tabBarIcon: ({ color }) => <FontAwesome size={28} name="cog" color={color} />,
           }}
         />
       </Tabs >

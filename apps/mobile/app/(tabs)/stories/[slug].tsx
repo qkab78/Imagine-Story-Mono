@@ -35,13 +35,13 @@ const StoryScreen = () => {
   return (
     <View>
       <View style={{ display: 'flex' }}>
-        <View style={{ padding: 20 }}>
+        <View style={{ paddingHorizontal: 20 }}>
           <Image
             source={{ uri: data.cover_image }}
             style={{ width: 150, height: 200 }}
           />
         </View>
-        <View style={{ padding: 20 }}>
+        <View style={{ paddingHorizontal: 20 }}>
           <Text>Title: {data.title}</Text>
           <Text>Synopsis: {data.synopsis}</Text>
         </View>

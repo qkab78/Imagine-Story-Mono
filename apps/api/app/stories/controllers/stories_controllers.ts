@@ -8,11 +8,20 @@ import string from '@adonisjs/core/helpers/string'
 import app from '@adonisjs/core/services/app'
 
 import { db } from "#services/db";
-import { createStoryValidator } from "./create_story_validator.js";
+import { ALLOWED_LANGUAGES, createStoryValidator } from "./create_story_validator.js";
 import { getStoryBySlugValidator } from "./get_story_by_slug_validator.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-const chapters = parseInt(process.env.STORY_MAX_CHAPTERS || '5')
+
+interface StoryContentPayload {
+  title: string;
+  synopsis: string;
+  theme: string;
+  protagonist?: string;
+  childAge?: number;
+  numberOfChapters?: number;
+  language?: string;
+}
 
 @inject()
 export default class StoriesController {
@@ -45,20 +54,40 @@ export default class StoriesController {
   }
 
   public async createStory({ request, response, auth }: HttpContext) {
-    const { title, synopsis, theme } = await request.validateUsing(createStoryValidator);
+    const payload = await request.validateUsing(createStoryValidator);
+    const {
+      title,
+      synopsis,
+      theme,
+      protagonist,
+      childAge,
+      numberOfChapters,
+      language
+    } = payload;
+
     const user = await auth.authenticate();
 
     if (!user) {
       throw new errors.E_VALIDATION_ERROR('Invalid credentials');
     }
 
+    const chapters = numberOfChapters || 5;
+
     // Générer l'histoire avec un modèle IA
-    const storyText = await this.generateStory(title, synopsis, theme)
+    const storyText = await this.generateStory({
+      title,
+      synopsis,
+      theme,
+      protagonist,
+      childAge,
+      numberOfChapters: chapters,
+      language
+    });
 
     // Générer une image avec DALL-E
     const imageUrl = await this.generateImage(title, synopsis)
 
-    // Enregistrer en base de données
+    // // Enregistrer en base de données
     const story = await db.insertInto('stories').values({
       title,
       synopsis,
@@ -75,8 +104,17 @@ export default class StoriesController {
     return response.json(story);
   }
 
-  private async generateStory(title: string, synopsis: string, theme: string) {
-    const prompt = `Écris une histoire pour enfants intitulée "${title}", en ${chapters} chapitre et sur le thème ${theme}. ${synopsis}`
+  private async generateStory(payload: StoryContentPayload) {
+    const { title, synopsis, theme, childAge, numberOfChapters, language, protagonist } = payload;
+    const lang = ALLOWED_LANGUAGES[language as keyof typeof ALLOWED_LANGUAGES]
+    const prompt = `
+      Écris une histoire pour un enfant agé de "${childAge}" intitulée "${title}", découpée en ${numberOfChapters} chapitre et sur le thème ${theme}.
+      Fait en sorte qu'il y ait une conclusion à la fin de l'histoire.
+      Le nom du protagoniste est ${protagonist}.
+      Le synopsis est le suivant "${synopsis}".
+      Ecrit l'histoire en ${lang}.
+    `;
+
     const response = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [{ role: 'user', content: prompt }],

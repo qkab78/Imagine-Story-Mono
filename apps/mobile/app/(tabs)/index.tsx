@@ -39,7 +39,7 @@ const Tab = () => {
       <Text style={styles.title}>Latest stories</Text>
       {isLoading && <ActivityIndicator size={'large'} />}
       {isError && <Text>Error fetching stories</Text>}
-      <View>
+      <View style={{ width: '100%', paddingHorizontal: 20, paddingVertical: 40 }}>
         <FlatList
           data={stories}
           renderItem={renderStory}
