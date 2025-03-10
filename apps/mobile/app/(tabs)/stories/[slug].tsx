@@ -1,13 +1,16 @@
-import { StyleSheet, Text, View, ImageBackground } from 'react-native'
-import React, { useEffect } from 'react'
+import { ImageBackground, StyleSheet } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
-import { ScrollView } from 'react-native-gesture-handler'
+
 import { getStoryBySlug } from '@/api/stories'
 import { splitChapters } from '@/utils/story.utils'
 import { useNavigation } from '@react-navigation/native'
+import { ScrollView, Text, View, Image, YStack, H1, Paragraph, Dialog, XStack } from 'tamagui'
+import Modal from '@/components/ui/Modal'
 
 const StoryScreen = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const navigation = useNavigation();
   const { slug } = useLocalSearchParams()
   const { data, isLoading, error } = useQuery({
@@ -16,11 +19,8 @@ const StoryScreen = () => {
   })
 
   useEffect(() => {
-    navigation.setOptions({
-      title: data?.title,
-      headerBackTitle: 'Retour',
-    });
-  }, [navigation, data?.title]);
+    navigation.setOptions({ headerBackTitle: 'Retour', title: '' });
+  }, [navigation]);
 
   if (isLoading) {
     return <Text>Loading...</Text>
@@ -31,33 +31,37 @@ const StoryScreen = () => {
   }
 
   const chapters = splitChapters(data.content);
-
+  
   return (
     <View>
-      <ImageBackground
-        source={{ uri: data.cover_image }}
-        style={{ width: '100%', height: 200 }}
-      />
-      <View style={{ display: 'flex' }}>
-        <View style={{ padding: 20, gap: 10 }}>
-          <Text style={{ fontSize: 20, fontWeight: '700' }}>{data.title}</Text>
-          <Text style={{ fontSize: 15, fontWeight: '300', fontStyle: 'italic' }}>{data.synopsis}</Text>
-        </View>
-      </View>
+      <ScrollView>
+        <ImageBackground
+          source={{ uri: data.cover_image }}
+          resizeMode='cover'
+          blurRadius={10}
+        >
+          <Image source={{ uri: data.cover_image }} style={{ width: 200, height: 300, padding: 20, margin: 'auto' }} borderRadius={5} />
+        </ImageBackground>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ display: 'flex', flexDirection: 'row' }}
-      >
-        {chapters.map((chapter, index) => (
-          <View key={index} style={{ padding: 20, width: 400, gap: 20 }}>
-            <Text>{`Chapitre ${index + 1} : ${chapter.titre}`}</Text>
-            <ScrollView>
-              <Text style={{ textAlign: 'justify', lineHeight: 30, fontSize: 15 }}>{chapter.contenu}</Text>
-            </ScrollView>
-          </View>
-        ))}
+        <YStack padding={10}>
+          <H1 fontSize={20} fontWeight={'700'} style={{ textTransform: 'uppercase' }}>{data.title}</H1>
+          <Paragraph fontSize={15} fontWeight={'300'} fontStyle={'italic'}>{data.synopsis}</Paragraph>
+        </YStack>
+
+        <Modal>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {chapters.map((chapter, index) => {
+              return (
+                <XStack key={index} padding={20} gap={20} display='flex' flexDirection='column'>
+                  <Dialog.Title fontSize={20}>{`Chapitre ${index + 1} : ${chapter.titre.trim().replace(':', '')}`}</Dialog.Title>
+                  <ScrollView>
+                    <Dialog.Description width={320} textAlign='justify'>{chapter.contenu}</Dialog.Description>
+                  </ScrollView>
+                </XStack>
+              )
+            })}
+          </ScrollView>
+        </Modal>
       </ScrollView>
     </View>
   )

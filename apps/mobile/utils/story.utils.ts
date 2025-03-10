@@ -1,5 +1,5 @@
 export function splitChapters(content: string) {
-  const chapitres = content.split(/Chapitre \d+ :/).filter(Boolean);
+  const chapitres = content.split(/(?:Chapitre|Chapter) \d+:? ?/).filter(Boolean);
   return chapitres.map((contenu) => {
     const lignes = contenu.trim().split('\n');
     return {
