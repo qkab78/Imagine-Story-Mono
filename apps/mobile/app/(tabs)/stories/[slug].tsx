@@ -8,9 +8,9 @@ import { splitChapters } from '@/utils/story.utils'
 import { useNavigation } from '@react-navigation/native'
 import { ScrollView, Text, View, Image, YStack, H1, Paragraph, Dialog, XStack } from 'tamagui'
 import Modal from '@/components/ui/Modal'
+import Animated from 'react-native-reanimated'
 
 const StoryScreen = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const navigation = useNavigation();
   const { slug } = useLocalSearchParams()
   const { data, isLoading, error } = useQuery({
@@ -31,7 +31,7 @@ const StoryScreen = () => {
   }
 
   const chapters = splitChapters(data.content);
-  
+
   return (
     <View>
       <ScrollView>
@@ -40,7 +40,12 @@ const StoryScreen = () => {
           resizeMode='cover'
           blurRadius={10}
         >
-          <Image source={{ uri: data.cover_image }} style={{ width: 200, height: 300, padding: 20, margin: 'auto' }} borderRadius={5} />
+          <Animated.Image
+            source={{ uri: data.cover_image }}
+            style={{ width: 200, height: 300, padding: 20, margin: 'auto' }}
+            borderRadius={5}
+            sharedTransitionTag={`story-image-${slug}`}
+          />
         </ImageBackground>
 
         <YStack padding={10}>
