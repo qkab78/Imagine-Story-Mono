@@ -39,16 +39,7 @@ const Tab = () => {
     <View style={styles.container}>
       {isLoading && <ActivityIndicator size={'large'} />}
       {isError && <Text>Error fetching stories</Text>}
-      <ScrollView showsVerticalScrollIndicator={false} style={{ padding: 20 }}>
-        <StoryList stories={stories ?? []} />
-
-        {/* <FlatList
-          data={stories}
-          renderItem={renderStory}
-          // @ts-ignore
-          keyExtractor={item => item.id}
-        /> */}
-      </ScrollView>
+      <StoryList stories={stories ?? []} />
     </View>
   )
 }
