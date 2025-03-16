@@ -1,14 +1,13 @@
 import { ImageBackground, StyleSheet } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { useLocalSearchParams } from 'expo-router'
+import { useEffect } from 'react'
+import { Link, useLocalSearchParams } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 
 import { getStoryBySlug } from '@/api/stories'
-import { splitChapters } from '@/utils/story.utils'
 import { useNavigation } from '@react-navigation/native'
-import { ScrollView, Text, View, Image, YStack, H1, Paragraph, Dialog, XStack } from 'tamagui'
-import Modal from '@/components/ui/Modal'
+import { ScrollView, Text, View, YStack, H1, Paragraph, Button } from 'tamagui'
 import Animated from 'react-native-reanimated'
+import { BookOpen } from '@tamagui/lucide-icons'
 
 const StoryScreen = () => {
   const navigation = useNavigation();
@@ -29,8 +28,6 @@ const StoryScreen = () => {
   if (error || !data) {
     return <Text>Error fetching story</Text>
   }
-
-  const chapters = splitChapters(data.content);
 
   return (
     <View>
@@ -53,20 +50,9 @@ const StoryScreen = () => {
           <Paragraph fontSize={15} fontWeight={'300'} fontStyle={'italic'}>{data.synopsis}</Paragraph>
         </YStack>
 
-        <Modal>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {chapters.map((chapter, index) => {
-              return (
-                <XStack key={index} padding={20} gap={20} display='flex' flexDirection='column'>
-                  <Dialog.Title fontSize={20}>{`Chapitre ${index + 1} : ${chapter.titre.trim().replace(':', '')}`}</Dialog.Title>
-                  <ScrollView>
-                    <Dialog.Description width={320} textAlign='justify'>{chapter.contenu}</Dialog.Description>
-                  </ScrollView>
-                </XStack>
-              )
-            })}
-          </ScrollView>
-        </Modal>
+        <Link href={`/(tabs)/stories/${slug}/read`} asChild>
+          <Button icon={BookOpen} size={"$6"} alignSelf='center' style={{ fontSize: 20, fontWeight: '700' }}>Lire</Button>
+        </Link>
       </ScrollView>
     </View>
   )

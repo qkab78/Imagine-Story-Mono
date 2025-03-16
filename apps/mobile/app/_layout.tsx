@@ -27,6 +27,7 @@ const StackLayout = () => {
       <Stack.Screen name="(protected)/stories" /> */}
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)/stories" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)/users" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   )

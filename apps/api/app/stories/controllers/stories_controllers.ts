@@ -48,7 +48,6 @@ export default class StoriesController {
 
     // @ts-ignore
     const stories = await db.selectFrom('stories').where('user_id', '=', user.id).selectAll().execute();
-    console.log(stories);
 
     return response.json({ stories });
   }
