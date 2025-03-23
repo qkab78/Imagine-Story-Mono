@@ -1,8 +1,8 @@
-import { type Control, useController} from "react-hook-form";
+import { type Control, useController } from "react-hook-form";
 import { TextInput as RNTextInput } from "react-native";
 import type { LoginFormData } from "@/api/auth";
 import Box from "../ui/Box";
-import { Check, type LucideIcon,  X } from "lucide-react-native";
+import { Check, type LucideIcon, X } from "lucide-react-native";
 import { useTheme } from "@shopify/restyle";
 import { theme, Theme } from "@/config/theme";
 
@@ -41,6 +41,7 @@ const TextInput = ({ name, control, Icon, hasError, placeholder }: LoginFormInpu
           secureTextEntry={name === "password"}
           underlineColorAndroid="transparent"
           placeholderTextColor={color}
+          style={{ color }}
         />
       </Box>
       {isTouched && (
