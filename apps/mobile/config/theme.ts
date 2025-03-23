@@ -54,9 +54,14 @@ const theme = createTheme({
       fontFamily: 'SpaceMono-Regular',
       color: 'textPrimary',
     },
-    'form-error': {
+    formError: {
       fontSize: 14,
-    }
+    },
+    buttonLabel: {
+      fontSize: 16,
+      fontFamily: 'SpaceMono-Regular',
+      color: 'textPrimary',
+    },
   },
   borderRadii: {
     s: 4,

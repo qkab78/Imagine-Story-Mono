@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import { Button } from "react-native";
 import useAuthStore from "@/store/auth/authStore";
 import { login, LoginFormData } from "@/api/auth";
 import { useMutation } from "@tanstack/react-query";
@@ -9,6 +8,8 @@ import { Lock, Mail } from "lucide-react-native";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "../ui/TextInput";
+import Button from "../ui/Button";
+
 
 const WIDTH = 300;
 const schema = z.object({
@@ -49,14 +50,16 @@ export const LoginForm = () => {
     <Box justifyContent="center" alignItems="center" backgroundColor="mainBackground" gap={"m"}>
       <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
         <TextInput name="email" placeholder="Enter your email" control={control} Icon={Mail} hasError={!!errors.email} />
-        {errors.email && <Text variant="form-error" color="error">{errors.email.message}</Text>}
+        {errors.email && <Text variant="formError" color="error">{errors.email.message}</Text>}
       </Box>
       <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
         <TextInput name="password" placeholder="Enter your password" control={control} Icon={Lock} hasError={!!errors.password} />
-        {errors.password && <Text variant="form-error" color="error">{errors.password.message}</Text>}
+        {errors.password && <Text variant="formError" color="error">{errors.password.message}</Text>}
       </Box>
 
-      <Button title={mutation.isPending ? "Login in..." : "Login"} onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
+      <Box justifyContent="center" alignItems="center" width={WIDTH}>
+        <Button label={mutation.isPending ? "Login in..." : "Login"} onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
+      </Box>
     </Box>
   );
 }
