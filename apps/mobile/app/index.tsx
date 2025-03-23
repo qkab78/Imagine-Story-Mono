@@ -1,34 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
 import { LoginForm } from '@/components/login/LoginForm'
+import Box from '@/components/ui/Box'
+import Text from '@/components/ui/Text'
 
 const HomeScreen = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Imagine Story</Text>
-      <View style={styles.form}>
-        <LoginForm />
-      </View>
-    </View>
+    <Box flex={1} justifyContent="center" alignItems="center" backgroundColor="mainBackground" gap={"xl"}>
+      <Text variant="title">Imagine Story</Text>
+      <LoginForm />
+    </Box>
   )
 }
 
 export default HomeScreen
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'black',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 20
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white'
-  },
-  form: {
-    gap: 20
-  }
-})

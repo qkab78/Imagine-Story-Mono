@@ -1,22 +1,21 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import useAuthStore from '@/store/auth/authStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui'
 import config from '@/tamagui.config';
+import { ThemeProvider } from '@shopify/restyle';
+import { theme, darkTheme } from '@/config/theme';
 
 const queryClient = new QueryClient();
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
 
 const StackLayout = () => {
   return (
@@ -34,7 +33,7 @@ const StackLayout = () => {
 }
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [darkMode, setDarkMode] = useState(false);
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -66,7 +65,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider theme={darkMode ? darkTheme : theme}>
       <TamaguiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <StackLayout />
