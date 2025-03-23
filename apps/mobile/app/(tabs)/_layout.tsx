@@ -33,7 +33,7 @@ export default function TabLayout() {
             tabBarStyle: styles.tabBarStyle,
             tabBarActiveBackgroundColor: 'transparent',
             tabBarButton: ({ onPress }) => <Button size={"$6"} icon={House} onPress={onPress} chromeless />,
-            
+            headerShown: false,
           }}
         />
 

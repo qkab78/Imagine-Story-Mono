@@ -17,6 +17,8 @@ const StoryList = (props: StoryListProps) => {
       renderItem={({ item }) => <StoryCard key={String(item.id)} story={item} />}
       keyExtractor={item => String(item.id)}
       contentContainerStyle={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 20, paddingVertical: 20 }}
+      horizontal
+      showsHorizontalScrollIndicator={false}
     />
   )
 }
