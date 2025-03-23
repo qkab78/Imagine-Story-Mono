@@ -12,7 +12,7 @@ const Header = () => {
   const user = useAuthStore(state => state.user);
 
   return (
-    <Box style={{ marginTop: 200 }} height={HEIGHT} alignSelf={"flex-start"} width={WIDTH} paddingHorizontal={"m"}>
+    <Box height={HEIGHT} alignSelf={"flex-start"} width={WIDTH} paddingHorizontal={"m"}>
       {user && (
         <Box flexDirection={"row"} alignItems={"center"} justifyContent={"space-between"}>
           <Image

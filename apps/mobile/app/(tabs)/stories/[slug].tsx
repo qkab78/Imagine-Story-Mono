@@ -1,16 +1,21 @@
-import { ImageBackground, StyleSheet } from 'react-native'
+import { Dimensions, StyleSheet } from 'react-native'
 import { useEffect } from 'react'
-import { Link, useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 
 import { getStoryBySlug } from '@/api/stories'
 import { useNavigation } from '@react-navigation/native'
-import { ScrollView, Text, View, YStack, H1, Paragraph, Button } from 'tamagui'
+
 import Animated from 'react-native-reanimated'
-import { BookOpen } from '@tamagui/lucide-icons'
+import Box from '@/components/ui/Box'
+import Text from '@/components/ui/Text'
+import Button from '@/components/ui/Button'
+
+const { width, height } = Dimensions.get('window')
 
 const StoryScreen = () => {
   const navigation = useNavigation();
+  const router = useRouter();
   const { slug } = useLocalSearchParams()
   const { data, isLoading, error } = useQuery({
     queryKey: ['story', slug],
@@ -21,40 +26,33 @@ const StoryScreen = () => {
     navigation.setOptions({ headerBackTitle: 'Retour', title: '' });
   }, [navigation]);
 
-  if (isLoading) {
-    return <Text>Loading...</Text>
-  }
-
-  if (error || !data) {
-    return <Text>Error fetching story</Text>
+  const goToStory = () => {
+    router.navigate(`/(tabs)/stories/${slug}/read`);
   }
 
   return (
-    <View>
-      <ScrollView>
-        <ImageBackground
-          source={{ uri: data.cover_image }}
-          resizeMode='cover'
-          blurRadius={10}
-        >
+    <Box position={"relative"} height={height}>
+      {isLoading && <Text>Loading...</Text>}
+      {error && <Text>Error fetching story</Text>}
+      {!data && <Text>No story found</Text>}
+
+      {data && (
+        <>
           <Animated.Image
             source={{ uri: data.cover_image }}
-            style={{ width: 200, height: 300, padding: 20, margin: 'auto' }}
-            borderRadius={5}
-            sharedTransitionTag={`story-image-${slug}`}
+            style={{ width, height: height * 0.6 }}
           />
-        </ImageBackground>
 
-        <YStack padding={10}>
-          <H1 fontSize={20} fontWeight={'700'} style={{ textTransform: 'uppercase' }}>{data.title}</H1>
-          <Paragraph fontSize={15} fontWeight={'300'} fontStyle={'italic'}>{data.synopsis}</Paragraph>
-        </YStack>
+          <Box position={"absolute"} bottom={0} gap={"l"} width={width} borderRadius={"l"} backgroundColor={"mainBackground"} padding={"m"} height={height * 0.6}>
+            <Box gap={"l"}>
+              <Text variant={"subTitle"} textTransform={"uppercase"}>{data.title}</Text>
+              <Text variant="body">{data.synopsis}</Text>
+            </Box>
 
-        <Link href={`/(tabs)/stories/${slug}/read`} asChild>
-          <Button icon={BookOpen} size={"$6"} alignSelf='center' style={{ fontSize: 20, fontWeight: '700' }}>Lire</Button>
-        </Link>
-      </ScrollView>
-    </View>
+            <Button label='Lire' onPress={goToStory} />
+          </Box></>
+      )}
+    </Box>
   )
 }
 

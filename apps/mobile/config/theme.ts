@@ -16,7 +16,7 @@ const theme = createTheme({
   colors: {
     mainBackground: palette.white,
     primaryCardBackground: palette.black,
-    secondaryCardBackground: palette.yellow,
+    secondaryCardBackground: palette.brown,
     textPrimary: palette.black,
     textSecondary: palette.white,
     textTertiary: palette.yellow,
