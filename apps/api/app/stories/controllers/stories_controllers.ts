@@ -107,8 +107,9 @@ export default class StoriesController {
     const { title, synopsis, theme, childAge, numberOfChapters, language, protagonist } = payload;
     const lang = ALLOWED_LANGUAGES[language as keyof typeof ALLOWED_LANGUAGES]
     const prompt = `
-      Écris une histoire pour un enfant agé de "${childAge}" intitulée "${title}", découpée en ${numberOfChapters} chapitre et sur le thème ${theme}.
-      Fait en sorte qu'il y ait une conclusion à la fin de l'histoire.
+      Tu es le meilleur compteur d'histoire du monde.
+      Écris une histoire pour un enfant âgé de "${childAge}" ans, intitulée "${title}", découpée en ${numberOfChapters} chapitres et sur le thème ${theme}.
+      Écris une conclusion à la fin de l'histoire.
       Le nom du protagoniste est ${protagonist}.
       Le synopsis est le suivant "${synopsis}".
       Ecrit l'histoire en ${lang}.

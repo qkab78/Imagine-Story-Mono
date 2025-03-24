@@ -23,10 +23,10 @@ export interface CreateStoryFormData {
   synopsis: string;
   theme: string;
   token: string;
-  protagonist?: string;
-  childAge?: number;
-  numberOfChapters?: number;
-  language?: keyof typeof ALLOWED_LANGUAGES;
+  protagonist: string;
+  childAge: number;
+  numberOfChapters: number;
+  language: keyof typeof ALLOWED_LANGUAGES;
 };
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;

@@ -1,15 +1,14 @@
 import { type Control, useController } from "react-hook-form";
-import { TextInput as RNTextInput } from "react-native";
-import type { LoginFormData } from "@/api/auth";
+import { TextInput as RNTextInput, TextInputProps } from "react-native";
 import Box from "../ui/Box";
 import { Check, type LucideIcon, X } from "lucide-react-native";
 import { useTheme } from "@shopify/restyle";
 import { theme, Theme } from "@/config/theme";
 
-interface LoginFormInputProps {
-  name: "password" | "email",
+interface FormInputProps extends TextInputProps {
+  name: string,
   placeholder: string,
-  control: Control<LoginFormData>,
+  control: Control<any>,
   Icon: LucideIcon
   hasError?: boolean
   password?: boolean
@@ -20,7 +19,7 @@ const ICON_SIZE = SIZE * .75;
 const HEIGHT = SIZE * 2.5;
 const WIDTH = 300;
 
-const TextInput = ({ name, control, Icon, hasError, placeholder }: LoginFormInputProps) => {
+const TextInput = ({ name, control, Icon, hasError, placeholder }: FormInputProps) => {
   const theme = useTheme<Theme>();
   const { field, fieldState } = useController({ name, control });
   const { onChange, onBlur, value } = field
@@ -45,7 +44,7 @@ const TextInput = ({ name, control, Icon, hasError, placeholder }: LoginFormInpu
         />
       </Box>
       {isTouched && (
-        <Box height={SIZE} width={SIZE} justifyContent="center" alignItems="center" borderColor={hasError ? "error" : "success"} borderWidth={1} borderRadius={"m"}>
+        <Box height={SIZE} width={SIZE} justifyContent="center" alignItems="center" borderColor={borderColor} borderWidth={1} borderRadius={"m"}>
           {isTouched && invalid ? (
             <X color={theme.colors.error} size={ICON_SIZE} />
           ) : (
