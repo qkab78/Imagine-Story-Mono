@@ -1,7 +1,7 @@
 import vine from '@vinejs/vine'
 
 export const ALLOWED_LANGUAGES = {
-  FR: 'Français',
+  FR: 'French',
   EN: 'English',
   LI: 'Lingala',
 } as const;

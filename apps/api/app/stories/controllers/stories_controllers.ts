@@ -84,9 +84,9 @@ export default class StoriesController {
     });
 
     // Générer une image avec DALL-E
-    const imageUrl = await this.generateImage(title, synopsis)
+    const imageUrl = await this.generateImage({ title, synopsis, theme, childAge, protagonist })
 
-    // // Enregistrer en base de données
+    // Enregistrer en base de données
     const story = await db.insertInto('stories').values({
       title,
       synopsis,
@@ -107,26 +107,40 @@ export default class StoriesController {
     const { title, synopsis, theme, childAge, numberOfChapters, language, protagonist } = payload;
     const lang = ALLOWED_LANGUAGES[language as keyof typeof ALLOWED_LANGUAGES]
     const prompt = `
-      Tu es le meilleur compteur d'histoire du monde.
-      Écris une histoire pour un enfant âgé de "${childAge}" ans, intitulée "${title}", découpée en ${numberOfChapters} chapitres et sur le thème ${theme}.
-      Écris une conclusion à la fin de l'histoire.
-      Le nom du protagoniste est ${protagonist}.
-      Le synopsis est le suivant "${synopsis}".
-      Ecrit l'histoire en ${lang}.
-    `;
+      You are the best children's storyteller in the world.
 
+      Write an original story for a ${childAge}-year-old child, titled "${title}".  
+      The story must be divided into exactly ${numberOfChapters} chapters (ideally 4 or 5), each with a clear title.  
+      It should tell a complete and engaging story, with a beginning, middle, and a **clear ending**.
+
+      The main character is named ${protagonist}, a relatable child of ${childAge} years old.  
+      Here is the basic synopsis: "${synopsis}".  
+      The main theme is: ${theme}.
+
+      Use simple, vivid, age-appropriate language filled with adventure and imagination.  
+      Each chapter should be **around 100–150 words**.  
+      At the end of the last chapter, **write a proper conclusion** that wraps up the story, solves the main plot, or delivers a gentle lesson.  
+      **Make sure the final chapter ends the story completely, with no cliffhanger.**  
+      If the story is too long to fit, **shorten chapters if needed but always include the full ending.**  
+      Write the story in ${lang}.
+    `
     const response = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 500
     })
     return response.choices[0].message.content?.trim() || ''
   }
 
-  private async generateImage(title: string, synopsis: string) {
+  private async generateImage(payload: StoryContentPayload) {
+    const { title, synopsis, theme, childAge, protagonist } = payload;
     const response = await openai.images.generate({
       model: 'dall-e-3',
-      prompt: `Illustration colorée et adaptée aux enfants pour une histoire intitulée "${title}", avec comme synopsis "${synopsis}"`,
+      prompt: `A colorful and child-friendly illustration inspired by a story titled "${title}".  
+        The scene should reflect the following synopsis: ${synopsis}.  
+        Show the main character, a child around ${childAge} years old named ${protagonist}, in a setting related to the theme "${theme}".  
+        The atmosphere should be magical, warm, and imaginative, with soft lines and vibrant colors.  
+        The style should be whimsical and joyful, similar to children's book illustrations.  
+        No text, no title, just the visual scene.`,
       size: "1024x1024",
       n: 1
     })
