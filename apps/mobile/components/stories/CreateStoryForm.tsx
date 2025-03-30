@@ -22,7 +22,7 @@ const schema = z.object({
   theme: z.string().min(3),
   protagonist: z.string().min(3),
   childAge: z.number().min(3),
-  numberOfChapters: z.number().min(5),
+  numberOfChapters: z.number().min(3).max(5),
   language: z.enum(['FR', 'EN', 'LI']),
 });
 const { width } = Dimensions.get('window');

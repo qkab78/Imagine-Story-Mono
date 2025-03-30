@@ -22,6 +22,13 @@ const ITEM_WIDTH = width * 0.8
 const Categories = () => {
   const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(undefined)
   const theme = useTheme<Theme>();
+  const handleSetActiveCategory = (id: number) => {
+    if (activeCategoryId === id) {
+      setActiveCategoryId(undefined)
+      return
+    }
+    setActiveCategoryId(id)
+  }
 
   return (
     <Box flexDirection={"row"} flexWrap={"wrap"} justifyContent={"center"} gap={"m"} paddingVertical={"m"}>
@@ -32,7 +39,7 @@ const Categories = () => {
           const activeBackgroundColor = activeCategoryId === item.id ? "secondaryCardBackground" : "mainBackground"
           const activeBorderColor = activeCategoryId === item.id ? "secondaryCardBackground" : "textPrimary"
           return (
-            <TouchableOpacity onPress={() => setActiveCategoryId(item.id)}>
+            <TouchableOpacity onPress={() => handleSetActiveCategory(item.id)}>
               <Box backgroundColor={activeBackgroundColor} padding={"s"} borderRadius={"s"} opacity={0.9} width={"auto"} borderWidth={1} borderColor={activeBorderColor}>
                 <Text variant={"body"} fontSize={14}>{item.label}</Text>
               </Box>
@@ -70,7 +77,7 @@ const Tab = () => {
     queryKey: ['stories', token],
     queryFn: ({ queryKey }) => getStories(queryKey[1]),
   })
-  // Get current active story from stories store
+  // @todo: Get current active story from stories store
   const activeStory = stories?.[0]
 
   return (
@@ -79,12 +86,14 @@ const Tab = () => {
         {isLoading && <ActivityIndicator size={'large'} />}
         {isError && <Text>Error fetching stories</Text>}
         <Container>
-          <Header />
-          <Categories />
+          <Box flexDirection={'row'} paddingHorizontal={"l"} justifyContent="flex-start" alignItems="center" gap="m">
+            <Header />
+            <Categories />
+          </Box>
 
           {activeStory && <ActiveStory story={activeStory} />}
-          <Box justifyContent="center" alignItems="center" gap="m">
-            <Text variant="title">Latest stories</Text>
+          <Box justifyContent="flex-start" alignItems="flex-start" gap="m">
+            <Text variant="subTitle">Sorties récentes</Text>
             <StoryList stories={stories ?? []} />
           </Box>
         </Container>

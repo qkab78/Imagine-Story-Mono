@@ -62,6 +62,11 @@ const theme = createTheme({
       fontFamily: 'SpaceMono-Regular',
       color: 'textPrimary',
     },
+    cardTitle: {
+      fontSize: 16,
+      fontFamily: 'SpaceMono-Regular',
+      color: 'textPrimary',
+    },
   },
   borderRadii: {
     s: 4,

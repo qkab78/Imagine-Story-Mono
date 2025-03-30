@@ -10,16 +10,18 @@ import Box from './Box'
 type SliderInputProps = SliderProps & {
   name: string,
   text: string,
-  control: Control<any>
+  control: Control<any>,
+  min?: number,
+  max?: number,
 }
 
-const Slider = ({ control, name, text, ...rest }: SliderInputProps) => {
+const Slider = ({ control, name, text, min, max, ...rest }: SliderInputProps) => {
   const theme = useTheme<Theme>();
   const { field } = useController({ name, control });
 
   return (
     <Box flexDirection={"row"} justifyContent={"space-between"} alignItems={"center"} gap={"l"}>
-      <TamaguiSlider width={200} size="$4" name="childAge" step={1} min={3} max={10} onValueChange={(value) => field.onChange(value[0])} onBlur={field.onBlur} {...rest}>
+      <TamaguiSlider width={200} size="$4" name="childAge" step={1} min={min ?? 3} max={max ?? 10} onValueChange={(value) => field.onChange(value[0])} onBlur={field.onBlur} {...rest}>
         <TamaguiSlider.Track style={{ backgroundColor: theme.colors.primaryCardBackground }}>
           <TamaguiSlider.TrackActive />
         </TamaguiSlider.Track>
