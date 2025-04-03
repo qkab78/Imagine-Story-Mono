@@ -26,7 +26,9 @@ router.get('/protected-route', async ({ response }: HttpContext) => {
 // Stories
 router.group(() => {
   router.get('/', [StoriesController, 'getStories'])
-  router.get('/:slug', [StoriesController, 'getStoryBuSlug'])
+  router.get('/all/latest', [StoriesController, 'getLatestStories'])
+  router.get('/:slug', [StoriesController, 'getStoryBySlug'])
+
   router.group(() => {
     router.get('/user/me', [StoriesController, 'getStoriesByAuthenticatedUserId'])
     router.post('/', [StoriesController, 'createStory'])

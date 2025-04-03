@@ -32,7 +32,18 @@ export default class StoriesController {
     return response.json(stories);
   }
 
-  public async getStoryBuSlug({ request, response }: HttpContext) {
+  public async getLatestStories({ response }: HttpContext) {
+    const latestStories = await db.selectFrom('stories')
+    .where('public', '=', true)
+    .orderBy('created_at', 'desc')
+    .limit(5)
+    .selectAll()
+    .execute();
+
+    return response.json(latestStories);
+  }
+
+  public async getStoryBySlug({ request, response }: HttpContext) {
     const payload = await getStoryBySlugValidator.validate(request.params());
     const stories = await db.selectFrom('stories').where('slug', '=', payload.slug).selectAll().executeTakeFirst();
 
