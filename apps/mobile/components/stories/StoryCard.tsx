@@ -10,8 +10,8 @@ import Box from '../ui/Box'
 type StoryCardProps = { story: Pick<Stories, 'id' | 'slug' | 'title' | 'synopsis' | 'cover_image'> }
 
 const { width, height } = Dimensions.get('window')
-const ITEM_WIDTH = width * 0.45
-const ITEM_HEIGHT = height * 0.20
+const ITEM_WIDTH = width * 0.30
+const ITEM_HEIGHT = height * 0.15
 
 const StoryCard = (props: StoryCardProps) => {
   const { story } = props

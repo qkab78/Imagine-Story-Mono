@@ -1,6 +1,6 @@
-import { ActivityIndicator, Dimensions, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, TouchableOpacity } from 'react-native'
 import { useQuery } from '@tanstack/react-query'
-import { getStories, THEMES } from '@/api/stories'
+import { getLatestStories, getStories, THEMES } from '@/api/stories'
 import useAuthStore from '@/store/auth/authStore'
 import StoryList from '@/components/stories/StoryList'
 
@@ -12,12 +12,8 @@ import { FlatList } from 'react-native-gesture-handler'
 import { useTheme } from '@shopify/restyle'
 import { Theme } from '@/config/theme'
 import { useState } from 'react'
-import { ScrollView } from 'tamagui'
-import { Link } from 'expo-router'
-import { Stories } from '@imagine-story/api/types/db'
-
-const { width, height } = Dimensions.get('window')
-const ITEM_WIDTH = width * 0.8
+import { View, ScrollView } from 'tamagui'
+import ActiveStory from '@/components/stories/ActiveStory'
 
 const Categories = () => {
   const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(undefined)
@@ -53,26 +49,15 @@ const Categories = () => {
   )
 }
 
-type ActiveStoryProps = { story: Stories }
 
-const ActiveStory = ({ story }: ActiveStoryProps) => {
-  return (
-    <Box backgroundColor={"secondaryCardBackground"} borderRadius={"m"} opacity={0.9} width={ITEM_WIDTH} padding={"m"} justifyContent={"center"}>
-      <Text variant={"subTitle"}>{story.title}</Text>
-      <Box borderWidth={1} borderColor={"textSecondary"} borderRadius={"s"} padding={"m"} marginTop={"m"}>
-        <Link href={`/(tabs)/stories/${story.slug}`} asChild>
-          <TouchableOpacity style={{ width: "100%" }}>
-            <Text variant={"buttonLabel"} textAlign={"center"}>Continue story</Text>
-          </TouchableOpacity>
-        </Link>
-      </Box>
-    </Box>
-  )
-}
 
 const Tab = () => {
   const theme = useTheme<Theme>();
   const token = useAuthStore(state => state.token!);
+  const { data: latestStories, isLoading: isLatestStoriesLoading, isError: isLatestStoriesError } = useQuery({
+    queryKey: ['latestStories', token],
+    queryFn: ({ queryKey }) => getLatestStories(queryKey[1]),
+  })
   const { data: stories, isLoading, isError } = useQuery({
     queryKey: ['stories', token],
     queryFn: ({ queryKey }) => getStories(queryKey[1]),
@@ -81,24 +66,36 @@ const Tab = () => {
   const activeStory = stories?.[0]
 
   return (
-    <ScrollView>
-      <Box height={height} justifyContent="center" alignItems="center" gap="xl" backgroundColor={"mainBackground"}>
-        {isLoading && <ActivityIndicator size={'large'} />}
-        {isError && <Text>Error fetching stories</Text>}
-        <Container>
-          <Box flexDirection={'row'} paddingHorizontal={"l"} justifyContent="flex-start" alignItems="center" gap="m">
-            <Header />
-            <Categories />
-          </Box>
+    <View style={{ flex: 1, backgroundColor: theme.colors.mainBackground, paddingVertical: 20, paddingHorizontal: 10 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <Box justifyContent="center" alignItems="center" gap="xl">
+          <Container>
+            <Box marginTop={"xl"} flexDirection={'row'} paddingHorizontal={"l"} justifyContent="flex-start" alignItems="center" gap="m">
+              <Header />
+              <Categories />
+            </Box>
 
-          {activeStory && <ActiveStory story={activeStory} />}
-          <Box justifyContent="flex-start" alignItems="flex-start" gap="m">
-            <Text variant="subTitle">Sorties récentes</Text>
-            <StoryList stories={stories ?? []} />
-          </Box>
-        </Container>
-      </Box>
-    </ScrollView>
+            {activeStory && <ActiveStory story={activeStory} />}
+
+            <Box gap={"xl"} >
+              <Box justifyContent="flex-start" alignItems="flex-start" marginTop={"m"}>
+                {isLatestStoriesLoading && <ActivityIndicator size={'large'} />}
+                {isLatestStoriesError && <Text>Error fetching latest stories</Text>}
+                <Text variant="subTitle" style={{ fontWeight: 'bold'}}>Sorties récentes</Text>
+                <StoryList stories={latestStories ?? []} />
+              </Box>
+
+              <Box justifyContent="flex-start" alignItems="flex-start" marginTop={"l"}>
+                {isLoading && <ActivityIndicator size={'large'} />}
+                {isError && <Text>Error fetching stories</Text>}
+                <Text variant="subTitle" style={{ fontWeight: 'bold'}}>Mes histoires</Text>
+                <StoryList stories={stories ?? []} speed={0} />
+              </Box>
+            </Box>
+          </Container>
+        </Box>
+      </ScrollView>
+    </View>
   )
 }
 

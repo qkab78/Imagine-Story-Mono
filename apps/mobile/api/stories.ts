@@ -31,6 +31,36 @@ export interface CreateStoryFormData {
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
+export const getLatestStories = async(token: string) => {
+  if (!token) {
+    console.error('No token provided');
+    throw new Error('No token provided');
+  }
+  
+  const response = await fetch(`${apiUrl}/stories/all/latest`, {
+    headers: {
+      Authorization: token,
+    },
+  });
+  const stories: Stories[] = await response.json();
+  return stories;
+};
+
+export const getStoriesByAuthenticatedUserId = async(token: string) => {
+  if (!token) {
+    console.error('No token provided');
+    throw new Error('No token provided');
+  }
+  
+  const response = await fetch(`${apiUrl}/stories/user/me`, {
+    headers: {
+      Authorization: token,
+    },
+  });
+  const stories: Stories[] = await response.json();
+  return stories;
+};
+
 export const getStories = async(token: string) => {
   const response = await fetch(`${apiUrl}/stories`, {
     headers: {

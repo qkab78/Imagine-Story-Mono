@@ -48,7 +48,6 @@ export default function RootLayout() {
       router.replace('/');
     } else if (token) {
       console.log('Token found, redirecting to home');
-      // router.replace('/(protected)/home');
       router.replace('/(tabs)');
     }
 

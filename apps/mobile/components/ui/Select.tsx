@@ -7,7 +7,7 @@ import { Adapt, Select as TamaguiSelect, Sheet, YStack, SelectProps } from "tama
 type SelectInputProps = SelectProps & {
   name: string,
   placeholder: string,
-  items: Record<string, string>[],
+  items: Record<string, any>[],
   control: Control<any>,
 }
 const Select = ({ name, placeholder, items, control }: SelectInputProps) => {
