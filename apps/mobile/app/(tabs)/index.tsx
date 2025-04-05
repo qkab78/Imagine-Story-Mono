@@ -14,6 +14,7 @@ import { Theme } from '@/config/theme'
 import { useState } from 'react'
 import { View, ScrollView } from 'tamagui'
 import ActiveStory from '@/components/stories/ActiveStory'
+import useStoryStore from '@/store/stories/storyStore'
 
 const Categories = () => {
   const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(undefined)
@@ -62,8 +63,8 @@ const Tab = () => {
     queryKey: ['stories', token],
     queryFn: ({ queryKey }) => getStories(queryKey[1]),
   })
-  // @todo: Get current active story from stories store
-  const activeStory = stories?.[0]
+
+  const activeStory = useStoryStore(state => state.activeStory)
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.mainBackground, paddingVertical: 20, paddingHorizontal: 10 }}>
