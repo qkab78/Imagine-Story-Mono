@@ -2,26 +2,34 @@ import { createTheme } from "@shopify/restyle"
 
 const palette = {
   black: '#141414',
-  white: '#FAF0CA',
+  white: '#FFFFFF',
+  lemon: '#FAF0CA',
   blue: '#0D3B66',
   darkblue: '#011638',
   yellow: '#F4D35E',
   green: '#00A878',
   red: '#FF3D00',
   brown: '#EE964B',
-  orange: '#F95738',
+  tomato: '#F95738',
+  gray: '#0C0D34',
 }
 
 const theme = createTheme({
   colors: {
-    mainBackground: palette.white,
-    primaryCardBackground: palette.black,
+    mainBackground: palette.lemon,
+    primaryCardBackground: palette.white,
     secondaryCardBackground: palette.brown,
     textPrimary: palette.black,
     textSecondary: palette.white,
     textTertiary: palette.yellow,
     success: palette.green,
     error: palette.red,
+    tomato: palette.tomato,
+    white: palette.white,
+    blue: palette.blue,
+    primary: palette.blue,
+    gray: palette.gray,
+    lightGray: "rgba(191, 195, 177, 0.4)",
   },
   spacing: {
     s: 8,
