@@ -1,43 +1,17 @@
 import { LoginForm } from '@/components/login/LoginForm'
 import Dot from '@/components/Onboarding/Dot'
 import Slide, { SLIDER_HEIGHT } from '@/components/Onboarding/Slide'
+import { slides } from '@/components/Onboarding/slides'
 import SubSlide from '@/components/Onboarding/SubSlide'
 import Box from '@/components/ui/Box'
 import { theme } from '@/config/theme'
+import { router } from 'expo-router'
 import { useRef } from 'react'
 import { Dimensions, StyleSheet } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, useAnimatedScrollHandler, interpolateColor, } from 'react-native-reanimated'
 import { View } from 'tamagui'
 
-type Slide = {
-  label: string;
-  subTitle: string;
-  right: boolean;
-  color: string;
-}
-const slides: Slide[] = [
-  {
-    label: "Imaginer",
-    subTitle: "Crée des histoires magiques et personnalisées pour ton enfant, avec son prénom, son âge, ses envies… Chaque aventure est unique.",
-    right: false,
-    color: theme.colors.mainBackground
-  },
-  {
-    label: "Choisir",
-    subTitle: "Thèmes, héros, langues… Laisse ton imagination choisir et l'app s'occupe du reste. Tu es le maître de l'aventure !",
-    right: true,
-    color: theme.colors.textTertiary
-  },
-  {
-    label: "Partager",
-    subTitle: "Lis ou écoute les histoires avec ton enfant, à l'heure du coucher ou pour un moment doux. Des souvenirs magiques à créer ensemble.",
-    right: false,
-    color: theme.colors.tomato
-  },
-]
-
 const { width } = Dimensions.get('window');
-
 
 const styles = StyleSheet.create({
   slider: {
@@ -94,9 +68,12 @@ const Onboarding = () => {
     }
   })
 
-  const onPress = (index: number) => {
+  const onPress = (index: number, isLast: boolean) => {
     if (scroll.current) {
       scroll.current.scrollTo({ x: width * (index + 1), animated: true });
+    }
+    if (isLast) {
+      router.push("/login");
     }
   }
 
@@ -147,7 +124,7 @@ const Onboarding = () => {
               key={index}
               subTitle={slide.subTitle}
               isLast={index === slides.length - 1}
-              onPress={() => onPress(index)}
+              onPress={() => onPress(index, index === slides.length - 1)}
             />
             )}
           </Animated.View>

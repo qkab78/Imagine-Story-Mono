@@ -25,7 +25,7 @@ const TextInput = ({ name, control, Icon, hasError, placeholder }: FormInputProp
   const { onChange, onBlur, value } = field
   const { isTouched, invalid } = fieldState;
 
-  const borderColor = !isTouched ? "primaryCardBackground" : invalid ? "error" : "success";
+  const borderColor = !isTouched ? "black" : invalid ? "error" : "success";
   const color = theme.colors[borderColor];
 
   return (

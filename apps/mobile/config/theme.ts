@@ -30,6 +30,7 @@ const theme = createTheme({
     primary: palette.blue,
     gray: palette.gray,
     lightGray: "rgba(191, 195, 177, 0.4)",
+    black: palette.black,
   },
   spacing: {
     s: 8,
