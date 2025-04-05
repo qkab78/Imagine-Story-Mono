@@ -1,12 +1,12 @@
 import { LoginForm } from '@/components/login/LoginForm'
+import Dot from '@/components/Onboarding/Dot'
 import Slide, { SLIDER_HEIGHT } from '@/components/Onboarding/Slide'
 import SubSlide from '@/components/Onboarding/SubSlide'
 import Box from '@/components/ui/Box'
-import { theme, Theme } from '@/config/theme'
-import { useTheme } from '@shopify/restyle'
+import { theme } from '@/config/theme'
 import { useRef } from 'react'
 import { Dimensions, StyleSheet } from 'react-native'
-import Animated, { useAnimatedStyle, useSharedValue, useAnimatedScrollHandler, interpolateColor } from 'react-native-reanimated'
+import Animated, { useAnimatedStyle, useSharedValue, useAnimatedScrollHandler, interpolateColor, } from 'react-native-reanimated'
 import { View } from 'tamagui'
 
 type Slide = {
@@ -24,20 +24,20 @@ const slides: Slide[] = [
   },
   {
     label: "Choisir",
-    subTitle: "Thèmes, héros, langues… Laisse ton imagination choisir et l’app s’occupe du reste. Tu es le maître de l’aventure !",
+    subTitle: "Thèmes, héros, langues… Laisse ton imagination choisir et l'app s'occupe du reste. Tu es le maître de l'aventure !",
     right: true,
     color: theme.colors.textTertiary
   },
   {
     label: "Partager",
-    subTitle: "Lis ou écoute les histoires avec ton enfant, à l’heure du coucher ou pour un moment doux. Des souvenirs magiques à créer ensemble.",
+    subTitle: "Lis ou écoute les histoires avec ton enfant, à l'heure du coucher ou pour un moment doux. Des souvenirs magiques à créer ensemble.",
     right: false,
     color: theme.colors.tomato
   },
 ]
 
-const { width, height } = Dimensions.get('window');
-const FOOTER_TEXT_HEIGHT = height * 0.3;
+const { width } = Dimensions.get('window');
+
 
 const styles = StyleSheet.create({
   slider: {
@@ -52,24 +52,36 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: theme.borderRadii.xl,
   },
   footerContent: {
-    flexDirection: "row",
     backgroundColor: theme.colors.white,
     borderTopLeftRadius: theme.borderRadii.xl,
+    flex: 1,
+  },
+  footerContentElements: {
+    flex: 1,
+    width: width * slides.length,
+    flexDirection: "row",
+  },
+  pagination: {
+    ...StyleSheet.absoluteFillObject,
+    height: 45,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
   }
 })
 
 const Onboarding = () => {
   const scroll = useRef<Animated.ScrollView>(null);
   const scrollX = useSharedValue(0);
-
   const scrollHandler = useAnimatedScrollHandler((event) => {
-    scrollX.value = event.contentOffset.x;
+    scrollX.set(() => event.contentOffset.x)
   })
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
       backgroundColor: interpolateColor(
-        scrollX.value,
+        scrollX.get(),
         slides.map((_, index) => index * width),
         slides.map((slide) => slide.color)
       )
@@ -78,18 +90,13 @@ const Onboarding = () => {
 
   const footerContentAnimatedStyles = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: scrollX.value * -1 }],
+      transform: [{ translateX: scrollX.get() * -1 }],
     }
   })
 
   const onPress = (index: number) => {
     if (scroll.current) {
-      console.log({
-        x: width * index,
-        y: 0,
-        animated: true
-      })
-      scroll.current.scrollTo({ x: width * (index + 1), y: 0, animated: true });
+      scroll.current.scrollTo({ x: width * (index + 1), animated: true });
     }
   }
 
@@ -129,39 +136,22 @@ const Onboarding = () => {
           animatedStyles
         ]}
       >
-        {/* <Box position={"absolute"} bottom={0} left={0} right={0} top={0} backgroundColor="primaryCardBackground" borderTopLeftRadius={"xl"}></Box> */}
-        <Animated.View
-          style={[
-            {
-              ...StyleSheet.absoluteFillObject,
-            },
-            animatedStyles
-          ]}
-        />
-        <Animated.View
-          style={[
-            styles.footerContent,
-            {
-              width: width * slides.length,
-              flex: 1,
-            },
-            footerContentAnimatedStyles
-          ]}
-        >
-          {/* Bullet points */}
-          {/* <Box flexDirection={"row"} justifyContent={"center"} alignItems={"center"} gap={"s"}>
-              {slides.map((_, index) => (
-                <Box key={index} width={20} height={20} backgroundColor="mainBackground" borderRadius={"xl"} />
-              ))}
-            </Box> */}
-          {slides.map((slide, index) => <SubSlide
-            key={index}
-            subTitle={slide.subTitle}
-            scrollX={scrollX}
-            isLast={index === slides.length - 1}
-            onPress={() => onPress(index)}
-          />
-          )}
+        <Animated.View style={[{ ...StyleSheet.absoluteFillObject }, animatedStyles]} />
+        <Animated.View style={styles.footerContent}>
+          <View style={styles.pagination}>
+            {slides.map((_, index) => <Dot key={index} index={index} currentIndex={scrollX} />)}
+          </View>
+
+          <Animated.View style={[styles.footerContentElements, footerContentAnimatedStyles]}>
+            {slides.map((slide, index) => <SubSlide
+              key={index}
+              subTitle={slide.subTitle}
+              isLast={index === slides.length - 1}
+              onPress={() => onPress(index)}
+            />
+            )}
+          </Animated.View>
+
         </Animated.View>
       </Animated.View>
     </Box>
