@@ -11,7 +11,7 @@ const StoryList = (props: StoryListProps) => {
   const { stories, speed } = props
 
   return (
-    <Marquee spacing={20} speed={speed ?? .7}>
+    <Marquee spacing={20} speed={speed ?? .4}>
       <Box flexDirection={"row"} flexWrap={"wrap"} justifyContent={"center"} gap={"m"} paddingVertical={"m"}>
         {stories.map((story) => (
           <StoryCard key={String(story.id)} story={story} />

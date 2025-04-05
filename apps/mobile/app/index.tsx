@@ -4,7 +4,7 @@ import Slide, { SLIDER_HEIGHT } from '@/components/Onboarding/Slide'
 import { slides } from '@/components/Onboarding/slides'
 import SubSlide from '@/components/Onboarding/SubSlide'
 import Box from '@/components/ui/Box'
-import { theme } from '@/config/theme'
+import { Theme, theme } from '@/config/theme'
 import { router } from 'expo-router'
 import { useRef } from 'react'
 import { Dimensions, StyleSheet } from 'react-native'
@@ -57,7 +57,7 @@ const Onboarding = () => {
       backgroundColor: interpolateColor(
         scrollX.get(),
         slides.map((_, index) => index * width),
-        slides.map((slide) => slide.color)
+        slides.map((_, index) => theme.colors[slides[index].color]),
       )
     }
   })
@@ -122,6 +122,7 @@ const Onboarding = () => {
           <Animated.View style={[styles.footerContentElements, footerContentAnimatedStyles]}>
             {slides.map((slide, index) => <SubSlide
               key={index}
+              slideColor={slide.color as keyof Theme["colors"]}
               subTitle={slide.subTitle}
               isLast={index === slides.length - 1}
               onPress={() => onPress(index, index === slides.length - 1)}
