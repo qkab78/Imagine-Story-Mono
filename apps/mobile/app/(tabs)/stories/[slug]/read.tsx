@@ -3,7 +3,9 @@ import { useLocalSearchParams, useNavigation } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import { getStoryBySlug } from '@/api/stories'
 import { splitChapters } from '@/utils/story.utils'
-import { ScrollView, Text, View } from 'tamagui'
+import { Image, ScrollView, View } from 'tamagui'
+import Box from '@/components/ui/Box'
+import Text from '@/components/ui/Text'
 
 const ChapterPage = () => {
   const [chapters, setChapters] = useState<Array<{ title: string, content: string }>>([])
@@ -18,7 +20,6 @@ const ChapterPage = () => {
   })
 
   useEffect(() => {
-    navigation.setOptions({ headerBackTitle: 'Retour', title: data?.title || '' });
     scrollViewRef.current?.scrollTo({ x: 0, y: 0, animated: true });
   }, [navigation, data]);
 
@@ -31,24 +32,48 @@ const ChapterPage = () => {
   }, [data]);
 
   return (
-    <ScrollView ref={scrollViewRef} style={{ padding: 10, flex: 1, }}>
+    <ScrollView ref={scrollViewRef} style={{ flex: 1, }}>
       {isLoading && <Text>Loading...</Text>}
       {error && <Text>Error fetching story</Text>}
 
-      {chapters.map((currentChapter) => {
+      <Box justifyContent={'space-between'} alignItems={'center'} gap={'m'} marginTop={"l"}>
+        <Text variant={"title"}>{`${data?.title?.trim()}`}</Text>
+        <Image source={{ uri: data?.cover_image }} style={{ width: '100%', height: 200 }} />
+        <Box padding={"s"}>
+          {chapters.map((currentChapter) => {
+            return (
+              <View key={currentChapter.title} style={{ width: '100%', padding: 10, gap: 10 }}>
+                <Text variant={"subTitle"}>{`${currentChapter.title?.trim()}`}</Text>
+                <Text variant={"body"} style={{ fontSize: 14, lineHeight: 34, textAlign: 'justify' }}>{currentChapter.content}</Text>
+              </View>
+            )
+          })}
+
+          {conclusion && (
+            <View style={{ width: '100%', padding: 10, gap: 10 }}>
+              <Text variant={"subTitle"}>Conclusion</Text>
+              <Text variant={"body"} style={{ fontSize: 14, lineHeight: 34, textAlign: 'justify' }}>{conclusion}</Text>
+            </View>
+          )}
+        </Box>
+      </Box>
+      <Box>
+
+      </Box>
+      {/* {chapters.map((currentChapter) => {
         return (
           <View key={currentChapter.title} style={{ width: '100%', padding: 10, gap: 10 }}>
-            <Text style={{ fontSize: 20, fontWeight: '700' }}>{`${currentChapter.title?.trim()}`}</Text>
+            <Text>{`${currentChapter.title?.trim()}`}</Text>
             <Text style={{ fontSize: 18, lineHeight: 34, textAlign: 'justify' }}>{currentChapter.content}</Text>
           </View>
         )
-      })}
-      {conclusion && (
+      })} */}
+      {/* {conclusion && (
         <View style={{ width: '100%', padding: 10, gap: 10 }}>
-          <Text style={{ fontSize: 20, fontWeight: '700' }}>Conclusion</Text>
+          <Text>Conclusion</Text>
           <Text style={{ fontSize: 18, lineHeight: 34, textAlign: 'justify' }}>{conclusion}</Text>
         </View>
-      )}
+      )} */}
     </ScrollView>
   )
 }

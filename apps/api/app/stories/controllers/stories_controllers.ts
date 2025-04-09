@@ -60,7 +60,7 @@ export default class StoriesController {
     // @ts-ignore
     const stories = await db.selectFrom('stories').where('user_id', '=', user.id).selectAll().execute();
 
-    return response.json({ stories });
+    return response.json(stories);
   }
 
   public async createStory({ request, response, auth }: HttpContext) {

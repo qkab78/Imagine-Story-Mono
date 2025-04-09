@@ -10,6 +10,7 @@ import Animated from 'react-native-reanimated'
 import Box from '@/components/ui/Box'
 import Text from '@/components/ui/Text'
 import Button from '@/components/ui/Button'
+import React from 'react'
 
 const { width, height } = Dimensions.get('window')
 
@@ -49,8 +50,9 @@ const StoryScreen = () => {
               <Text variant="body">{data.synopsis}</Text>
             </Box>
 
-            <Button label='Lire' onPress={goToStory} />
-          </Box></>
+            <Button label='Lire' bgColor='primary' textColor='white' onPress={goToStory} />
+          </Box>
+        </>
       )}
     </Box>
   )

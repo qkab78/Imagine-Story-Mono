@@ -1,6 +1,6 @@
 import { ActivityIndicator, TouchableOpacity } from 'react-native'
 import { useQuery } from '@tanstack/react-query'
-import { getLatestStories, getStories, THEMES } from '@/api/stories'
+import { getLatestStories, getStories, getStoriesByAuthenticatedUserId, THEMES } from '@/api/stories'
 import useAuthStore from '@/store/auth/authStore'
 import StoryList from '@/components/stories/StoryList'
 
@@ -15,6 +15,8 @@ import { useState } from 'react'
 import { View, ScrollView } from 'tamagui'
 import ActiveStory from '@/components/stories/ActiveStory'
 import useStoryStore from '@/store/stories/storyStore'
+import { router } from 'expo-router'
+import { BookPlus } from 'lucide-react-native'
 
 const Categories = () => {
   const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(undefined)
@@ -59,9 +61,9 @@ const Tab = () => {
     queryKey: ['latestStories', token],
     queryFn: ({ queryKey }) => getLatestStories(queryKey[1]),
   })
-  const { data: stories, isLoading, isError } = useQuery({
+  const { data: authenticatedUserStories, isLoading: isAuthenticatedUserStoriesLoading, isError: isAuthenticatedUserStoriesError } = useQuery({
     queryKey: ['stories', token],
-    queryFn: ({ queryKey }) => getStories(queryKey[1]),
+    queryFn: ({ queryKey }) => getStoriesByAuthenticatedUserId(queryKey[1]),
   })
 
   const activeStory = useStoryStore(state => state.activeStory)
@@ -82,15 +84,22 @@ const Tab = () => {
               <Box justifyContent="flex-start" alignItems="flex-start" marginTop={"m"}>
                 {isLatestStoriesLoading && <ActivityIndicator size={'large'} />}
                 {isLatestStoriesError && <Text>Error fetching latest stories</Text>}
-                <Text variant="subTitle" style={{ fontWeight: 'bold'}}>Sorties récentes</Text>
+                <Text variant="subTitle" style={{ fontWeight: 'bold' }}>Sorties récentes</Text>
                 <StoryList stories={latestStories ?? []} />
               </Box>
 
               <Box justifyContent="flex-start" alignItems="flex-start" marginTop={"l"}>
-                {isLoading && <ActivityIndicator size={'large'} />}
-                {isError && <Text>Error fetching stories</Text>}
-                <Text variant="subTitle" style={{ fontWeight: 'bold'}}>Mes histoires</Text>
-                <StoryList stories={stories ?? []} speed={0} />
+                {isAuthenticatedUserStoriesLoading && <ActivityIndicator size={'large'} />}
+                {isAuthenticatedUserStoriesError && <Text>Error fetching stories</Text>}
+                <Text variant="subTitle" style={{ fontWeight: 'bold' }}>Mes histoires</Text>
+                {authenticatedUserStories?.length === 0 ? (
+                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, backgroundColor: theme.colors.primary, borderColor: theme.colors.primary, padding: 10, borderRadius: 10, marginTop: 10 }} onPress={() => router.push('/(tabs)/stories/create')}>
+                    <BookPlus size={24} color={theme.colors.white} />
+                    <Text variant="body" color={"white"}>Créer une histoire</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <StoryList stories={authenticatedUserStories ?? []} speed={0} />
+                )}
               </Box>
             </Box>
           </Container>

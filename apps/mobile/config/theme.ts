@@ -49,12 +49,12 @@ const theme = createTheme({
   textVariants: {
     title: {
       fontSize: 32,
-      fontFamily: 'SpaceMono-Regular',
+      fontFamily: 'SpaceMono-Bold',
       color: 'textPrimary',
     },
     subTitle: {
       fontSize: 24,
-      fontFamily: 'SpaceMono-Regular',
+      fontFamily: 'SpaceMono-Bold',
       color: 'textPrimary',
     },
     body: {
@@ -72,7 +72,7 @@ const theme = createTheme({
     },
     buttonLabel: {
       fontSize: 16,
-      fontFamily: 'SpaceMono-Regular',
+      fontFamily: 'SpaceMono-Bold',
       color: 'textPrimary',
     },
     cardTitle: {
