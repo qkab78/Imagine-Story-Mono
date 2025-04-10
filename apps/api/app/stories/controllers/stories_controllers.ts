@@ -10,6 +10,7 @@ import app from '@adonisjs/core/services/app'
 import { db } from "#services/db";
 import { ALLOWED_LANGUAGES, createStoryValidator } from "./create_story_validator.js";
 import { getStoryBySlugValidator } from "./get_story_by_slug_validator.js";
+import { getSuggestedStoriesValidator } from "./get_suggested_stories_validator.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -59,6 +60,19 @@ export default class StoriesController {
 
     // @ts-ignore
     const stories = await db.selectFrom('stories').where('user_id', '=', user.id).selectAll().execute();
+
+    return response.json(stories);
+  }
+
+  public async getSuggestedStories({ request, response, auth }: HttpContext) {
+    const user = await auth.authenticate();
+    if (!user) {
+      throw new errors.E_VALIDATION_ERROR('Invalid credentials');
+    }
+
+    const payload = await getSuggestedStoriesValidator.validate(request.qs());
+
+    const stories = await db.selectFrom('stories').where('title', 'like', `${payload.query}%`).limit(50).select(['id', 'title', 'slug', 'cover_image']).execute();
 
     return response.json(stories);
   }

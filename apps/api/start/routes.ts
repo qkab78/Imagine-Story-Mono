@@ -28,7 +28,7 @@ router.group(() => {
   router.get('/', [StoriesController, 'getStories'])
   router.get('/all/latest', [StoriesController, 'getLatestStories'])
   router.get('/:slug', [StoriesController, 'getStoryBySlug'])
-
+  router.get('/search/suggestions', [StoriesController, 'getSuggestedStories'])
   router.group(() => {
     router.get('/user/me', [StoriesController, 'getStoriesByAuthenticatedUserId'])
     router.post('/', [StoriesController, 'createStory'])
