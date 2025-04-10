@@ -5,7 +5,7 @@ type LoginResponse = { token: string, user: { id: number, email: string, fullnam
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const loginUrl = `${apiUrl}/auth/login`;
-
+const logoutUrl = `${apiUrl}/auth/logout`;
 
 export const login = async (payload: LoginFormData) => {
   const response = await fetch(loginUrl, {
@@ -19,4 +19,14 @@ export const login = async (payload: LoginFormData) => {
   const result: LoginResponse = await response.json();
 
   return result;
+};
+
+export const logout = async (token: string) => {
+  return fetch(logoutUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': token,
+    },
+  });
 };

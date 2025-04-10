@@ -1,17 +1,38 @@
-
+import { useRouter } from 'expo-router'
 import React from 'react'
 import useAuthStore from '@/store/auth/authStore'
-import { Button, H3, ScrollView, Text, View, YStack } from 'tamagui'
-import { ShoppingBag } from '@tamagui/lucide-icons'
+import { H3, Text, View, YStack } from 'tamagui'
+
+import { logout } from '@/api/auth'
+import { useMutation } from '@tanstack/react-query'
+import Button from '@/components/ui/Button'
+import { ShoppingBag } from 'lucide-react-native'
+import Box from '@/components/ui/Box'
+import { Dimensions } from 'react-native'
+
+const { width } = Dimensions.get("window")
+const WIDTH = width * .5; 
 
 const UserProfilePage = () => {
-  const { user } = useAuthStore()
+  const { user, token } = useAuthStore()
+  const router = useRouter()
+  const mutation = useMutation({
+    mutationFn: () => logout(token!),
+    onSuccess: () => {
+      router.replace('/login')
+    }
+  })
 
   const handleUserSubscriptionUpgrade = () => {
     alert('Upgrade user subscription')
   }
+
+  const handleLogout = () => {
+    mutation.mutate()
+  }
+
   return (
-    <ScrollView flex={1} padding={20}>
+    <Box flex={1} padding={"l"} gap={"l"}>
       <YStack gap={20} display='flex' flexDirection='row' flexWrap='wrap' justifyContent='flex-start'>
         <View gap={10}>
           <H3>Informations</H3>
@@ -31,10 +52,14 @@ const UserProfilePage = () => {
         <View gap={10}>
           <H3>Abonnement</H3>
           <Text>Free</Text>
-          <Button onPress={handleUserSubscriptionUpgrade} icon={ShoppingBag}>Upgrade</Button>
+          <Button label='Upgrade' bgColor='yellow' onPress={handleUserSubscriptionUpgrade} Icon={ShoppingBag} />
         </View>
       </YStack>
-    </ScrollView>
+
+      <Box justifyContent="center" alignItems="center" width={WIDTH}>
+        <Button label='Logout' onPress={handleLogout} bgColor='tomato' />
+      </Box>
+    </Box>
   )
 }
 
