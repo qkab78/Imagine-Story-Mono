@@ -84,7 +84,7 @@ const Search = () => {
           <FlatList
             data={searchSuggestions}
             renderItem={({ item }) => (
-              <Link href={`/search/stories/${item.slug}`} asChild>
+              <Link href={`/stories/${item.slug}`} asChild>
                 <TouchableOpacity style={{ marginBottom: 10 }}>
                   <Box flexDirection={"row"} alignItems="center" gap={"s"}>
                     <Image source={{ uri: item.cover_image }} style={styles.image} />

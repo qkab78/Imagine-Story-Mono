@@ -1,4 +1,4 @@
-import { ActivityIndicator, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native'
 import { useQuery } from '@tanstack/react-query'
 import { getLatestStories, getStories, getStoriesByAuthenticatedUserId, THEMES } from '@/api/stories'
 import useAuthStore from '@/store/auth/authStore'
@@ -10,7 +10,7 @@ import Container from '@/components/ui/Container'
 import Header from '@/components/ui/Header'
 import { FlatList } from 'react-native-gesture-handler'
 import { useTheme } from '@shopify/restyle'
-import { Theme } from '@/config/theme'
+import { theme, Theme } from '@/config/theme'
 import { useState } from 'react'
 import { View, ScrollView } from 'tamagui'
 import ActiveStory from '@/components/stories/ActiveStory'
@@ -73,7 +73,7 @@ const Tab = () => {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Box justifyContent="center" alignItems="center" gap="xl">
           <Container>
-            <Box marginTop={"xl"} justifyContent="flex-start"  gap="m">
+            <Box marginTop={"xl"} justifyContent="flex-start" gap="m">
               <Header />
               <Categories />
             </Box>
@@ -93,7 +93,10 @@ const Tab = () => {
                 {isAuthenticatedUserStoriesError && <Text>Error fetching stories</Text>}
                 <Text variant="subTitle" style={{ fontWeight: 'bold' }}>Mes histoires</Text>
                 {authenticatedUserStories?.length === 0 ? (
-                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, backgroundColor: theme.colors.primary, borderColor: theme.colors.primary, padding: 10, borderRadius: 10, marginTop: 10 }} onPress={() => router.push('/(tabs)/stories/create')}>
+                  <TouchableOpacity
+                    style={styles.createStoryButton}
+                    onPress={() => router.push('/stories/create')}
+                  >
                     <BookPlus size={24} color={theme.colors.white} />
                     <Text variant="body" color={"white"}>Créer une histoire</Text>
                   </TouchableOpacity>
@@ -109,4 +112,17 @@ const Tab = () => {
   )
 }
 
+const styles = StyleSheet.create({
+  createStoryButton: { 
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderWidth: 1,
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 10
+  }
+})
 export default Tab

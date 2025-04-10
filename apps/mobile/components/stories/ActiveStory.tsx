@@ -15,7 +15,7 @@ const ActiveStory = ({ story }: ActiveStoryProps) => {
     <Box backgroundColor={"secondaryCardBackground"} borderRadius={"m"} opacity={0.9} width={ITEM_WIDTH} padding={"m"} justifyContent={"center"}>
       <Text variant={"subTitle"}>{story.title}</Text>
       <Box borderWidth={1} borderColor={"textSecondary"} borderRadius={"s"} padding={"m"} marginTop={"m"}>
-        <Link href={`/(tabs)/stories/${story.slug}`} asChild>
+        <Link href={`/stories/${story.slug}`} asChild>
           <TouchableOpacity style={{ width: "100%" }}>
             <Text variant={"buttonLabel"} textAlign={"center"}>Continue story</Text>
           </TouchableOpacity>

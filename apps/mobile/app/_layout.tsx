@@ -21,28 +21,24 @@ SplashScreen.preventAutoHideAsync();
 const defaultScreenOptions: NativeStackNavigationOptions = {
   headerShown: false,
   headerTintColor: theme.colors.textPrimary,
-  title: ''
 }
+
 const StackLayout = () => {
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={defaultScreenOptions} />
-      <Stack.Screen name="(tabs)/stories" options={defaultScreenOptions} />
       <Stack.Screen name="(tabs)/users" options={defaultScreenOptions} />
 
       <Stack.Screen name="index" options={defaultScreenOptions} />
       <Stack.Screen name="login/index" options={defaultScreenOptions} />
       <Stack.Screen name="register/index" options={{ ...defaultScreenOptions, headerShown: true }} />
-      {/* <Stack.Screen name="(protected)" options={{ headerShown: false }} /> */}
-      {/* <Stack.Screen name="(protected)/home" options={{ headerShown: false }} />
-      <Stack.Screen name="(protected)/stories" /> */}
 
       <Stack.Screen name="search/index" options={defaultScreenOptions} />
-      <Stack.Screen
-        name="search/stories/[slug]/index"
-        options={defaultScreenOptions}
-      />
-      <Stack.Screen name="search/stories/[slug]/read" options={defaultScreenOptions} />
+
+      <Stack.Screen name="stories" options={defaultScreenOptions} />
+      <Stack.Screen name="stories/create" options={defaultScreenOptions} />
+      <Stack.Screen name="stories/[slug]" options={defaultScreenOptions} />
+      <Stack.Screen name="stories/[slug]/read" options={defaultScreenOptions} />
       <Stack.Screen name="+not-found" />
     </Stack>
   )

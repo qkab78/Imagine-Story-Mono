@@ -18,7 +18,7 @@ const StoryCard = (props: StoryCardProps) => {
   const { title, cover_image, slug, id } = story
 
   return (
-    <Link href={`/(tabs)/stories/${slug}`} asChild>
+    <Link href={`/stories/${slug}`} asChild>
       <Card
         width={ITEM_WIDTH}
         height={ITEM_HEIGHT}

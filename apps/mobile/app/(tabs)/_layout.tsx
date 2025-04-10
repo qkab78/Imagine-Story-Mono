@@ -44,25 +44,6 @@ export default function TabLayout() {
           }}
         />
 
-        {/* Stories */}
-        <Tabs.Screen
-          name="stories/[slug]/index"
-          redirect={user?.role === Role.GUEST}
-          options={{
-            href: null,
-            headerShown: false,
-          }}
-        />
-        {/* Stories */}
-        <Tabs.Screen
-          name="stories/[slug]/read"
-          redirect={user?.role === Role.GUEST}
-          options={{
-            ...defaultScreenOptions,
-            headerShown: false,
-            href: null,
-          }}
-        />
         <Tabs.Screen
           name="stories/create"
           redirect={user?.role === Role.GUEST}
@@ -70,11 +51,9 @@ export default function TabLayout() {
             tabBarStyle: styles.tabBarStyle,
             tabBarActiveBackgroundColor: 'transparent',
             tabBarButton: ({ onPress }) => <Button onPress={onPress} size={"$6"} icon={SquarePen} chromeless />,
-            title: '',
-            headerLeft: () => <BackButton />,
+            headerShown: false,
           }}
         />
-
 
         <Tabs.Screen
           name="users/profile"
