@@ -1,6 +1,6 @@
-import { Dimensions, StyleSheet } from 'react-native'
+import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native'
 import { useEffect } from 'react'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 
 import { getStoryBySlug } from '@/api/stories'
@@ -9,14 +9,17 @@ import { useNavigation } from '@react-navigation/native'
 import Animated from 'react-native-reanimated'
 import Box from '@/components/ui/Box'
 import Text from '@/components/ui/Text'
-import Button from '@/components/ui/Button'
 import React from 'react'
+import { CircleX } from 'lucide-react-native'
+import { useTheme } from '@shopify/restyle'
+import { Theme } from '@/config/theme'
 
 const { width, height } = Dimensions.get('window')
 
-const StoryScreen = () => {
+const StoryModal = () => {
   const navigation = useNavigation();
   const router = useRouter();
+  const theme = useTheme<Theme>();
   const { slug } = useLocalSearchParams()
   const { data, isLoading, error } = useQuery({
     queryKey: ['story', slug],
@@ -27,12 +30,14 @@ const StoryScreen = () => {
     navigation.setOptions({ headerBackTitle: 'Retour', title: '' });
   }, [navigation]);
 
-  const goToStory = () => {
-    router.navigate(`/(tabs)/stories/${slug}/read`);
-  }
-
   return (
     <Box position={"relative"} height={height}>
+      <CircleX
+        size={24}
+        color={theme.colors.black}
+        onPress={() => router.back()}
+        style={{ position: 'absolute', top: 50, right: 20, zIndex: 1000 }}
+      />
       {isLoading && <Text>Loading...</Text>}
       {error && <Text>Error fetching story</Text>}
       {!data && <Text>No story found</Text>}
@@ -50,7 +55,11 @@ const StoryScreen = () => {
               <Text variant="body">{data.synopsis}</Text>
             </Box>
 
-            <Button label='Lire' bgColor='primary' textColor='white' onPress={goToStory} />
+            <Link href={`/search/stories/${slug}/read`} asChild>
+              <TouchableOpacity style={{ backgroundColor: theme.colors.primary, padding: 10, borderRadius: 10 }}>
+                <Text variant="body" textTransform={"uppercase"} color={"white"} textAlign={"center"}>Lire</Text>
+              </TouchableOpacity>
+            </Link>
           </Box>
         </>
       )}
@@ -58,6 +67,6 @@ const StoryScreen = () => {
   )
 }
 
-export default StoryScreen
+export default StoryModal
 
 const styles = StyleSheet.create({})

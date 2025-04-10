@@ -79,8 +79,6 @@ const Onboarding = () => {
 
   return (
     <Box flex={1} backgroundColor={"primaryCardBackground"}>
-      {/* <Text variant="title">Imagine Story</Text>
-      <LoginForm /> */}
       {/* Slider */}
       <Animated.View
         style={[

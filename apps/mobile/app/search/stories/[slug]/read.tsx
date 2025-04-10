@@ -3,9 +3,11 @@ import { useLocalSearchParams, useNavigation } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import { getStoryBySlug } from '@/api/stories'
 import { splitChapters } from '@/utils/story.utils'
-import { ScrollView, Dimensions, StyleSheet } from 'react-native'
-import Text from '@/components/ui/Text'
+import { ScrollView, StyleSheet, ActivityIndicator, Dimensions } from 'react-native'
+import { theme } from '@/config/theme'
 import ReadStory from '@/components/stories/ReadStory'
+import Text from '@/components/ui/Text'
+
 
 const { width, height } = Dimensions.get('window');
 const HEADER_HEIGHT = height * 0.07;
@@ -15,7 +17,7 @@ const styles = StyleSheet.create({
     width,
     alignSelf: "center",
     position: "relative",
-  }
+  },
 })
 
 const ChapterPage = () => {
@@ -44,8 +46,10 @@ const ChapterPage = () => {
 
   return (
     <ScrollView ref={scrollViewRef} style={styles.container}>
-      {isLoading && <Text>Loading...</Text>}
+      {isLoading && <ActivityIndicator size="large" color={theme.colors.primary} />}
       {error && <Text>Error fetching story</Text>}
+      {!data && <Text>No story found</Text>}
+
       {data && (
         <ReadStory story={data} chapters={chapters} conclusion={conclusion} />
       )}

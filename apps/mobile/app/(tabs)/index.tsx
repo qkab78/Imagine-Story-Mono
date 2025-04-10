@@ -62,7 +62,7 @@ const Tab = () => {
     queryFn: ({ queryKey }) => getLatestStories(queryKey[1]),
   })
   const { data: authenticatedUserStories, isLoading: isAuthenticatedUserStoriesLoading, isError: isAuthenticatedUserStoriesError } = useQuery({
-    queryKey: ['stories', token],
+    queryKey: ['authenticatedUserStories', token],
     queryFn: ({ queryKey }) => getStoriesByAuthenticatedUserId(queryKey[1]),
   })
 
@@ -73,7 +73,7 @@ const Tab = () => {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Box justifyContent="center" alignItems="center" gap="xl">
           <Container>
-            <Box marginTop={"xl"} flexDirection={'row'} paddingHorizontal={"l"} justifyContent="flex-start" alignItems="center" gap="m">
+            <Box marginTop={"xl"} justifyContent="flex-start"  gap="m">
               <Header />
               <Categories />
             </Box>

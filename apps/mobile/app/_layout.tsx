@@ -4,30 +4,45 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments, } from 'expo-router';
 import useAuthStore from '@/store/auth/authStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui'
 import config from '@/tamagui.config';
 import { ThemeProvider } from '@shopify/restyle';
 import { theme, darkTheme } from '@/config/theme';
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 const queryClient = new QueryClient();
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+const defaultScreenOptions: NativeStackNavigationOptions = {
+  headerShown: false,
+  headerTintColor: theme.colors.textPrimary,
+  title: ''
+}
 const StackLayout = () => {
   return (
     <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="login/index" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={defaultScreenOptions} />
+      <Stack.Screen name="(tabs)/stories" options={defaultScreenOptions} />
+      <Stack.Screen name="(tabs)/users" options={defaultScreenOptions} />
+
+      <Stack.Screen name="index" options={defaultScreenOptions} />
+      <Stack.Screen name="login/index" options={defaultScreenOptions} />
+      <Stack.Screen name="register/index" options={{ ...defaultScreenOptions, headerShown: true }} />
       {/* <Stack.Screen name="(protected)" options={{ headerShown: false }} /> */}
       {/* <Stack.Screen name="(protected)/home" options={{ headerShown: false }} />
       <Stack.Screen name="(protected)/stories" /> */}
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)/stories" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)/users" options={{ headerShown: false }} />
+
+      <Stack.Screen name="search/index" options={defaultScreenOptions} />
+      <Stack.Screen
+        name="search/stories/[slug]/index"
+        options={defaultScreenOptions}
+      />
+      <Stack.Screen name="search/stories/[slug]/read" options={defaultScreenOptions} />
       <Stack.Screen name="+not-found" />
     </Stack>
   )
@@ -36,7 +51,10 @@ const StackLayout = () => {
 export default function RootLayout() {
   const [darkMode, setDarkMode] = useState(false);
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMonoRegular: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMonoBold: require('../assets/fonts/SpaceMono-Bold.ttf'),
+    SpaceMonoItalic: require('../assets/fonts/SpaceMono-Italic.ttf'),
+    SpaceMonoBoldItalic: require('../assets/fonts/SpaceMono-BoldItalic.ttf'),
   });
   const token = useAuthStore(state => state.token);
   const segments = useSegments();

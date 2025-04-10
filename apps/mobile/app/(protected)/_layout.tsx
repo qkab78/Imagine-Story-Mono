@@ -19,7 +19,10 @@ SplashScreen.preventAutoHideAsync();
 export default function DrawerLayout() {
   const [darkMode, setDarkMode] = useState(false);
   const [loaded] = useFonts({
-    SpaceMono: require('../../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMonoRegular: require('../../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMonoBold: require('../../assets/fonts/SpaceMono-Bold.ttf'),
+    SpaceMonoItalic: require('../../assets/fonts/SpaceMono-Italic.ttf'),
+    SpaceMonoBoldItalic: require('../../assets/fonts/SpaceMono-BoldItalic.ttf'),
   });
   const user = useAuthStore(state => state.user);
   const theme = useTheme<Theme>();

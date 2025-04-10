@@ -6,7 +6,9 @@ import { CircleUserRound, Cog, House, SquarePen } from "@tamagui/lucide-icons";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Button } from "tamagui";
-
+import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
+import { useTheme } from "@shopify/restyle";
+import { Theme } from "@/config/theme";
 const BackButton = () => {
   const router = useRouter();
 
@@ -21,9 +23,14 @@ const BackButton = () => {
 
   )
 }
+
+const defaultScreenOptions: BottomTabNavigationOptions = {
+  title: '',
+}
+
 export default function TabLayout() {
   const user = useAuthStore(state => state.user);
-
+  const theme = useTheme<Theme>();
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Tabs screenOptions={{ tabBarActiveTintColor: 'blue', animation: 'shift' }}>
@@ -31,7 +38,7 @@ export default function TabLayout() {
           name="index"
           options={{
             tabBarStyle: styles.tabBarStyle,
-            tabBarActiveBackgroundColor: 'transparent',
+            tabBarActiveTintColor: theme.colors.primary,
             tabBarButton: ({ onPress }) => <Button size={"$6"} icon={House} onPress={onPress} chromeless />,
             headerShown: false,
           }}
@@ -39,12 +46,11 @@ export default function TabLayout() {
 
         {/* Stories */}
         <Tabs.Screen
-          name="stories/[slug]"
+          name="stories/[slug]/index"
           redirect={user?.role === Role.GUEST}
           options={{
             href: null,
-            headerBackButtonDisplayMode: 'default',
-            headerLeft: () => <BackButton />,
+            headerShown: false,
           }}
         />
         {/* Stories */}
@@ -52,9 +58,9 @@ export default function TabLayout() {
           name="stories/[slug]/read"
           redirect={user?.role === Role.GUEST}
           options={{
+            ...defaultScreenOptions,
+            headerShown: false,
             href: null,
-            headerBackButtonDisplayMode: 'default',
-            headerLeft: () => <BackButton />,
           }}
         />
         <Tabs.Screen

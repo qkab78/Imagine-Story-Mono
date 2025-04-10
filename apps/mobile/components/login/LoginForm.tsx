@@ -9,9 +9,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "../ui/TextInput";
 import Button from "../ui/Button";
+import { Link } from "expo-router";
+import { Dimensions } from "react-native";
 
 
-const WIDTH = 300;
+const { width } = Dimensions.get("window")  
+
+const WIDTH = width * 0.8;
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -47,18 +51,27 @@ export const LoginForm = () => {
 
 
   return (
-    <Box justifyContent="center" alignItems="center" backgroundColor="mainBackground" gap={"m"}>
+    <Box justifyContent="center" alignItems="center" gap={"m"}>
       <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
+        <Text variant="buttonLabel">Email</Text>
         <TextInput name="email" placeholder="Enter your email" control={control} Icon={Mail} hasError={!!errors.email} />
         {errors.email && <Text variant="formError" color="error">{errors.email.message}</Text>}
       </Box>
       <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
+        <Text variant="buttonLabel">Password</Text>
         <TextInput name="password" placeholder="Enter your password" control={control} Icon={Lock} hasError={!!errors.password} />
         {errors.password && <Text variant="formError" color="error">{errors.password.message}</Text>}
       </Box>
 
       <Box justifyContent="center" alignItems="center" width={WIDTH}>
-        <Button label={mutation.isPending ? "Login in..." : "Login"} onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
+        <Button bgColor="blue" textColor="black" label={mutation.isPending ? "Login in..." : "Login"} onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
+      </Box>
+      <Box justifyContent="center" alignItems="center" width={WIDTH}>
+        <Text variant="body" color="textPrimary">{"Don't have an account? "}
+          <Link href={"/register"} asChild>
+            <Text variant="body" color="primary">Register</Text>
+          </Link>
+        </Text>
       </Box>
     </Box>
   );

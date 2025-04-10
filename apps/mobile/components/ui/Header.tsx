@@ -1,12 +1,10 @@
-import { Dimensions, Image } from 'react-native'
+import { TouchableOpacity } from 'react-native'
 import useAuthStore from '@/store/auth/authStore'
 import Box from '@/components/ui/Box'
 import { theme } from '@/config/theme'
 import Text from './Text'
-
-const SIZE = 50
-const HEIGHT = theme.borderRadii.l * 2
-const WIDTH = Dimensions.get('window').width
+import { Search } from 'lucide-react-native'
+import { Link } from 'expo-router'
 
 const Header = () => {
   const user = useAuthStore(state => state.user);
@@ -14,11 +12,21 @@ const Header = () => {
   return (
     <Box>
       {user && (
-        <Box flexDirection={"row"} alignItems={"center"} justifyContent={"space-between"}>
-          <Image
-            source={{ uri: user.avatar || "https://images.unsplash.com/photo-1497124401559-3e75ec2ed794?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" }}
-            style={{ width: SIZE, height: SIZE, borderRadius: SIZE }}
-          />
+        <Box justifyContent={"space-between"} gap={"m"}>
+          <Box flexDirection={"row"} justifyContent={"space-between"} alignItems={"center"}>
+            <Text variant={"body"} fontSize={14}>Hello {user.fullname.split(' ')[0]}</Text>
+            <Link href={"/search"} asChild>
+              <TouchableOpacity>
+                <Search color={theme.colors.textPrimary} />
+              </TouchableOpacity>
+            </Link>
+          </Box>
+
+          <Box gap={"s"}>
+            <Text variant={"body"} style={{ fontSize: 16 }}>
+              Imagine, Write, Share your stories
+            </Text>
+          </Box>
         </Box>
       )}
     </Box>

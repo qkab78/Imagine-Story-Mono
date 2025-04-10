@@ -71,10 +71,14 @@ export const getStories = async(token: string) => {
   return stories;
 };
 
-export const getStoryBySlug = async(slug: string) => {
-  const response = await fetch(`${apiUrl}/stories/${slug}`);
-  const story: Stories = await response.json();
-  return story;
+export const getSuggestedStories = async(token: string, query: string) => {
+  const response = await fetch(`${apiUrl}/stories/search/suggestions?query=${query}`, {
+    headers: {
+      Authorization: token,
+    },
+  });
+  const stories: Pick<Stories, 'id' | 'title' | 'slug' | 'cover_image'>[] = await response.json();
+  return stories;
 };
 
 export const createStory = async(payload: CreateStoryFormData) => {
@@ -88,4 +92,10 @@ export const createStory = async(payload: CreateStoryFormData) => {
   });
   const createdStory: Stories = await response.json();
   return createdStory;
+};
+
+export const getStoryBySlug = async(slug: string) => {
+  const response = await fetch(`${apiUrl}/stories/${slug}`);
+  const story: Stories = await response.json();
+  return story;
 };
