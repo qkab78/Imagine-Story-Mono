@@ -11,7 +11,7 @@ import TextInput from "../ui/TextInput";
 import Button from "../ui/Button";
 import { Link } from "expo-router";
 import { Dimensions } from "react-native";
-
+import { useMMKVString } from "react-native-mmkv";
 
 const { width } = Dimensions.get("window")  
 
@@ -25,6 +25,8 @@ const schema = z.object({
 
 export const LoginForm = () => {
   const { setToken, setUser } = useAuthStore((state) => state);
+  const [, setUserToken] = useMMKVString('user.token');
+  
   const mutation = useMutation({
     mutationFn: (data: LoginFormData) => login(data),
     onSuccess: (data) => {
@@ -33,6 +35,7 @@ export const LoginForm = () => {
       }
       setToken(data.token);
       setUser(data.user);
+      setUserToken(data.token);
     }
   })
 

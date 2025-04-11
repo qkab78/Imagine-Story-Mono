@@ -60,10 +60,12 @@ const Tab = () => {
   const { data: latestStories, isLoading: isLatestStoriesLoading, isError: isLatestStoriesError } = useQuery({
     queryKey: ['latestStories', token],
     queryFn: ({ queryKey }) => getLatestStories(queryKey[1]),
+    enabled: token !== undefined,
   })
   const { data: authenticatedUserStories, isLoading: isAuthenticatedUserStoriesLoading, isError: isAuthenticatedUserStoriesError } = useQuery({
     queryKey: ['authenticatedUserStories', token],
     queryFn: ({ queryKey }) => getStoriesByAuthenticatedUserId(queryKey[1]),
+    enabled: token !== undefined,
   })
 
   const activeStory = useStoryStore(state => state.activeStory)

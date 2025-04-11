@@ -9,16 +9,19 @@ import Button from '@/components/ui/Button'
 import { ShoppingBag } from 'lucide-react-native'
 import Box from '@/components/ui/Box'
 import { Dimensions } from 'react-native'
+import { useMMKVString } from 'react-native-mmkv'
 
 const { width } = Dimensions.get("window")
 const WIDTH = width * .5; 
 
 const UserProfilePage = () => {
   const { user, token } = useAuthStore()
+  const [, setUserToken] = useMMKVString('user.token');
   const router = useRouter()
   const mutation = useMutation({
     mutationFn: () => logout(token!),
     onSuccess: () => {
+      setUserToken(undefined);
       router.replace('/login')
     }
   })

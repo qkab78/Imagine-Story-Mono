@@ -13,7 +13,8 @@ import { middleware } from './kernel.js'
 
 const LoginController = () => import('#auth/controllers/login/login_controller')
 const LogoutController = () => import('#auth/controllers/logout/logout_controller')
-const StoriesController = () => import('../app/stories/controllers/stories_controllers.js')
+const StoriesController = () => import('#stories/controllers/stories_controllers')
+const AuthController = () => import('#auth/controllers/auth_controllers')
 
 router.get('/', async ({ response }: HttpContext) => {
   return response.json({ hello: 'world', version: 'v1' })
@@ -37,10 +38,10 @@ router.group(() => {
 
 
 // Auth
-router
-  .post('/login', [LoginController, 'login'])
-  .prefix('/auth')
-
-router.post('/logout', [LogoutController, 'logout'])
-  .prefix('/auth')
-  .middleware(middleware.auth())
+router.group(() => {
+  router.post('/login', [LoginController, 'login'])
+  router.group(() => {
+    router.post('/logout', [LogoutController, 'logout'])
+    router.get('/authenticate', [AuthController, 'authenticate'])
+  }).middleware(middleware.auth())
+}).prefix('/auth')
