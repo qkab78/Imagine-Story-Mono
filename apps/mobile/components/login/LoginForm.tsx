@@ -57,12 +57,12 @@ export const LoginForm = () => {
     <Box justifyContent="center" alignItems="center" gap={"m"}>
       <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
         <Text variant="buttonLabel">Email</Text>
-        <TextInput name="email" placeholder="Enter your email" control={control} Icon={Mail} hasError={!!errors.email} />
+        <TextInput name="email" placeholder="Enter your email" control={control} Icon={Mail} />
         {errors.email && <Text variant="formError" color="error">{errors.email.message}</Text>}
       </Box>
       <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
         <Text variant="buttonLabel">Password</Text>
-        <TextInput name="password" placeholder="Enter your password" control={control} Icon={Lock} hasError={!!errors.password} />
+        <TextInput name="password" placeholder="Enter your password" control={control} Icon={Lock} />
         {errors.password && <Text variant="formError" color="error">{errors.password.message}</Text>}
       </Box>
 
