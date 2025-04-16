@@ -15,7 +15,7 @@ const LoginController = () => import('#auth/controllers/login/login_controller')
 const LogoutController = () => import('#auth/controllers/logout/logout_controller')
 const StoriesController = () => import('#stories/controllers/stories_controllers')
 const AuthController = () => import('#auth/controllers/auth_controllers')
-
+const RegisterController = () => import('#auth/controllers/register/register_controller')
 router.get('/', async ({ response }: HttpContext) => {
   return response.json({ hello: 'world', version: 'v1' })
 })
@@ -40,6 +40,7 @@ router.group(() => {
 // Auth
 router.group(() => {
   router.post('/login', [LoginController, 'login'])
+  router.post('/register', [RegisterController, 'register'])
   router.group(() => {
     router.post('/logout', [LogoutController, 'logout'])
     router.get('/authenticate', [AuthController, 'authenticate'])

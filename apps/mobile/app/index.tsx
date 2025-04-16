@@ -83,7 +83,7 @@ const Onboarding = () => {
       scroll.current.scrollTo({ x: width * (index + 1), animated: true });
     }
     if (isLast) {
-      router.push("/login");
+      router.replace("/login");
     }
   }
 

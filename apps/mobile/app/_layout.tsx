@@ -30,8 +30,8 @@ const StackLayout = () => {
       <Stack.Screen name="(tabs)/users" options={defaultScreenOptions} />
 
       <Stack.Screen name="index" options={defaultScreenOptions} />
-      <Stack.Screen name="login/index" options={defaultScreenOptions} />
-      <Stack.Screen name="register/index" options={{ ...defaultScreenOptions, headerShown: true }} />
+      <Stack.Screen name="login" options={defaultScreenOptions} />
+      <Stack.Screen name="register" options={defaultScreenOptions} />
 
       <Stack.Screen name="search/index" options={defaultScreenOptions} />
 
