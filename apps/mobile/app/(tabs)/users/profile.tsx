@@ -10,6 +10,7 @@ import { ShoppingBag } from 'lucide-react-native'
 import Box from '@/components/ui/Box'
 import { Dimensions } from 'react-native'
 import { useMMKVString } from 'react-native-mmkv'
+import { Role } from '@/constants/Role'
 
 const { width } = Dimensions.get("window")
 const WIDTH = width * .5; 
@@ -34,6 +35,8 @@ const UserProfilePage = () => {
     mutation.mutate()
   }
 
+  const isPremiumUser = user?.role && user.role >= 3
+
   return (
     <Box flex={1} padding={"l"} gap={"l"}>
       <YStack gap={20} display='flex' flexDirection='row' flexWrap='wrap' justifyContent='flex-start'>
@@ -54,8 +57,10 @@ const UserProfilePage = () => {
       <YStack gap={20} display='flex' flexDirection='row' flexWrap='wrap' justifyContent='flex-start'>
         <View gap={10}>
           <H3>Abonnement</H3>
-          <Text>Free</Text>
-          <Button label='Upgrade' bgColor='yellow' onPress={handleUserSubscriptionUpgrade} Icon={ShoppingBag} />
+          <Text>{Role[user?.role as keyof typeof Role]}</Text>
+          {!isPremiumUser && (
+            <Button label='Upgrade' bgColor='yellow' onPress={handleUserSubscriptionUpgrade} Icon={ShoppingBag} />
+          )}
         </View>
       </YStack>
 

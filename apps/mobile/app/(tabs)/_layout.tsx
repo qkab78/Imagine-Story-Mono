@@ -1,46 +1,31 @@
 import useAuthStore from "@/store/auth/authStore";
-import { FontAwesome } from "@expo/vector-icons";
 import { Role } from "@imagine-story/api/users/models/role";
-import { Tabs, useRouter } from "expo-router";
-import { CircleUserRound, Cog, House, SquarePen } from "@tamagui/lucide-icons";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { Tabs } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Button } from "tamagui";
 import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import { useTheme } from "@shopify/restyle";
 import { Theme } from "@/config/theme";
-const BackButton = () => {
-  const router = useRouter();
+import { HouseIcon, SquarePenIcon, CircleUserRoundIcon, CogIcon } from "lucide-react-native";
 
-  const onPress = () => {
-    router.back();
-  }
-
-  return (
-    <TouchableOpacity onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, padding: 10 }}>
-      <FontAwesome size={20} name="arrow-left" />
-    </TouchableOpacity>
-
-  )
-}
-
-const defaultScreenOptions: BottomTabNavigationOptions = {
-  title: '',
-}
 
 export default function TabLayout() {
   const user = useAuthStore(state => state.user);
   const theme = useTheme<Theme>();
+  const defaultScreenOptions: BottomTabNavigationOptions = {
+    tabBarActiveBackgroundColor: 'transparent',
+    tabBarActiveTintColor: theme.colors.darkBlue,
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Tabs screenOptions={{ tabBarActiveTintColor: 'blue', animation: 'shift' }}>
         <Tabs.Screen
           name="index"
           options={{
-            tabBarStyle: styles.tabBarStyle,
-            tabBarActiveTintColor: theme.colors.primary,
-            tabBarButton: ({ onPress }) => <Button size={"$6"} icon={House} onPress={onPress} chromeless />,
+            ...defaultScreenOptions,
+            title: 'Home',
             headerShown: false,
+            tabBarIcon: ({ focused, color }) => <HouseIcon color={color} />,
           }}
         />
 
@@ -48,10 +33,10 @@ export default function TabLayout() {
           name="stories/create"
           redirect={user?.role === Role.GUEST}
           options={{
-            tabBarStyle: styles.tabBarStyle,
-            tabBarActiveBackgroundColor: 'transparent',
-            tabBarButton: ({ onPress }) => <Button onPress={onPress} size={"$6"} icon={SquarePen} chromeless />,
+            ...defaultScreenOptions,
+            title: 'Create',
             headerShown: false,
+            tabBarIcon: ({ focused, color }) => <SquarePenIcon color={color} />,
           }}
         />
 
@@ -59,11 +44,10 @@ export default function TabLayout() {
           name="users/profile"
           redirect={user?.role === Role.GUEST}
           options={{
+            ...defaultScreenOptions,
             title: 'Profile',
-            tabBarStyle: styles.tabBarStyle,
-            tabBarActiveBackgroundColor: 'transparent',
-            tabBarButton: ({ onPress }) => <Button onPress={onPress} size={"$6"} icon={CircleUserRound} chromeless />,
-            
+            tabBarIcon: ({ focused, color }) => <CircleUserRoundIcon color={color} />,
+
           }}
         />
 
@@ -71,22 +55,13 @@ export default function TabLayout() {
         <Tabs.Screen
           name="settings"
           options={{
-            tabBarStyle: styles.tabBarStyle,
-            tabBarActiveBackgroundColor: 'transparent',
-            tabBarButton: ({ onPress }) => <Button onPress={onPress} size={"$6"} icon={Cog} chromeless />,
-            
+            ...defaultScreenOptions,
+            title: 'Settings',
+            tabBarIcon: ({ focused, color }) => <CogIcon color={color} />,
+
           }}
         />
       </Tabs>
     </GestureHandlerRootView>
   )
 }
-
-const styles = StyleSheet.create({
-  tabBarStyle: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    margin: "auto",
-  },
-})
