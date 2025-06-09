@@ -64,6 +64,7 @@ export interface StoriesClone {
 
 export interface Users {
   created_at: Timestamp;
+  customer_id: string | null;
   email: string;
   firstname: string;
   id: Generated<string>;

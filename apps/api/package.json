@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "generate": "npx kysely-codegen --out-file=types/db.ts",
+    "db:generate": "npx kysely-codegen --out-file=types/db.ts",
     "db:seed": "node ace seed",
     "db:migrate": "node ace kysely:migrate",
     "db:rollback": "node ace kysely:rollback"
@@ -37,7 +37,8 @@
     "#types/*": "./types/*.js",
     "#users/*": "./app/users/*.js",
     "#auth/*": "./app/auth/*.js",
-    "#stories/*": "./app/stories/*.js"
+    "#stories/*": "./app/stories/*.js",
+    "#payments/*": "./app/payments/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
@@ -65,6 +66,7 @@
     "@adonisjs/core": "^6.17.1",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.6.0",
+    "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
     "@vinejs/vine": "^3.0.0",
     "axios": "^1.7.9",
     "kysely": "^0.27.5",

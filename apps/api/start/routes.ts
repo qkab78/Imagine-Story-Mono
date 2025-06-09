@@ -16,6 +16,8 @@ const LogoutController = () => import('#auth/controllers/logout/logout_controlle
 const StoriesController = () => import('#stories/controllers/stories_controllers')
 const AuthController = () => import('#auth/controllers/auth_controllers')
 const RegisterController = () => import('#auth/controllers/register/register_controller')
+const PaymentsController = () => import('#payments/controllers/payments_controllers')
+
 router.get('/', async ({ response }: HttpContext) => {
   return response.json({ hello: 'world', version: 'v1' })
 })
@@ -46,3 +48,9 @@ router.group(() => {
     router.get('/authenticate', [AuthController, 'authenticate'])
   }).middleware(middleware.auth())
 }).prefix('/auth')
+
+// Payments
+router.group(() => {
+  router.get('/provider', [PaymentsController, 'getPaymentServiceProviderInfos'])
+  router.post('/create-subscription', [PaymentsController, 'createSubscription'])
+}).middleware(middleware.auth()).prefix('/payments')
