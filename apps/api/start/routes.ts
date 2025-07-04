@@ -10,6 +10,8 @@
 import router from '@adonisjs/core/services/router'
 import type { HttpContext } from '@adonisjs/core/http'
 import { middleware } from './kernel.js'
+import queue from '@rlanz/bull-queue/services/main'
+import SendUserRegisterConfirmationEmailJob from '../app/jobs/send_user_register_confirmation_email_job.js'
 
 const LoginController = () => import('#auth/controllers/login/login_controller')
 const LogoutController = () => import('#auth/controllers/logout/logout_controller')
@@ -19,6 +21,13 @@ const RegisterController = () => import('#auth/controllers/register/register_con
 const PaymentsController = () => import('#payments/controllers/payments_controllers')
 
 router.get('/', async ({ response }: HttpContext) => {
+  return response.json({ hello: 'world', version: 'v1' })
+})
+
+router.get('/test-register-job', async ({ response }: HttpContext) => {
+  queue.dispatch(SendUserRegisterConfirmationEmailJob, {
+    email: 'test@test.com'
+  })
   return response.json({ hello: 'world', version: 'v1' })
 })
 

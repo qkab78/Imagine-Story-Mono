@@ -10,6 +10,7 @@
 */
 
 import 'reflect-metadata'
+import '@kitajs/html/register'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
 
 /**

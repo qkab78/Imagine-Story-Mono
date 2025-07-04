@@ -15,7 +15,8 @@
     "db:generate": "npx kysely-codegen --out-file=types/db.ts",
     "db:seed": "node ace seed",
     "db:migrate": "node ace kysely:migrate",
-    "db:rollback": "node ace kysely:rollback"
+    "db:rollback": "node ace kysely:rollback",
+    "queue:listen": "node ace queue:listen"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
@@ -38,7 +39,9 @@
     "#users/*": "./app/users/*.js",
     "#auth/*": "./app/auth/*.js",
     "#stories/*": "./app/stories/*.js",
-    "#payments/*": "./app/payments/*.js"
+    "#payments/*": "./app/payments/*.js",
+    "#jobs/*": "./app/jobs/*.js",
+    "#views/*": "./resources/views/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
@@ -66,9 +69,14 @@
     "@adonisjs/core": "^6.18.0",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.6.1",
+    "@adonisjs/mail": "^9.2.2",
+    "@kitajs/html": "^4.2.9",
+    "@kitajs/ts-html-plugin": "^4.1.1",
     "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
+    "@rlanz/bull-queue": "^3.1.0",
     "@vinejs/vine": "^3.0.1",
     "axios": "^1.9.0",
+    "ioredis": "^5.6.1",
     "kysely": "^0.28.2",
     "luxon": "^3.6.1",
     "openai": "^5.1.1",
