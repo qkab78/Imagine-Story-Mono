@@ -5,6 +5,8 @@ import { db } from "#services/db";
 import { errors } from "@vinejs/vine";
 import hash from "@adonisjs/core/services/hash";
 import { registerValidator } from "./register_validator.js";
+import queue from "@rlanz/bull-queue/services/main";
+import SendUserRegisterConfirmationEmailJob from "#jobs/send_user_register_confirmation_email_job";
 
 @inject()
 export default class RegisterController {
@@ -32,6 +34,10 @@ export default class RegisterController {
     
     //@ts-ignore
     const userToLogin = await auth.use('api').authenticateAsClient(newUser);
+
+    queue.dispatch(SendUserRegisterConfirmationEmailJob, {
+      email: newUser.email
+    })
 
     return response.json({ 
       token: userToLogin.headers?.authorization,
