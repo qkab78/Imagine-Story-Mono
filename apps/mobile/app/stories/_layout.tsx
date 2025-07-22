@@ -10,7 +10,7 @@ const defaultScreenOptions: NativeStackNavigationOptions = {
 export default function StoriesLayout() {
   return (
     <Stack screenOptions={defaultScreenOptions}>
-      <Stack.Screen name="[slug]" />
+      <Stack.Screen name="[slug]/index" />
       <Stack.Screen name="[slug]/read" />
     </Stack>
   )

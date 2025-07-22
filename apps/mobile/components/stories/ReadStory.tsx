@@ -7,9 +7,14 @@ import React from 'react'
 import { Stories } from '@imagine-story/api/types/db'
 import BackButton from '../ui/BackButton'
 
+type Chapter = {
+  title: string
+  content: string
+}
+
 interface ReadStoryProps {
   story: Stories
-  chapters: Array<{ title: string, content: string }>
+  chapters: Chapter[]
   conclusion: string
 }
 

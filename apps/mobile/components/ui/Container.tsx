@@ -1,7 +1,7 @@
 import React from 'react'
 import Box from './Box'
 
-type ContainerProps = React.PropsWithChildren<{}>
+type ContainerProps = React.PropsWithChildren<unknown>
 
 const Container = ({ children }: ContainerProps) => {
   return (

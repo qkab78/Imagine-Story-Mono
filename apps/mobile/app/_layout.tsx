@@ -27,7 +27,7 @@ const StackLayout = () => {
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={defaultScreenOptions} />
-      <Stack.Screen name="(tabs)/users" options={defaultScreenOptions} />
+      <Stack.Screen name="(protected)" options={defaultScreenOptions} />
 
       <Stack.Screen name="index" options={defaultScreenOptions} />
       <Stack.Screen name="login" options={defaultScreenOptions} />
@@ -36,9 +36,6 @@ const StackLayout = () => {
       <Stack.Screen name="search/index" options={defaultScreenOptions} />
 
       <Stack.Screen name="stories" options={defaultScreenOptions} />
-      <Stack.Screen name="stories/create" options={defaultScreenOptions} />
-      <Stack.Screen name="stories/[slug]" options={defaultScreenOptions} />
-      <Stack.Screen name="stories/[slug]/read" options={defaultScreenOptions} />
       <Stack.Screen name="+not-found" />
     </Stack>
   )

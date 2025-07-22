@@ -17,9 +17,13 @@ const styles = StyleSheet.create({
     position: "relative",
   }
 })
+type Chapter = {
+  title: string
+  content: string
+}
 
 const ChapterPage = () => {
-  const [chapters, setChapters] = useState<Array<{ title: string, content: string }>>([])
+  const [chapters, setChapters] = useState<Chapter[]>([])
   const [conclusion, setConclusion] = useState<string>('')
   const scrollViewRef = useRef<ScrollView>(null);
 
