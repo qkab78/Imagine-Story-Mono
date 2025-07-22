@@ -2,19 +2,21 @@ import { useForm } from "react-hook-form";
 import useAuthStore from "@/store/auth/authStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ALLOWED_LANGUAGES, createStory, THEMES, type CreateStoryFormData } from "@/api/stories";
-import { Dimensions, ScrollView } from "react-native";
+import { Dimensions, Alert } from "react-native";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Box from "../ui/Box";
 import TextInput from "../ui/TextInput";
-import { Baby, BookOpen, Film, Layers, User } from "lucide-react-native";
+import { Baby, BookOpen, Film, Layers, User, Crown, Heart, Star } from "lucide-react-native";
 import Text from "../ui/Text";
-
 import { useTheme } from "@shopify/restyle";
 import { Theme } from "@/config/theme";
 import Slider from "../ui/Slider";
 import Button from "../ui/Button";
 import Select from "../ui/Select";
+import MagicalThemeSelector from "./MagicalThemeSelector";
+import MagicalFormField from "./MagicalFormField";
+import MagicalButton from "../home/MagicalButton";
 
 const schema = z.object({
   title: z.string().min(3),
@@ -36,7 +38,18 @@ export const CreatStoryForm = () => {
   const mutation = useMutation({
     mutationFn: (data: CreateStoryFormData) => createStory({ ...data, token }),
     onSuccess: () => {
-      alert('Story created');
+      Alert.alert(
+        '🎉 Histoire Créée!',
+        'Ton histoire magique est en cours de création! Elle sera bientôt prête.',
+        [{ text: 'Génial!', style: 'default' }]
+      );
+    },
+    onError: () => {
+      Alert.alert(
+        '😔 Oups!',
+        'Il y a eu un petit problème. Peux-tu réessayer?',
+        [{ text: 'Réessayer', style: 'default' }]
+      );
     }
   })
 
@@ -69,82 +82,101 @@ export const CreatStoryForm = () => {
 
 
   return (
-    <Box flex={1} width={width} height={height} paddingHorizontal={"l"}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Box gap={"xl"}>
-          {/* Title */}
-          <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
-            <TextInput name="title" placeholder="Title of the book" control={control} Icon={BookOpen} />
-            {errors.title && <Text variant="formError" color="error">{errors.title.message}</Text>}
-          </Box>
+    <Box flex={1} gap={"xl"}>
+      {/* Magical Theme Selection */}
+      <MagicalFormField
+        label=""
+        error={errors.theme?.message}
+      >
+        <MagicalThemeSelector control={control} name="theme" />
+      </MagicalFormField>
 
-          {/* Protagonist */}
-          <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
-            <TextInput name="protagonist" placeholder="Name of the protagonist" control={control} Icon={User} />
-            {errors.protagonist && <Text variant="formError" color="error">{errors.protagonist.message}</Text>}
-          </Box>
+      {/* Title */}
+      <MagicalFormField
+        label="Titre de ton histoire"
+        icon={<Crown size={20} color="#F59E0B" />}
+        error={errors.title?.message}
+      >
+        <TextInput 
+          name="title" 
+          placeholder="Ex: La Princesse et le Dragon Magique" 
+          control={control} 
+          Icon={BookOpen}
+        />
+      </MagicalFormField>
 
-          {/* Synopsis */}
-          <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
-            <TextInput
-              name="synopsis"
-              placeholder="Synopsis"
-              control={control}
-              Icon={Film}
-              multiline
-              numberOfLines={TEXT_AREA_LIMIT}
-            />
-            {errors.synopsis && <Text variant="formError" color="error">{errors.synopsis.message}</Text>}
-          </Box>
+      {/* Protagonist */}
+      <MagicalFormField
+        label="Nom de ton héros/héroïne"
+        icon={<Heart size={20} color="#EF4444" />}
+        error={errors.protagonist?.message}
+      >
+        <TextInput 
+          name="protagonist" 
+          placeholder="Ex: Princesse Luna, Capitaine Paul..." 
+          control={control} 
+          Icon={User}
+        />
+      </MagicalFormField>
 
-          {/* Child age */}
-          <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
-            <Box flexDirection={"row"} gap={"s"} alignItems="center">
-              <Baby color={theme.colors.primaryCardBackground} />
-              <Text>Child age</Text>
-            </Box>
-            <Slider name="childAge" control={control} text="years old" />
-            {errors.childAge && <Text variant="formError" color="error">{errors.childAge.message}</Text>}
-          </Box>
+      {/* Synopsis */}
+      <MagicalFormField
+        label="Raconte-nous ton idée d'histoire"
+        icon={<Star size={20} color="#8B5CF6" />}
+        error={errors.synopsis?.message}
+      >
+        <TextInput
+          name="synopsis"
+          placeholder="Il était une fois... Décris ton aventure magique!"
+          control={control}
+          Icon={Film}
+          multiline
+          numberOfLines={TEXT_AREA_LIMIT}
+        />
+      </MagicalFormField>
 
-          {/* Chapters */}
-          <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
-            <Box flexDirection={"row"} gap={"s"} alignItems="center">
-              <Layers color={theme.colors.primaryCardBackground} />
-              <Text>Number of chapters</Text>
-            </Box>
-            <Slider name="numberOfChapters" control={control} text="chapters" min={1} max={5} defaultValue={[1]} />
-            {errors.numberOfChapters && <Text variant="formError" color="error">{errors.numberOfChapters.message}</Text>}
-          </Box>
+      {/* Child age */}
+      <MagicalFormField
+        label="Quel âge as-tu?"
+        icon={<Baby size={20} color="#10B981" />}
+        error={errors.childAge?.message}
+      >
+        <Slider name="childAge" control={control} text="ans" />
+      </MagicalFormField>
 
-          {/* Language */}
-          <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
-            <Text variant={"body"}>Language</Text>
-            <Select
-              control={control}
-              name="language"
-              placeholder="Languages"
-              items={Object.entries(ALLOWED_LANGUAGES).map(([key, value]) => ({ key, value }))}
-            />
-            {errors.language && <Text variant="formError" color="error">{errors.language.message}</Text>}
-          </Box>
+      {/* Chapters */}
+      <MagicalFormField
+        label="Combien de chapitres veux-tu?"
+        icon={<Layers size={20} color="#F59E0B" />}
+        error={errors.numberOfChapters?.message}
+      >
+        <Slider name="numberOfChapters" control={control} text="chapitres" min={1} max={5} defaultValue={[1]} />
+      </MagicalFormField>
 
-          {/* Themes */}
-          <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
-            <Text variant={"body"}>Themes</Text>
-            <Select
-              control={control}
-              name="theme"
-              placeholder="Themes"
-              items={THEMES.map((theme) => ({ key: theme.value, value: theme.label }))}
-            />
-            {errors.theme && <Text variant="formError" color="error">{errors.theme.message}</Text>}
-          </Box>
-          <Box justifyContent="center" alignItems="center" width={WIDTH}>
-            <Button onPress={handleSubmit(onSubmit)} disabled={isSubmitting} label={mutation.isPending ? "Processing..." : "Add a story"} />
-          </Box>
-        </Box>
-      </ScrollView>
+      {/* Language */}
+      <MagicalFormField
+        label="Dans quelle langue?"
+        icon={<BookOpen size={20} color="#6366F1" />}
+        error={errors.language?.message}
+      >
+        <Select
+          control={control}
+          name="language"
+          placeholder="Choisis ta langue"
+          items={Object.entries(ALLOWED_LANGUAGES).map(([key, value]) => ({ key, value }))}
+        />
+      </MagicalFormField>
+
+      {/* Submit Button */}
+      <Box alignItems="center" marginTop="xl" marginBottom="l">
+        <MagicalButton
+          title={mutation.isPending ? "Création en cours..." : "Créer mon Histoire"}
+          subtitle={mutation.isPending ? "La magie opère..." : "Prêt pour l'aventure?"}
+          onPress={handleSubmit(onSubmit)}
+          size="large"
+          icon={<BookOpen size={24} color="white" />}
+        />
+      </Box>
     </Box>
   );
 }
