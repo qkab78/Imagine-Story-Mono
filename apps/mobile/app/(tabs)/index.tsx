@@ -51,14 +51,42 @@ const MagicalHeader = () => {
 };
 
 const StoryCategories = () => {
-  const categories = [
-    { title: 'Princesses', emoji: '👸', color: 'softPink' as keyof Theme['colors'] },
-    { title: 'Aventures', emoji: '🗺️', color: 'skyBlue' as keyof Theme['colors'] },
-    { title: 'Animaux', emoji: '🦁', color: 'mintGreen' as keyof Theme['colors'] },
-    { title: 'Magie', emoji: '🪄', color: 'magicPurple' as keyof Theme['colors'] },
-    { title: 'Pirates', emoji: '🏴‍☠️', color: 'sunsetOrange' as keyof Theme['colors'] },
-    { title: 'Dragons', emoji: '🐉', color: 'lavender' as keyof Theme['colors'] },
-  ];
+  // Map THEMES to include emojis and colors for magical display
+  const getThemeEmoji = (value: string) => {
+    const emojiMap: Record<string, string> = {
+      'fantasy': '🧙‍♀️',
+      'science-fiction': '🚀',
+      'historical': '🏰',
+      'detective': '🔍',
+      'adventure': '🗺️',
+      'comedy': '😄',
+      'fable': '📚',
+      'myth': '⚡',
+      'legend': '🛡️',
+    };
+    return emojiMap[value] || '✨';
+  };
+
+  const getThemeColor = (index: number) => {
+    const colors = [
+      '#FFD6E8', // Soft Pink
+      '#D5E8FF', // Sky Blue
+      '#D5FFE8', // Mint Green
+      '#E8D5FF', // Magic Purple
+      '#FFE5D5', // Sunset Orange
+      '#F0E6FF', // Lavender
+      '#FFF0D5', // Cream
+      '#D5F0FF', // Light Blue
+      '#E8FFD5', // Light Green
+    ];
+    return colors[index % colors.length];
+  };
+
+  const categoriesWithDisplay = THEMES.map((theme, index) => ({
+    ...theme,
+    emoji: getThemeEmoji(theme.value),
+    color: getThemeColor(index),
+  }));
 
   return (
     <Box paddingHorizontal="m">
@@ -71,14 +99,14 @@ const StoryCategories = () => {
         justifyContent="center" 
         gap="m"
       >
-        {categories.map((category, index) => (
+        {categoriesWithDisplay.map((category, index) => (
           <StoryCategoryCard
-            key={index}
-            title={category.title}
+            key={category.value}
+            title={category.label}
             emoji={category.emoji}
             backgroundColor={category.color}
             onPress={() => {
-              router.push(`/stories/create?theme=${category.title}`);
+              router.push(`/(tabs)/stories/create?theme=${category.value}`);
             }}
           />
         ))}

@@ -15,7 +15,7 @@ import Animated, {
 interface StoryCategoryCardProps {
   title: string;
   emoji: string;
-  backgroundColor: keyof Theme['colors'];
+  backgroundColor: string; // Changed to accept hex color values
   onPress: () => void;
 }
 
@@ -58,7 +58,6 @@ const StoryCategoryCard: React.FC<StoryCategoryCardProps> = ({
         activeOpacity={0.8}
       >
         <Box
-          backgroundColor={backgroundColor}
           borderRadius="l"
           padding="m"
           alignItems="center"
@@ -67,7 +66,10 @@ const StoryCategoryCard: React.FC<StoryCategoryCardProps> = ({
           height={120}
           style={[
             styles.card,
-            { shadowColor: theme.colors.black }
+            { 
+              backgroundColor: backgroundColor,
+              shadowColor: theme.colors.black 
+            }
           ]}
         >
           <Text style={styles.emoji}>{emoji}</Text>
