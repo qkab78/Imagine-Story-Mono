@@ -101,9 +101,6 @@ const Onboarding = () => {
     }
   }, [data?.user])
 
-  console.log({ data, userToken });
-
-
   if (isLoading) {
     return <Box flex={1} justifyContent="center" alignItems="center">
       <ActivityIndicator size={'large'} />
