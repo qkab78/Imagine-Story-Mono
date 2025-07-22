@@ -13,12 +13,25 @@ export default function TabLayout() {
   const theme = useTheme<Theme>();
   const defaultScreenOptions: BottomTabNavigationOptions = {
     tabBarActiveBackgroundColor: 'transparent',
-    tabBarActiveTintColor: theme.colors.darkBlue,
+    tabBarActiveTintColor: '#6B46C1', // Purple to match magical theme
+    tabBarInactiveTintColor: '#A78BFA', // Lighter purple for inactive tabs
+    tabBarStyle: {
+      backgroundColor: '#F0E6FF', // Light purple background to match home screen
+      borderTopColor: '#E8D5FF', // Subtle border
+      elevation: 0,
+      shadowOpacity: 0,
+    },
+    headerStyle: {
+      backgroundColor: '#F0E6FF', // Light purple header background
+      elevation: 0,
+      shadowOpacity: 0,
+    },
+    headerTintColor: '#6B46C1', // Purple header text
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Tabs screenOptions={{ tabBarActiveTintColor: 'blue', animation: 'shift' }}>
+      <Tabs screenOptions={defaultScreenOptions}>
         <Tabs.Screen
           name="index"
           options={{

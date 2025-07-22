@@ -13,6 +13,13 @@ const palette = {
   brown: '#EE964B',
   tomato: '#F8764F',
   gray: '#0C0D34',
+  // Magical children's colors
+  magicPurple: '#E8D5FF',
+  softPink: '#FFD6E8',
+  mintGreen: '#D5FFE8',
+  skyBlue: '#D5E8FF',
+  sunsetOrange: '#FFE5D5',
+  lavender: '#F0E6FF',
 }
 
 const theme = createTheme({
@@ -35,6 +42,13 @@ const theme = createTheme({
     gray: palette.gray,
     lightGray: "rgba(191, 195, 177, 0.4)",
     black: palette.black,
+    // Magical children's colors
+    magicPurple: palette.magicPurple,
+    softPink: palette.softPink,
+    mintGreen: palette.mintGreen,
+    skyBlue: palette.skyBlue,
+    sunsetOrange: palette.sunsetOrange,
+    lavender: palette.lavender,
   },
   spacing: {
     s: 8,

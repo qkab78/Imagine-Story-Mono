@@ -80,7 +80,7 @@ export default function RootLayout() {
       <TamaguiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <StackLayout />
-          <StatusBar style="auto" />
+          <StatusBar style="dark" backgroundColor="#F0E6FF" />
         </QueryClientProvider>
       </TamaguiProvider>
     </ThemeProvider>

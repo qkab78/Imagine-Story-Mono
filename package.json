@@ -11,5 +11,8 @@
   },
   "keywords": [],
   "author": "Mikabs",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "expo-linear-gradient": "^14.1.5"
+  }
 }

@@ -13,8 +13,8 @@ const StoryList = (props: StoryListProps) => {
   return (
     <Marquee spacing={20} speed={speed ?? .4}>
       <Box flexDirection={"row"} flexWrap={"wrap"} justifyContent={"center"} gap={"m"} paddingVertical={"m"}>
-        {stories.map((story) => (
-          <StoryCard key={String(story.id)} story={story} />
+        {stories.map((story, index) => (
+          <StoryCard key={String(story.id)} story={story} index={index} />
         ))}
       </Box>
     </Marquee>
