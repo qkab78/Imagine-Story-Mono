@@ -4,16 +4,23 @@ import { useQuery } from '@tanstack/react-query'
 import { getStories } from '@/api/stories'
 import useAuthStore from '@/store/auth/authStore'
 import { Stories } from '@imagine-story/api/types/db'
+import { Link } from 'expo-router'
+import { CreatStoryForm } from '@/components/stories/CreateStoryForm'
 
-const renderStory = ({item}: ListRenderItemInfo<Stories>) => {
-
+const renderStory = ({ item }: ListRenderItemInfo<Stories>) => {  
   return (
-    <View style={styles.container}>
+    <View style={{ padding: 20, gap: 1, display: 'flex', alignItems: 'flex-start',}}>
       <Image
-        source={{ uri: item.cover }}
+        source={{ uri: item.cover_image }}
         style={{ width: 200, height: 200 }}
       />
       <Text style={styles.title}>{item.title}</Text>
+      <Link href={{
+        pathname: '/stories/[slug]',
+        params: { slug: item.slug }
+      }}>
+        <Text style={{ color: 'blue' }}>Read more</Text>
+      </Link>
     </View>
   )
 }
@@ -37,6 +44,11 @@ const StoriesScreen = () => {
         // @ts-ignore
         keyExtractor={item => item.id}
       />
+
+      <View style={{ padding: 20, borderTopColor: '#dde3fe', borderWidth: 1, gap: 3 }}>
+        <Text style={{ color: 'white', textAlign: 'center' }}>Add a story</Text>
+        <CreatStoryForm />
+      </View>
     </View>
   )
 }
@@ -45,7 +57,6 @@ export default StoriesScreen
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: 'black',
     alignItems: 'center',
     justifyContent: 'center',

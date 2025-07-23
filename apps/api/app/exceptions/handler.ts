@@ -1,5 +1,6 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import PaymentErrors from './payment_errors.js'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -13,6 +14,9 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    if (error instanceof PaymentErrors) {
+      return ctx.response.badRequest(error.errors)
+    }
     return super.handle(error, ctx)
   }
 

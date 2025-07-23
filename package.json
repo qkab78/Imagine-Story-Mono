@@ -5,9 +5,14 @@
   "main": "index.js",
   "scripts": {
     "start:api:dev": "cd apps/api && pnpm run dev",
-    "start:mobile:dev": "cd apps/mobile && pnpm expo start"
+    "start:mobile:dev": "cd apps/mobile && pnpm expo start",
+    "start:mobile:dev:ios": "cd apps/mobile && pnpm expo run:ios",
+    "start:mobile:dev:android": "cd apps/mobile && pnpm expo run:android"
   },
   "keywords": [],
   "author": "Mikabs",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "expo-linear-gradient": "^14.1.5"
+  }
 }

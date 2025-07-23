@@ -3,7 +3,7 @@ import { create } from "zustand";
 export type AuthStore = {
   token: string | undefined;
   user: {
-    id: number;
+    id: string;
     email: string;
     fullname: string;
     avatar: string;

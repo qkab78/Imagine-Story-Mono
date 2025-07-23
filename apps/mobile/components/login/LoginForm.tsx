@@ -1,34 +1,32 @@
-import { Control, Controller, useForm } from "react-hook-form";
-import { Button, TextInput, View } from "react-native";
-import { ThemedText } from "../ThemedText";
+import { useForm } from "react-hook-form";
 import useAuthStore from "@/store/auth/authStore";
 import { login, LoginFormData } from "@/api/auth";
 import { useMutation } from "@tanstack/react-query";
+import Box from "../ui/Box";
+import Text from "../ui/Text";
+import { Lock, Mail } from "lucide-react-native";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import TextInput from "../ui/TextInput";
+import Button from "../ui/Button";
+import { Link } from "expo-router";
+import { Dimensions } from "react-native";
+import { useMMKVString } from "react-native-mmkv";
 
-interface LoginFormInputProps { name: "password" | "email", control: Control<LoginFormData>, password?: boolean }
+const { width } = Dimensions.get("window")  
 
-const Input = ({ name, control, password }: LoginFormInputProps) => {
-  return (
-    <Controller
-      name={name}
-      control={control}
-      rules={{ required: true }}
-      render={({ field: { onChange, onBlur, value } }) => (
-        <TextInput
-          style={{ height: 40, borderColor: 'gray', borderWidth: 1, color: 'white', borderRadius: 5, padding: 20, width: 300 }}
-          onBlur={onBlur}
-          onChangeText={onChange}
-          value={value}
-          placeholder={name}
-          secureTextEntry={password}
-        />
-      )}
-    />
-  )
-}
+const WIDTH = width * 0.8;
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+
 
 export const LoginForm = () => {
   const { setToken, setUser } = useAuthStore((state) => state);
+  const [, setUserToken] = useMMKVString('user.token');
+  
   const mutation = useMutation({
     mutationFn: (data: LoginFormData) => login(data),
     onSuccess: (data) => {
@@ -37,6 +35,7 @@ export const LoginForm = () => {
       }
       setToken(data.token);
       setUser(data.user);
+      setUserToken(data.token);
     }
   })
 
@@ -45,6 +44,8 @@ export const LoginForm = () => {
       email: '',
       password: '',
     },
+    resolver: zodResolver(schema),
+    mode: "onBlur"
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -53,13 +54,28 @@ export const LoginForm = () => {
 
 
   return (
-    <View style={{ width: 'auto', gap: 20 }}>
-      <Input name="email" control={control} />
-      {errors.email && <ThemedText>This is required.</ThemedText>}
-      <Input name="password" control={control} password />
-      {errors.password && <ThemedText>This is required.</ThemedText>}
+    <Box justifyContent="center" alignItems="center" gap={"m"}>
+      <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
+        <Text variant="buttonLabel">Email</Text>
+        <TextInput name="email" placeholder="Enter your email" control={control} Icon={Mail} />
+        {errors.email && <Text variant="formError" color="error">{errors.email.message}</Text>}
+      </Box>
+      <Box justifyContent="flex-start" alignItems="flex-start" gap={"s"} width={WIDTH}>
+        <Text variant="buttonLabel">Password</Text>
+        <TextInput name="password" placeholder="Enter your password" control={control} Icon={Lock} />
+        {errors.password && <Text variant="formError" color="error">{errors.password.message}</Text>}
+      </Box>
 
-      <Button title={mutation.isPending ? "Login in..." : "Login"} onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
-    </View>
+      <Box justifyContent="center" alignItems="center" width={WIDTH}>
+        <Button bgColor="blue" textColor="black" label={mutation.isPending ? "Login in..." : "Login"} onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
+      </Box>
+      <Box justifyContent="center" alignItems="center" width={WIDTH}>
+        <Text variant="body" color="textPrimary">{"Don't have an account? "}
+          <Link href={"/register"} asChild>
+            <Text variant="body" color="primary">Register</Text>
+          </Link>
+        </Text>
+      </Box>
+    </Box>
   );
 }
