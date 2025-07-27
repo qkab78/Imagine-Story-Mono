@@ -20,6 +20,15 @@ const palette = {
   skyBlue: '#D5E8FF',
   sunsetOrange: '#FFE5D5',
   lavender: '#F0E6FF',
+  // Kid-friendly colors from design
+  primaryPink: '#FF6B9D',
+  secondaryOrange: '#FFB74D',
+  safetyGreen: '#4CAF50',
+  textGreen: '#2E7D32',
+  textGray: '#424242',
+  kidBlue: '#2196F3',
+  kidPurple: '#9C27B0',
+  kidCyan: '#03DAC6',
 }
 
 const theme = createTheme({
@@ -49,6 +58,15 @@ const theme = createTheme({
     skyBlue: palette.skyBlue,
     sunsetOrange: palette.sunsetOrange,
     lavender: palette.lavender,
+    // Kid-friendly colors from design
+    primaryPink: palette.primaryPink,
+    secondaryOrange: palette.secondaryOrange,
+    safetyGreen: palette.safetyGreen,
+    textGreen: palette.textGreen,
+    textGray: palette.textGray,
+    kidBlue: palette.kidBlue,
+    kidPurple: palette.kidPurple,
+    kidCyan: palette.kidCyan,
   },
   spacing: {
     s: 8,
