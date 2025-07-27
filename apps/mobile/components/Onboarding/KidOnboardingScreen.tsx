@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Box from '@/components/ui/Box';
 import Text from '@/components/ui/Text';
-import { kidSlides, KidSlide } from './kidSlides';
+import { KidSlide } from './kidSlides';
 import KidAnimatedLogo from './KidAnimatedLogo';
 import KidProgressDots from './KidProgressDots';
 import KidFeatureCard from './KidFeatureCard';

@@ -9,6 +9,7 @@ import Animated, {
 import Text from '@/components/ui/Text';
 import Box from '@/components/ui/Box';
 import { theme } from '@/config/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface KidButtonProps {
   title: string;
@@ -30,7 +31,7 @@ const KidButton: React.FC<KidButtonProps> = ({ title, emoji, onPress }) => {
   const handlePressOut = () => {
     scale.value = withSpring(1.02, { damping: 20, stiffness: 400 });
     translateY.value = withSpring(-3, { damping: 20, stiffness: 400 });
-    
+
     // Return to original position with bounce
     setTimeout(() => {
       scale.value = withSpring(1, { damping: 15, stiffness: 300 });
@@ -46,23 +47,31 @@ const KidButton: React.FC<KidButtonProps> = ({ title, emoji, onPress }) => {
   }));
 
   return (
-    <AnimatedPressable
-      style={[styles.container, animatedStyle]}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      onPress={onPress}
+    <LinearGradient
+      colors={['#FF6B9D', '#FFB74D']}
+      style={styles.container}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
     >
-      <Box style={styles.gradient}>
-        <Text style={styles.buttonText}>
-          {title} {emoji}
-        </Text>
-      </Box>
-    </AnimatedPressable>
+      <AnimatedPressable
+        style={[styles.container, animatedStyle]}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={onPress}
+      >
+        <Box style={styles.gradient}>
+          <Text style={styles.buttonText}>
+            {title} {emoji}
+          </Text>
+        </Box>
+      </AnimatedPressable>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    width: '100%',
     borderRadius: 25,
     overflow: 'hidden',
     shadowColor: theme.colors.primaryPink,
@@ -80,7 +89,6 @@ const styles = StyleSheet.create({
     minHeight: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.primaryPink,
   },
   buttonText: {
     fontSize: 17,

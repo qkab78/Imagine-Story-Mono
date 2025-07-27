@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Dimensions, SafeAreaView, StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,18 +13,27 @@ import { router } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
-const getBackgroundColor = (slideId: number) => {
+const getGradientLocations = (slideId: number) => {
   switch (slideId) {
-    case 0: return '#FFE0F0'; // Rose pastel
-    case 1: return '#E8F5E8'; // Vert pastel  
-    case 2: return '#E3F2FD'; // Bleu pastel
-    default: return '#FFE0F0';
+    case 0: return [0, 1];
+    case 1: return [0, 1];
+    case 2: return [0, 1];
   }
 };
+const getGradientColors = (slideId: number) => {
+  switch (slideId) {
+    case 0: return ['#FFE0F0', '#FFF3E0']; // Rose pastel gradient
+    case 1: return ['#E8F5E8', '#F0FFF0']; // Vert pastel gradient
+    case 2: return ['#E3F2FD', '#F0F8FF']; // Bleu pastel gradient
+    default: return ['#FFE0F0', '#FFF0F8'];
+  }
+};
+
 
 const KidOnboardingContainer: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const translateX = useSharedValue(0);
+  const insets = useSafeAreaInsets();
   
   const totalSlides = kidSlides.length;
 
@@ -77,7 +88,11 @@ const KidOnboardingContainer: React.FC = () => {
   }));
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: getBackgroundColor(currentSlide) }]}>
+    <LinearGradient
+      colors={getGradientColors(currentSlide) as [string, string]}
+      locations={getGradientLocations(currentSlide) as [number, number]}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
       <Animated.View
         style={[
           styles.animatedContainer,
@@ -96,12 +111,12 @@ const KidOnboardingContainer: React.FC = () => {
           />
         ))}
       </Animated.View>
-    </SafeAreaView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
   },
   animatedContainer: {

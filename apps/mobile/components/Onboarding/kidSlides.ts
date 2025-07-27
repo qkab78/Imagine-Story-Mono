@@ -30,7 +30,7 @@ export const kidSlides: KidSlide[] = [
     emoji: "📚",
     title: "Bienvenue dans Mon Petit Conteur !",
     subtitle: "L'app magique qui crée des histoires merveilleuses rien que pour votre enfant",
-    backgroundGradient: ["#FFF3E0", "#FFE0F0"],
+    backgroundGradient: ["#FF6B9D", "#FFB74D"],
     buttonText: "C'est parti !",
     buttonEmoji: "🚀",
   },
