@@ -8,6 +8,7 @@ export type AuthStore = {
     fullname: string;
     avatar: string;
     role: number;
+    favoriteStories?: string[];
   } | undefined;
   setToken: (token: string) => void;
   setUser: (user: AuthStore["user"]) => void;

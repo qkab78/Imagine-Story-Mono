@@ -15,9 +15,7 @@ import BackButton from '@/components/ui/BackButton'
 const { width, height } = Dimensions.get('window')
 
 const StoryScreen = () => {
-  const router = useRouter();
   const theme = useTheme<Theme>();
-
   const { slug } = useLocalSearchParams()
   const { data, isLoading, error } = useQuery({
     queryKey: ['story', slug],

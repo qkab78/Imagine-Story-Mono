@@ -26,7 +26,7 @@ export default class LoginController {
       user: {
         id: user.id,
         email: user.email,
-        fullname: `${user.firstname} ${user.lastname}`,
+        fullname: user.firstname,
         role: user.role,
         avatar: '',
       }

@@ -169,7 +169,7 @@ export default class StoriesController {
       size: "1024x1024",
       n: 1
     })
-    const imageUrl = response.data[0].url || ''
+    const imageUrl = response.data?.[0]?.url || ''
     const filename = `${string.slug(title, { lower: true })}.webp`
 
     return this.downloadImage(imageUrl, filename)
