@@ -1,55 +1,106 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, SafeAreaView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
+import LoadingLogo from '@/components/creation/LoadingLogo';
+import GenerationStepsList, { GenerationStep } from '@/components/creation/GenerationStepsList';
 import { colors } from '@/theme/colors';
-import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
-import { CreationStackParamList } from '@/types/creation';
-import AgeBadge from '@/components/Onboarding/AgeBadge';
-import NavHeader from '@/components/creation/NavHeader';
-import StepIndicator from '@/components/creation/StepIndicator';
+import { spacing } from '@/theme/spacing';
 import Text from '@/components/ui/Text';
+import { CreationStackParamList } from '@/types/creation';
 
 interface StoryGenerationScreenProps {
-  navigation: NavigationProp<CreationStackParamList, 'StoryGeneration'>;
+  navigation: NavigationProp<CreationStackParamList>;
   route: RouteProp<CreationStackParamList, 'StoryGeneration'>;
 }
+
+const GENERATION_STEPS: GenerationStep[] = [
+  { id: '1', title: 'Création du personnage', icon: '✅', status: 'completed' },
+  { id: '2', title: 'Construction de l\'univers', icon: '✅', status: 'completed' },
+  { id: '3', title: 'Écriture de l\'histoire', icon: '⏳', status: 'active' },
+  { id: '4', title: 'Génération des illustrations', icon: '⭕', status: 'pending' },
+  { id: '5', title: 'Création de l\'audio', icon: '⭕', status: 'pending' },
+];
 
 const StoryGenerationScreen: React.FC<StoryGenerationScreenProps> = ({ 
   navigation, 
   route 
 }) => {
-  const { selectedHero, heroName, selectedTheme } = route.params;
+  const { selectedHero, heroName, selectedTheme, selectedTone } = route.params;
+  const [steps, setSteps] = useState<GenerationStep[]>(GENERATION_STEPS);
 
-  const handleBack = () => {
-    navigation.goBack();
-  };
+  const simulateStoryGeneration = useCallback(() => {
+    // Étape 3 -> completed après 2s
+    setTimeout(() => {
+      setSteps(prevSteps => 
+        prevSteps.map(step => 
+          step.id === '3' 
+            ? { ...step, status: 'completed' as const, icon: '✅' }
+            : step.id === '4'
+            ? { ...step, status: 'active' as const, icon: '⏳' }
+            : step
+        )
+      );
+    }, 2000);
+    
+    // Étape 4 -> completed après 4s
+    setTimeout(() => {
+      setSteps(prevSteps => 
+        prevSteps.map(step => 
+          step.id === '4' 
+            ? { ...step, status: 'completed' as const, icon: '✅' }
+            : step.id === '5'
+            ? { ...step, status: 'active' as const, icon: '⏳' }
+            : step
+        )
+      );
+    }, 4000);
+    
+    // Étape 5 -> completed après 6s puis navigation
+    setTimeout(() => {
+      setSteps(prevSteps => 
+        prevSteps.map(step => 
+          step.id === '5' 
+            ? { ...step, status: 'completed' as const, icon: '✅' }
+            : step
+        )
+      );
+      
+      // Navigation vers StoryReader après une courte pause
+      setTimeout(() => {
+        // TODO: Navigation vers StoryReader quand il sera créé
+        // navigation.navigate('StoryReader', { ... });
+        navigation.goBack(); // Pour l'instant, retour en arrière
+      }, 1000);
+    }, 6000);
+  }, [navigation]);
+
+  useEffect(() => {
+    simulateStoryGeneration();
+  }, [simulateStoryGeneration]);
 
   return (
     <LinearGradient 
-      colors={[colors.backgroundOrange, colors.backgroundPink]}
-      style={styles.gradient}
+      colors={[colors.backgroundLoading, colors.backgroundLoadingEnd]}
+      style={styles.container}
     >
-      <SafeAreaView style={styles.container}>
-        <AgeBadge />
-        
-        <NavHeader 
-          onBack={handleBack}
-          title="Nouvelle Histoire ✨"
-        />
-        
-        <StepIndicator 
-          currentStep={3} 
-          totalSteps={3} 
-          title="Étape 3 sur 3 • Création en cours... 📖" 
-        />
-        
-        <View style={styles.content}>
-          <Text style={styles.title}>Création de l'histoire...</Text>
-          <Text style={styles.subtitle}>
-            {heroName} {selectedHero.emoji} va vivre une aventure {selectedTheme.name} {selectedTheme.emoji}
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContent}>
+          <LoadingLogo
+            size={120}
+            primaryEmoji="🪄"
+            sparkleEmoji="✨"
+          />
+          
+          <Text style={styles.loadingTitle}>Création en cours... ✨</Text>
+          <Text style={styles.loadingSubtitle}>
+            Notre IA magique prépare une histoire unique pour {heroName} !
           </Text>
+          
+          <View style={styles.stepsContainer}>
+            <GenerationStepsList steps={steps} />
+          </View>
         </View>
       </SafeAreaView>
     </LinearGradient>
@@ -57,40 +108,44 @@ const StoryGenerationScreen: React.FC<StoryGenerationScreenProps> = ({
 };
 
 const styles = StyleSheet.create({
-  gradient: {
+  container: {
     flex: 1,
   },
   
-  container: {
+  safeArea: {
     flex: 1,
-    paddingHorizontal: spacing.lg,
   },
-
-  content: {
+  
+  loadingContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.cardBackground,
-    borderRadius: 20,
-    padding: spacing.xl,
-    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.xl,
   },
-
-  title: {
-    fontSize: typography.fontSize['2xl'],
-    fontFamily: typography.fontFamily.bold,
-    fontWeight: typography.fontWeight.bold,
+  
+  loadingTitle: {
+    fontSize: typography.fontSize.xl,
+    fontFamily: typography.fontFamily.primary,
+    fontWeight: '700',
     color: colors.textPrimary,
     textAlign: 'center',
+    marginTop: spacing.xl,
     marginBottom: spacing.base,
   },
-
-  subtitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.medium,
-    fontWeight: typography.fontWeight.medium,
+  
+  loadingSubtitle: {
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.primary,
+    fontWeight: '500',
     color: colors.textSecondary,
     textAlign: 'center',
+    marginBottom: spacing.xl * 2,
+    lineHeight: 22,
+  },
+  
+  stepsContainer: {
+    width: '100%',
+    maxWidth: 400,
   },
 });
 

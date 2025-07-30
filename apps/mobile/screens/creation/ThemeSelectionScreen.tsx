@@ -24,7 +24,7 @@ const ThemeSelectionScreen: React.FC<ThemeSelectionScreenProps> = ({
 
   const handleCreateStory = () => {
     if (selectedTheme) {
-      navigation.navigate('StoryGeneration', {
+      navigation.navigate('ToneSelection', {
         selectedHero,
         heroName,
         selectedTheme,

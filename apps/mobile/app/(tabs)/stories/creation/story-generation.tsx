@@ -1,47 +1,106 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, SafeAreaView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
+import LoadingLogo from '@/components/creation/LoadingLogo';
+import GenerationStepsList, { GenerationStep } from '@/components/creation/GenerationStepsList';
 import { colors } from '@/theme/colors';
-import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
-import { Hero, Theme } from '@/types/creation';
-import NavHeader from '@/components/creation/NavHeader';
-import StepIndicator from '@/components/creation/StepIndicator';
+import { spacing } from '@/theme/spacing';
 import Text from '@/components/ui/Text';
+import { Hero, Theme, Tone } from '@/types/creation';
+
+const STEP_STATUS = {
+  COMPLETED: 'completed',
+  ACTIVE: 'active',
+  PENDING: 'pending',
+} as const;
+
+const GENERATION_STEPS: GenerationStep[] = [
+  { id: '1', title: 'Création du personnage', icon: '✅', status: STEP_STATUS.COMPLETED },
+  { id: '2', title: 'Construction de l\'univers', icon: '✅', status: STEP_STATUS.COMPLETED },
+  { id: '3', title: 'Écriture de l\'histoire', icon: '⏳', status: STEP_STATUS.ACTIVE },
+  { id: '4', title: 'Génération des illustrations', icon: '⭕', status: STEP_STATUS.PENDING },
+];
 
 const StoryGenerationScreen: React.FC = () => {
   const params = useLocalSearchParams();
   const selectedHero: Hero = JSON.parse(params.selectedHero as string);
   const heroName = params.heroName as string;
   const selectedTheme: Theme = JSON.parse(params.selectedTheme as string);
+  const selectedTone: Tone = JSON.parse(params.selectedTone as string);
+  const [steps, setSteps] = useState<GenerationStep[]>(GENERATION_STEPS);
 
-  const handleBack = () => {
-    router.back();
-  };
+  const simulateStoryGeneration = useCallback(() => {
+    // Étape 3 -> completed après 2s
+    setTimeout(() => {
+      setSteps(prevSteps => 
+        prevSteps.map(step => 
+          step.id === '3' 
+            ? { ...step, status: STEP_STATUS.COMPLETED, icon: '✅' }
+            : step.id === '4'
+            ? { ...step, status: STEP_STATUS.ACTIVE, icon: '⏳' }
+            : step
+        )
+      );
+    }, 2000);
+    
+    // Étape 4 -> completed après 4s
+    setTimeout(() => {
+      setSteps(prevSteps => 
+        prevSteps.map(step => 
+          step.id === '4' 
+            ? { ...step, status: STEP_STATUS.COMPLETED, icon: '✅' }
+            : step.id === '5'
+            ? { ...step, status: STEP_STATUS.ACTIVE, icon: '⏳' }
+            : step
+        )
+      );
+    }, 4000);
+    
+    // Étape 5 -> completed après 6s puis navigation
+    setTimeout(() => {
+      setSteps(prevSteps => 
+        prevSteps.map(step => 
+          step.id === '5' 
+            ? { ...step, status: STEP_STATUS.COMPLETED, icon: '✅' }
+            : step
+        )
+      );
+      
+      // Navigation vers StoryReader après une courte pause
+      setTimeout(() => {
+        // TODO: Navigation vers StoryReader quand il sera créé
+        router.back(); // Pour l'instant, retour en arrière
+      }, 1000);
+    }, 6000);
+  }, []);
+
+  useEffect(() => {
+    simulateStoryGeneration();
+  }, [simulateStoryGeneration]);
 
   return (
     <LinearGradient 
-      colors={[colors.backgroundOrange, colors.backgroundPink]}
-      style={styles.gradient}
+      colors={[colors.backgroundLoading, colors.backgroundLoadingEnd]}
+      style={styles.container}
     >
-      <SafeAreaView style={styles.container}>        
-        <NavHeader 
-          onBack={handleBack}
-          title="Nouvelle Histoire ✨"
-        />
-        
-        <StepIndicator 
-          currentStep={3} 
-          totalSteps={3} 
-          title="Étape 3 sur 3 • Création en cours... 📖" 
-        />
-        
-        <View style={styles.content}>
-          <Text style={styles.title}>Création de l'histoire...</Text>
-          <Text style={styles.subtitle}>
-            {heroName} {selectedHero.emoji} va vivre une aventure {selectedTheme.name} {selectedTheme.emoji}
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContent}>
+          <LoadingLogo
+            size={120}
+            primaryEmoji="🪄"
+            sparkleEmoji="✨"
+          />
+          
+          <Text style={styles.loadingTitle}>Création en cours... ✨</Text>
+          <Text style={styles.loadingSubtitle}>
+            Notre IA magique prépare une histoire unique pour {heroName} !
           </Text>
+          
+          <View style={styles.stepsContainer}>
+            <GenerationStepsList steps={steps} />
+          </View>
         </View>
       </SafeAreaView>
     </LinearGradient>
@@ -49,40 +108,44 @@ const StoryGenerationScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  gradient: {
+  container: {
     flex: 1,
   },
   
-  container: {
+  safeArea: {
     flex: 1,
-    paddingHorizontal: spacing.lg,
   },
-
-  content: {
+  
+  loadingContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.cardBackground,
-    borderRadius: 20,
-    padding: spacing.xl,
-    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.xl,
   },
-
-  title: {
-    fontSize: typography.fontSize['2xl'],
-    fontFamily: typography.fontFamily.bold,
-    fontWeight: '700' as const,
+  
+  loadingTitle: {
+    fontSize: typography.fontSize.xl,
+    fontFamily: typography.fontFamily.primary,
+    fontWeight: '700',
     color: colors.textPrimary,
-    textAlign: 'center' as const,
+    textAlign: 'center',
+    marginTop: spacing.xl,
     marginBottom: spacing.base,
   },
-
-  subtitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.medium,
-    fontWeight: '500' as const,
+  
+  loadingSubtitle: {
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.primary,
+    fontWeight: '500',
     color: colors.textSecondary,
-    textAlign: 'center' as const,
+    textAlign: 'center',
+    marginBottom: spacing.xl * 2,
+    lineHeight: 22,
+  },
+  
+  stepsContainer: {
+    width: '100%',
+    maxWidth: 400,
   },
 });
 

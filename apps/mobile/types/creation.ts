@@ -12,16 +12,30 @@ export interface Theme {
   color: string;
 }
 
+export interface Tone {
+  id: string;
+  emoji: string;
+  title: string;
+  description: string;
+  mood: 'happy' | 'calm' | 'mysterious' | 'adventurous';
+}
+
 export type CreationStackParamList = {
   HeroSelection: undefined;
   ThemeSelection: {
     selectedHero: Hero;
     heroName: string;
   };
+  ToneSelection: {
+    selectedHero: Hero;
+    heroName: string;
+    selectedTheme: Theme;
+  };
   StoryGeneration: {
     selectedHero: Hero;
     heroName: string;
     selectedTheme: Theme;
+    selectedTone: Tone;
   };
 };
 
@@ -41,4 +55,35 @@ export const THEMES: Theme[] = [
   { id: '4', emoji: '🚀', name: 'Espace', description: 'Planètes et extraterrestres', color: '#9C27B0' },
   { id: '5', emoji: '🦕', name: 'Dinosaures', description: 'Époque préhistorique', color: '#FF9800' },
   { id: '6', emoji: '🏫', name: 'École', description: 'Amis et apprentissages', color: '#FFB74D' },
+];
+
+export const TONES: Tone[] = [
+  { 
+    id: '1', 
+    emoji: '😊', 
+    title: 'Joyeuse et drôle', 
+    description: 'Pleine de rires et de moments amusants',
+    mood: 'happy'
+  },
+  { 
+    id: '2', 
+    emoji: '🌙', 
+    title: 'Douce et apaisante', 
+    description: 'Parfaite pour se détendre avant de dormir',
+    mood: 'calm'
+  },
+  { 
+    id: '3', 
+    emoji: '🔍', 
+    title: 'Mystérieuse', 
+    description: 'Avec des énigmes à résoudre',
+    mood: 'mysterious'
+  },
+  { 
+    id: '4', 
+    emoji: '⚡', 
+    title: 'Aventureuse', 
+    description: 'Remplie d\'action et de découvertes',
+    mood: 'adventurous'
+  },
 ];

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, TouchableOpacityProps } from 'react-native';
 import { useTheme } from '@shopify/restyle';
 import { Theme } from '@/config/theme';
 import Box from '@/components/ui/Box';
@@ -13,7 +13,7 @@ import Animated, {
   interpolate
 } from 'react-native-reanimated';
 
-interface MagicalButtonProps {
+interface MagicalButtonProps extends TouchableOpacityProps {
   title: string;
   subtitle?: string;
   onPress: () => void;
@@ -26,7 +26,8 @@ const MagicalButton: React.FC<MagicalButtonProps> = ({
   subtitle,
   onPress,
   size = 'large',
-  icon
+  icon,
+  disabled
 }) => {
   const theme = useTheme<Theme>();
   const scale = useSharedValue(1);
@@ -67,6 +68,7 @@ const MagicalButton: React.FC<MagicalButtonProps> = ({
         onPressOut={handlePressOut}
         onPress={onPress}
         activeOpacity={0.8}
+        disabled={disabled}
       >
         <Box
           style={[
@@ -76,6 +78,7 @@ const MagicalButton: React.FC<MagicalButtonProps> = ({
               width: buttonWidth,
               shadowColor: theme.colors.tomato,
               backgroundColor: theme.colors.tomato,
+              opacity: disabled ? 0.5 : 1,
             }
           ]}
         >

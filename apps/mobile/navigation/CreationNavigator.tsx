@@ -25,6 +25,12 @@ export const CreationNavigator: React.FC = () => {
         }}
       />
       <Stack.Screen 
+        name="ToneSelection" 
+        options={{
+          animationTypeForReplace: 'push',
+        }}
+      />
+      <Stack.Screen 
         name="StoryGeneration" 
         options={{
           animationTypeForReplace: 'push',

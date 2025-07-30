@@ -20,7 +20,7 @@ const ThemeSelectionScreen: React.FC = () => {
   const handleCreateStory = () => {
     if (selectedTheme) {
       router.push({
-        pathname: '/(tabs)/stories/creation/story-generation',
+        pathname: '/(tabs)/stories/creation/tone-selection',
         params: {
           selectedHero: JSON.stringify(selectedHero),
           heroName,

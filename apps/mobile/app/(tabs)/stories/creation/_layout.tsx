@@ -22,6 +22,12 @@ export default function CreationLayout() {
         }}
       />
       <Stack.Screen 
+        name="tone-selection" 
+        options={{
+          animationTypeForReplace: 'push',
+        }}
+      />
+      <Stack.Screen 
         name="story-generation" 
         options={{
           animationTypeForReplace: 'push',
