@@ -10,6 +10,7 @@ import Text from '@/components/ui/Text';
 import Box from '@/components/ui/Box';
 import { theme } from '@/config/theme';
 import { LinearGradient } from 'expo-linear-gradient';
+import { spacing } from '@/theme/spacing';
 
 interface KidButtonProps {
   title: string;
@@ -61,7 +62,7 @@ const KidButton: React.FC<KidButtonProps> = ({ title, emoji, onPress }) => {
       >
         <Box style={styles.gradient}>
           <Text style={styles.buttonText}>
-            {title} {emoji}
+            {title}{emoji}
           </Text>
         </Box>
       </AnimatedPressable>
@@ -84,11 +85,13 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   gradient: {
-    paddingHorizontal: 32,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.base,
     minHeight: 50,
-    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
     fontSize: 17,

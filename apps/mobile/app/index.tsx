@@ -25,7 +25,7 @@ const Onboarding = () => {
       setUser({
         id: String(data.user.id),
         email: data.user.email,
-        fullname: data.user.firstname + " " + data.user.lastname,
+        fullname: data.user.firstname,
         role: Number(data.user.role),
         avatar: '',
       });

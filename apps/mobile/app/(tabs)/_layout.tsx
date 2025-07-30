@@ -41,13 +41,12 @@ export default function TabLayout() {
             tabBarIcon: ({ focused, color }) => <HouseIcon color={color} />,
           }}
         />
-
         <Tabs.Screen
-          name="stories/create"
+          name="stories/creation"
           redirect={user?.role === Role.GUEST}
           options={{
             ...defaultScreenOptions,
-            title: 'Create',
+            title: 'Hero Selection',
             headerShown: false,
             tabBarIcon: ({ focused, color }) => <SquarePenIcon color={color} />,
           }}
