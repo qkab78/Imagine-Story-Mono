@@ -37,7 +37,7 @@ const HomeScreen = () => {
 
   // Navigation handlers
   const handleCreateStory = useCallback(() => {
-    router.push('/stories/create');
+    router.push('/stories/creation/hero-selection');
   }, [router]);
 
   const handleReadStories = useCallback(() => {

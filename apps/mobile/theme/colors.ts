@@ -29,4 +29,7 @@ export const colors = {
   // États
   white: '#FFFFFF',
   transparent: 'transparent',
+
+  // Errors
+  error: '#FF0000',
 };

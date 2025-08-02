@@ -87,3 +87,58 @@ export const TONES: Tone[] = [
     mood: 'adventurous'
   },
 ];
+
+// Types pour React Hook Form
+export interface StoryCreationFormData {
+  hero: Hero;
+  heroName: string;
+  language: string;
+  age: number;
+  numberOfChapters: number;
+  theme: Theme;
+  tone: Tone;
+}
+
+// Types pour l'API
+export interface StoryCreationRequest {
+  hero: Hero;
+  heroName: string;
+  language: string;
+  age: number;
+  numberOfChapters: number;
+  theme: Theme;
+  tone: Tone;
+}
+
+export interface GeneratedStory {
+  id: string;
+  title: string;
+  content: string;
+  coverUrl?: string;
+  audioUrl?: string;
+  createdAt: string;
+}
+
+export interface StoryCreationResponse {
+  success: boolean;
+  story?: GeneratedStory;
+  error?: string;
+}
+
+// Options pour les selects
+export const AGE_OPTIONS = [
+  { label: '3 ans 👶', value: 3 },
+  { label: '4 ans 🧒', value: 4 },
+  { label: '5 ans 👦', value: 5 },
+  { label: '6 ans 👧', value: 6 },
+  { label: '7 ans 🧑', value: 7 },
+  { label: '8 ans 👨', value: 8 },
+];
+
+export const CHAPTERS_OPTIONS = [
+  { label: '1 chapitre 📖', value: 1 },
+  { label: '2 chapitres 📚', value: 2 },
+  { label: '3 chapitres 📗', value: 3 },
+  { label: '4 chapitres 📘', value: 4 },
+  { label: '5 chapitres 📙', value: 5 },
+];

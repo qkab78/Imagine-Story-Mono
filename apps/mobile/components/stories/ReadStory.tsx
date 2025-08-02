@@ -63,7 +63,7 @@ const ReadStory = ({ story, chapters, conclusion }: ReadStoryProps) => {
         {conclusion && (
           <Box marginTop="m">
             <Box 
-              backgroundColor="#F0E6FF"
+              backgroundColor="primaryCardBackground"
               marginHorizontal="m"
               borderRadius="l"
               style={styles.conclusionCard}
@@ -74,7 +74,7 @@ const ReadStory = ({ story, chapters, conclusion }: ReadStoryProps) => {
                 justifyContent="center"
                 padding="m"
                 borderBottomWidth={1}
-                borderBottomColor="#E8D5FF"
+                borderBottomColor="secondaryCardBackground"
               >
                 <Star size={20} color="#F59E0B" />
                 <Text 

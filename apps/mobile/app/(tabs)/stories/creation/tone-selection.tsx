@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { StyleSheet, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useForm } from 'react-hook-form';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
-import { Hero, Theme, Tone, TONES } from '@/types/creation';
+import { Tone, TONES, StoryCreationFormData } from '@/types/creation';
 import NavHeader from '@/components/creation/NavHeader';
 import StepIndicator from '@/components/creation/StepIndicator';
 import ToneSelectionCard from '@/components/creation/ToneSelectionCard';
@@ -12,33 +13,33 @@ import { ScrollView } from 'tamagui';
 
 const ToneSelectionScreen: React.FC = () => {
   const params = useLocalSearchParams();
-  const selectedHero: Hero = JSON.parse(params.selectedHero as string);
-  const heroName = params.heroName as string;
-  const selectedTheme: Theme = JSON.parse(params.selectedTheme as string);
+  const previousFormData: StoryCreationFormData = JSON.parse(params.formData as string);
 
-  const [selectedTone, setSelectedTone] = useState<Tone | null>(TONES[0]);
+  const { handleSubmit, watch, setValue } = useForm<StoryCreationFormData>({
+    defaultValues: {
+      ...previousFormData,
+      tone: TONES[0],
+    }
+  });
 
-  const handleCreateStory = useCallback(() => {
-    if (!selectedTone) return;
-    
+  const selectedTone = watch('tone');
+
+  const onSubmit = useCallback((data: StoryCreationFormData) => {
     router.push({
       pathname: '/(tabs)/stories/creation/story-generation',
       params: {
-        selectedHero: JSON.stringify(selectedHero),
-        heroName,
-        selectedTheme: JSON.stringify(selectedTheme),
-        selectedTone: JSON.stringify(selectedTone),
+        formData: JSON.stringify(data),
       }
     });
-  }, [selectedHero, heroName, selectedTheme, selectedTone]);
+  }, []);
 
   const handleBack = useCallback(() => {
     router.back();
   }, []);
 
   const handleToneSelect = useCallback((tone: Tone) => {
-    setSelectedTone(tone);
-  }, []);
+    setValue('tone', tone);
+  }, [setValue]);
 
   return (
     <ScrollView>
@@ -62,7 +63,7 @@ const ToneSelectionScreen: React.FC = () => {
             tones={TONES}
             selectedTone={selectedTone}
             onToneSelect={handleToneSelect}
-            onCreateStory={handleCreateStory}
+            onCreateStory={handleSubmit(onSubmit)}
           />
         </SafeAreaView>
       </LinearGradient>

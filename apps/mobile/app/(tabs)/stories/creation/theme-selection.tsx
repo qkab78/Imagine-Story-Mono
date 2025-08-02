@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useForm } from 'react-hook-form';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
-import { Hero, Theme, THEMES } from '@/types/creation';
+import { Theme, THEMES, StoryCreationFormData } from '@/types/creation';
 import NavHeader from '@/components/creation/NavHeader';
 import StepIndicator from '@/components/creation/StepIndicator';
 import ThemeSelectionGrid from '@/components/creation/ThemeSelectionGrid';
@@ -12,22 +13,24 @@ import { ScrollView } from 'tamagui';
 
 const ThemeSelectionScreen: React.FC = () => {
   const params = useLocalSearchParams();
-  const selectedHero: Hero = JSON.parse(params.selectedHero as string);
-  const heroName = params.heroName as string;
+  const previousFormData: StoryCreationFormData = JSON.parse(params.formData as string);
 
-  const [selectedTheme, setSelectedTheme] = useState<Theme | null>(THEMES[0]);
-
-  const handleCreateStory = () => {
-    if (selectedTheme) {
-      router.push({
-        pathname: '/(tabs)/stories/creation/tone-selection',
-        params: {
-          selectedHero: JSON.stringify(selectedHero),
-          heroName,
-          selectedTheme: JSON.stringify(selectedTheme),
-        }
-      });
+  const { handleSubmit, watch, setValue } = useForm<StoryCreationFormData>({
+    defaultValues: {
+      ...previousFormData,
+      theme: THEMES[0],
     }
+  });
+
+  const selectedTheme = watch('theme');
+
+  const onSubmit = (data: StoryCreationFormData) => {
+    router.push({
+      pathname: '/(tabs)/stories/creation/tone-selection',
+      params: {
+        formData: JSON.stringify(data),
+      }
+    });
   };
 
   const handleBack = () => {
@@ -55,8 +58,8 @@ const ThemeSelectionScreen: React.FC = () => {
           <ThemeSelectionGrid
             themes={THEMES}
             selectedTheme={selectedTheme}
-            onThemeSelect={setSelectedTheme}
-            onCreateStory={handleCreateStory}
+            onThemeSelect={(theme: Theme) => setValue('theme', theme)}
+            onCreateStory={handleSubmit(onSubmit)}
           />
         </SafeAreaView>
       </LinearGradient>
