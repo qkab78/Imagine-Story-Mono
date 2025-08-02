@@ -1,12 +1,4 @@
-import { ALLOWED_LANGUAGES } from '#stories/constants/allowed_languages';
 import vine from '@vinejs/vine'
-
-export const ALLOWED_TONES = {
-  HAPPY: 'happy',
-  CALM: 'calm',
-  MYSTERIOUS: 'mysterious',
-  ADVENTUROUS: 'adventurous',
-} as const;
 
 export const createStoryValidator = vine.compile(
   vine.object({
