@@ -1,10 +1,5 @@
 import type { Stories } from '@imagine-story/api/types/db';
-
-export const ALLOWED_LANGUAGES = {
-  FR: 'Français',
-  EN: 'English',
-  LI: 'Lingala',
-} as const;
+import { ALLOWED_LANGUAGES } from '@imagine-story/api/app/stories/constants/allowed_languages';
 
 export const THEMES = [
   { id: 1, label: 'Fantaisie', value: 'fantasy' },
@@ -27,16 +22,17 @@ export interface CreateStoryFormData {
   childAge: number;
   numberOfChapters: number;
   language: keyof typeof ALLOWED_LANGUAGES;
+  tone: string;
 };
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-export const getLatestStories = async(token: string) => {
+export const getLatestStories = async (token: string) => {
   if (!token) {
     console.error('No token provided');
     throw new Error('No token provided');
   }
-  
+
   const response = await fetch(`${apiUrl}/stories/all/latest`, {
     headers: {
       Authorization: token,
@@ -46,12 +42,12 @@ export const getLatestStories = async(token: string) => {
   return stories;
 };
 
-export const getStoriesByAuthenticatedUserId = async(token: string) => {
+export const getStoriesByAuthenticatedUserId = async (token: string) => {
   if (!token) {
     console.error('No token provided');
     throw new Error('No token provided');
   }
-  
+
   const response = await fetch(`${apiUrl}/stories/user/me`, {
     headers: {
       Authorization: token,
@@ -61,7 +57,7 @@ export const getStoriesByAuthenticatedUserId = async(token: string) => {
   return stories;
 };
 
-export const getStories = async(token: string) => {
+export const getStories = async (token: string) => {
   const response = await fetch(`${apiUrl}/stories`, {
     headers: {
       Authorization: token,
@@ -71,7 +67,7 @@ export const getStories = async(token: string) => {
   return stories;
 };
 
-export const getSuggestedStories = async(token: string, query: string) => {
+export const getSuggestedStories = async (token: string, query: string) => {
   const response = await fetch(`${apiUrl}/stories/search/suggestions?query=${query}`, {
     headers: {
       Authorization: token,
@@ -81,7 +77,7 @@ export const getSuggestedStories = async(token: string, query: string) => {
   return stories;
 };
 
-export const createStory = async(payload: CreateStoryFormData) => {
+export const createStory = async (payload: CreateStoryFormData) => {
   const response = await fetch(`${apiUrl}/stories`, {
     method: 'POST',
     headers: {
@@ -90,11 +86,16 @@ export const createStory = async(payload: CreateStoryFormData) => {
     },
     body: JSON.stringify(payload),
   });
-  const createdStory: Stories = await response.json();
-  return createdStory;
+  const createdStory = await response.json();
+
+  if (createdStory.errors && createdStory.errors.length > 0) {
+    throw new Error(createdStory.errors.join(', '));
+  }
+  console.log({ createdStory });
+  return createdStory as Stories;
 };
 
-export const getStoryBySlug = async(slug: string) => {
+export const getStoryBySlug = async (slug: string) => {
   const response = await fetch(`${apiUrl}/stories/${slug}`);
   const story: Stories = await response.json();
   return story;

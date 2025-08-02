@@ -9,6 +9,18 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
+export type Json = JsonValue;
+
+export type JsonArray = JsonValue[];
+
+export type JsonObject = {
+  [x: string]: JsonValue | undefined;
+};
+
+export type JsonPrimitive = boolean | number | string | null;
+
+export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
+
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export interface AccessTokens {
@@ -37,14 +49,22 @@ export interface AdonisSchemaVersions {
 
 export interface Stories {
   chapters: number;
+  child_age: Generated<number>;
+  conclusion: Generated<string>;
   content: string;
   cover_image: string;
   created_at: Timestamp;
   id: Generated<string>;
+  language: Generated<string>;
+  protagonist: Generated<string>;
   public: Generated<boolean>;
-  slug: string;
+  slug: string | null;
+  species: Generated<string>;
+  story_chapters: Generated<Json>;
   synopsis: string;
+  theme: Generated<string>;
   title: string;
+  tone: Generated<string>;
   updated_at: Timestamp;
   user_id: string;
 }
