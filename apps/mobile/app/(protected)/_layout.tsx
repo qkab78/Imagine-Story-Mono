@@ -1,5 +1,5 @@
 import { useFonts } from 'expo-font';
-import { Drawer } from 'expo-router/drawer';
+import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ import { darkTheme, type Theme } from '@/config/theme';
 SplashScreen.preventAutoHideAsync();
 
 export default function DrawerLayout() {
-  const [darkMode, setDarkMode] = useState(false);
+  // const [darkMode, setDarkMode] = useState(false);
   const [loaded] = useFonts({
     SpaceMonoRegular: require('../../assets/fonts/SpaceMono-Regular.ttf'),
     SpaceMonoBold: require('../../assets/fonts/SpaceMono-Bold.ttf'),
@@ -38,8 +38,8 @@ export default function DrawerLayout() {
   }
 
   return (
-    <ThemeProvider theme={darkMode ? darkTheme : theme}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+    <ThemeProvider theme={theme}>
+      {/* <GestureHandlerRootView style={{ flex: 1 }}>
         <Drawer
           drawerContent={(props) => <CustomDrawerContent {...props} />}
           screenOptions={{
@@ -70,7 +70,8 @@ export default function DrawerLayout() {
               drawerItemStyle: { display: 'none' }
             }} />
         </Drawer>
-      </GestureHandlerRootView>
+      </GestureHandlerRootView> */}
+      <Slot />
       <StatusBar style="auto" />
     </ThemeProvider>
   );

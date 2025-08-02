@@ -2,16 +2,12 @@ import useAuthStore from "@/store/auth/authStore";
 import { Role } from "@imagine-story/api/users/models/role";
 import { Tabs } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
-import { useTheme } from "@shopify/restyle";
-import { Theme } from "@/config/theme";
 import { HouseIcon, SquarePenIcon, CircleUserRoundIcon, CogIcon } from "lucide-react-native";
 
 
 export default function TabLayout() {
   const user = useAuthStore(state => state.user);
-  const theme = useTheme<Theme>();
-  const defaultScreenOptions: BottomTabNavigationOptions = {
+  const defaultScreenOptions = {
     tabBarActiveBackgroundColor: 'transparent',
     tabBarActiveTintColor: '#6B46C1', // Purple to match magical theme
     tabBarInactiveTintColor: '#A78BFA', // Lighter purple for inactive tabs

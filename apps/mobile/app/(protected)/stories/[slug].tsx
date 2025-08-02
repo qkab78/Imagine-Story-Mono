@@ -1,14 +1,13 @@
 import { StyleSheet, Text, View, Image } from 'react-native'
 import React, { useEffect } from 'react'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import { ScrollView } from 'react-native-gesture-handler'
 import { getStoryBySlug } from '@/api/stories'
 import { splitChapters } from '@/utils/story.utils'
-import { useNavigation } from '@react-navigation/native'
 
 const StoryScreen = () => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const { slug } = useLocalSearchParams()
   const { data, isLoading, error } = useQuery({
     queryKey: ['story', slug],
@@ -16,10 +15,10 @@ const StoryScreen = () => {
   })
 
   useEffect(() => {
-    navigation.setOptions({
-      title: data?.title,
+    router.setParams({
+      title: data?.title || '',
     });
-  }, [navigation, data?.title]);
+  }, [router, data?.title, slug]);
 
   if (isLoading) {
     return <Text>Loading...</Text>
@@ -51,10 +50,10 @@ const StoryScreen = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ display: 'flex', flexDirection: 'row' }}
       >
-        {chapters.map((chapter, index) => (
+        {chapters.chapters.map((chapter, index) => (
           <View key={index} style={{ padding: 20, width: 400, gap: 20 }}>
-            <Text>{`Chapitre ${index + 1} : ${chapter.titre}`}</Text>
-            <Text style={{ textAlign: 'justify', lineHeight: 30, fontSize: 15 }}>{chapter.contenu}</Text>
+            <Text>{`Chapitre ${index + 1} : ${chapter.title}`}</Text>
+            <Text style={{ textAlign: 'justify', lineHeight: 30, fontSize: 15 }}>{chapter.content}</Text>
           </View>
         ))}
       </ScrollView>
