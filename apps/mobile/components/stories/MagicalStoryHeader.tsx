@@ -1,12 +1,9 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Dimensions } from 'react-native';
-import { useTheme } from '@shopify/restyle';
-import { Theme } from '@/config/theme';
 import Box from '@/components/ui/Box';
 import Text from '@/components/ui/Text';
 import BackButton from '../ui/BackButton';
-import { Stories } from '@imagine-story/api/types/db';
-import { Crown, Heart, Star } from 'lucide-react-native';
+import { Story } from '@imagine-story/api/app/stories/entities';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -16,7 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 interface MagicalStoryHeaderProps {
-  story: Stories;
+  story: Story;
 }
 
 const { width, height } = Dimensions.get('window');
@@ -66,7 +63,7 @@ const MagicalStoryHeader: React.FC<MagicalStoryHeaderProps> = ({ story }) => {
       {/* Story Cover and Title */}
       <Box position="relative" height={IMAGE_HEIGHT} width={width}>
         <Animated.Image
-          source={{ uri: story.cover_image }}
+          source={{ uri: story.coverImage }}
           style={[
             styles.coverImage,
             { width, height: IMAGE_HEIGHT }

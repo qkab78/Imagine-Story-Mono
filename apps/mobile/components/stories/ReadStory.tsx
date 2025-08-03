@@ -4,24 +4,17 @@ import { useTheme } from '@shopify/restyle';
 import { Theme } from '@/config/theme';
 import Box from '@/components/ui/Box';
 import Text from '@/components/ui/Text';
-import { Stories } from '@imagine-story/api/types/db';
 import MagicalStoryHeader from './MagicalStoryHeader';
 import MagicalChapter from './MagicalChapter';
 import { BookOpen, Heart, Star } from 'lucide-react-native';
-
-type Chapter = {
-  title: string
-  content: string
-}
+import { Story } from '@imagine-story/api/app/stories/entities';
 
 interface ReadStoryProps {
-  story: Stories
-  chapters: Chapter[]
-  conclusion: string
+  story: Story
 }
 
 
-const ReadStory = ({ story, chapters, conclusion }: ReadStoryProps) => {
+const ReadStory = ({ story }: ReadStoryProps) => {
   const theme = useTheme<Theme>();
   
   return (
@@ -51,7 +44,7 @@ const ReadStory = ({ story, chapters, conclusion }: ReadStoryProps) => {
       
       {/* Magical Chapters */}
       <Box marginTop="m">
-        {chapters.map((chapter, index) => (
+        {story.chapters.map((chapter, index) => (
           <MagicalChapter
             key={`${chapter.title}-${index}`}
             chapter={chapter}
@@ -60,7 +53,7 @@ const ReadStory = ({ story, chapters, conclusion }: ReadStoryProps) => {
         ))}
         
         {/* Magical Conclusion */}
-        {conclusion && (
+        {story.conclusion && (
           <Box marginTop="m">
             <Box 
               backgroundColor="primaryCardBackground"
@@ -103,7 +96,7 @@ const ReadStory = ({ story, chapters, conclusion }: ReadStoryProps) => {
                   textAlign="justify"
                   color="textPrimary"
                 >
-                  {conclusion}
+                  {story.conclusion}
                 </Text>
                 
                 {/* Happy ending hearts */}

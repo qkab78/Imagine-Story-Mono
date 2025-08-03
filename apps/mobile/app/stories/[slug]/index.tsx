@@ -32,7 +32,7 @@ const StoryScreen = () => {
       {data && (
         <>
           <Animated.Image
-            source={{ uri: data.cover_image }}
+            source={{ uri: data.coverImage }}
             style={{ width, height: height * 0.6 }}
           />
 

@@ -13,6 +13,7 @@ import { getStoryBySlugValidator } from "./get_story_by_slug_validator.js";
 import { getSuggestedStoriesValidator } from "./get_suggested_stories_validator.js";
 import { ALLOWED_LANGUAGES } from "#stories/constants/allowed_languages";
 import { LOCALES } from "#stories/constants/locales";
+import { getStoryBySlugPresenter } from "#stories/presenters/get_story_by_slug_presenter";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -71,9 +72,18 @@ export default class StoriesController {
 
   public async getStoryBySlug({ request, response }: HttpContext) {
     const payload = await getStoryBySlugValidator.validate(request.params());
-    const stories = await db.selectFrom('stories').where('slug', '=', payload.slug).selectAll().executeTakeFirst();
+    const stories = await db
+      .selectFrom('stories')
+      .where('slug', '=', payload.slug)
+      .selectAll()
+      .executeTakeFirst();
 
-    return response.json(stories);
+    if (!stories) {
+      throw new Error('Story not found');
+    }
+
+    // @todo: remove any and check for a way to type the story returned by the database
+    return response.json(getStoryBySlugPresenter(stories as any));
   }
 
   public async getStoriesByAuthenticatedUserId({ response, auth }: HttpContext) {

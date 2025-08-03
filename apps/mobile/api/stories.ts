@@ -1,5 +1,6 @@
 import type { Stories } from '@imagine-story/api/types/db';
 import { ALLOWED_LANGUAGES } from '@imagine-story/api/app/stories/constants/allowed_languages';
+import { Story } from '@imagine-story/api/app/stories/entities';
 
 export const THEMES = [
   { id: 1, label: 'Fantaisie', value: 'fantasy' },
@@ -97,6 +98,6 @@ export const createStory = async (payload: CreateStoryFormData) => {
 
 export const getStoryBySlug = async (slug: string) => {
   const response = await fetch(`${apiUrl}/stories/${slug}`);
-  const story: Stories = await response.json();
+  const story: Story = await response.json();
   return story;
 };
