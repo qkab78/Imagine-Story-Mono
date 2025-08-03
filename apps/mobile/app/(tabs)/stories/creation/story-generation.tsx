@@ -1,18 +1,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, SafeAreaView, View, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import LoadingLogo from '@/components/creation/LoadingLogo';
 import GenerationStepsList, { GenerationStep } from '@/components/creation/GenerationStepsList';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing } from '@/theme/spacing';
 import Text from '@/components/ui/Text';
-import { StoryCreationFormData } from '@/types/creation';
-import { createStory } from '@/api/stories';
+import { createStory, CreateStoryFormData } from '@/api/stories';
 import { useMutation } from '@tanstack/react-query';
 import useAuthStore from '@/store/auth/authStore';
 import { ALLOWED_LANGUAGES } from '@imagine-story/api/app/stories/constants/allowed_languages';
+import useStoryStore from '@/store/stories/storyStore';
 
 const STEP_STATUS = {
   COMPLETED: 'completed',
@@ -24,13 +24,12 @@ const STEP_STATUS = {
 const VISUAL_STEPS: GenerationStep[] = [
   { id: '1', title: 'Création du personnage', icon: '✅', status: STEP_STATUS.COMPLETED },
   { id: '2', title: 'Construction de l\'univers', icon: '✅', status: STEP_STATUS.COMPLETED },
-  { id: '3', title: 'Écriture de l\'histoire', icon: '⏳', status: STEP_STATUS.ACTIVE },
-  { id: '4', title: 'Génération des illustrations', icon: '⭕', status: STEP_STATUS.PENDING },
+  { id: '3', title: 'Génération des illustrations', icon: '⏳', status: STEP_STATUS.ACTIVE },
+  { id: '4', title: 'Écriture de l\'histoire', icon: '⭕', status: STEP_STATUS.PENDING },
 ];
 
 const StoryGenerationScreen: React.FC = () => {
-  const params = useLocalSearchParams();
-  const formData: StoryCreationFormData = JSON.parse(params.formData as string);
+  const { createStoryPayload, resetCreateStoryPayload } = useStoryStore();
   const { token } = useAuthStore();
 
   const [steps, setSteps] = useState<GenerationStep[]>(VISUAL_STEPS);
@@ -41,6 +40,7 @@ const StoryGenerationScreen: React.FC = () => {
 
   const generateStory = useCallback(async () => {
     if (isGenerating) return;
+    if (!createStoryPayload) return;
 
     setIsGenerating(true);
 
@@ -66,24 +66,20 @@ const StoryGenerationScreen: React.FC = () => {
         }
       }, 1500);
 
-      // Appel API réel
-      const payload = {
-        title: `Les Aventures de ${formData.heroName}`,
-        synopsis: formData.theme.description,
-        theme: formData.theme.name,
+      const payload: CreateStoryFormData = {
+        synopsis: createStoryPayload.theme.description,
+        theme: createStoryPayload.theme.name,
         token: token || '',
-        protagonist: formData.heroName,
-        childAge: formData.age,
-        numberOfChapters: formData.numberOfChapters,
-        language: formData.language as keyof typeof ALLOWED_LANGUAGES,
-        tone: formData.tone.mood,
+        protagonist: createStoryPayload.heroName,
+        childAge: createStoryPayload.age,
+        numberOfChapters: createStoryPayload.numberOfChapters,
+        language: createStoryPayload.language as keyof typeof ALLOWED_LANGUAGES,
+        tone: createStoryPayload.tone.mood,
       }
 
-      // Utiliser une promesse pour gérer l'appel mutation
       generateStoryMutation(payload, {
         onSuccess: (data) => {
           clearInterval(progressInterval);
-          // Finaliser toutes les étapes
           setSteps(prevSteps =>
             prevSteps.map(step => ({
               ...step,
@@ -92,8 +88,6 @@ const StoryGenerationScreen: React.FC = () => {
             }))
           );
 
-          console.log({ data });
-          // Attendre un peu avant de naviguer
           Alert.alert(
             'Histoire créée ! 🎉',
             `"${data.title}" a été générée avec succès !`,
@@ -101,6 +95,7 @@ const StoryGenerationScreen: React.FC = () => {
               {
                 text: 'Voir l\'histoire',
                 onPress: () => {
+                  resetCreateStoryPayload();
                   router.push({
                     pathname: '/stories/[slug]',
                     params: {
@@ -139,7 +134,7 @@ const StoryGenerationScreen: React.FC = () => {
     } finally {
       setIsGenerating(false);
     }
-  }, [formData, isGenerating, generateStoryMutation, token]);
+  }, [createStoryPayload, isGenerating, generateStoryMutation, token]);
 
   useEffect(() => {
     generateStory();
@@ -163,7 +158,7 @@ const StoryGenerationScreen: React.FC = () => {
 
           <Text style={styles.loadingTitle}>Création en cours... ✨</Text>
           <Text style={styles.loadingSubtitle}>
-            Notre IA magique prépare une histoire unique pour {formData.heroName} !
+            Notre IA magique prépare une histoire unique pour {createStoryPayload?.heroName} !
           </Text>
 
           <View style={styles.stepsContainer}>

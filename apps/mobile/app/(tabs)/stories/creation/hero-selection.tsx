@@ -11,20 +11,22 @@ import StepIndicator from '@/components/creation/StepIndicator';
 import HeroSelectionCard from '@/components/creation/HeroSelectionCard';
 import { ScrollView } from 'tamagui';
 import { ALLOWED_LANGUAGES } from '@imagine-story/api/app/stories/constants/allowed_languages';
+import useStoryStore from '@/store/stories/storyStore';
 
 const { width } = Dimensions.get('window')
 const WIDTH = width - spacing.lg * 2;
 
 const HeroSelectionScreen: React.FC = () => {
-  const { control, handleSubmit, watch, setValue, reset } = useForm<StoryCreationFormData>({
+  const { setCreateStoryPayload, createStoryPayload } = useStoryStore();
+  const { control, handleSubmit, watch, setValue } = useForm<StoryCreationFormData>({
     defaultValues: {
-      hero: HEROES[0],
-      heroName: '',
-      language: ALLOWED_LANGUAGES.FR,
-      age: 5,
-      numberOfChapters: 3,
-      theme: undefined,
-      tone: undefined,
+      hero: createStoryPayload?.hero || HEROES[0],
+      heroName: createStoryPayload?.heroName || '',
+      language: createStoryPayload?.language || ALLOWED_LANGUAGES.FR,
+      age: createStoryPayload?.age || 5,
+      numberOfChapters: createStoryPayload?.numberOfChapters || 3,
+      theme: createStoryPayload?.theme || undefined,
+      tone: createStoryPayload?.tone || undefined,
     }
   });
 
@@ -32,13 +34,13 @@ const HeroSelectionScreen: React.FC = () => {
   const heroName = watch('heroName');
 
   const onSubmit = (data: StoryCreationFormData) => {
+    setCreateStoryPayload(data);
     router.push({
       pathname: '/(tabs)/stories/creation/theme-selection',
       params: {
         formData: JSON.stringify(data),
       }
     });
-    reset();
   };
 
   const handleBack = () => {

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
@@ -10,21 +10,20 @@ import NavHeader from '@/components/creation/NavHeader';
 import StepIndicator from '@/components/creation/StepIndicator';
 import ToneSelectionCard from '@/components/creation/ToneSelectionCard';
 import { ScrollView } from 'tamagui';
+import useStoryStore from '@/store/stories/storyStore';
 
 const ToneSelectionScreen: React.FC = () => {
-  const params = useLocalSearchParams();
-  const previousFormData: StoryCreationFormData = JSON.parse(params.formData as string);
-
+  const { setCreateStoryPayload, createStoryPayload } = useStoryStore();
   const { handleSubmit, watch, setValue } = useForm<StoryCreationFormData>({
     defaultValues: {
-      ...previousFormData,
-      tone: TONES[0],
+      tone: createStoryPayload?.tone || TONES[0],
     }
   });
 
   const selectedTone = watch('tone');
 
   const onSubmit = useCallback((data: StoryCreationFormData) => {
+    setCreateStoryPayload(data);
     router.push({
       pathname: '/(tabs)/stories/creation/story-generation',
       params: {
@@ -39,7 +38,11 @@ const ToneSelectionScreen: React.FC = () => {
 
   const handleToneSelect = useCallback((tone: Tone) => {
     setValue('tone', tone);
-  }, [setValue]);
+    setCreateStoryPayload({
+      ...createStoryPayload!,
+      tone,
+    });
+  }, [setValue, createStoryPayload]);
 
   return (
     <ScrollView>

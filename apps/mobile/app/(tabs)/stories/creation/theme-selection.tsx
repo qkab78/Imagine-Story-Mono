@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
@@ -10,21 +10,20 @@ import NavHeader from '@/components/creation/NavHeader';
 import StepIndicator from '@/components/creation/StepIndicator';
 import ThemeSelectionGrid from '@/components/creation/ThemeSelectionGrid';
 import { ScrollView } from 'tamagui';
+import useStoryStore from '@/store/stories/storyStore';
 
 const ThemeSelectionScreen: React.FC = () => {
-  const params = useLocalSearchParams();
-  const previousFormData: StoryCreationFormData = JSON.parse(params.formData as string);
-
+  const { setCreateStoryPayload, createStoryPayload } = useStoryStore();
   const { handleSubmit, watch, setValue } = useForm<StoryCreationFormData>({
     defaultValues: {
-      ...previousFormData,
-      theme: THEMES[0],
+      theme: createStoryPayload?.theme || THEMES[0],
     }
   });
 
   const selectedTheme = watch('theme');
 
   const onSubmit = (data: StoryCreationFormData) => {
+    setCreateStoryPayload(data);
     router.push({
       pathname: '/(tabs)/stories/creation/tone-selection',
       params: {
@@ -39,6 +38,7 @@ const ThemeSelectionScreen: React.FC = () => {
 
   return (
     <ScrollView>
+      {/* @ts-ignore */}
       <LinearGradient
         colors={[colors.backgroundGreen, colors.backgroundGreenEnd]}
         style={styles.gradient}

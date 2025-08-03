@@ -14,7 +14,7 @@ export const THEMES = [
 ];
 
 export interface CreateStoryFormData {
-  title: string;
+  title?: string;
   synopsis: string;
   theme: string;
   token: string;
