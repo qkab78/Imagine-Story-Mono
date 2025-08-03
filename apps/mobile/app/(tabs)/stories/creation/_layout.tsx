@@ -1,8 +1,8 @@
-import { Stack } from 'expo-router';
+import { Slot } from 'expo-router';
 
 export default function CreationLayout() {
-  return (
-    <Stack
+  return <Slot />
+  {/* <Stack
       screenOptions={{
         headerShown: false,
         gestureEnabled: true,
@@ -33,6 +33,6 @@ export default function CreationLayout() {
           animationTypeForReplace: 'push',
         }}
       />
-    </Stack>
-  );
+    </Stack> */}
+
 }

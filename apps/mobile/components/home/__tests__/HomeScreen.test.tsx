@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { NavigationContainer } from '@react-navigation/native';
+
 import HomeScreen from '../../../app/(protected)/home';
+import { Stack } from 'expo-router';
 
 // Mock des dépendances
 jest.mock('@react-navigation/native', () => ({
@@ -52,7 +53,7 @@ jest.mock('../../../hooks/useHomeScreen', () => ({
 }));
 
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <NavigationContainer>{children}</NavigationContainer>
+  <Stack>{children}</Stack>
 );
 
 describe('HomeScreen', () => {

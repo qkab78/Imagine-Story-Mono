@@ -4,45 +4,21 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
-import { Stack, useRouter, useSegments, } from 'expo-router';
+import { Slot, useRouter, useSegments, } from 'expo-router';
 import useAuthStore from '@/store/auth/authStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui'
 import config from '@/tamagui.config';
 import { ThemeProvider } from '@shopify/restyle';
 import { theme, darkTheme } from '@/config/theme';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 const queryClient = new QueryClient();
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-const defaultScreenOptions: NativeStackNavigationOptions = {
-  headerShown: false,
-  headerTintColor: theme.colors.textPrimary,
-}
-
-const StackLayout = () => {
-  return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={defaultScreenOptions} />
-      <Stack.Screen name="(protected)" options={defaultScreenOptions} />
-
-      <Stack.Screen name="index" options={defaultScreenOptions} />
-      <Stack.Screen name="login" options={defaultScreenOptions} />
-      <Stack.Screen name="register" options={defaultScreenOptions} />
-
-      <Stack.Screen name="search/index" options={defaultScreenOptions} />
-
-      <Stack.Screen name="stories" options={defaultScreenOptions} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
-  )
-}
-
 export default function RootLayout() {
-  const [darkMode, setDarkMode] = useState(false);
+  // const [darkMode, setDarkMode] = useState(false);
   const [loaded] = useFonts({
     SpaceMonoRegular: require('../assets/fonts/SpaceMono-Regular.ttf'),
     SpaceMonoBold: require('../assets/fonts/SpaceMono-Bold.ttf'),
@@ -76,10 +52,10 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider theme={darkMode ? darkTheme : theme}>
+    <ThemeProvider theme={theme}>
       <TamaguiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <StackLayout />
+          <Slot />
           <StatusBar style="dark" backgroundColor="#F0E6FF" />
         </QueryClientProvider>
       </TamaguiProvider>
