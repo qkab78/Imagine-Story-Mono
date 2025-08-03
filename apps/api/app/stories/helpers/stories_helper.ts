@@ -28,7 +28,7 @@ export async function generateStory(payload: StoryContentPayload) {
     The tone of the story is: ${tone}.
 
     Use simple, vivid, age-appropriate language filled with adventure and imagination.  
-    Each chapter should be **around 100–150 words**.  
+    Each chapter should be **around 300-600 words**.  
     At the end of the last chapter, **write a proper conclusion** that wraps up the story, solves the main plot, or delivers a gentle lesson.  
     **Make sure the final chapter ends the story completely, with no cliffhanger.**  
     If the story is too long to fit, **shorten chapters if needed but always include the full ending.**  
