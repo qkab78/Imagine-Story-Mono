@@ -38,6 +38,16 @@ export const colors = {
   storyCoverGradientStart: '#FFB74D',
   storyCoverGradientEnd: '#FF8A65',
 
+  // Reading specific
+  backgroundReading: '#F0F8FF',        // Background écran lecture (début)
+  backgroundReadingEnd: '#FFF5F5',     // Background écran lecture (fin)
+  chapterDurationBackground: 'rgba(76,175,80,0.1)',
+  chapterDurationText: '#4CAF50',
+  conclusionBackground: 'rgba(76,175,80,0.1)',
+  conclusionBorder: 'rgba(76,175,80,0.3)',
+  miniCoverGradientStart: '#FFB74D',
+  miniCoverGradientEnd: '#FF8A65',
+
   // Errors
   error: '#FF0000',
 };

@@ -133,7 +133,7 @@ const getToneEmoji = (tone: string) => {
     'funny': '😄',
     'gentle': '💫',
   };
-  return toneMap[tone.toLowerCase()] || '😊';
+  return toneMap[tone?.toLowerCase()] || '😊';
 };
 
 const getThemeEmoji = (theme: string) => {
@@ -145,8 +145,9 @@ const getThemeEmoji = (theme: string) => {
     'dinosaurs': '🦕',
     'school': '🏫',
   };
-  return themeMap[theme.toLowerCase()] || '📚';
+  return themeMap[theme?.toLowerCase()] || '📚';
 };
+
 // Sous-composant Info d'histoire
 const StoryInfo: React.FC<StoryInfoProps> = (props) => {
   const { title, theme, tone, childAge, numberOfChapters, synopsis } = props;
