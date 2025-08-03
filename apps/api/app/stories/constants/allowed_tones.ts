@@ -1,4 +1,4 @@
-export const ALLOWED_TONES: Record<string, string> = {
+export const ALLOWED_TONES = {
   HAPPY: 'happy',
   CALM: 'calm',
   MYSTERIOUS: 'mysterious',

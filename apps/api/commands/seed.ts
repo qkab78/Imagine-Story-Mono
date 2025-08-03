@@ -6,7 +6,7 @@ import hash from '@adonisjs/core/services/hash'
 import env from '#start/env'
 
 export default class Seed extends BaseCommand {
-  static commandName = 'seed'
+  static commandName = 'seed:users'
   static description = 'Seed database with initial data'
 
   static options: CommandOptions = {
@@ -23,7 +23,7 @@ export default class Seed extends BaseCommand {
   }
 
   async initDatabase() {
-    await db.deleteFrom('users').execute()
+    // await db.deleteFrom('users').execute()
   }
 
   async createUsers() {

@@ -4,7 +4,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import { ScrollView } from 'react-native-gesture-handler'
 import { getStoryBySlug } from '@/api/stories'
-import { splitChapters } from '@/utils/story.utils'
 
 const StoryScreen = () => {
   const router = useRouter();
@@ -28,14 +27,13 @@ const StoryScreen = () => {
     return <Text>Error fetching story</Text>
   }
 
-  const chapters = splitChapters(data.content);
 
   return (
     <View>
       <View style={{ display: 'flex' }}>
         <View style={{ padding: 20 }}>
           <Image
-            source={{ uri: data.cover_image }}
+            source={{ uri: data.coverImage }}
             style={{ width: 150, height: 200 }}
           />
         </View>
@@ -50,7 +48,7 @@ const StoryScreen = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ display: 'flex', flexDirection: 'row' }}
       >
-        {chapters.chapters.map((chapter, index) => (
+        {data.chapters.map((chapter, index) => (
           <View key={index} style={{ padding: 20, width: 400, gap: 20 }}>
             <Text>{`Chapitre ${index + 1} : ${chapter.title}`}</Text>
             <Text style={{ textAlign: 'justify', lineHeight: 30, fontSize: 15 }}>{chapter.content}</Text>
