@@ -30,6 +30,14 @@ export const colors = {
   white: '#FFFFFF',
   transparent: 'transparent',
 
+  // Story specific
+  backgroundStory: '#FFF8E1',        // Background écran story (début)
+  backgroundStoryEnd: '#FFE0F0',     // Background écran story (fin)
+  storyTagBackground: 'rgba(255,107,157,0.1)',
+  storyTagBorder: 'rgba(255,107,157,0.2)',
+  storyCoverGradientStart: '#FFB74D',
+  storyCoverGradientEnd: '#FF8A65',
+
   // Errors
   error: '#FF0000',
 };

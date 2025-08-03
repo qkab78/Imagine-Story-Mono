@@ -134,12 +134,12 @@ export default class StoriesController {
       cover_image: imageUrl,
       chapters: storyTextJson.chapters.length,
       slug,
-      protagonist: storyTextJson.protagonist || '',
-      theme: storyTextJson.theme || '',
-      child_age: Number(storyTextJson.childAge) || childAge,
-      language: storyTextJson.language || language,
-      tone: storyTextJson.tone || tone,
-      species: storyTextJson.species || species,
+      protagonist,
+      theme,
+      child_age: childAge,
+      language,
+      tone,
+      species,
       story_chapters: JSON.stringify(storyTextJson.chapters.map((chapter) => ({
         title: chapter.title,
         content: chapter.content
