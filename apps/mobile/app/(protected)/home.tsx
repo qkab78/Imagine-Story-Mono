@@ -53,6 +53,7 @@ const HomeScreen = () => {
   if (isLoading || !user) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
+        {/* @ts-ignore */}
         <LinearGradient
           colors={['#FFF8E1', '#FFE0F0']}
           style={styles.gradient}
@@ -76,6 +77,7 @@ const HomeScreen = () => {
         translucent={Platform.OS === 'android'} 
       />
       
+      {/* @ts-ignore */}
       <LinearGradient
         colors={['#FFF8E1', '#FFE0F0']}
         style={styles.gradient}

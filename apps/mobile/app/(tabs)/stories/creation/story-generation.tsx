@@ -146,9 +146,12 @@ const StoryGenerationScreen: React.FC = () => {
   }, []);
 
   return (
+    // @ts-ignore
     <LinearGradient
       colors={[colors.backgroundLoading, colors.backgroundLoadingEnd]}
       style={styles.container}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
     >
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loadingContent}>

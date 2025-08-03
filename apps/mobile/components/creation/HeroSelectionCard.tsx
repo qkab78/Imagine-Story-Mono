@@ -142,6 +142,7 @@ const HeroSelectionCard: React.FC<HeroSelectionCardProps> = ({
               accessibilityLabel={`Choisir ${hero.name}`}
               accessibilityRole="button"
             >
+              {/* @ts-ignore */}
               <LinearGradient
                 colors={
                   isSelected

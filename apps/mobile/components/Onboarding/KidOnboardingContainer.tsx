@@ -88,10 +88,13 @@ const KidOnboardingContainer: React.FC = () => {
   }));
 
   return (
+    // @ts-ignore
     <LinearGradient
       colors={getGradientColors(currentSlide) as [string, string]}
       locations={getGradientLocations(currentSlide) as [number, number]}
       style={[styles.container, { paddingTop: insets.top }]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
     >
       <Animated.View
         style={[

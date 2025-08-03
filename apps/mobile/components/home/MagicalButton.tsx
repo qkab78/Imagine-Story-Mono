@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { TouchableOpacity, StyleSheet, TouchableOpacityProps } from 'react-native';
+import { TouchableOpacity, StyleSheet, TouchableOpacityProps, Dimensions } from 'react-native';
 import { useTheme } from '@shopify/restyle';
 import { Theme } from '@/config/theme';
 import Box from '@/components/ui/Box';
@@ -12,6 +12,7 @@ import Animated, {
   withTiming,
   interpolate
 } from 'react-native-reanimated';
+import { spacing } from '@/theme/spacing';
 
 interface MagicalButtonProps extends TouchableOpacityProps {
   title: string;
@@ -20,6 +21,8 @@ interface MagicalButtonProps extends TouchableOpacityProps {
   size?: 'large' | 'medium';
   icon?: React.ReactNode;
 }
+const { width } = Dimensions.get('window')
+const BUTTON_WIDTH = width * 0.8;
 
 const MagicalButton: React.FC<MagicalButtonProps> = ({
   title,
@@ -59,7 +62,7 @@ const MagicalButton: React.FC<MagicalButtonProps> = ({
   });
 
   const buttonHeight = size === 'large' ? 80 : 60;
-  const buttonWidth = size === 'large' ? 280 : 200;
+  const buttonWidth = size === 'large' ? BUTTON_WIDTH : 200;
 
   return (
     <Animated.View style={[animatedButtonStyle]}>
@@ -93,8 +96,9 @@ const MagicalButton: React.FC<MagicalButtonProps> = ({
               <Text 
                 variant="buttonLabel" 
                 color="white"
-                fontSize={size === 'large' ? 18 : 16}
+                fontSize={size === 'large' ? 20 : 18}
                 fontWeight="bold"
+                textAlign="center"
               >
                 {title}
               </Text>

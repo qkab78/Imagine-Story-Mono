@@ -43,9 +43,12 @@ const ToneSelectionScreen: React.FC = () => {
 
   return (
     <ScrollView>
+      {/* @ts-ignore */}
       <LinearGradient 
         colors={[colors.backgroundTone, colors.backgroundToneEnd]}
         style={styles.gradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
       >
         <SafeAreaView style={styles.container}>
           <NavHeader
