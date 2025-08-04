@@ -1,6 +1,6 @@
 import type { Stories } from '@imagine-story/api/types/db';
 import { ALLOWED_LANGUAGES } from '@imagine-story/api/app/stories/constants/allowed_languages';
-import { Story } from '@imagine-story/api/app/stories/entities';
+import { Story } from '@imagine-story/api/stories/entities';
 
 export const THEMES = [
   { id: 1, label: 'Fantaisie', value: 'fantasy' },
@@ -39,7 +39,7 @@ export const getLatestStories = async (token: string) => {
       Authorization: token,
     },
   });
-  const stories: Stories[] = await response.json();
+  const stories: Story[] = await response.json();
   return stories;
 };
 
@@ -92,7 +92,6 @@ export const createStory = async (payload: CreateStoryFormData) => {
   if (createdStory.errors && createdStory.errors.length > 0) {
     throw new Error(createdStory.errors.join(', '));
   }
-  console.log({ createdStory });
   return createdStory as Stories;
 };
 

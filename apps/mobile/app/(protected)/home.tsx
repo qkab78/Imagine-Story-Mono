@@ -41,7 +41,7 @@ const HomeScreen = () => {
   }, [router]);
 
   const handleReadStories = useCallback(() => {
-    router.push('/stories/library');
+    router.push('/search');
   }, [router]);
 
   const handleStoryPress = useCallback((storySlug: string) => {

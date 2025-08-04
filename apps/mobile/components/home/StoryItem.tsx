@@ -68,9 +68,9 @@ const StoryItem: React.FC<StoryItemProps> = ({ story, onPress, onLongPress }) =>
       accessibilityLabel={`Histoire: ${story.title}`}
       // @todo: add duration and genre
       // accessibilityHint={`${story.duration} minutes de lecture, genre ${story.genre}`}
-      accessibilityHint={`${story.chapters} chapitres`}
+      accessibilityHint={`${story.numberOfChapters} chapitres`}
     >
-      <Image source={{ uri: story.cover_image }} style={styles.thumbnail} />
+      <Image source={{ uri: story.coverImage }} style={styles.thumbnail} />
 
       <View style={styles.content}>
         <Text style={styles.title} numberOfLines={1}>
@@ -78,12 +78,12 @@ const StoryItem: React.FC<StoryItemProps> = ({ story, onPress, onLongPress }) =>
         </Text>
         <Text style={styles.meta}>
           {/* {story.duration} min de lecture • {story.genre} */}
-          {story.chapters} chapitres
+          {story.numberOfChapters} chapitres
         </Text>
       </View>
 
       <Text style={styles.timestamp}>
-        {formatTimeAgo(story.created_at.toString())}
+        {formatTimeAgo(story.createdAt?.toString())}
       </Text>
     </AnimatedTouchableOpacity>
   );

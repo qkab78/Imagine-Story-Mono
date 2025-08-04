@@ -2,7 +2,7 @@ import useAuthStore from "@/store/auth/authStore";
 import { Role } from "@imagine-story/api/users/models/role";
 import { Tabs } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { HouseIcon, SquarePenIcon, CircleUserRoundIcon, CogIcon } from "lucide-react-native";
+import { HouseIcon, SquarePenIcon, CircleUserRoundIcon, CogIcon, SearchIcon } from "lucide-react-native";
 
 
 export default function TabLayout() {
@@ -45,6 +45,16 @@ export default function TabLayout() {
             title: 'Hero Selection',
             headerShown: false,
             tabBarIcon: ({ focused, color }) => <SquarePenIcon color={color} />,
+          }}
+        />
+
+        <Tabs.Screen
+          name="search/index"
+          options={{
+            ...defaultScreenOptions,
+            title: 'Search',
+            headerShown: false,
+            tabBarIcon: ({ focused, color }) => <SearchIcon color={color} />,
           }}
         />
 

@@ -3,7 +3,7 @@ import { StyleSheet, Platform } from 'react-native';
 import { View, Text, FlatList } from 'react-native';
 import StoryItem from './StoryItem';
 import type { RecentStoriesSectionProps } from '@/types/home';
-import { Stories } from '@imagine-story/api/types/db';
+import { Story } from '@imagine-story/api/stories/entities';
 
 const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
   stories,
@@ -11,7 +11,7 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
   onStoryLongPress,
   isLoading = false,
 }) => {
-  const renderStoryItem = ({ item }: { item: Stories }) => (
+  const renderStoryItem = ({ item }: { item: Story }) => (
     <StoryItem
       story={item}
       onPress={onStoryPress}
@@ -19,7 +19,7 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
     />
   );
 
-  const keyExtractor = (item: Stories) => String(item.id);
+  const keyExtractor = (item: Story) => String(item.id);
 
   if (stories.length === 0 && !isLoading) {
     return (

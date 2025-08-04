@@ -1,5 +1,5 @@
 import { AuthStore } from "@/store/auth/authStore";
-import { Stories } from "@imagine-story/api/types/db";
+import { Story } from "@imagine-story/api/stories/entities";
 
 export interface User {
   id: string;
@@ -8,16 +8,16 @@ export interface User {
   age: number;
 }
 
-export interface Story {
-  id: string;
-  title: string;
-  emoji: string;
-  duration: number; // in minutes
-  genre: string;
-  createdAt: Date;
-  isCompleted?: boolean;
-  isFavorite?: boolean;
-}
+// export interface Story {
+//   id: string;
+//   title: string;
+//   emoji: string;
+//   duration: number; // in minutes
+//   genre: string;
+//   createdAt: Date;
+//   isCompleted?: boolean;
+//   isFavorite?: boolean;
+// }
 
 export interface HomeScreenProps {
   user: User;
@@ -39,7 +39,7 @@ export interface ActionCardProps {
 }
 
 export interface StoryItemProps {
-  story: Stories;
+  story: Story;
   onPress: (storySlug: string) => void;
   onLongPress?: (storyId: string) => void;
 }
@@ -54,7 +54,7 @@ export interface AgeBadgeProps {
 }
 
 export interface RecentStoriesSectionProps {
-  stories: Stories[];
+  stories: Story[];
   onStoryPress: (storySlug: string) => void;
   onStoryLongPress?: (storyId: string) => void;
   isLoading?: boolean;

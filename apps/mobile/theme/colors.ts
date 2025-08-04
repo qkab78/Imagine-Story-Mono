@@ -48,6 +48,20 @@ export const colors = {
   miniCoverGradientStart: '#FFB74D',
   miniCoverGradientEnd: '#FF8A65',
 
+  // Discover/Search specific
+  backgroundDiscover: '#E8F5E8',       // Background écran découverte (début) - vert clair
+  backgroundDiscoverEnd: '#FFFFFF',    // Background écran découverte (fin) - blanc
+  searchBarBackground: 'rgba(255,255,255,0.95)',
+  searchBarBorder: 'rgba(46,125,50,0.2)',
+  searchPlaceholder: '#9E9E9E',
+  sectionBackground: 'rgba(255,255,255,0.8)',
+  sectionBorder: 'rgba(46,125,50,0.1)',
+  storyCardBackground: 'rgba(255,255,255,0.9)',
+  storyCardBorder: 'rgba(255,107,157,0.15)',
+  storyCardShadow: 'rgba(46,125,50,0.1)',
+  newBadgeBackground: '#FF6B9D',
+  popularBadgeBackground: '#FFB74D',
+
   // Errors
   error: '#FF0000',
 };

@@ -20,7 +20,7 @@ export const getStoryBySlugPresenter = (story: Stories): Story => {
     conclusion: story.conclusion as unknown as string,
     coverImage: story.cover_image as unknown as string,
     slug: story.slug as unknown as string,
-    public: story.public as unknown as boolean,
+    public: story.public as unknown as boolean || true,
     userId: story.user_id as unknown as string,
     createdAt: story.created_at as unknown as string,
   };

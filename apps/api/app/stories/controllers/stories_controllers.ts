@@ -10,6 +10,8 @@ import { getSuggestedStoriesValidator } from "./get_suggested_stories_validator.
 import { getStoryBySlugPresenter } from "#stories/presenters/get_story_by_slug_presenter";
 import { StoryGenerated } from "#stories/types/stories_type";
 import { generateImage, generateStory } from "#stories/helpers/stories_helper";
+import { getStoriesPresenter } from "#stories/presenters/get_stories_presenter";
+import { Stories } from "#types/db";
 
 
 @inject()
@@ -29,7 +31,7 @@ export default class StoriesController {
       .selectAll()
       .execute();
 
-    return response.json(latestStories);
+    return response.json(getStoriesPresenter(latestStories as unknown as Stories[]));
   }
 
   public async getStoryBySlug({ request, response }: HttpContext) {
@@ -69,7 +71,11 @@ export default class StoriesController {
 
     const payload = await getSuggestedStoriesValidator.validate(request.qs());
 
-    const stories = await db.selectFrom('stories').where('title', 'like', `${payload.query}%`).limit(50).select(['id', 'title', 'slug', 'cover_image']).execute();
+    const stories = await db
+      .selectFrom('stories')
+      .where('title', 'ilike', `%${payload.query}%`)
+      .limit(50).select(['id', 'title', 'slug', 'cover_image'])
+      .execute();
 
     return response.json(stories);
   }
