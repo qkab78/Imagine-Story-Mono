@@ -26,11 +26,13 @@ import useAuthStore from '@/store/auth/authStore';
 // Components
 import Toggle from '@/components/ui/Toggle';
 import StatCard from '@/components/ui/StatCard';
+import PremiumCard from '@/components/ui/PremiumCard';
 
 // Theme
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
+import { Role } from '@/constants/Role';
 
 const { width } = Dimensions.get('window');
 
@@ -41,6 +43,7 @@ interface HeaderProps {
 interface ProfileCardProps {
   fullname: string;
   avatar: string;
+  role: string;
 }
 
 interface SettingItemProps {
@@ -81,6 +84,7 @@ const Header: React.FC<HeaderProps> = ({ onBackPress }) => {
 const ProfileCard: React.FC<ProfileCardProps> = ({
   fullname,
   avatar,
+  role,
 }) => {
   return (
     <LinearGradient
@@ -101,6 +105,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 
         <View style={styles.profileInfo}>
           <Text style={styles.familyName}>{fullname}</Text>
+          <Text style={styles.profileDescription}>{role}</Text>
         </View>
       </View>
     </LinearGradient>
@@ -147,6 +152,12 @@ const ProfileScreen: React.FC = () => {
     // Navigation vers détails des statistiques
   }, []);
 
+  const handleUpgradeToPremium = useCallback(() => {
+    console.log('Upgrade to Premium pressed');
+    // Navigation vers écran d'abonnement Premium
+    // router.push('/premium/subscription');
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
@@ -166,7 +177,11 @@ const ProfileScreen: React.FC = () => {
           <ProfileCard
             fullname={user?.fullname ?? ''}
             avatar={'👨‍👩‍👧'}
+            role={Role[user?.role as keyof typeof Role].toLowerCase()}
           />
+
+          {/* Premium Section */}
+          <PremiumCard onUpgrade={handleUpgradeToPremium} />
           {/* Statistics Cards - Row 1 */}
           <View style={styles.statsRow}>
             <StatCard
