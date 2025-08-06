@@ -59,13 +59,13 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen
-          name="users/profile"
+          name="profile/index"
           redirect={user?.role === Role.GUEST}
           options={{
             ...defaultScreenOptions,
-            title: 'Profile',
-            tabBarIcon: ({ focused, color }) => <CircleUserRoundIcon color={color} />,
-
+            title: 'Profil',
+            headerShown: false,
+            tabBarIcon: ({ color }) => <CircleUserRoundIcon color={color} />,
           }}
         />
 

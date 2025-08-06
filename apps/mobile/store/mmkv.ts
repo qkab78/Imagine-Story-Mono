@@ -4,6 +4,10 @@ export const storage = new MMKV({
   id: 'user-information-storage',
 });
 
+export const profileStorage = new MMKV({
+  id: 'profile-information-storage',
+});
+
 export const setToken = (token: string) => {
   storage.set('user.token', token);
 };

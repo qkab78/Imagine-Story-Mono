@@ -1,7 +1,7 @@
 import { Controller } from "react-hook-form"
 import { TextInput } from "react-native"
 
-export const Input = ({ name, control, password, editable, multiline, numberOfLines, maxLength, textColor = 'white', keyboardType = "default" }: any) => {
+export default function Input({ name, control, password, editable, multiline, numberOfLines, maxLength, textColor = 'white', keyboardType = "default" }: any) {
   return (
     <Controller
       name={name}
