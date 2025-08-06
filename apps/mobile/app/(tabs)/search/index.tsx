@@ -526,6 +526,7 @@ const styles = StyleSheet.create({
 
   horizontalCard: {
     width: width * 0.7,
+    height: 150,
     backgroundColor: colors.storyCardBackground,
     borderWidth: 1,
     borderColor: colors.storyCardBorder,

@@ -264,9 +264,8 @@ const styles = StyleSheet.create({
   },
 
   integratedHeader: {
-    paddingTop: spacing['5xl'], // 64px
-    paddingHorizontal: spacing.lg, // 20px
-    paddingBottom: spacing.xl, // 24px
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

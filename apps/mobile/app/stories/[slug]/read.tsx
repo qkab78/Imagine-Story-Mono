@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, SafeAreaView, Pressable, Share } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, SafeAreaView, Pressable, Share, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -113,16 +113,11 @@ const ReadingTitle: React.FC<ReadingTitleProps> = ({ title }) => (
   <Text style={styles.readingTitle}>{title}</Text>
 );
 
-// Sous-composant Badge durée
-const ChapterDuration: React.FC<ChapterDurationProps> = ({ duration }) => (
-  <Text style={styles.chapterDuration}>{duration} min</Text>
-);
 
 // Sous-composant Header de chapitre
 const ChapterHeader: React.FC<ChapterHeaderProps> = ({ title, duration, emoji }) => (
   <View style={styles.chapterHeader}>
     <Text style={styles.chapterTitle}>{emoji} {title}</Text>
-    <ChapterDuration duration={duration} />
   </View>
 );
 
@@ -190,7 +185,7 @@ const ConclusionCard: React.FC<ConclusionCardProps> = ({ conclusion }) => (
 const StoryReaderScreen: React.FC = () => {
   const router = useRouter();
   const { slug } = useLocalSearchParams();
-  
+
   const { data: story, isLoading, error } = useQuery({
     queryKey: ['story', slug],
     queryFn: () => getStoryBySlug(slug as string),
@@ -202,7 +197,7 @@ const StoryReaderScreen: React.FC = () => {
 
   const handleShare = async () => {
     if (!story) return;
-    
+
     try {
       await Share.share({
         message: `Découvrez "${story.title}" sur Mon Petit Conteur !`,
@@ -259,19 +254,19 @@ const StoryReaderScreen: React.FC = () => {
           />
 
           <View style={styles.readingContent}>
-            <MiniCover emoji='📚' />
-            
+            <Image source={{ uri: story.coverImage }} style={styles.coverImage} />
+
             <ReadingTitle title={story.title} />
-            
+
             <ChaptersContainer chapters={story.chapters || []} />
-            
+
             {story.conclusion && (
-              <ConclusionCard 
+              <ConclusionCard
                 conclusion={{
                   title: 'Fin de l\'Histoire',
                   content: story.conclusion,
                   emoji: '🌟'
-                }} 
+                }}
               />
             )}
           </View>
@@ -332,9 +327,8 @@ const styles = StyleSheet.create({
   },
 
   integratedHeader: {
-    paddingTop: spacing['5xl'], // 64px
-    paddingHorizontal: spacing.lg, // 20px
-    paddingBottom: spacing.xl, // 24px
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -363,6 +357,7 @@ const styles = StyleSheet.create({
   },
 
   readingContent: {
+    gap: spacing.lg,
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.lg,
   },
@@ -470,6 +465,12 @@ const styles = StyleSheet.create({
     lineHeight: 22.5, // 1.5 * 15
     textAlign: 'justify',
     fontFamily: typography.fontFamily.primary,
+  },
+
+  coverImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 16,
   },
 });
 
