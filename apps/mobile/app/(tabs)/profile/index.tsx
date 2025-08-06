@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   StyleSheet,
   ScrollView,
@@ -7,6 +7,7 @@ import {
   Text,
   Pressable,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -34,7 +35,50 @@ import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 import { Role } from '@/constants/Role';
 
-const { width } = Dimensions.get('window');
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
+import { Box } from '@/components/ui';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
+const getPushNotificationToken = async (): Promise<string | null> => {
+  console.log('getPushNotificationToken');
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    console.log('Existing status:', existingStatus);
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    console.log('Final status:', finalStatus);
+
+    if (finalStatus !== 'granted') {
+      alert('Permission refusée');
+      return null;
+    }
+
+    const pushToken = await Notifications.getExpoPushTokenAsync({
+      projectId: Constants.expoConfig?.extra?.eas?.projectId,
+    });
+
+    console.log('Push token:', pushToken.data);
+    return pushToken.data;
+  }
+  return null;
+};
+
+// getPushNotificationToken();
 
 interface HeaderProps {
   onBackPress: () => void;
@@ -142,6 +186,39 @@ const ProfileScreen: React.FC = () => {
   const router = useRouter();
   const { settings, stats, updateSetting } = useProfileStore();
   const { user } = useAuthStore();
+  const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
+  const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
+  const [notification, setNotification] = useState<Notifications.Notification | null>(null);
+  
+  useEffect(() => {
+    console.log('ProfileScreen mounted');
+    const fetchPushToken = async () => {
+      const token = await getPushNotificationToken();
+      setExpoPushToken(token);
+    };
+    fetchPushToken();
+
+    if(Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+      });
+    }
+
+    const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
+      setNotification(notification);
+    });
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
+      setNotification(response.notification);
+    });
+
+    return () => {
+      notificationListener.remove();
+      responseListener.remove();
+    };
+  }, []);
 
   const handleBackPress = useCallback(() => {
     router.back();
@@ -179,6 +256,15 @@ const ProfileScreen: React.FC = () => {
             avatar={'👨‍👩‍👧'}
             role={Role[user?.role as keyof typeof Role].toLowerCase()}
           />
+
+          <Box>
+            <Text>Expo Push Token: {expoPushToken}</Text>
+            <Text>Channels: {channels.map((channel) => channel.name).join(', ')}</Text>
+            <Text>Body: {notification?.request.content.body}</Text>
+            <Text>Title: {notification?.request.content.title}</Text>
+            <Text>Data: {JSON.stringify(notification?.request.content.data)}</Text>
+
+          </Box>
 
           {/* Premium Section */}
           <PremiumCard onUpgrade={handleUpgradeToPremium} />
