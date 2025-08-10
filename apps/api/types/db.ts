@@ -47,8 +47,23 @@ export interface AdonisSchemaVersions {
   version: number;
 }
 
+export interface Characters {
+  background_story: string | null;
+  character_image: string | null;
+  created_at: Timestamp;
+  description: string | null;
+  id: Generated<string>;
+  name: string;
+  personality_traits: Json | null;
+  physical_appearance: Json | null;
+  role: string;
+  story_id: string;
+  updated_at: Timestamp;
+}
+
 export interface Stories {
   chapters: number;
+  chapter_images: Generated<Json>;
   child_age: Generated<number>;
   conclusion: Generated<string>;
   content: string;
@@ -98,6 +113,7 @@ export interface DB {
   access_tokens: AccessTokens;
   adonis_schema: AdonisSchema;
   adonis_schema_versions: AdonisSchemaVersions;
+  characters: Characters;
   stories: Stories;
   stories_clone: StoriesClone;
   users: Users;

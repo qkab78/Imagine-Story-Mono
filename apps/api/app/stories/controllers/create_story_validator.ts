@@ -12,6 +12,8 @@ export const createStoryValidator = vine.compile(
     tone: vine.string().optional(),
     species: vine.string().optional(),
     isPrivate: vine.boolean().optional(),
+    generateCharacters: vine.boolean().optional(),
+    generateChapterImages: vine.boolean().optional(),
     // language: vine.enum(Object.keys(ALLOWED_LANGUAGES)).optional(),
     // tone: vine.enum(Object.keys(ALLOWED_TONES)).optional(),
   })
