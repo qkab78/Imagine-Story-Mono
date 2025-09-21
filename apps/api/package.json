@@ -75,6 +75,7 @@
     "@kitajs/html": "^4.2.9",
     "@kitajs/ts-html-plugin": "^4.1.1",
     "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
+    "@leonardo-ai/sdk": "^4.20.0",
     "@rlanz/bull-queue": "^3.1.0",
     "@vinejs/vine": "^3.0.1",
     "axios": "^1.9.0",

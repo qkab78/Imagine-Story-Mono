@@ -38,6 +38,9 @@ importers:
       '@lemonsqueezy/lemonsqueezy.js':
         specifier: ^4.0.0
         version: 4.0.0
+      '@leonardo-ai/sdk':
+        specifier: ^4.20.0
+        version: 4.20.0(zod@3.25.67)
       '@rlanz/bull-queue':
         specifier: ^3.1.0
         version: 3.1.0(@adonisjs/core@6.19.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@3.0.1)(edge.js@6.2.1))
@@ -1434,6 +1437,11 @@ packages:
   '@lemonsqueezy/lemonsqueezy.js@4.0.0':
     resolution: {integrity: sha512-xcY1/lDrY7CpIF98WKiL1ElsfoVhddP7FT0fw7ssOzrFqQsr44HgolKrQZxd9SywsCPn12OTOUieqDIokI3mFg==}
     engines: {node: '>=20'}
+
+  '@leonardo-ai/sdk@4.20.0':
+    resolution: {integrity: sha512-w6Nos/zjWlIojJjn1t+2DcpXVWaoKgpEBSU0kOg5hPY57kRZpe7J7hnysfvJU4DOkKks/g1ExStZIU3n9PrEZA==}
+    peerDependencies:
+      zod: '>= 3'
 
   '@lukeed/ms@2.0.2':
     resolution: {integrity: sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA==}
@@ -6985,6 +6993,7 @@ packages:
   superagent@10.2.1:
     resolution: {integrity: sha512-O+PCv11lgTNJUzy49teNAWLjBZfc+A1enOwTpLlH6/rsvKcTwcdTT8m9azGkVqM7HBl5jpyZ7KTPhHweokBcdg==}
     engines: {node: '>=14.18.0'}
+    deprecated: Please upgrade to superagent v10.2.2+, see release notes at https://github.com/forwardemail/superagent/releases/tag/v10.2.2 - maintenance is supported by Forward Email @ https://forwardemail.net
 
   supports-color@10.0.0:
     resolution: {integrity: sha512-HRVVSbCCMbj7/kdWF9Q+bbckjBHLtHMEoJWlkmYzzdwhYMkjkOwubLM6t7NbWKjgKamGDrWL1++KrjUO1t9oAQ==}
@@ -9339,6 +9348,10 @@ snapshots:
       yargs: 17.7.2
 
   '@lemonsqueezy/lemonsqueezy.js@4.0.0': {}
+
+  '@leonardo-ai/sdk@4.20.0(zod@3.25.67)':
+    dependencies:
+      zod: 3.25.67
 
   '@lukeed/ms@2.0.2': {}
 
