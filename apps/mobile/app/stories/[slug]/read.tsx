@@ -17,7 +17,7 @@ import { getStoryBySlug } from '@/api/stories';
 import { colors } from '../../../theme/colors';
 import { spacing } from '../../../theme/spacing';
 import { typography } from '../../../theme/typography';
-import type { StoryChapter } from '@imagine-story/api/app/stories/entities';
+import type { StoryChapter, ChapterImage } from '@imagine-story/api/app/stories/entities';
 
 // Interfaces pour les props des composants
 interface IntegratedHeaderProps {
@@ -37,12 +37,14 @@ interface ReadingTitleProps {
 
 interface ChaptersContainerProps {
   chapters: StoryChapter[];
+  chapterImages?: ChapterImage[];
 }
 
 interface ChapterCardProps {
   chapter: StoryChapter;
   index: number;
   onPress?: () => void;
+  chapterImage?: ChapterImage;
 }
 
 interface ChapterHeaderProps {
@@ -122,7 +124,7 @@ const ChapterHeader: React.FC<ChapterHeaderProps> = ({ title, duration, emoji })
 );
 
 // Sous-composant Card de chapitre
-const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, index, onPress }) => {
+const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, index, onPress, chapterImage }) => {
   const cardScale = useSharedValue(1);
 
   const handleChapterPress = useCallback(() => {
@@ -138,6 +140,8 @@ const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, index, onPress }) =>
   const cardAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: cardScale.value }],
   }));
+  console.log('chapterImage', chapterImage?.imagePath);
+  
 
   return (
     <Animated.View style={cardAnimatedStyle}>
@@ -147,25 +151,44 @@ const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, index, onPress }) =>
           duration={3}
           emoji="📖"
         />
-        <Text style={styles.chapterText}>{chapter.content}</Text>
+        
+        <View style={styles.chapterContent}>
+          {chapterImage && (
+            <View style={styles.chapterImageContainer}>
+              <Image 
+                source={{ uri: chapterImage.imagePath }} 
+                style={styles.chapterImage}
+                resizeMode="cover"
+              />
+            </View>
+          )}
+          
+          <View style={styles.chapterTextContainer}>
+            <Text style={styles.chapterText}>{chapter.content}</Text>
+          </View>
+        </View>
       </Pressable>
     </Animated.View>
   );
 };
 
 // Sous-composant Container des chapitres
-const ChaptersContainer: React.FC<ChaptersContainerProps> = ({ chapters }) => (
+const ChaptersContainer: React.FC<ChaptersContainerProps> = ({ chapters, chapterImages }) => (
   <View style={styles.chaptersContainer}>
-    {chapters.map((chapter, index) => (
-      <ChapterCard
-        key={`${chapter.title}-${index}`}
-        chapter={chapter}
-        index={index}
-        onPress={() => {
-          // Optionnel: Scroll vers un chapitre spécifique ou marquer comme lu
-        }}
-      />
-    ))}
+    {chapters.map((chapter, index) => {
+      const chapterImage = chapterImages?.find(img => img.chapterIndex === index);
+      return (
+        <ChapterCard
+          key={`${chapter.title}-${index}`}
+          chapter={chapter}
+          index={index}
+          chapterImage={chapterImage}
+          onPress={() => {
+            // Optionnel: Scroll vers un chapitre spécifique ou marquer comme lu
+          }}
+        />
+      );
+    })}
   </View>
 );
 
@@ -237,6 +260,8 @@ const StoryReaderScreen: React.FC = () => {
     );
   }
 
+  console.log('story', story.coverImage);
+  
   return (
     <LinearGradient
       colors={[colors.backgroundReading, colors.backgroundReadingEnd]}
@@ -258,7 +283,10 @@ const StoryReaderScreen: React.FC = () => {
 
             <ReadingTitle title={story.title} />
 
-            <ChaptersContainer chapters={story.chapters || []} />
+            <ChaptersContainer 
+              chapters={story.chapters || []} 
+              chapterImages={story.chapterImages|| []}
+            />
 
             {story.conclusion && (
               <ConclusionCard
@@ -435,11 +463,36 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.primary,
   },
 
+  chapterContent: {
+    flexDirection: 'column',
+    gap: spacing.md,
+  },
+
+  chapterImageContainer: {
+    width: '100%',
+    height: 180,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: spacing.sm,
+    backgroundColor: colors.cardBorder,
+  },
+
+  chapterImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: colors.cardBorder,
+  },
+
+  chapterTextContainer: {
+    flex: 1,
+  },
+
   chapterText: {
     fontSize: 14,
     color: colors.textTertiary,
     lineHeight: 19.6, // 1.4 * 14
     fontFamily: typography.fontFamily.primary,
+    textAlign: 'justify',
   },
 
   conclusionCard: {

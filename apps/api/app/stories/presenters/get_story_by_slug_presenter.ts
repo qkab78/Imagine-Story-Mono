@@ -1,7 +1,19 @@
-import { Story, StoryChapter } from "#stories/entities/story_entity";
+import { ChapterImage, Story, StoryChapter } from "#stories/entities/story_entity";
 import { Stories } from "#types/db";
+import app from "@adonisjs/core/services/app";
 
 export const getStoryBySlugPresenter = (story: Stories): Story => {
+  const chapterImages = (story.chapter_images as unknown as ChapterImage[]).map((chapterImage) => ({
+    chapterIndex: chapterImage.chapterIndex,
+    chapterTitle: chapterImage.chapterTitle,
+    imagePath: app.makePath('uploads/stories', chapterImage.imagePath),
+    imageUrl: chapterImage.imageUrl,
+  })) || []
+  const chapters = (story.story_chapters as unknown as StoryChapter[]).map((chapter) => ({
+    title: chapter.title,
+    content: chapter.content,
+  })) || []
+
   return {
     id: story.id as unknown as string,
     title: story.title,
@@ -13,15 +25,13 @@ export const getStoryBySlugPresenter = (story: Stories): Story => {
     language: story.language as unknown as string,
     tone: story.tone as unknown as string,
     species: story.species as unknown as string,
-    chapters: (story.story_chapters as unknown as StoryChapter[]).map((chapter: StoryChapter) => ({
-      title: chapter.title,
-      content: chapter.content,
-    })),
     conclusion: story.conclusion as unknown as string,
     coverImage: story.cover_image as unknown as string,
     slug: story.slug as unknown as string,
     public: story.public as unknown as boolean || true,
     userId: story.user_id as unknown as string,
     createdAt: story.created_at as unknown as string,
+    chapters,
+    chapterImages,
   };
 };

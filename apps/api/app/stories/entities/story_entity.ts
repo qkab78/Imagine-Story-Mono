@@ -3,6 +3,13 @@ export interface StoryChapter {
   content: string;
 }
 
+export interface ChapterImage {
+  chapterIndex: number;
+  chapterTitle: string;
+  imagePath: string;
+  imageUrl: string;
+}
+
 export interface Story {
   id: string;
   title: string;
@@ -21,4 +28,5 @@ export interface Story {
   public: boolean;
   userId: string;
   createdAt: string;
+  chapterImages?: ChapterImage[];
 }
