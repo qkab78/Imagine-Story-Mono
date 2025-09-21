@@ -16,6 +16,7 @@ import SendUserRegisterConfirmationEmailJob from '../app/jobs/send_user_register
 const LoginController = () => import('#auth/controllers/login/login_controller')
 const LogoutController = () => import('#auth/controllers/logout/logout_controller')
 const StoriesController = () => import('#stories/controllers/stories_controllers')
+const CharactersController = () => import('#stories/controllers/characters_controllers')
 const AuthController = () => import('#auth/controllers/auth_controllers')
 const RegisterController = () => import('#auth/controllers/register/register_controller')
 const PaymentsController = () => import('#payments/controllers/payments_controllers')
@@ -44,6 +45,12 @@ router.group(() => {
   router.group(() => {
     router.get('/user/me', [StoriesController, 'getStoriesByAuthenticatedUserId'])
     router.post('/', [StoriesController, 'createStory'])
+    
+    // Routes pour les personnages
+    // router.get('/:id/characters', [CharactersController, 'getCharactersByStoryId'])
+    // router.get('/characters/:id', [CharactersController, 'getCharacterById'])
+    // router.put('/characters/:id', [CharactersController, 'updateCharacter'])
+    // router.delete('/characters/:id', [CharactersController, 'deleteCharacter'])
   }).middleware(middleware.auth())
 }).prefix('/stories')
 

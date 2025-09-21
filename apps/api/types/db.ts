@@ -36,18 +36,22 @@ export interface AccessTokens {
   updated_at: Timestamp;
 }
 
-export interface AdonisSchema {
-  batch: number;
-  id: Generated<number>;
-  migration_time: Generated<Timestamp | null>;
+export interface Characters {
+  background_story: string | null;
+  character_image: string | null;
+  created_at: Generated<Timestamp>;
+  description: string | null;
+  id: Generated<string>;
   name: string;
-}
-
-export interface AdonisSchemaVersions {
-  version: number;
+  personality_traits: Json | null;
+  physical_appearance: Json | null;
+  role: string;
+  story_id: string;
+  updated_at: Generated<Timestamp>;
 }
 
 export interface Stories {
+  chapter_images: Generated<Json | null>;
   chapters: number;
   child_age: Generated<number>;
   conclusion: Generated<string>;
@@ -69,19 +73,6 @@ export interface Stories {
   user_id: string;
 }
 
-export interface StoriesClone {
-  chapters: number | null;
-  characters: string | null;
-  content: string | null;
-  cover: string | null;
-  created_at: Timestamp | null;
-  id: string | null;
-  images: string | null;
-  synopsis: string | null;
-  title: string | null;
-  updated_at: Timestamp | null;
-}
-
 export interface Users {
   created_at: Timestamp;
   customer_id: string | null;
@@ -96,9 +87,7 @@ export interface Users {
 
 export interface DB {
   access_tokens: AccessTokens;
-  adonis_schema: AdonisSchema;
-  adonis_schema_versions: AdonisSchemaVersions;
+  characters: Characters;
   stories: Stories;
-  stories_clone: StoriesClone;
   users: Users;
 }

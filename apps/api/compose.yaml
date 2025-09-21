@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:15
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  cache:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    environment:
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis
+  mailer:
+    image: axllent/mailpit:v1.16
+    ports:
+      - 1025:1025
+      - 8025:8025
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
