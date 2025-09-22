@@ -367,6 +367,105 @@ async function downloadImage(imageUrl: string, fileName: string): Promise<string
 }
 
 /**
+ * Génère une image de couverture avec Leonardo AI
+ */
+export async function generateCoverImageWithLeonardo(
+  context: StoryGenerationContext & { slug: string }
+): Promise<string | null> {
+  try {
+    console.log('🖼️ Génération image de couverture avec Leonardo AI...')
+    
+    const characterSeed = generateCharacterSeed(context)
+    const characterDescription = getConsistentCharacterDescription(context)
+    
+    const coverPrompt = `
+Book cover illustration for children's story: "${context.title}"
+
+${characterDescription} as the main character, prominently featured in the center of the composition.
+Setting: Beautiful ${context.theme} environment as background.
+Story synopsis: ${context.synopsis}
+
+Style: Professional children's book cover, vibrant colors, magical atmosphere, high quality illustration.
+Composition: Main character in foreground, thematic background, title space at top.
+Age-appropriate for ${context.childAge} years old, inviting and warm feeling.
+Art style: Modern children's book illustration, detailed but clean, professional cover quality.
+
+No text or titles in the image, just the visual cover scene.
+    `.trim()
+
+    console.log(`🎭 Génération couverture avec seed: ${characterSeed}`)
+
+    const response = await leonardo.image.createGeneration({
+      prompt: coverPrompt,
+      modelId: 'aa77f04e-3eec-4034-9c07-d0f619684628',
+      width: 1024,
+      height: 1024,
+      numImages: 1,
+      guidanceScale: 8,
+      seed: characterSeed, // Même seed que les chapitres pour cohérence
+      presetStyle: 'ANIME' as any
+    })
+
+    const generationId = (response as any).object?.sdGenerationJob?.generationId
+    if (!generationId) {
+      console.error('❌ Pas d\'ID pour l\'image de couverture')
+      return null
+    }
+
+    console.log(`⏳ Attente génération couverture: ${generationId}`)
+    const generatedImages = await waitForGeneration(generationId)
+    
+    if (!generatedImages || generatedImages.length === 0) {
+      console.error('❌ Aucune image de couverture générée')
+      return null
+    }
+
+    const coverImageUrl = generatedImages[0].url
+    if (!coverImageUrl) {
+      console.error('❌ URL manquante pour image de couverture')
+      return null
+    }
+
+    // Sauvegarder l'image de couverture
+    const coverFileName = `${context.slug}.webp`
+    const coverPath = await downloadCoverImage(coverImageUrl, coverFileName)
+    
+    console.log('✅ Image de couverture Leonardo AI créée')
+    return coverPath
+
+  } catch (error) {
+    console.error('❌ Erreur génération couverture Leonardo AI:', error)
+    return null
+  }
+}
+
+/**
+ * Télécharge une image de couverture
+ */
+async function downloadCoverImage(imageUrl: string, fileName: string): Promise<string> {
+  try {
+    console.log(`📥 Téléchargement couverture: ${fileName}`)
+    const imagePath = app.makePath(`uploads/stories/covers/${fileName}`)
+    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+
+    if (!response.data || response.data.length === 0) {
+      throw new Error('Aucune image reçue')
+    }
+
+    return new Promise((resolve, reject) => {
+      writeFile(imagePath, response.data, (err) => {
+        if (err) reject(err);
+        console.log(`✅ Couverture téléchargée: ${imagePath}`);
+        resolve(imagePath);
+      });
+    });
+  } catch (error) {
+    console.error(`❌ Erreur téléchargement couverture ${fileName}:`, error)
+    throw new Error(`Échec du téléchargement de l'image: ${error}`)
+  }
+}
+
+/**
  * Test de connexion à Leonardo AI
  */
 export async function testLeonardoConnection(): Promise<boolean> {

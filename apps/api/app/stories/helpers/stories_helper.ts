@@ -7,6 +7,11 @@ import string from '@adonisjs/core/helpers/string'
 import axios from "axios";
 import app from "@adonisjs/core/services/app";
 import { writeFile } from "node:fs";
+import { 
+  generateCoverImageWithLeonardo,
+  testLeonardoConnection
+} from '../services/leonardo_ai_service.js';
+import { StoryGenerationContext } from '../types/enhanced_story_types.js';
 
 const openai = new OpenAI({ apiKey: env.get('OPENAI_API_KEY') })
 
@@ -84,6 +89,44 @@ export async function generateStory(payload: StoryContentPayload) {
 
 export async function generateImage(payload: StoryContentPayload) {
   const { title, synopsis, theme, childAge, protagonist, species, slug } = payload;
+  
+  // Tenter Leonardo AI en priorité
+  const leonardoAvailable = await testLeonardoConnection()
+  
+  if (leonardoAvailable) {
+    console.log('🎨 Génération image de couverture avec Leonardo AI...')
+    try {
+      const storyContext: StoryGenerationContext & { slug: string } = {
+        title: title || '',
+        synopsis: synopsis || '',
+        theme: theme || '',
+        protagonist: protagonist || '',
+        childAge: childAge || 5,
+        numberOfChapters: 3,
+        language: 'fr',
+        tone: 'happy',
+        species: species || 'animal',
+        slug: slug || `story-${Date.now()}`
+      }
+      
+      const leonardoResult = await generateCoverImageWithLeonardo(storyContext)
+      if (leonardoResult) {
+        console.log('✅ Image de couverture générée avec Leonardo AI')
+        return leonardoResult
+      }
+    } catch (error) {
+      console.error('❌ Erreur Leonardo AI pour couverture, fallback DALL-E:', error)
+    }
+  }
+  
+  // Fallback sur DALL-E
+  console.log('🤖 Génération image de couverture avec DALL-E (fallback)...')
+  return await generateImageWithDallE(payload)
+}
+
+async function generateImageWithDallE(payload: StoryContentPayload) {
+  const { title, synopsis, theme, childAge, protagonist, species, slug } = payload;
+  
   const response = await openai.images.generate({
     model: 'dall-e-3',
     prompt: `A colorful and child-friendly illustration inspired by a story titled "${title}".  
