@@ -39,7 +39,17 @@ export async function generateChapterImagesWithLeonardo(
     fs.mkdirSync(chaptersDir, { recursive: true })
   }
 
-  console.log('Génération avec Leonardo AI...')
+  console.log('🎨 Génération avec Leonardo AI - Stratégie de cohérence des personnages')
+
+  // Étape 1: Créer une image de référence du personnage
+  console.log('📝 Création d\'une image de référence du personnage...')
+  const characterSeed = generateCharacterSeed(context)
+  const referenceImageUrl = await createCharacterReference(context, storySlug, characterSeed)
+  
+  if (!referenceImageUrl) {
+    console.warn('⚠️ Impossible de créer l\'image de référence, continuons avec prompts détaillés')
+    throw new Error('Impossible de créer l\'image de référence')
+  }
 
   // Génération séquentielle pour maintenir la cohérence
   for (let index = 0; index < chapters.length; index++) {
@@ -50,7 +60,9 @@ export async function generateChapterImagesWithLeonardo(
         context,
         chapters[index],
         index,
-        storySlug
+        storySlug,
+        characterSeed,
+        referenceImageUrl
       )
 
       if (chapterImage) {
@@ -87,7 +99,9 @@ async function generateSingleChapterImageWithLeonardo(
   context: StoryGenerationContext,
   chapter: any,
   chapterIndex: number,
-  storySlug: string
+  storySlug: string,
+  characterSeed: number,
+  referenceImageUrl?: string
 ): Promise<ChapterImage | null> {
   const fileName = `${storySlug}_chapter_${chapterIndex + 1}.png`
 
@@ -96,7 +110,7 @@ async function generateSingleChapterImageWithLeonardo(
 
     console.log(`Génération avec prompt: ${prompt.substring(0, 100)}...`)
 
-    // Première tentative
+    // Première tentative avec seed pour cohérence
     let response
     try {
       response = await leonardo.image.createGeneration({
@@ -106,6 +120,7 @@ async function generateSingleChapterImageWithLeonardo(
         height: 1024,
         numImages: 1,
         guidanceScale: 7,
+        seed: characterSeed, // Utiliser le même seed pour la cohérence
         presetStyle: 'ANIME' as any
       })
     } catch (moderationError: any) {
@@ -214,7 +229,7 @@ async function waitForGeneration(generationId: string, maxAttempts = 30): Promis
 }
 
 /**
- * Crée le prompt optimisé pour Leonardo AI
+ * Crée le prompt optimisé pour Leonardo AI avec cohérence renforcée
  */
 function createLeonardoChapterPrompt(
   context: StoryGenerationContext,
@@ -223,19 +238,24 @@ function createLeonardoChapterPrompt(
 ): string {
   const characterDescription = getConsistentCharacterDescription(context)
   const chapterContent = sanitizeContent(chapter.content || '')
-  const chapterSummary = chapterContent.substring(0, 150) + (chapterContent.length > 150 ? '...' : '')
+  const chapterSummary = chapterContent.substring(0, 120) + (chapterContent.length > 120 ? '...' : '')
 
   return `
-Children's book illustration: ${characterDescription} in ${context.theme} setting.
+EXACT CHARACTER REFERENCE: ${characterDescription}
 
-Chapter ${chapterIndex + 1}: ${chapter.title || `Chapter ${chapterIndex + 1}`}
-Story: ${context.title}
+Children's book illustration showing this EXACT character in Chapter ${chapterIndex + 1}: ${chapter.title || `Chapter ${chapterIndex + 1}`}
 
-Scene: ${chapterSummary}
+Story scene: ${chapterSummary}
+Setting: ${context.theme} environment
 
-Style: Colorful cartoon illustration, modern children's book style, bright warm colors, professional quality, child-friendly, detailed but clean, ${context.theme} environment.
+CRITICAL CONSISTENCY REQUIREMENTS:
+- Character appearance MUST be identical to reference: same colors, same features, same proportions, same clothing
+- Only the background/scene changes, character stays exactly the same
+- Same art style: bright colorful children's book illustration
+- Same perspective and lighting style
+- Professional quality, child-friendly, detailed but clean
 
-Character must be consistent: same appearance, colors, clothing in every illustration. Happy positive mood.
+The character "${context.protagonist}" must look exactly like the established design in every detail.
   `.trim()
 }
 
@@ -357,5 +377,87 @@ export async function testLeonardoConnection(): Promise<boolean> {
   } catch (error) {
     console.error('Erreur connexion Leonardo AI:', error)
     return false
+  }
+}
+
+/**
+ * Génère un seed unique basé sur le contexte de l'histoire
+ */
+function generateCharacterSeed(context: StoryGenerationContext): number {
+  // Créer un seed basé sur les caractéristiques du personnage
+  const seedString = `${context.protagonist}-${context.species}-${context.theme}`
+  let hash = 0
+  for (let i = 0; i < seedString.length; i++) {
+    const char = seedString.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convertir en 32bit integer
+  }
+  // Retourner un nombre positif entre 1 et 4294967295
+  return Math.abs(hash) || 1
+}
+
+/**
+ * Crée une image de référence du personnage principal
+ */
+async function createCharacterReference(
+  context: StoryGenerationContext, 
+  storySlug: string,
+  characterSeed: number
+): Promise<string | null> {
+  try {
+    const characterDescription = getConsistentCharacterDescription(context)
+    
+    const referencePrompt = `
+Character reference sheet: ${characterDescription}
+
+Full body character design, front view, clean white background, children's book illustration style.
+Standing pose, friendly expression, detailed character design for consistency across multiple illustrations.
+Bright colors, professional quality, detailed but clean art style.
+Reference sheet for maintaining visual consistency.
+    `.trim()
+
+    console.log(`🎭 Génération personnage de référence avec seed: ${characterSeed}`)
+
+    const response = await leonardo.image.createGeneration({
+      prompt: referencePrompt,
+      modelId: 'aa77f04e-3eec-4034-9c07-d0f619684628',
+      width: 1024,
+      height: 1024,
+      numImages: 1,
+      guidanceScale: 8,
+      seed: characterSeed, // Même seed pour cohérence
+      presetStyle: 'ANIME' as any
+    })
+
+    const generationId = (response as any).object?.sdGenerationJob?.generationId
+    if (!generationId) {
+      console.error('Pas d\'ID pour l\'image de référence')
+      return null
+    }
+
+    console.log(`⏳ Attente génération référence: ${generationId}`)
+    const generatedImages = await waitForGeneration(generationId)
+    
+    if (!generatedImages || generatedImages.length === 0) {
+      console.error('❌ Aucune image de référence générée')
+      return null
+    }
+
+    const referenceImageUrl = generatedImages[0].url
+    if (!referenceImageUrl) {
+      console.error('❌ URL manquante pour image de référence')
+      return null
+    }
+
+    // Sauvegarder l'image de référence
+    const referenceFileName = `${storySlug}_character_reference.png`
+    await downloadImage(referenceImageUrl, referenceFileName)
+    
+    console.log('✅ Image de référence du personnage créée')
+    return referenceImageUrl
+
+  } catch (error) {
+    console.error('❌ Erreur création image de référence:', error)
+    return null
   }
 }
