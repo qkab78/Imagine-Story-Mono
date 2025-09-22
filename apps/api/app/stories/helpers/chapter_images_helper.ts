@@ -1,5 +1,6 @@
 /**
  * Service de génération des images pour les chapitres d'histoires
+ * Utilise Leonardo AI pour une meilleure cohérence des personnages
  */
 
 import OpenAI from 'openai'
@@ -14,16 +15,46 @@ import {
   ChapterImageGenerationResponse,
   isChapterImage,
 } from '../types/enhanced_story_types.js'
+import { 
+  generateChapterImagesWithLeonardo,
+  testLeonardoConnection
+} from '../services/leonardo_ai_service.js'
 
-// Configuration OpenAI
+// Configuration OpenAI (backup)
 const openai = new OpenAI({
   apiKey: env.get('OPENAI_API_KEY'),
 })
 
 /**
  * Génère des images pour tous les chapitres d'une histoire
+ * Utilise Leonardo AI en priorité, avec fallback sur DALL-E
  */
 export async function generateChapterImages(
+  context: StoryGenerationContext,
+  chapters: any[],
+  storySlug: string
+): Promise<ChapterImageGenerationResponse> {
+  // Tester la connexion Leonardo AI
+  const leonardoAvailable = await testLeonardoConnection()
+  
+  if (leonardoAvailable) {
+    console.log('🎨 Utilisation de Leonardo AI pour la génération des images de chapitres')
+    try {
+      return await generateChapterImagesWithLeonardo(context, chapters, storySlug)
+    } catch (error) {
+      console.error('❌ Erreur Leonardo AI, fallback sur DALL-E:', error)
+      return await generateChapterImagesWithDallE(context, chapters, storySlug)
+    }
+  } else {
+    console.log('🤖 Utilisation de DALL-E pour la génération des images de chapitres')
+    return await generateChapterImagesWithDallE(context, chapters, storySlug)
+  }
+}
+
+/**
+ * Génère des images avec DALL-E (méthode originale)
+ */
+async function generateChapterImagesWithDallE(
   context: StoryGenerationContext,
   chapters: any[],
   storySlug: string
