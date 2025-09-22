@@ -1,12 +1,10 @@
 import { ChapterImage, Story, StoryChapter } from "#stories/entities/story_entity";
 import { Stories } from "#types/db";
-import app from "@adonisjs/core/services/app";
 
 export const getStoryBySlugPresenter = (story: Stories): Story => {
   const chapterImages = (story.chapter_images as unknown as ChapterImage[]).map((chapterImage) => ({
     chapterIndex: chapterImage.chapterIndex,
     chapterTitle: chapterImage.chapterTitle,
-    // imagePath: app.makePath('uploads/stories', chapterImage.imagePath),
     imagePath: chapterImage.imagePath,
     imageUrl: chapterImage.imageUrl,
   })) || []

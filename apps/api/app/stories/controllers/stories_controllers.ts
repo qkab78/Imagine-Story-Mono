@@ -24,7 +24,7 @@ export default class StoriesController {
   public async getStories({ response }: HttpContext) {
     const stories = await db.selectFrom('stories').where('public', '=', true).selectAll().execute();
 
-    return response.json(stories);
+    return response.json(getStoriesPresenter(stories as unknown as Stories[]));
   }
 
   public async getLatestStories({ response }: HttpContext) {
