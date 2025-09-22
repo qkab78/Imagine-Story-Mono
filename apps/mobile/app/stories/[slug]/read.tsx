@@ -22,7 +22,6 @@ import type { StoryChapter, ChapterImage } from '@imagine-story/api/app/stories/
 // Interfaces pour les props des composants
 interface IntegratedHeaderProps {
   onBack: () => void;
-  title: string;
   onSharePress: () => void;
 }
 
@@ -68,18 +67,17 @@ interface ConclusionCardProps {
 // Sous-composant Header intégré pour la lecture
 const IntegratedHeader: React.FC<IntegratedHeaderProps> = ({
   onBack,
-  title,
   onSharePress
 }) => {
   const shareScale = useSharedValue(1);
 
-  // const handleSharePress = useCallback(() => {
-  //   shareScale.value = withSequence(
-  //     withTiming(1.1, { duration: 150 }),
-  //     withTiming(1, { duration: 150 })
-  //   );
-  //   runOnJS(onSharePress)();
-  // }, [onSharePress]);
+  const handleSharePress = useCallback(() => {
+    shareScale.value = withSequence(
+      withTiming(1.1, { duration: 150 }),
+      withTiming(1, { duration: 150 })
+    );
+    runOnJS(onSharePress)();
+  }, [onSharePress]);
 
   const shareAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: shareScale.value }],
@@ -91,11 +89,11 @@ const IntegratedHeader: React.FC<IntegratedHeaderProps> = ({
         <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
       </Pressable>
 
-      {/* <Animated.View style={shareAnimatedStyle}>
-        <Pressable style={styles.headerButton} onPress={handleSharePress}>
+      <Animated.View style={shareAnimatedStyle}>
+        <Pressable style={styles.headerButton} onPress={handleSharePress} disabled={true}>
           <Ionicons name="share-outline" size={24} color={colors.textPrimary} />
         </Pressable>
-      </Animated.View> */}
+      </Animated.View>
     </View>
   );
 };
@@ -272,7 +270,6 @@ const StoryReaderScreen: React.FC = () => {
         <View style={styles.integratedHeaderContainer}>
           <IntegratedHeader
             onBack={handleBack}
-            title="Lecture"
             onSharePress={handleShare}
           />
 
@@ -281,7 +278,7 @@ const StoryReaderScreen: React.FC = () => {
           </View>
         </View>
 
-        <SafeAreaView>
+        <View>
           <View style={styles.readingContent}>
             <ChaptersContainer
               chapters={story.chapters || []}
@@ -298,7 +295,7 @@ const StoryReaderScreen: React.FC = () => {
               />
             )}
           </View>
-        </SafeAreaView>
+        </View>
       </ScrollView>
     </LinearGradient>
   );
