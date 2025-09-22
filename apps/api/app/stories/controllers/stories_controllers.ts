@@ -97,7 +97,6 @@ export default class StoriesController {
       tone,
       species,
       isPrivate,
-      generateCharacters = true,
     } = payload;
 
     const user = await auth.authenticate();

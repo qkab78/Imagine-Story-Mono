@@ -62,7 +62,6 @@ export async function generateChapterImagesWithLeonardo(
         index,
         storySlug,
         characterSeed,
-        referenceImageUrl
       )
 
       if (chapterImage) {
@@ -101,7 +100,6 @@ async function generateSingleChapterImageWithLeonardo(
   chapterIndex: number,
   storySlug: string,
   characterSeed: number,
-  referenceImageUrl?: string
 ): Promise<ChapterImage | null> {
   const fileName = `${storySlug}_chapter_${chapterIndex + 1}.png`
 
