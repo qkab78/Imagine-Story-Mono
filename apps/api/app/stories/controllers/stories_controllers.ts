@@ -24,7 +24,7 @@ export default class StoriesController {
   public async getStories({ response }: HttpContext) {
     const stories = await db.selectFrom('stories').where('public', '=', true).selectAll().execute();
 
-    return response.json(stories);
+    return response.json(getStoriesPresenter(stories as unknown as Stories[]));
   }
 
   public async getLatestStories({ response }: HttpContext) {
@@ -97,7 +97,6 @@ export default class StoriesController {
       tone,
       species,
       isPrivate,
-      generateCharacters = true,
     } = payload;
 
     const user = await auth.authenticate();
@@ -167,24 +166,27 @@ export default class StoriesController {
 
       // 4. Générer les images de chapitres si demandé
       let chapterImages: ChapterImage[] = [];
-      if (storyTextJson.chapters) {
-        console.log('🎨 Génération des images de chapitres...');
-        try {
-          const chapterImagesResponse = await generateChapterImages(
-            storyContext,
-            storyTextJson.chapters,
-            slug
-          );
-          chapterImages.push(...chapterImagesResponse.images);
-          console.log(`✅ ${chapterImagesResponse.metadata.successfulGeneration}/${storyTextJson.chapters.length} images de chapitres générées`);
+      if(!storyTextJson.chapters || storyTextJson.chapters.length === 0) {
+        console.log('🎨 Pas de chapitres à générer');
+        throw new errors.E_VALIDATION_ERROR('Pas de chapitres à générer');
+      }
 
-          if (chapterImagesResponse.metadata.errors) {
-            console.warn('⚠️ Erreurs lors de la génération:', chapterImagesResponse.metadata.errors);
-          }
-        } catch (error) {
-          console.error('❌ Erreur génération images chapitres:', error);
-          // Continue sans les images de chapitres en cas d'erreur
+      console.log('🎨 Génération des images de chapitres...');
+      try {
+        const chapterImagesResponse = await generateChapterImages(
+          storyContext,
+          storyTextJson.chapters,
+          slug
+        );
+        chapterImages.push(...chapterImagesResponse.images);
+        console.log(`✅ ${chapterImagesResponse.metadata.successfulGeneration}/${storyTextJson.chapters.length} images de chapitres générées`);
+
+        if (chapterImagesResponse.metadata.errors) {
+          console.warn('⚠️ Erreurs lors de la génération:', chapterImagesResponse.metadata.errors);
         }
+      } catch (error) {
+        console.error('❌ Erreur génération images chapitres:', error);
+        // Continue sans les images de chapitres en cas d'erreur
       }
 
       // 5. Enregistrer l'histoire en base de données
@@ -196,7 +198,7 @@ export default class StoriesController {
         user_id: user.id,
         content: storyText,
         cover_image: imageUrl,
-        chapters: storyTextJson.chapters.length,
+        chapters: storyTextJson.chapters?.length,
         slug,
         protagonist: storyContext.protagonist,
         theme: storyContext.theme,

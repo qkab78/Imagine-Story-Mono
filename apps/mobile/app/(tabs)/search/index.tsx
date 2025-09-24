@@ -1,15 +1,16 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  StyleSheet, 
-  SafeAreaView, 
-  Pressable, 
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  Pressable,
   TextInput,
   FlatList,
   Dimensions,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -123,26 +124,26 @@ const mapStoriestoDiscoverStory = (stories: Story[]): DiscoverStory[] => {
     title: story.title,
     emoji: getThemeEmoji(story.theme as unknown as string),
     ageRange: `${story.childAge || 4}-${(story.childAge || 4) + 2} ans`,
-    chapters: story.numberOfChapters,
+    chapters: story.chapters.length,
     category: story.theme as unknown as string,
     slug: story.slug || '',
     cover_image: story.coverImage,
     theme: story.theme as unknown as string,
     tone: story.tone as unknown as string,
     childAge: story.childAge as unknown as number,
-    numberOfChapters: story.numberOfChapters,
-    isNew: true, // Pour les nouvelles histoires
+    numberOfChapters: story.chapters.length,
+    isNew: new Date(story.createdAt) > new Date(Date.now() - 1000 * 60 * 60 * 24 * 30), // Pour les nouvelles histoires
     isPopular: Math.random() > 0.7, // Logique temporaire pour populaires
   }));
 };
 
 // Composant SearchBar avec animations
-const SearchBar: React.FC<SearchBarProps> = ({ 
-  value, 
-  onChangeText, 
+const SearchBar: React.FC<SearchBarProps> = ({
+  value,
+  onChangeText,
   placeholder = "Rechercher des histoires...",
   onFocus,
-  onBlur 
+  onBlur
 }) => {
   const focusScale = useSharedValue(1);
   const [isFocused, setIsFocused] = useState(false);
@@ -206,9 +207,14 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, variant = 'horizontal', on
         <View style={styles.storyCardContent}>
           {/* Emoji cover */}
           <View style={[styles.storyCover, isHorizontal && styles.horizontalCover]}>
-            <Text style={styles.storyCoverEmoji}>{story.emoji}</Text>
+            {story.cover_image && (
+              <Image source={{ uri: story.cover_image }} style={styles.storyCoverImage} />
+            )}
+            {!story.cover_image && (
+              <Text style={styles.storyCoverEmoji}>{story.emoji}</Text>
+            )}
           </View>
-          
+
           {/* Story info */}
           <View style={[styles.storyInfo, isHorizontal && styles.horizontalStoryInfo]}>
             <Text style={styles.storyTitle} numberOfLines={2}>{story.title}</Text>
@@ -216,8 +222,9 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, variant = 'horizontal', on
               <Text style={styles.storyMetaText}>{story.ageRange}</Text>
               <Text style={styles.storyMetaText}>•</Text>
               <Text style={styles.storyMetaText}>{story.chapters} chapitres</Text>
+              <Text style={styles.storyMetaText}>{story.emoji}</Text>
             </View>
-            
+
             {/* Badges */}
             <View style={styles.badgeContainer}>
               {story.isNew && (
@@ -286,9 +293,11 @@ const VerticalStories: React.FC<VerticalStoriesProps> = ({ stories, onStoryPress
 
   return (
     <View style={styles.verticalList}>
-      {stories.slice(0, 5).map((story) => (
-        <StoryCard key={story.id} story={story} variant="vertical" onPress={onStoryPress} />
-      ))}
+      {stories.slice(0, 5).map((story) => {
+        return (
+          <StoryCard key={story.id} story={story} variant="vertical" onPress={onStoryPress} />
+        )
+      })}
     </View>
   );
 };
@@ -297,14 +306,14 @@ const VerticalStories: React.FC<VerticalStoriesProps> = ({ stories, onStoryPress
 const DiscoverScreen: React.FC = () => {
   const router = useRouter();
   const token = useAuthStore(state => state.token);
-  
+
   // États
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  
+
   // Debouncing pour la recherche
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
-  
+
   // Queries
   const { data: latestStories = [], isLoading: isLoadingLatest } = useQuery({
     queryKey: ['latest-stories', token],
@@ -327,13 +336,13 @@ const DiscoverScreen: React.FC = () => {
   // Transformation des données
   const newStories = useMemo(() => mapStoriestoDiscoverStory(latestStories as unknown as Story[]), [latestStories]);
   const allDiscoverStories = useMemo(() => mapStoriestoDiscoverStory(allStories as unknown as Story[]), [allStories]);
-  
-  const recommendedStories = useMemo(() => 
+
+  const recommendedStories = useMemo(() =>
     allDiscoverStories.filter(() => Math.random() > 0.5).slice(0, 6),
     [allDiscoverStories]
   );
-  
-  const popularStories = useMemo(() => 
+
+  const popularStories = useMemo(() =>
     allDiscoverStories.filter(story => story.isPopular).slice(0, 5),
     [allDiscoverStories]
   );
@@ -377,7 +386,7 @@ const DiscoverScreen: React.FC = () => {
             {/* Résultats de recherche ou contenu par défaut */}
             {showSearchResults ? (
               <Section title="Résultats de recherche" emoji="🔍">
-                <VerticalStories 
+                <VerticalStories
                   stories={searchResults.map(story => ({
                     id: story.id as unknown as string,
                     title: story.title,
@@ -394,7 +403,7 @@ const DiscoverScreen: React.FC = () => {
               <>
                 {/* Section Nouveautés */}
                 <Section title="Nouveautés" emoji="✨">
-                  <HorizontalStories 
+                  <HorizontalStories
                     stories={newStories}
                     onStoryPress={handleStoryPress}
                     isLoading={isLoadingLatest}
@@ -403,7 +412,7 @@ const DiscoverScreen: React.FC = () => {
 
                 {/* Section Recommandées */}
                 <Section title="Recommandées pour vous" emoji="💫">
-                  <VerticalStories 
+                  <VerticalStories
                     stories={recommendedStories}
                     onStoryPress={handleStoryPress}
                     isLoading={isLoadingAll}
@@ -412,7 +421,7 @@ const DiscoverScreen: React.FC = () => {
 
                 {/* Section Populaires */}
                 <Section title="Populaires" emoji="🔥">
-                  <VerticalStories 
+                  <VerticalStories
                     stories={popularStories}
                     onStoryPress={handleStoryPress}
                     isLoading={isLoadingAll}
@@ -561,8 +570,6 @@ const styles = StyleSheet.create({
   storyCover: {
     width: 60,
     height: 60,
-    backgroundColor: colors.storyCoverGradientStart,
-    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: spacing.md,
@@ -579,6 +586,11 @@ const styles = StyleSheet.create({
 
   storyCoverEmoji: {
     fontSize: 24,
+  },
+  storyCoverImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 12,
   },
 
   storyInfo: {

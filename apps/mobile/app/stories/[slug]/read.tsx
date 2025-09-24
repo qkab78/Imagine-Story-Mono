@@ -22,7 +22,6 @@ import type { StoryChapter, ChapterImage } from '@imagine-story/api/app/stories/
 // Interfaces pour les props des composants
 interface IntegratedHeaderProps {
   onBack: () => void;
-  title: string;
   onSharePress: () => void;
 }
 
@@ -68,18 +67,17 @@ interface ConclusionCardProps {
 // Sous-composant Header intégré pour la lecture
 const IntegratedHeader: React.FC<IntegratedHeaderProps> = ({
   onBack,
-  title,
   onSharePress
 }) => {
   const shareScale = useSharedValue(1);
 
-  // const handleSharePress = useCallback(() => {
-  //   shareScale.value = withSequence(
-  //     withTiming(1.1, { duration: 150 }),
-  //     withTiming(1, { duration: 150 })
-  //   );
-  //   runOnJS(onSharePress)();
-  // }, [onSharePress]);
+  const handleSharePress = useCallback(() => {
+    shareScale.value = withSequence(
+      withTiming(1.1, { duration: 150 }),
+      withTiming(1, { duration: 150 })
+    );
+    runOnJS(onSharePress)();
+  }, [onSharePress]);
 
   const shareAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: shareScale.value }],
@@ -91,11 +89,11 @@ const IntegratedHeader: React.FC<IntegratedHeaderProps> = ({
         <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
       </Pressable>
 
-      {/* <Animated.View style={shareAnimatedStyle}>
-        <Pressable style={styles.headerButton} onPress={handleSharePress}>
+      <Animated.View style={shareAnimatedStyle}>
+        <Pressable style={styles.headerButton} onPress={handleSharePress} disabled={true}>
           <Ionicons name="share-outline" size={24} color={colors.textPrimary} />
         </Pressable>
-      </Animated.View> */}
+      </Animated.View>
     </View>
   );
 };
@@ -140,8 +138,7 @@ const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, index, onPress, chap
   const cardAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: cardScale.value }],
   }));
-  console.log('chapterImage', chapterImage?.imagePath);
-  
+
 
   return (
     <Animated.View style={cardAnimatedStyle}>
@@ -151,18 +148,18 @@ const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, index, onPress, chap
           duration={3}
           emoji="📖"
         />
-        
+
         <View style={styles.chapterContent}>
           {chapterImage && (
             <View style={styles.chapterImageContainer}>
-              <Image 
-                source={{ uri: chapterImage.imagePath }} 
+              <Image
+                source={{ uri: chapterImage.imagePath }}
                 style={styles.chapterImage}
                 resizeMode="cover"
               />
             </View>
           )}
-          
+
           <View style={styles.chapterTextContainer}>
             <Text style={styles.chapterText}>{chapter.content}</Text>
           </View>
@@ -260,8 +257,6 @@ const StoryReaderScreen: React.FC = () => {
     );
   }
 
-  console.log('story', story.coverImage);
-  
   return (
     <LinearGradient
       colors={[colors.backgroundReading, colors.backgroundReadingEnd]}
@@ -271,21 +266,23 @@ const StoryReaderScreen: React.FC = () => {
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        <SafeAreaView>
+        <Image source={{ uri: story.coverImage }} style={styles.coverImage} />
+        <View style={styles.integratedHeaderContainer}>
           <IntegratedHeader
             onBack={handleBack}
-            title="Lecture"
             onSharePress={handleShare}
           />
 
-          <View style={styles.readingContent}>
-            <Image source={{ uri: story.coverImage }} style={styles.coverImage} />
-
+          <View style={styles.readingTitleContainer}>
             <ReadingTitle title={story.title} />
+          </View>
+        </View>
 
-            <ChaptersContainer 
-              chapters={story.chapters || []} 
-              chapterImages={story.chapterImages|| []}
+        <View>
+          <View style={styles.readingContent}>
+            <ChaptersContainer
+              chapters={story.chapters || []}
+              chapterImages={story.chapterImages || []}
             />
 
             {story.conclusion && (
@@ -298,7 +295,7 @@ const StoryReaderScreen: React.FC = () => {
               />
             )}
           </View>
-        </SafeAreaView>
+        </View>
       </ScrollView>
     </LinearGradient>
   );
@@ -362,6 +359,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  integratedHeaderContainer: {
+    position: 'absolute',
+    top: 40,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+  },
+
   headerButton: {
     width: 44,
     height: 44,
@@ -384,10 +389,23 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.primary,
   },
 
+  readingTitleContainer: {
+    position: 'absolute',
+    top: 150,
+    left: spacing.lg,
+    right: spacing.lg,
+    zIndex: 1000,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 16,
+    padding: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   readingContent: {
     gap: spacing.lg,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
+    padding: spacing.lg,
   },
 
   miniCover: {
@@ -413,9 +431,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.textPrimary,
     textAlign: 'center',
-    marginBottom: spacing.xl,
     letterSpacing: -0.2,
     fontFamily: typography.fontFamily.primary,
+    width: '100%',
   },
 
   chaptersContainer: {
@@ -470,7 +488,7 @@ const styles = StyleSheet.create({
 
   chapterImageContainer: {
     width: '100%',
-    height: 180,
+    height: 380,
     borderRadius: 12,
     overflow: 'hidden',
     marginBottom: spacing.sm,
@@ -522,7 +540,7 @@ const styles = StyleSheet.create({
 
   coverImage: {
     width: '100%',
-    height: 200,
+    height: 300,
     borderRadius: 16,
   },
 });
