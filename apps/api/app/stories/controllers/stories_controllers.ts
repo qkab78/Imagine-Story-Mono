@@ -4,13 +4,15 @@ import { errors } from "@vinejs/vine";
 import string from '@adonisjs/core/helpers/string'
 
 import { db } from "#services/db";
-import { createStoryValidator } from "./create_story_validator.js";
-import { getStoryBySlugValidator } from "./get_story_by_slug_validator.js";
-import { getSuggestedStoriesValidator } from "./get_suggested_stories_validator.js";
-import { getStoryBySlugPresenter } from "#stories/presenters/get_story_by_slug_presenter";
+import { createStoryValidator, getStoryByIdValidator, getStoryBySlugValidator, getSuggestedStoriesValidator } from "#stories/controllers/validators/index";
+
+import { 
+  getStoryByIdPresenter,
+  getStoryBySlugPresenter,
+  getStoriesPresenter,
+} from "#stories/presenters/index";
 import { StoryGenerated } from "#stories/types/stories_type";
 import { generateImage, generateStory } from "#stories/helpers/stories_helper";
-import { getStoriesPresenter } from "#stories/presenters/get_stories_presenter";
 import { Stories } from "#types/db";
 // Nouveaux imports pour les fonctionnalités étendues
 import { generateCharacterProfiles } from "#stories/helpers/characters_helper";
@@ -36,6 +38,22 @@ export default class StoriesController {
       .execute();
 
     return response.json(getStoriesPresenter(latestStories as unknown as Stories[]));
+  }
+
+  public async getStoryById({ request, response }: HttpContext) {
+    const payload = await getStoryByIdValidator.validate(request.params());
+    const stories = await db
+      .selectFrom('stories')
+      .where('id', '=', payload.id)
+      .selectAll()
+      .executeTakeFirst();
+
+    if (!stories) {
+      throw new Error('Story not found');
+    }
+
+    // @todo: remove any and check for a way to type the story returned by the database
+    return response.json(getStoryByIdPresenter(stories as any));
   }
 
   public async getStoryBySlug({ request, response }: HttpContext) {

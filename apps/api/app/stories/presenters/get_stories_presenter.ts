@@ -14,6 +14,7 @@ export const getStoriesPresenter = (stories: Stories[]): Story[] => {
       title: chapter.title,
       content: chapter.content,
     })) || []
+    const coverImage = story.cover_image.split('/').pop() || ''
     return {
       id: story.id as unknown as string,
       title: story.title,
@@ -21,7 +22,8 @@ export const getStoriesPresenter = (stories: Stories[]): Story[] => {
       chapters,
       chapterImages,
       conclusion: story.conclusion as unknown as string || '',
-      coverImage: story.cover_image as unknown as string || '',
+      // coverImage: story.cover_image as unknown as string || '',
+      coverImage,
       slug: story.slug as unknown as string || '',
       public: story.public as unknown as boolean || true,
       userId: story.user_id as unknown as string || '',

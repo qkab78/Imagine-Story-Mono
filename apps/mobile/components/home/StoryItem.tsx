@@ -42,8 +42,8 @@ const StoryItem: React.FC<StoryItemProps> = ({ story, onPress, onLongPress }) =>
   }, []);
 
   const handlePress = useCallback(() => {
-    runOnJS(onPress)(story.slug);
-  }, [onPress, story.slug]);
+    runOnJS(onPress)(story.id);
+  }, [onPress, story.id]);
 
   const handleLongPress = useCallback(() => {
     if (onLongPress) {
@@ -70,7 +70,7 @@ const StoryItem: React.FC<StoryItemProps> = ({ story, onPress, onLongPress }) =>
       // accessibilityHint={`${story.duration} minutes de lecture, genre ${story.genre}`}
       accessibilityHint={`${story.numberOfChapters} chapitres`}
     >
-      <Image source={{ uri: story.coverImage }} style={styles.thumbnail} />
+      <Image source={{ uri: `${process.env.EXPO_PUBLIC_API_URL}/images/covers/${story.coverImage}` }} style={styles.thumbnail} />
 
       <View style={styles.content}>
         <Text style={styles.title} numberOfLines={1}>

@@ -12,6 +12,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { middleware } from './kernel.js'
 import queue from '@rlanz/bull-queue/services/main'
 import SendUserRegisterConfirmationEmailJob from '../app/jobs/send_user_register_confirmation_email_job.js'
+import app from '@adonisjs/core/services/app'
+import { existsSync, readFileSync } from 'node:fs'
 
 const LoginController = () => import('#auth/controllers/login/login_controller')
 const LogoutController = () => import('#auth/controllers/logout/logout_controller')
@@ -36,11 +38,33 @@ router.get('/protected-route', async ({ response }: HttpContext) => {
   return response.json({ secret: 'data' })
 }).middleware(middleware.auth())
 
+router.get('/images/covers/:fileName', async ({ request, response }: HttpContext) => {
+  const fileName = request.param('fileName')
+  const imagePath = app.makePath(`uploads/stories/covers/${fileName}`)
+  if(existsSync(imagePath)) {
+    // Send the image to the client 
+    return response.send(readFileSync(imagePath), { 'Content-Type': ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'] } as any)
+  } else {
+    return response.status(404).json({ error: 'Image not found' })
+  }
+})
+
+router.get('/images/chapters/:fileName', async ({ request, response }: HttpContext) => {
+  const fileName = request.param('fileName')
+  const imagePath = app.makePath(`uploads/stories/chapters/${fileName}`)
+  if(existsSync(imagePath)) {
+    return response.send(readFileSync(imagePath), { 'Content-Type': ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'] } as any)
+  } else {
+    return response.status(404).json({ error: 'Image not found' })
+  }
+})
+
 // Stories
 router.group(() => {
   router.get('/', [StoriesController, 'getStories'])
   router.get('/all/latest', [StoriesController, 'getLatestStories'])
-  router.get('/:slug', [StoriesController, 'getStoryBySlug'])
+  router.get('/slug/:slug', [StoriesController, 'getStoryBySlug'])
+  router.get('/:id', [StoriesController, 'getStoryById'])
   router.get('/search/suggestions', [StoriesController, 'getSuggestedStories'])
   router.group(() => {
     router.get('/user/me', [StoriesController, 'getStoriesByAuthenticatedUserId'])

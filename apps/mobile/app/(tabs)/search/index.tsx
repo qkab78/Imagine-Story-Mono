@@ -45,7 +45,7 @@ interface DiscoverStory {
   isNew?: boolean;
   isPopular?: boolean;
   slug: string;
-  cover_image?: string;
+  coverImage?: string;
   theme?: string;
   tone?: string;
   childAge?: number;
@@ -127,7 +127,7 @@ const mapStoriestoDiscoverStory = (stories: Story[]): DiscoverStory[] => {
     chapters: story.chapters.length,
     category: story.theme as unknown as string,
     slug: story.slug || '',
-    cover_image: story.coverImage,
+    coverImage: story.coverImage,
     theme: story.theme as unknown as string,
     tone: story.tone as unknown as string,
     childAge: story.childAge as unknown as number,
@@ -207,10 +207,10 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, variant = 'horizontal', on
         <View style={styles.storyCardContent}>
           {/* Emoji cover */}
           <View style={[styles.storyCover, isHorizontal && styles.horizontalCover]}>
-            {story.cover_image && (
-              <Image source={{ uri: story.cover_image }} style={styles.storyCoverImage} />
+              {story.coverImage && (
+                <Image source={{ uri: `${process.env.EXPO_PUBLIC_API_URL}/images/covers/${story.coverImage}` }} style={styles.storyCoverImage} />
             )}
-            {!story.cover_image && (
+            {!story.coverImage && (
               <Text style={styles.storyCoverEmoji}>{story.emoji}</Text>
             )}
           </View>

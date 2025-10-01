@@ -13,7 +13,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 
-import { getStoryBySlug } from '@/api/stories';
+import { getStoryById } from '@/api/stories';
 import { colors } from '../../../theme/colors';
 import { spacing } from '../../../theme/spacing';
 import { typography } from '../../../theme/typography';
@@ -204,11 +204,11 @@ const ConclusionCard: React.FC<ConclusionCardProps> = ({ conclusion }) => (
 // Composant principal StoryReaderScreen
 const StoryReaderScreen: React.FC = () => {
   const router = useRouter();
-  const { slug } = useLocalSearchParams();
+  const { id } = useLocalSearchParams();
 
   const { data: story, isLoading, error } = useQuery({
-    queryKey: ['story', slug],
-    queryFn: () => getStoryBySlug(slug as string),
+    queryKey: ['story', id],
+    queryFn: () => getStoryById(id as string),
   });
 
   const handleBack = () => {

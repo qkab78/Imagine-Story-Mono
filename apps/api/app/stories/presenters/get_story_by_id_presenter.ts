@@ -1,7 +1,8 @@
+
 import { ChapterImage, Story, StoryChapter } from "#stories/entities/story_entity";
 import { Stories } from "#types/db";
 
-export const getStoryBySlugPresenter = (story: Stories): Story => {
+export const getStoryByIdPresenter = (story: Stories): Story => {
   const chapterImages = (story.chapter_images as unknown as ChapterImage[]).map((chapterImage) => ({
     chapterIndex: chapterImage.chapterIndex,
     chapterTitle: chapterImage.chapterTitle,
@@ -13,6 +14,7 @@ export const getStoryBySlugPresenter = (story: Stories): Story => {
     content: chapter.content,
   })) || []
   const coverImage = story.cover_image.split('/').pop() || ''
+
   return {
     id: story.id as unknown as string,
     title: story.title,
