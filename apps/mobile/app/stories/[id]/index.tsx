@@ -2,16 +2,16 @@ import { useLocalSearchParams } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
 
-import { getStoryBySlug } from '@/api/stories'
+import { getStoryById } from '@/api/stories'
 import { StoryPresentationScreen } from '@/screens/story'
 import Box from '@/components/ui/Box'
 import Text from '@/components/ui/Text'
 
 const StoryScreen = () => {
-  const { slug } = useLocalSearchParams()
+  const { id } = useLocalSearchParams()
   const { data, isLoading, error } = useQuery({
-    queryKey: ['story', slug],
-    queryFn: () => getStoryBySlug(slug as string),
+    queryKey: ['story', id],
+    queryFn: () => getStoryById(id as string),
   })
 
   if (isLoading) {
@@ -37,7 +37,7 @@ const StoryScreen = () => {
       </Box>
     )
   }
-
+  
   return <StoryPresentationScreen story={data} />
 }
 

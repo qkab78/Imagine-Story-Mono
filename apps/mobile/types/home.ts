@@ -40,7 +40,7 @@ export interface ActionCardProps {
 
 export interface StoryItemProps {
   story: Story;
-  onPress: (storySlug: string) => void;
+  onPress: (storyId: string) => void;
   onLongPress?: (storyId: string) => void;
 }
 
@@ -55,7 +55,7 @@ export interface AgeBadgeProps {
 
 export interface RecentStoriesSectionProps {
   stories: Story[];
-  onStoryPress: (storySlug: string) => void;
+  onStoryPress: (storyId: string) => void;
   onStoryLongPress?: (storyId: string) => void;
   isLoading?: boolean;
 }

@@ -44,9 +44,9 @@ const HomeScreen = () => {
     router.push('/search');
   }, [router]);
 
-  const handleStoryPress = useCallback((storySlug: string) => {
-    router.push(`/stories/${storySlug}`);
-    markStoryAsRead(storySlug);
+  const handleStoryPress = useCallback((storyId: string) => {
+    router.push(`/stories/${storyId}`);
+    markStoryAsRead(storyId);
   }, [router, markStoryAsRead]);
 
   // Loading state

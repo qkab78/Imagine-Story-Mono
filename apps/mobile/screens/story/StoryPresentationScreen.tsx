@@ -103,7 +103,8 @@ const StoryCover: React.FC<StoryCoverProps> = ({ coverImage }) => {
         colors={[colors.storyCoverGradientStart, colors.storyCoverGradientEnd]}
         style={StyleSheet.absoluteFillObject}
       />
-      <Image source={{ uri: coverImage }} style={styles.coverImage} />
+      <Image source={{ uri: `${process.env.EXPO_PUBLIC_API_URL}/images/covers/${coverImage}` }} style={styles.coverImage} />
+      {/* <Image source={{ uri: coverImage }} style={styles.coverImage} /> */}
     </View>
   );
 };
@@ -215,7 +216,7 @@ const StoryPresentationScreen: React.FC<StoryPresentationScreenProps> = ({ story
   };
 
   const handleReadStory = () => {
-    router.push(`/stories/${story.slug}/read`);
+    router.push(`/stories/${story.id}/read`);
   };
 
   return (

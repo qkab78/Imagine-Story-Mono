@@ -96,7 +96,13 @@ export const createStory = async (payload: CreateStoryFormData) => {
 };
 
 export const getStoryBySlug = async (slug: string) => {
-  const response = await fetch(`${apiUrl}/stories/${slug}`);
+  const response = await fetch(`${apiUrl}/stories/slug/${slug}`);
+  const story: Story = await response.json();
+  return story;
+};
+
+export const getStoryById = async (id: string) => {
+  const response = await fetch(`${apiUrl}/stories/${id}`);
   const story: Story = await response.json();
   return story;
 };
