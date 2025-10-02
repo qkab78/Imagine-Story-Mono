@@ -153,7 +153,7 @@ const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, index, onPress, chap
           {chapterImage && (
             <View style={styles.chapterImageContainer}>
               <Image
-                source={{ uri: chapterImage.imagePath }}
+                source={{ uri: `${process.env.EXPO_PUBLIC_API_URL}/images/chapters/${chapterImage.imagePath}` }}
                 style={styles.chapterImage}
                 resizeMode="cover"
               />
@@ -266,7 +266,7 @@ const StoryReaderScreen: React.FC = () => {
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        <Image source={{ uri: story.coverImage }} style={styles.coverImage} />
+        <Image source={{ uri: `${process.env.EXPO_PUBLIC_API_URL}/images/covers/${story.coverImage}`}} style={styles.coverImage} />
         <View style={styles.integratedHeaderContainer}>
           <IntegratedHeader
             onBack={handleBack}

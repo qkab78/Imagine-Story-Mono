@@ -63,7 +63,7 @@ const MagicalStoryHeader: React.FC<MagicalStoryHeaderProps> = ({ story }) => {
       {/* Story Cover and Title */}
       <Box position="relative" height={IMAGE_HEIGHT} width={width}>
         <Animated.Image
-          source={{ uri: story.coverImage }}
+          source={{ uri: `${process.env.EXPO_PUBLIC_API_URL}/images/covers/${story.coverImage}` }}
           style={[
             styles.coverImage,
             { width, height: IMAGE_HEIGHT }

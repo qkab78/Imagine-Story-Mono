@@ -6,8 +6,9 @@ export const getStoryByIdPresenter = (story: Stories): Story => {
   const chapterImages = (story.chapter_images as unknown as ChapterImage[]).map((chapterImage) => ({
     chapterIndex: chapterImage.chapterIndex,
     chapterTitle: chapterImage.chapterTitle,
-    imagePath: chapterImage.imagePath,
-    imageUrl: chapterImage.imageUrl,
+    imagePath: chapterImage.imagePath.split('/').pop() || '',
+    imageUrl: chapterImage.imagePath.split('/').pop() || '',
+    // imageUrl: chapterImage.imageUrl,
   })) || []
   const chapters = (story.story_chapters as unknown as StoryChapter[]).map((chapter) => ({
     title: chapter.title,
