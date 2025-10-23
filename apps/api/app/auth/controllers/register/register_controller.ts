@@ -52,6 +52,8 @@ export default class RegisterController {
       user: {
         id: newUser.id,
         email: newUser.email,
+        firstname: newUser.firstname,
+        lastname: newUser.lastname,
         fullname: `${newUser.firstname} ${newUser.lastname}`,
         role: newUser.role,
         avatar: '',
