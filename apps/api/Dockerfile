@@ -31,10 +31,6 @@ WORKDIR /app
 # Copy package files
 COPY package.json pnpm-lock.yaml* ./
 
-# Install production dependencies only
-RUN pnpm install --no-frozen-lockfile
-RUN pnpm install --prod --frozen-lockfile
-
 # Copy built application from builder
 COPY --from=builder /app/build ./
 
