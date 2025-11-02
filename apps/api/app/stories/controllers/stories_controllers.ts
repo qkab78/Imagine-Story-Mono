@@ -85,6 +85,7 @@ export default class StoriesController {
     // @ts-ignore
     const stories = await db
       .selectFrom('stories')
+      // @ts-ignore
       .where('user_id', '=', user.id)
       .selectAll()
       .execute()

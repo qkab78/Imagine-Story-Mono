@@ -20,8 +20,11 @@ export default class PaymentsController {
     const user = await auth.getUserOrFail()
 
     const subscriptionUrl = await this.paymentService.createSubscription({
+      // @ts-ignore
       customerId: user.customer_id,
+      // @ts-ignore
       email: user.email,
+      // @ts-ignore
       name: `${user.firstname} ${user.lastname}`,
     })
 

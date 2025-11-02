@@ -46,7 +46,7 @@ export default class LemonSqueezyPaymentService implements PaymentService {
     let userCustomerId: string
 
     if (!customerId) {
-      const customer = await createCustomer(process.env.PAYMENT_STORE_ID as string, {
+      const createdCustomer = await createCustomer(process.env.PAYMENT_STORE_ID as string, {
         email,
         name,
       })
@@ -61,12 +61,12 @@ export default class LemonSqueezyPaymentService implements PaymentService {
         await db
           .updateTable('users')
           .set({
-            customer_id: customer.data?.data.id,
+            customer_id: createdCustomer.data?.data.id,
           })
           .where('id', '=', user.id)
           .execute()
 
-        userCustomerId = customer.data?.data.id as string
+        userCustomerId = createdCustomer.data?.data.id as string
       }
     }
 

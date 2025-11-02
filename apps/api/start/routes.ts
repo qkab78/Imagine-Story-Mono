@@ -18,7 +18,7 @@ import { existsSync, readFileSync } from 'node:fs'
 const LoginController = () => import('#auth/controllers/login/login_controller')
 const LogoutController = () => import('#auth/controllers/logout/logout_controller')
 const StoriesController = () => import('#stories/controllers/stories_controllers')
-const CharactersController = () => import('#stories/controllers/characters_controllers')
+// const CharactersController = () => import('#stories/controllers/characters_controllers')
 const AuthController = () => import('#auth/controllers/auth_controllers')
 const RegisterController = () => import('#auth/controllers/register/register_controller')
 const PaymentsController = () => import('#payments/controllers/payments_controllers')
