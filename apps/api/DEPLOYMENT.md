@@ -153,6 +153,17 @@ Le Dockerfile inclut un health check qui vérifie que l'API répond sur le endpo
 5. Vérifiez que la base de données est accessible et démarrée avant l'API
 6. Vérifiez que Redis est accessible si vous utilisez les queues
 
+### Erreur "Cannot find module '/app/bin/server.js'"
+
+Cette erreur se produit si le CMD du Dockerfile pointe vers le mauvais chemin. AdonisJS compile les fichiers TypeScript dans le répertoire `build/`, donc le chemin correct est `build/bin/server.js` et non `bin/server.js`.
+
+**Solution** : Assurez-vous que le Dockerfile contient :
+```dockerfile
+CMD ["node", "build/bin/server.js"]
+```
+
+Si vous voyez cette erreur, le Dockerfile a probablement l'ancien chemin. Mettez à jour le Dockerfile et redéployez.
+
 ### Erreurs de connexion à la base de données
 
 1. Vérifiez que `DB_HOST` pointe vers le bon service

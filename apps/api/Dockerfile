@@ -28,4 +28,5 @@ USER node
 EXPOSE 3333
 
 # Start the application
-CMD ["node", "bin/server.js"]
+# AdonisJS compile les fichiers dans le répertoire build/
+CMD ["node", "build/bin/server.js"]
