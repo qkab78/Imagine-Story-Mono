@@ -27,6 +27,10 @@ router.get('/', async ({ response }: HttpContext) => {
   return response.json({ hello: 'world', version: 'v1' })
 })
 
+router.get('/health', async ({ response }: HttpContext) => {
+  return response.json({ status: 'ok', timestamp: new Date().toISOString() })
+})
+
 router.get('/test-register-job', async ({ response }: HttpContext) => {
   queue.dispatch(SendUserRegisterConfirmationEmailJob, {
     email: 'test@test.com',
