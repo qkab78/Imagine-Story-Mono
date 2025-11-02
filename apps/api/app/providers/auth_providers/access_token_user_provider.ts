@@ -133,7 +133,10 @@ export class AccessTokenUserProvider implements AccessTokensUserProviderContract
 
   async invalidateToken(tokenValue: Secret<string>): Promise<boolean> {
     const decodedToken = AccessToken.decode('oat_', tokenValue.release())
-    const deletedToken = await db.deleteFrom('access_tokens').where('id', '=', decodedToken!.identifier).executeTakeFirst()
+    const deletedToken = await db
+      .deleteFrom('access_tokens')
+      .where('id', '=', decodedToken!.identifier)
+      .executeTakeFirst()
     if (!deletedToken) {
       return false
     }
