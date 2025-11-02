@@ -24,10 +24,12 @@ const RegisterController = () => import('#auth/controllers/register/register_con
 const PaymentsController = () => import('#payments/controllers/payments_controllers')
 
 router.get('/', async ({ response }: HttpContext) => {
+  console.log('[Route] GET / called')
   return response.json({ hello: 'world', version: 'v1' })
 })
 
 router.get('/health', async ({ response }: HttpContext) => {
+  console.log('[Route] GET /health called')
   return response.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 

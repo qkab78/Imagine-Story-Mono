@@ -14,6 +14,11 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    console.error('[ExceptionHandler] Error caught:', error)
+    if (error instanceof Error) {
+      console.error('[ExceptionHandler] Error stack:', error.stack)
+    }
+    
     if (error instanceof PaymentErrors) {
       return ctx.response.badRequest(error.errors)
     }

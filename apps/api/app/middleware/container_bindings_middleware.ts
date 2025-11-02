@@ -11,6 +11,7 @@ import type { NextFn } from '@adonisjs/core/types/http'
  */
 export default class ContainerBindingsMiddleware {
   handle(ctx: HttpContext, next: NextFn) {
+    console.log(`[Middleware] Request: ${ctx.request.method()} ${ctx.request.url()}`)
     ctx.containerResolver.bindValue(HttpContext, ctx)
     ctx.containerResolver.bindValue(Logger, ctx.logger)
 
