@@ -10,7 +10,6 @@
 */
 
 import 'reflect-metadata'
-import '@kitajs/html/register'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
 
 /**
@@ -35,12 +34,34 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
     app.booting(async () => {
       await import('#start/env')
     })
-    app.listen('SIGTERM', () => app.terminate())
-    app.listenIf(app.managedByPm2, 'SIGINT', () => app.terminate())
+    app.listen('SIGTERM', () => {
+      console.log('[Server] Received SIGTERM, shutting down gracefully')
+      app.terminate()
+    })
+    app.listenIf(app.managedByPm2, 'SIGINT', () => {
+      console.log('[Server] Received SIGINT, shutting down gracefully')
+      app.terminate()
+    })
   })
   .httpServer()
   .start()
+  .then(() => {
+    console.log('[Server] HTTP server started successfully')
+  })
   .catch((error) => {
+    console.error('[Server] Failed to start HTTP server:', error)
+    console.error('[Server] Error stack:', error.stack)
     process.exitCode = 1
     prettyPrintError(error)
+    process.exit(1)
   })
+
+// Gérer les erreurs non catchées
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[Server] Unhandled Rejection at:', promise, 'reason:', reason)
+})
+
+process.on('uncaughtException', (error) => {
+  console.error('[Server] Uncaught Exception:', error)
+  process.exit(1)
+})
