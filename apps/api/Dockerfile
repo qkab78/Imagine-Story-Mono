@@ -22,20 +22,17 @@ RUN node ace build --ignore-ts-errors
 # Production stage
 FROM node:20-alpine
 
-# Install pnpm
-RUN npm install -g pnpm
-
 # Set working directory
 WORKDIR /app
-
-# Copy package files
-COPY package.json pnpm-lock.yaml* ./
 
 # Copy built application from builder
 COPY --from=builder /app/build ./
 
-# Create uploads directory
-RUN mkdir -p uploads && chown -R node:node uploads
+# Install production dependencies using npm (as recommended by AdonisJS)
+RUN npm ci --omit="dev"
+
+# Create uploads directory with proper permissions
+RUN mkdir -p uploads && chown -R node:node /app/uploads
 
 # Switch to non-root user
 USER node

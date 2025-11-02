@@ -146,9 +146,12 @@ Le Dockerfile inclut un health check qui vérifie que l'API répond sur le endpo
 
 ### L'application ne démarre pas
 
-1. Vérifiez les logs: `docker logs <container-name>`
-2. Assurez-vous que toutes les variables d'environnement sont configurées
-3. Vérifiez que la base de données est accessible
+1. **Dans Dokploy**: Allez dans votre application > onglet "Logs" pour voir les logs en temps réel
+2. **Via Docker**: `docker logs <container-name>` ou `docker logs -f <container-name>` pour suivre en temps réel
+3. **Vérifier si le conteneur tourne**: `docker ps -a` pour voir tous les conteneurs (y compris ceux arrêtés)
+4. Assurez-vous que toutes les variables d'environnement sont configurées (surtout `APP_KEY`, `DB_HOST`, etc.)
+5. Vérifiez que la base de données est accessible et démarrée avant l'API
+6. Vérifiez que Redis est accessible si vous utilisez les queues
 
 ### Erreurs de connexion à la base de données
 
@@ -166,6 +169,42 @@ Pour mettre à jour l'application:
 
 ## Monitoring
 
-- Les logs sont disponibles dans Dokploy
+- Les logs sont disponibles dans Dokploy (onglet "Logs")
 - Le health check s'exécute toutes les 30 secondes
 - L'application utilise `pino-pretty` pour des logs formatés en développement
+
+## Commandes utiles pour diagnostiquer
+
+Dans Dokploy, vous pouvez utiliser la console Docker pour exécuter ces commandes:
+
+```bash
+# Voir les logs en temps réel
+docker logs -f <container-name>
+
+# Voir les 100 dernières lignes de logs
+docker logs --tail 100 <container-name>
+
+# Lister tous les conteneurs (y compris arrêtés)
+docker ps -a
+
+# Inspecter un conteneur
+docker inspect <container-name>
+
+# Exécuter une commande dans le conteneur (si il tourne)
+docker exec -it <container-name> sh
+
+# Vérifier les variables d'environnement
+docker exec <container-name> env
+```
+
+## Variables d'environnement obligatoires
+
+Les variables suivantes **DOIVENT** être configurées pour que l'application démarre:
+
+- `APP_KEY` - Clé de chiffrement de l'application
+- `DB_HOST` - Hôte de la base de données
+- `DB_USER` - Utilisateur de la base de données
+- `DB_PASSWORD` - Mot de passe de la base de données
+- `DB_DATABASE` - Nom de la base de données
+
+Sans ces variables, l'application ne pourra pas démarrer.
