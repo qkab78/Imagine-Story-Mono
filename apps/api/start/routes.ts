@@ -25,12 +25,38 @@ const PaymentsController = () => import('#payments/controllers/payments_controll
 
 router.get('/', async ({ response }: HttpContext) => {
   console.log('[Route] GET / called')
-  return response.json({ hello: 'world', version: 'v1' })
+  try {
+    const data = { hello: 'world', version: 'v1' }
+    console.log('[Route] GET / preparing response:', data)
+    const result = response.json(data)
+    console.log('[Route] GET / response created')
+    return result
+  } catch (error) {
+    console.error('[Route] GET / error:', error)
+    throw error
+  }
 })
 
 router.get('/health', async ({ response }: HttpContext) => {
-  console.log('[Route] GET /health called')
-  return response.json({ status: 'ok', timestamp: new Date().toISOString() })
+  console.log('[Route] GET /health called - start')
+  try {
+    const data = { status: 'ok', timestamp: new Date().toISOString() }
+    console.log('[Route] GET /health preparing response:', JSON.stringify(data))
+    
+    // Utiliser response.send avec Content-Type explicite
+    response.status(200)
+    response.header('Content-Type', 'application/json')
+    const result = response.send(JSON.stringify(data))
+    
+    console.log('[Route] GET /health response sent, status:', response.response.statusCode)
+    return result
+  } catch (error) {
+    console.error('[Route] GET /health error:', error)
+    if (error instanceof Error) {
+      console.error('[Route] GET /health error stack:', error.stack)
+    }
+    throw error
+  }
 })
 
 router.get('/test-register-job', async ({ response }: HttpContext) => {
