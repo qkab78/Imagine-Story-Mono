@@ -5,4 +5,4 @@ export const SPECIES = {
   SUPERHERO: 'superhero',
   SUPERHEROINE: 'superheroine',
   ANIMAL: 'animal',
-} as const;
+} as const

@@ -12,4 +12,4 @@ export const ALLOWED_LANGUAGES = {
   TR: 'Turkish',
   AR: 'Arabic',
   JA: 'Japanese',
-} as const;
+} as const

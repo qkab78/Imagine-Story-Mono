@@ -1,8 +1,16 @@
-import { getAuthenticatedUser, getCustomer, createCustomer, lemonSqueezySetup, Customer, createCheckout, getProduct } from "@lemonsqueezy/lemonsqueezy.js";
-import { inject } from "@adonisjs/core";
-import PaymentService from "../payment_service.js";
-import PaymentErrors from "#exceptions/payment_errors";
-import { db } from "#services/db";
+import {
+  getAuthenticatedUser,
+  getCustomer,
+  createCustomer,
+  lemonSqueezySetup,
+  Customer,
+  createCheckout,
+  getProduct,
+} from '@lemonsqueezy/lemonsqueezy.js'
+import { inject } from '@adonisjs/core'
+import PaymentService from '../payment_service.js'
+import PaymentErrors from '#exceptions/payment_errors'
+import { db } from '#services/db'
 
 interface CreateSubscriptionPayload {
   customerId: string
@@ -12,13 +20,12 @@ interface CreateSubscriptionPayload {
 
 @inject()
 export default class LemonSqueezyPaymentService implements PaymentService {
-
   constructor() {
     lemonSqueezySetup({
       apiKey: process.env.PAYMENT_API_KEY,
       onError: (error) => {
         console.error(error)
-      }
+      },
     })
   }
 
@@ -39,23 +46,25 @@ export default class LemonSqueezyPaymentService implements PaymentService {
     let userCustomerId: string
 
     if (!customerId) {
-      const customer = await createCustomer(
-        process.env.PAYMENT_STORE_ID as string,
-        {
-          email,
-          name,
-        }
-      )
+      const customer = await createCustomer(process.env.PAYMENT_STORE_ID as string, {
+        email,
+        name,
+      })
 
-      const user = await db.selectFrom('users')
+      const user = await db
+        .selectFrom('users')
         .selectAll()
         .where('email', '=', payload.email)
         .executeTakeFirst()
 
       if (user) {
-        await db.updateTable('users').set({
-          customer_id: customer.data?.data.id
-        }).where('id', '=', user.id).execute()
+        await db
+          .updateTable('users')
+          .set({
+            customer_id: customer.data?.data.id,
+          })
+          .where('id', '=', user.id)
+          .execute()
 
         userCustomerId = customer.data?.data.id as string
       }
@@ -74,16 +83,18 @@ export default class LemonSqueezyPaymentService implements PaymentService {
     customer = response.data.data
     console.log(customer)
 
-    const productResponse = await getProduct(process.env.PAYMENT_PREMIUM_ACCOUNT_PRODUCT_ID as string, {
-      include: ['variants']
-    })
+    const productResponse = await getProduct(
+      process.env.PAYMENT_PREMIUM_ACCOUNT_PRODUCT_ID as string,
+      {
+        include: ['variants'],
+      }
+    )
 
     if (productResponse.error) {
       throw new Error('Product not found')
     }
 
     const product = productResponse.data.data
-
 
     const checkoutResponse = await createCheckout(
       process.env.PAYMENT_STORE_ID as string,
@@ -94,7 +105,7 @@ export default class LemonSqueezyPaymentService implements PaymentService {
           name,
           billingAddress: {
             country: 'FR',
-          }
+          },
         },
         checkoutOptions: {
           embed: true,
@@ -127,10 +138,9 @@ export default class LemonSqueezyPaymentService implements PaymentService {
       return {
         code: error.status,
         title: error.title,
-        message: errorMessage
+        message: errorMessage,
       }
     })
     throw new PaymentErrors(errors)
-
   }
 }

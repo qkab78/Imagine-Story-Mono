@@ -3,4 +3,4 @@ export const ALLOWED_TONES = {
   CALM: 'calm',
   MYSTERIOUS: 'mysterious',
   ADVENTUROUS: 'adventurous',
-} as const;
+} as const

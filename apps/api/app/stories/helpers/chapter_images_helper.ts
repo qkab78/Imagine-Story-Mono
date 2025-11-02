@@ -15,9 +15,9 @@ import {
   ChapterImageGenerationResponse,
   isChapterImage,
 } from '../types/enhanced_story_types.js'
-import { 
+import {
   generateChapterImagesWithLeonardo,
-  testLeonardoConnection
+  testLeonardoConnection,
 } from '../services/leonardo_ai_service.js'
 
 // Configuration OpenAI (backup)
@@ -36,7 +36,7 @@ export async function generateChapterImages(
 ): Promise<ChapterImageGenerationResponse> {
   // Tester la connexion Leonardo AI
   const leonardoAvailable = await testLeonardoConnection()
-  
+
   if (leonardoAvailable) {
     console.log('🎨 Utilisation de Leonardo AI pour la génération des images de chapitres')
     try {
@@ -72,7 +72,7 @@ async function generateChapterImagesWithDallE(
   // Génération parallèle avec limitation de concurrence
   const concurrency = 2 // Limiter à 2 requêtes simultanées pour éviter les rate limits
   const chapterBatches: any[][] = []
-  
+
   for (let i = 0; i < chapters.length; i += concurrency) {
     chapterBatches.push(chapters.slice(i, i + concurrency))
   }
@@ -84,7 +84,7 @@ async function generateChapterImagesWithDallE(
     })
 
     const batchResults = await Promise.allSettled(batchPromises)
-    
+
     batchResults.forEach((result, batchIndex) => {
       if (result.status === 'fulfilled' && result.value) {
         chapterImages.push(result.value)
@@ -97,7 +97,7 @@ async function generateChapterImagesWithDallE(
 
     // Pause entre les batches pour respecter les rate limits
     if (chapterBatches.indexOf(batch) < chapterBatches.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000))
     }
   }
 
@@ -128,7 +128,7 @@ async function generateSingleChapterImage(
   // Première tentative avec le prompt complet
   try {
     const prompt = createChapterImagePrompt(context, chapter, chapterIndex, false)
-    
+
     const response = await openai.images.generate({
       model: 'dall-e-3',
       prompt: prompt,
@@ -139,7 +139,7 @@ async function generateSingleChapterImage(
 
     const imageUrl = response.data?.[0]?.url
     if (!imageUrl) {
-      throw new Error('Aucune URL d\'image reçue d\'OpenAI')
+      throw new Error("Aucune URL d'image reçue d'OpenAI")
     }
 
     // Télécharger et sauvegarder l'image
@@ -155,14 +155,14 @@ async function generateSingleChapterImage(
     }
   } catch (error: any) {
     console.warn(`Première tentative échouée pour chapitre ${chapterIndex + 1}:`, error.message)
-    
+
     // Si c'est une violation de content policy, essayer avec le prompt simplifié
     if (error.code === 'content_policy_violation' || error.message?.includes('safety system')) {
       console.log(`Retry avec prompt simplifié pour chapitre ${chapterIndex + 1}`)
-      
+
       try {
         const simplifiedPrompt = createChapterImagePrompt(context, chapter, chapterIndex, true)
-        
+
         const response = await openai.images.generate({
           model: 'dall-e-3',
           prompt: simplifiedPrompt,
@@ -173,7 +173,7 @@ async function generateSingleChapterImage(
 
         const imageUrl = response.data?.[0]?.url
         if (!imageUrl) {
-          throw new Error('Aucune URL d\'image reçue d\'OpenAI (retry)')
+          throw new Error("Aucune URL d'image reçue d'OpenAI (retry)")
         }
 
         // Télécharger et sauvegarder l'image
@@ -203,24 +203,67 @@ async function generateSingleChapterImage(
  */
 function sanitizeContent(content: string): string {
   if (!content) return ''
-  
+
   // Mots et phrases potentiellement problématiques à éviter
   const problematicWords = [
-    'violence', 'fight', 'combat', 'battle', 'guerre', 'weapon', 'arme', 'gun', 'sword', 'épée',
-    'death', 'mort', 'kill', 'tuer', 'blood', 'sang', 'hurt', 'blessé', 'pain', 'douleur',
-    'scary', 'effrayant', 'peur', 'fear', 'monster', 'monstre', 'nightmare', 'cauchemar',
-    'angry', 'colère', 'hate', 'haine', 'evil', 'mal', 'dark', 'sombre', 'shadow', 'ombre',
-    'cry', 'pleurer', 'sad', 'triste', 'tears', 'larmes', 'alone', 'seul', 'lost', 'perdu'
+    'violence',
+    'fight',
+    'combat',
+    'battle',
+    'guerre',
+    'weapon',
+    'arme',
+    'gun',
+    'sword',
+    'épée',
+    'death',
+    'mort',
+    'kill',
+    'tuer',
+    'blood',
+    'sang',
+    'hurt',
+    'blessé',
+    'pain',
+    'douleur',
+    'scary',
+    'effrayant',
+    'peur',
+    'fear',
+    'monster',
+    'monstre',
+    'nightmare',
+    'cauchemar',
+    'angry',
+    'colère',
+    'hate',
+    'haine',
+    'evil',
+    'mal',
+    'dark',
+    'sombre',
+    'shadow',
+    'ombre',
+    'cry',
+    'pleurer',
+    'sad',
+    'triste',
+    'tears',
+    'larmes',
+    'alone',
+    'seul',
+    'lost',
+    'perdu',
   ]
-  
+
   let sanitized = content.toLowerCase()
-  
+
   // Remplacer les mots problématiques par des alternatives neutres
-  problematicWords.forEach(word => {
+  problematicWords.forEach((word) => {
     const regex = new RegExp(`\\b${word}\\b`, 'gi')
     sanitized = sanitized.replace(regex, 'adventure')
   })
-  
+
   return sanitized
 }
 
@@ -236,12 +279,13 @@ function createChapterImagePrompt(
   if (useSimplified) {
     return createSimplifiedPrompt(context, chapter, chapterIndex)
   }
-  
+
   // Extraire et nettoyer le contenu du chapitre
   const chapterContent = chapter.content || ''
   const sanitizedContent = sanitizeContent(chapterContent)
-  const chapterSummary = sanitizedContent.substring(0, 200) + (sanitizedContent.length > 200 ? '...' : '')
-  
+  const chapterSummary =
+    sanitizedContent.substring(0, 200) + (sanitizedContent.length > 200 ? '...' : '')
+
   return `
 Children's book illustration for ${context.childAge}-year-old kids:
 
@@ -315,19 +359,19 @@ async function downloadChapterImage(imageUrl: string, fileName: string): Promise
 
     const chaptersDir = path.join(process.cwd(), 'uploads', 'stories', 'chapters')
     const filePath = path.join(chaptersDir, fileName)
-    
+
     if (!response.body) {
       throw new Error('Aucun contenu dans la réponse')
     }
 
     // Utiliser des streams Node.js natifs pour plus de performance
     const fileStream = createWriteStream(filePath)
-    
+
     // Convertir le ReadableStream web en stream Node.js
     const nodeStream = new ReadableStream({
       start(controller) {
         const reader = response.body!.getReader()
-        
+
         function pump(): Promise<void> {
           return reader.read().then(({ done, value }) => {
             if (done) {
@@ -338,16 +382,13 @@ async function downloadChapterImage(imageUrl: string, fileName: string): Promise
             return pump()
           })
         }
-        
+
         return pump()
-      }
+      },
     })
 
     // Pipeline pour sauvegarder l'image
-    await pipeline(
-      nodeStream as any,
-      fileStream
-    )
+    await pipeline(nodeStream as any, fileStream)
 
     console.log(`Image sauvegardée: ${filePath}`)
     return `chapters/${fileName}`
