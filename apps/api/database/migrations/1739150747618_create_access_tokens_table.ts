@@ -4,10 +4,8 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('access_tokens')
     .addColumn('id', 'uuid', (col) => col.primaryKey().defaultTo(sql`gen_random_uuid()`))
-    .addColumn('tokenable_id', 'uuid', (col) => col
-      .notNull()
-      .references('users.id')
-      .onDelete('cascade')
+    .addColumn('tokenable_id', 'uuid', (col) =>
+      col.notNull().references('users.id').onDelete('cascade')
     )
     .addColumn('type', 'varchar', (col) => col.notNull())
     .addColumn('name', 'varchar', (col) => col.notNull())

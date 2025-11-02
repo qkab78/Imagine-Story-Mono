@@ -44,19 +44,22 @@ export async function generateCharacterProfiles(
       ],
       temperature: 0.8,
       max_tokens: 2000,
-      response_format: { type: "json_object" },
+      response_format: { type: 'json_object' },
     })
 
     const content = response.choices[0]?.message?.content
     if (!content) {
-      throw new Error('Aucune réponse reçue d\'OpenAI pour la génération de personnages')
+      throw new Error("Aucune réponse reçue d'OpenAI pour la génération de personnages")
     }
 
     // Parse la réponse JSON avec gestion d'erreur améliorée
     let parsedResponse: any
     try {
       // Nettoyer le contenu au cas où il y aurait des caractères indésirables
-      const cleanedContent = content.trim().replace(/^```json\s*/, '').replace(/\s*```$/, '')
+      const cleanedContent = content
+        .trim()
+        .replace(/^```json\s*/, '')
+        .replace(/\s*```$/, '')
       parsedResponse = JSON.parse(cleanedContent)
     } catch (parseError) {
       console.error('Erreur parsing JSON personnages:', parseError)
@@ -150,7 +153,9 @@ Génère des profils détaillés pour les personnages principaux de cette histoi
   // Ajout du contenu de l'histoire si disponible
   if (storyContent && storyContent.chapters) {
     const chaptersInfo = storyContent.chapters
-      .map((chapter: any, index: number) => `Chapitre ${index + 1}: ${chapter.title || 'Sans titre'}`)
+      .map(
+        (chapter: any, index: number) => `Chapitre ${index + 1}: ${chapter.title || 'Sans titre'}`
+      )
       .join('\n')
 
     return basePrompt + `\n\n**Structure de l'histoire:**\n${chaptersInfo}`
@@ -192,7 +197,7 @@ function createCharacterImagePrompt(
   context: StoryGenerationContext
 ): string {
   const appearance = character.physicalAppearance
-  
+
   return `
 Illustration de personnage pour livre d'enfants de ${context.childAge} ans:
 

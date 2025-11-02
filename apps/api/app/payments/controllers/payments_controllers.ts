@@ -1,6 +1,6 @@
-import { inject } from "@adonisjs/core";
-import type { HttpContext } from "@adonisjs/core/http";
-import PaymentService from "../services/payment_service.js";
+import { inject } from '@adonisjs/core'
+import type { HttpContext } from '@adonisjs/core/http'
+import PaymentService from '../services/payment_service.js'
 
 @inject()
 export default class PaymentsController {
@@ -12,7 +12,7 @@ export default class PaymentsController {
     console.log(paymentServiceProviderInfos)
 
     return response.json({
-      paymentServiceProviderInfos
+      paymentServiceProviderInfos,
     })
   }
 
@@ -20,14 +20,17 @@ export default class PaymentsController {
     const user = await auth.getUserOrFail()
 
     const subscriptionUrl = await this.paymentService.createSubscription({
+      // @ts-ignore
       customerId: user.customer_id,
+      // @ts-ignore
       email: user.email,
-      name: `${user.firstname} ${user.lastname}`
+      // @ts-ignore
+      name: `${user.firstname} ${user.lastname}`,
     })
 
     return response.json({
       message: 'Subscription created',
-      checkoutUrl: subscriptionUrl
-    });
+      checkoutUrl: subscriptionUrl,
+    })
   }
 }

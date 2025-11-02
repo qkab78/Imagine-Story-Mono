@@ -11,11 +11,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('cover_image', 'text', (col) => col.notNull())
     .addColumn('chapters', 'integer', (col) => col.notNull())
     .addColumn('slug', 'varchar', (col) => col.notNull())
-    .addColumn('user_id', 'uuid', (col) => col
-      .notNull()
-      .references('users.id')
-      .onDelete('cascade')
-    )
+    .addColumn('user_id', 'uuid', (col) => col.notNull().references('users.id').onDelete('cascade'))
     .addColumn('created_at', 'timestamp', (col) => col.notNull())
     .addColumn('updated_at', 'timestamp', (col) => col.notNull())
     .execute()

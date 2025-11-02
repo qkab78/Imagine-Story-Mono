@@ -1,19 +1,20 @@
-
-import { ChapterImage, Story, StoryChapter } from "#stories/entities/story_entity";
-import { Stories } from "#types/db";
+import { ChapterImage, Story, StoryChapter } from '#stories/entities/story_entity'
+import { Stories } from '#types/db'
 
 export const getStoryByIdPresenter = (story: Stories): Story => {
-  const chapterImages = (story.chapter_images as unknown as ChapterImage[]).map((chapterImage) => ({
-    chapterIndex: chapterImage.chapterIndex,
-    chapterTitle: chapterImage.chapterTitle,
-    imagePath: chapterImage.imagePath.split('/').pop() || '',
-    imageUrl: chapterImage.imagePath.split('/').pop() || '',
-    // imageUrl: chapterImage.imageUrl,
-  })) || []
-  const chapters = (story.story_chapters as unknown as StoryChapter[]).map((chapter) => ({
-    title: chapter.title,
-    content: chapter.content,
-  })) || []
+  const chapterImages =
+    (story.chapter_images as unknown as ChapterImage[]).map((chapterImage) => ({
+      chapterIndex: chapterImage.chapterIndex,
+      chapterTitle: chapterImage.chapterTitle,
+      imagePath: chapterImage.imagePath.split('/').pop() || '',
+      imageUrl: chapterImage.imagePath.split('/').pop() || '',
+      // imageUrl: chapterImage.imageUrl,
+    })) || []
+  const chapters =
+    (story.story_chapters as unknown as StoryChapter[]).map((chapter) => ({
+      title: chapter.title,
+      content: chapter.content,
+    })) || []
   const coverImage = story.cover_image.split('/').pop() || ''
 
   return {
@@ -30,10 +31,10 @@ export const getStoryByIdPresenter = (story: Stories): Story => {
     conclusion: story.conclusion as unknown as string,
     coverImage,
     slug: story.slug as unknown as string,
-    public: story.public as unknown as boolean || true,
+    public: (story.public as unknown as boolean) || true,
     userId: story.user_id as unknown as string,
     createdAt: story.created_at as unknown as string,
     chapters,
     chapterImages,
-  };
-};
+  }
+}

@@ -42,13 +42,13 @@ export async function generateChapterImagesWithLeonardo(
   console.log('🎨 Génération avec Leonardo AI - Stratégie de cohérence des personnages')
 
   // Étape 1: Créer une image de référence du personnage
-  console.log('📝 Création d\'une image de référence du personnage...')
+  console.log("📝 Création d'une image de référence du personnage...")
   const characterSeed = generateCharacterSeed(context)
   const referenceImageUrl = await createCharacterReference(context, storySlug, characterSeed)
-  
+
   if (!referenceImageUrl) {
-    console.warn('⚠️ Impossible de créer l\'image de référence, continuons avec prompts détaillés')
-    throw new Error('Impossible de créer l\'image de référence')
+    console.warn("⚠️ Impossible de créer l'image de référence, continuons avec prompts détaillés")
+    throw new Error("Impossible de créer l'image de référence")
   }
 
   // Génération séquentielle pour maintenir la cohérence
@@ -61,7 +61,7 @@ export async function generateChapterImagesWithLeonardo(
         chapters[index],
         index,
         storySlug,
-        characterSeed,
+        characterSeed
       )
 
       if (chapterImage) {
@@ -71,7 +71,7 @@ export async function generateChapterImagesWithLeonardo(
 
       // Pause entre les générations pour éviter les rate limits
       if (index < chapters.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 3000))
+        await new Promise((resolve) => setTimeout(resolve, 3000))
       }
     } catch (error: any) {
       console.error(`Erreur génération chapitre ${index + 1}:`, error.message)
@@ -99,7 +99,7 @@ async function generateSingleChapterImageWithLeonardo(
   chapter: any,
   chapterIndex: number,
   storySlug: string,
-  characterSeed: number,
+  characterSeed: number
 ): Promise<ChapterImage | null> {
   const fileName = `${storySlug}_chapter_${chapterIndex + 1}.png`
 
@@ -119,11 +119,14 @@ async function generateSingleChapterImageWithLeonardo(
         numImages: 1,
         guidanceScale: 7,
         seed: characterSeed, // Utiliser le même seed pour la cohérence
-        presetStyle: 'ANIME' as any
+        presetStyle: 'ANIME' as any,
       })
     } catch (moderationError: any) {
       // Si erreur de modération, essayer avec un prompt plus sûr
-      if (moderationError.message?.includes('moderated') || moderationError.message?.includes('403')) {
+      if (
+        moderationError.message?.includes('moderated') ||
+        moderationError.message?.includes('403')
+      ) {
         console.log('❌ Contenu modéré, retry avec prompt simplifié...')
 
         prompt = createSafePrompt(context, chapterIndex)
@@ -136,7 +139,7 @@ async function generateSingleChapterImageWithLeonardo(
           height: 1024,
           numImages: 1,
           guidanceScale: 7,
-          presetStyle: 'CINEMATIC' as any
+          presetStyle: 'CINEMATIC' as any,
         })
       } else {
         throw moderationError
@@ -151,7 +154,9 @@ async function generateSingleChapterImageWithLeonardo(
 
     if (!generationId) {
       console.error('Structure de réponse Leonardo AI:', response)
-      throw new Error(`Pas d'ID de génération reçu de Leonardo AI. Structure: ${JSON.stringify(response)}`)
+      throw new Error(
+        `Pas d'ID de génération reçu de Leonardo AI. Structure: ${JSON.stringify(response)}`
+      )
     }
 
     console.log(`Génération ID: ${generationId}, en attente...`)
@@ -165,7 +170,7 @@ async function generateSingleChapterImageWithLeonardo(
 
     const imageUrl = generatedImages[0].url
     if (!imageUrl) {
-      throw new Error('URL d\'image manquante dans la réponse Leonardo AI')
+      throw new Error("URL d'image manquante dans la réponse Leonardo AI")
     }
 
     console.log(`Image générée: ${imageUrl}`)
@@ -214,12 +219,12 @@ async function waitForGeneration(generationId: string, maxAttempts = 30): Promis
       }
 
       // Attendre 3 secondes avant de vérifier à nouveau
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      await new Promise((resolve) => setTimeout(resolve, 3000))
       attempts++
     } catch (error) {
-      console.error('Erreur lors de l\'attente de génération:', error)
+      console.error("Erreur lors de l'attente de génération:", error)
       attempts++
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      await new Promise((resolve) => setTimeout(resolve, 3000))
     }
   }
 
@@ -236,7 +241,8 @@ function createLeonardoChapterPrompt(
 ): string {
   const characterDescription = getConsistentCharacterDescription(context)
   const chapterContent = sanitizeContent(chapter.content || '')
-  const chapterSummary = chapterContent.substring(0, 120) + (chapterContent.length > 120 ? '...' : '')
+  const chapterSummary =
+    chapterContent.substring(0, 120) + (chapterContent.length > 120 ? '...' : '')
 
   return `
 EXACT CHARACTER REFERENCE: ${characterDescription}
@@ -260,10 +266,7 @@ The character "${context.protagonist}" must look exactly like the established de
 /**
  * Crée un prompt ultra-sûr pour éviter la modération
  */
-function createSafePrompt(
-  context: StoryGenerationContext,
-  chapterIndex: number
-): string {
+function createSafePrompt(context: StoryGenerationContext, chapterIndex: number): string {
   const species = context.species?.toLowerCase() || 'animal'
   const protagonist = context.protagonist || 'character'
 
@@ -286,18 +289,20 @@ function getConsistentCharacterDescription(context: StoryGenerationContext): str
   const protagonist = context.protagonist || 'character'
 
   const speciesDescriptions: Record<string, string> = {
-    'rabbit': `${protagonist}, a small fluffy white rabbit with long ears, black eyes, pink nose, blue vest, brown pants`,
-    'bear': `${protagonist}, a friendly brown bear with round ears, small black eyes, red shirt, blue overalls`,
-    'cat': `${protagonist}, an orange tabby cat with white chest, green eyes, yellow bow tie`,
-    'dog': `${protagonist}, a golden retriever puppy with floppy ears, brown eyes, blue collar`,
-    'fox': `${protagonist}, a red fox with pointed ears, amber eyes, white chest, green scarf`,
-    'mouse': `${protagonist}, a small gray mouse with round ears, black eyes, purple jacket`,
-    'squirrel': `${protagonist}, a brown squirrel with bushy tail, dark eyes, acorn hat`,
-    'elephant': `${protagonist}, a small gray elephant with large ears, colorful headband`
+    rabbit: `${protagonist}, a small fluffy white rabbit with long ears, black eyes, pink nose, blue vest, brown pants`,
+    bear: `${protagonist}, a friendly brown bear with round ears, small black eyes, red shirt, blue overalls`,
+    cat: `${protagonist}, an orange tabby cat with white chest, green eyes, yellow bow tie`,
+    dog: `${protagonist}, a golden retriever puppy with floppy ears, brown eyes, blue collar`,
+    fox: `${protagonist}, a red fox with pointed ears, amber eyes, white chest, green scarf`,
+    mouse: `${protagonist}, a small gray mouse with round ears, black eyes, purple jacket`,
+    squirrel: `${protagonist}, a brown squirrel with bushy tail, dark eyes, acorn hat`,
+    elephant: `${protagonist}, a small gray elephant with large ears, colorful headband`,
   }
 
-  return speciesDescriptions[species] ||
+  return (
+    speciesDescriptions[species] ||
     `${protagonist}, a friendly ${species} with distinctive features, colorful clothing`
+  )
 }
 
 /**
@@ -308,18 +313,56 @@ function sanitizeContent(content: string): string {
 
   const problematicWords = [
     // Mots déclenchant la modération
-    'tit', 'petit', 'little', 'small', 'tiny',
+    'tit',
+    'petit',
+    'little',
+    'small',
+    'tiny',
     // Mots potentiellement problématiques
-    'violence', 'fight', 'combat', 'battle', 'guerre', 'weapon', 'arme', 'gun', 'sword', 'épée',
-    'death', 'mort', 'kill', 'tuer', 'blood', 'sang', 'hurt', 'blessé', 'pain', 'douleur',
-    'scary', 'effrayant', 'peur', 'fear', 'monster', 'monstre', 'nightmare', 'cauchemar',
-    'angry', 'colère', 'hate', 'haine', 'evil', 'mal', 'dark', 'sombre', 'shadow', 'ombre'
+    'violence',
+    'fight',
+    'combat',
+    'battle',
+    'guerre',
+    'weapon',
+    'arme',
+    'gun',
+    'sword',
+    'épée',
+    'death',
+    'mort',
+    'kill',
+    'tuer',
+    'blood',
+    'sang',
+    'hurt',
+    'blessé',
+    'pain',
+    'douleur',
+    'scary',
+    'effrayant',
+    'peur',
+    'fear',
+    'monster',
+    'monstre',
+    'nightmare',
+    'cauchemar',
+    'angry',
+    'colère',
+    'hate',
+    'haine',
+    'evil',
+    'mal',
+    'dark',
+    'sombre',
+    'shadow',
+    'ombre',
   ]
 
   let sanitized = content
 
   // Remplacer les mots problématiques de manière case-insensitive
-  problematicWords.forEach(word => {
+  problematicWords.forEach((word) => {
     const regex = new RegExp(`\\b${word}\\b`, 'gi')
     sanitized = sanitized.replace(regex, 'young')
   })
@@ -343,7 +386,7 @@ async function downloadImage(imageUrl: string, fileName: string): Promise<string
   try {
     console.log(`Téléchargement de l'image: ${fileName}`)
     const imagePath = app.makePath(`uploads/stories/chapters/${fileName}`)
-    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' })
 
     if (!response.data || response.data.length === 0) {
       throw new Error('Aucune image reçue')
@@ -351,13 +394,13 @@ async function downloadImage(imageUrl: string, fileName: string): Promise<string
 
     return new Promise((resolve, reject) => {
       writeFile(imagePath, response.data, (err) => {
-        if (err) reject(err);
-        console.log(`Image downloaded successfully! ${imagePath}`);
-      });
+        if (err) reject(err)
+        console.log(`Image downloaded successfully! ${imagePath}`)
+      })
 
       console.log(`Image sauvegardée: ${imagePath}`)
-      return resolve(imagePath);
-    });
+      return resolve(imagePath)
+    })
   } catch (error) {
     console.error(`Erreur téléchargement image ${fileName}:`, error)
     throw new Error(`Échec du téléchargement de l'image: ${error}`)
@@ -372,10 +415,10 @@ export async function generateCoverImageWithLeonardo(
 ): Promise<string | null> {
   try {
     console.log('🖼️ Génération image de couverture avec Leonardo AI...')
-    
+
     const characterSeed = generateCharacterSeed(context)
     const characterDescription = getConsistentCharacterDescription(context)
-    
+
     const coverPrompt = `
 Book cover illustration for children's story: "${context.title}"
 
@@ -401,18 +444,18 @@ No text or titles in the image, just the visual cover scene.
       numImages: 1,
       guidanceScale: 8,
       seed: characterSeed, // Même seed que les chapitres pour cohérence
-      presetStyle: 'ANIME' as any
+      presetStyle: 'ANIME' as any,
     })
 
     const generationId = (response as any).object?.sdGenerationJob?.generationId
     if (!generationId) {
-      console.error('❌ Pas d\'ID pour l\'image de couverture')
+      console.error("❌ Pas d'ID pour l'image de couverture")
       return null
     }
 
     console.log(`⏳ Attente génération couverture: ${generationId}`)
     const generatedImages = await waitForGeneration(generationId)
-    
+
     if (!generatedImages || generatedImages.length === 0) {
       console.error('❌ Aucune image de couverture générée')
       return null
@@ -427,10 +470,9 @@ No text or titles in the image, just the visual cover scene.
     // Sauvegarder l'image de couverture
     const coverFileName = `${context.slug}.webp`
     const coverPath = await downloadCoverImage(coverImageUrl, coverFileName)
-    
+
     console.log('✅ Image de couverture Leonardo AI créée')
     return coverPath
-
   } catch (error) {
     console.error('❌ Erreur génération couverture Leonardo AI:', error)
     return null
@@ -444,7 +486,7 @@ async function downloadCoverImage(imageUrl: string, fileName: string): Promise<s
   try {
     console.log(`📥 Téléchargement couverture: ${fileName}`)
     const imagePath = app.makePath(`uploads/stories/covers/${fileName}`)
-    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' })
 
     if (!response.data || response.data.length === 0) {
       throw new Error('Aucune image reçue')
@@ -452,11 +494,11 @@ async function downloadCoverImage(imageUrl: string, fileName: string): Promise<s
 
     return new Promise((resolve, reject) => {
       writeFile(imagePath, response.data, (err) => {
-        if (err) reject(err);
-        console.log(`✅ Couverture téléchargée: ${imagePath}`);
-        resolve(imagePath);
-      });
-    });
+        if (err) reject(err)
+        console.log(`✅ Couverture téléchargée: ${imagePath}`)
+        resolve(imagePath)
+      })
+    })
   } catch (error) {
     console.error(`❌ Erreur téléchargement couverture ${fileName}:`, error)
     throw new Error(`Échec du téléchargement de l'image: ${error}`)
@@ -469,7 +511,10 @@ async function downloadCoverImage(imageUrl: string, fileName: string): Promise<s
 export async function testLeonardoConnection(): Promise<boolean> {
   try {
     const response = await leonardo.user.getUserSelf()
-    console.log('Connexion Leonardo AI réussie:', (response as any).user_details?.[0]?.user?.username || 'Utilisateur')
+    console.log(
+      'Connexion Leonardo AI réussie:',
+      (response as any).user_details?.[0]?.user?.username || 'Utilisateur'
+    )
     return true
   } catch (error) {
     console.error('Erreur connexion Leonardo AI:', error)
@@ -486,7 +531,7 @@ function generateCharacterSeed(context: StoryGenerationContext): number {
   let hash = 0
   for (let i = 0; i < seedString.length; i++) {
     const char = seedString.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
+    hash = (hash << 5) - hash + char
     hash = hash & hash // Convertir en 32bit integer
   }
   // Retourner un nombre positif entre 1 et 4294967295
@@ -497,13 +542,13 @@ function generateCharacterSeed(context: StoryGenerationContext): number {
  * Crée une image de référence du personnage principal
  */
 async function createCharacterReference(
-  context: StoryGenerationContext, 
+  context: StoryGenerationContext,
   storySlug: string,
   characterSeed: number
 ): Promise<string | null> {
   try {
     const characterDescription = getConsistentCharacterDescription(context)
-    
+
     const referencePrompt = `
 Character reference sheet: ${characterDescription}
 
@@ -523,18 +568,18 @@ Reference sheet for maintaining visual consistency.
       numImages: 1,
       guidanceScale: 8,
       seed: characterSeed, // Même seed pour cohérence
-      presetStyle: 'ANIME' as any
+      presetStyle: 'ANIME' as any,
     })
 
     const generationId = (response as any).object?.sdGenerationJob?.generationId
     if (!generationId) {
-      console.error('Pas d\'ID pour l\'image de référence')
+      console.error("Pas d'ID pour l'image de référence")
       return null
     }
 
     console.log(`⏳ Attente génération référence: ${generationId}`)
     const generatedImages = await waitForGeneration(generationId)
-    
+
     if (!generatedImages || generatedImages.length === 0) {
       console.error('❌ Aucune image de référence générée')
       return null
@@ -549,10 +594,9 @@ Reference sheet for maintaining visual consistency.
     // Sauvegarder l'image de référence
     const referenceFileName = `${storySlug}_character_reference.png`
     await downloadImage(referenceImageUrl, referenceFileName)
-    
+
     console.log('✅ Image de référence du personnage créée')
     return referenceImageUrl
-
   } catch (error) {
     console.error('❌ Erreur création image de référence:', error)
     return null

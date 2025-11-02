@@ -59,9 +59,9 @@ export default class SeedStories extends BaseCommand {
     const generatedStories = []
     for (const story of storiesToSeed) {
       const storyContent = await generateStory(story)
-      const storyTextJson = JSON.parse(storyContent) as StoryGenerated;
+      const storyTextJson = JSON.parse(storyContent) as StoryGenerated
       const slug = string.slug(storyTextJson.slug, { lower: true, trim: true })
-  
+
       // Générer une image avec DALL-E
       const imageUrl = await generateImage({
         title: storyTextJson.title || '',
@@ -70,8 +70,8 @@ export default class SeedStories extends BaseCommand {
         childAge: Number(story.childAge),
         protagonist: storyTextJson.protagonist || '',
         species: storyTextJson.species || '',
-        slug
-      })  
+        slug,
+      })
       console.log(storyTextJson)
       console.log(imageUrl)
       console.log(slug)
@@ -83,29 +83,34 @@ export default class SeedStories extends BaseCommand {
 
     console.log(generatedStories)
     for (const story of generatedStories) {
-      await db.insertInto('stories').values({
-        title: story.title,
-        synopsis: story.synopsis,
-        theme: story.theme,
-        protagonist: story.protagonist,
-        child_age: story.childAge,
-        cover_image: story.coverImage,
-        slug: story.slug,
-        chapters: story.chapters.length,
-        content: '',
-        created_at: new Date(),
-        updated_at: new Date(),
-        user_id: env.get('SEED_USER_ID') as string,
-        story_chapters: JSON.stringify(story.chapters.map((chapter) => ({
-          title: chapter.title,
-          content: chapter.content
-        }))),
-        conclusion: story.conclusion,
-        public: true,
-        language: story.language,
-        tone: story.tone,
-        species: story.species,
-      }).execute() 
+      await db
+        .insertInto('stories')
+        .values({
+          title: story.title,
+          synopsis: story.synopsis,
+          theme: story.theme,
+          protagonist: story.protagonist,
+          child_age: story.childAge,
+          cover_image: story.coverImage,
+          slug: story.slug,
+          chapters: story.chapters.length,
+          content: '',
+          created_at: new Date(),
+          updated_at: new Date(),
+          user_id: env.get('SEED_USER_ID') as string,
+          story_chapters: JSON.stringify(
+            story.chapters.map((chapter) => ({
+              title: chapter.title,
+              content: chapter.content,
+            }))
+          ),
+          conclusion: story.conclusion,
+          public: true,
+          language: story.language,
+          tone: story.tone,
+          species: story.species,
+        })
+        .execute()
     }
     this.logger.info('Stories generated and saved to database')
   }
