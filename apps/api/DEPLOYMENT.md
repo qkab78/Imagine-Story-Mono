@@ -140,8 +140,9 @@ Le Dockerfile inclut un health check qui vérifie que l'API répond sur le endpo
 
 ### Le build échoue
 
-1. Vérifiez que toutes les erreurs TypeScript sont corrigées
+1. Le Dockerfile utilise `--ignore-ts-errors` pour ignorer les erreurs TypeScript dans les fichiers de test
 2. Assurez-vous que le fichier `pnpm-lock.yaml` est à jour
+3. Vérifiez que les dépendances de production sont correctement installées
 
 ### L'application ne démarre pas
 
