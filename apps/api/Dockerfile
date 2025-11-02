@@ -29,7 +29,7 @@ WORKDIR /app
 COPY --from=builder /app/build ./
 
 # Install production dependencies using npm (as recommended by AdonisJS)
-RUN npm ci --omit="dev"
+RUN npm install --production --ignore-scripts
 
 # Create uploads directory with proper permissions
 RUN mkdir -p uploads && chown -R node:node /app/uploads
