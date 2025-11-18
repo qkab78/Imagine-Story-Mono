@@ -15,10 +15,11 @@ import {
   getStoryByIdPresenter,
   getStoryBySlugPresenter,
   getStoriesPresenter,
-} from '#stories/presenters/index'
-import { StoryGenerated } from '#stories/types/stories_type'
-import { generateImage, generateStory } from '#stories/helpers/stories_helper'
-import { Stories } from '#types/db'
+  StoryWithTheme,
+} from "#stories/presenters/index";
+import { StoryGenerated } from "#stories/types/stories_type";
+import { generateImage, generateStory } from "#stories/helpers/stories_helper";
+
 // Nouveaux imports pour les fonctionnalités étendues
 import { generateCharacterProfiles } from '#stories/helpers/characters_helper'
 import { generateChapterImages } from '#stories/helpers/chapter_images_helper'
@@ -27,9 +28,14 @@ import { StoryGenerationContext, ChapterImage } from '#stories/types/enhanced_st
 @inject()
 export default class StoriesController {
   public async getStories({ response }: HttpContext) {
-    const stories = await db.selectFrom('stories').where('public', '=', true).selectAll().execute()
+    const stories = await db
+      .selectFrom('stories')
+      .where('public', '=', true)
+      .innerJoin('themes', 'themes.id', 'stories.theme_id')
+      .select(['stories.id', 'stories.title', 'stories.synopsis', 'stories.cover_image', 'stories.slug', 'stories.public', 'stories.user_id', 'stories.created_at', 'stories.updated_at', 'stories.chapter_images', 'stories.chapters', 'stories.story_chapters', 'stories.theme_id', 'themes.name as theme_name', 'themes.description as theme_description'])
+      .execute();
 
-    return response.json(getStoriesPresenter(stories as unknown as Stories[]))
+    return response.json(getStoriesPresenter(stories as unknown as StoryWithTheme[]));
   }
 
   public async getLatestStories({ response }: HttpContext) {
@@ -37,27 +43,28 @@ export default class StoriesController {
       .selectFrom('stories')
       .where('public', '=', true)
       .orderBy('created_at', 'desc')
+      .innerJoin('themes', 'themes.id', 'stories.theme_id')
       .limit(5)
-      .selectAll()
-      .execute()
+      .select(['stories.id', 'stories.title', 'stories.synopsis', 'stories.cover_image', 'stories.slug', 'stories.public', 'stories.user_id', 'stories.created_at', 'stories.updated_at', 'stories.chapter_images', 'stories.chapters', 'stories.story_chapters', 'stories.theme_id', 'themes.name as theme_name', 'themes.description as theme_description'])
+      .execute();
 
-    return response.json(getStoriesPresenter(latestStories as unknown as Stories[]))
+    return response.json(getStoriesPresenter(latestStories as unknown as StoryWithTheme[]));
   }
 
   public async getStoryById({ request, response }: HttpContext) {
-    const payload = await getStoryByIdValidator.validate(request.params())
-    const stories = await db
+    const payload = await getStoryByIdValidator.validate(request.params());
+    const story = await db
       .selectFrom('stories')
-      .where('id', '=', payload.id)
-      .selectAll()
-      .executeTakeFirst()
+      .where('stories.id', '=', payload.id)
+      .innerJoin('themes', 'themes.id', 'stories.theme_id')
+      .select(['stories.id', 'stories.title', 'stories.synopsis', 'stories.cover_image', 'stories.slug', 'stories.public', 'stories.user_id', 'stories.created_at', 'stories.updated_at', 'stories.chapter_images', 'stories.chapters', 'stories.story_chapters', 'stories.theme_id', 'themes.name as theme_name', 'themes.description as theme_description'])
+      .executeTakeFirst();
 
-    if (!stories) {
-      throw new Error('Story not found')
+    if (!story) {
+      throw new Error('Story not found');
     }
 
-    // @todo: remove any and check for a way to type the story returned by the database
-    return response.json(getStoryByIdPresenter(stories as any))
+    return response.json(getStoryByIdPresenter(story as unknown as StoryWithTheme));
   }
 
   public async getStoryBySlug({ request, response }: HttpContext) {
@@ -65,8 +72,9 @@ export default class StoriesController {
     const stories = await db
       .selectFrom('stories')
       .where('slug', '=', payload.slug)
-      .selectAll()
-      .executeTakeFirst()
+      .innerJoin('themes', 'themes.id', 'stories.theme_id')
+      .select(['stories.id', 'stories.title', 'stories.synopsis', 'stories.cover_image', 'stories.slug', 'stories.public', 'stories.user_id', 'stories.created_at', 'stories.updated_at', 'stories.chapter_images', 'stories.chapters', 'stories.story_chapters', 'stories.theme_id', 'themes.name as theme_name', 'themes.description as theme_description'])
+      .executeTakeFirst();
 
     if (!stories) {
       throw new Error('Story not found')
@@ -192,10 +200,10 @@ export default class StoriesController {
       }
 
       // 4. Générer les images de chapitres si demandé
-      let chapterImages: ChapterImage[] = []
+      let chapterImages: ChapterImage[] = [];
       if (!storyTextJson.chapters || storyTextJson.chapters.length === 0) {
-        console.log('🎨 Pas de chapitres à générer')
-        throw new errors.E_VALIDATION_ERROR('Pas de chapitres à générer')
+        console.log('🎨 Pas de chapitres à générer');
+        throw new errors.E_VALIDATION_ERROR('Pas de chapitres à générer');
       }
 
       console.log('🎨 Génération des images de chapitres...')
@@ -312,7 +320,7 @@ export default class StoriesController {
   private async getCompleteStory(storyId: string): Promise<any> {
     const story = await db
       .selectFrom('stories')
-      .where('id', '=', storyId)
+      .where('stories.id', '=', storyId)
       .selectAll()
       .executeTakeFirstOrThrow()
 

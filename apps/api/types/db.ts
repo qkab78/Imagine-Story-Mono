@@ -52,26 +52,35 @@ export interface Characters {
 }
 
 export interface Stories {
-  chapter_images: Generated<Json | null>
-  chapters: number
-  child_age: Generated<number>
-  conclusion: Generated<string>
-  content: string
-  cover_image: string
-  created_at: Timestamp
-  id: Generated<string>
-  language: Generated<string>
-  protagonist: Generated<string>
-  public: Generated<boolean>
-  slug: string | null
-  species: Generated<string>
-  story_chapters: Generated<Json>
-  synopsis: string
-  theme: Generated<string>
-  title: string
-  tone: Generated<string>
-  updated_at: Timestamp
-  user_id: string
+  chapter_images: Generated<Json | null>;
+  chapters: number;
+  child_age: Generated<number>;
+  conclusion: Generated<string>;
+  content: string;
+  cover_image: string;
+  created_at: Timestamp;
+  id: Generated<string>;
+  language: Generated<string>;
+  protagonist: Generated<string>;
+  public: Generated<boolean>;
+  slug: string | null;
+  species: Generated<string>;
+  story_chapters: Generated<Json>;
+  synopsis: string;
+  theme: Generated<string>;
+  theme_id: string | null;
+  title: string;
+  tone: Generated<string>;
+  updated_at: Timestamp;
+  user_id: string;
+}
+
+export interface Themes {
+  created_at: Generated<Timestamp>;
+  description: string;
+  id: Generated<string>;
+  name: string;
+  updated_at: Generated<Timestamp>;
 }
 
 export interface Users {
@@ -87,8 +96,9 @@ export interface Users {
 }
 
 export interface DB {
-  access_tokens: AccessTokens
-  characters: Characters
-  stories: Stories
-  users: Users
+  access_tokens: AccessTokens;
+  characters: Characters;
+  stories: Stories;
+  themes: Themes;
+  users: Users;
 }

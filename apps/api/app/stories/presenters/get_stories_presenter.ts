@@ -1,7 +1,9 @@
-import { ChapterImage, Story, StoryChapter } from '#stories/entities/story_entity'
-import { Stories } from '#types/db'
+import { ChapterImage, Story, StoryChapter } from "#stories/entities/story_entity";
+import { Stories, Themes } from "#types/db";
 
-export const getStoriesPresenter = (stories: Stories[]): Story[] => {
+export type StoryWithTheme = Stories & { theme_name: string; theme_description: string };
+export const getStoriesPresenter = (stories: StoryWithTheme[]): Story[] => {
+
   return stories.map((story) => {
     const chapterImages =
       (story.chapter_images as unknown as ChapterImage[]).map((chapterImage) => ({
@@ -16,26 +18,28 @@ export const getStoriesPresenter = (stories: Stories[]): Story[] => {
         content: chapter.content,
       })) || []
     const coverImage = story.cover_image.split('/').pop() || ''
+
     return {
       id: story.id as unknown as string,
       title: story.title,
       synopsis: story.synopsis || '',
       chapters,
       chapterImages,
-      conclusion: (story.conclusion as unknown as string) || '',
-      // coverImage: story.cover_image as unknown as string || '',
+      conclusion: story.conclusion as unknown as string || '',
       coverImage,
-      slug: (story.slug as unknown as string) || '',
-      public: (story.public as unknown as boolean) || true,
-      userId: (story.user_id as unknown as string) || '',
-      createdAt: (story.created_at as unknown as string) || '',
-      theme: (story.theme as unknown as string) || '',
-      protagonist: (story.protagonist as unknown as string) || '',
-      childAge: (story.child_age as unknown as number) || 0,
-      numberOfChapters: (story.chapters as unknown as number) || 0,
-      language: (story.language as unknown as string) || '',
-      tone: (story.tone as unknown as string) || '',
-      species: (story.species as unknown as string) || '',
+      slug: story.slug as unknown as string || '',
+      public: story.public as unknown as boolean || true,
+      userId: story.user_id as unknown as string || '',
+      createdAt: story.created_at as unknown as string || '',
+      theme: story.theme_id as unknown as Themes,
+      protagonist: story.protagonist as unknown as string || '',
+      childAge: story.child_age as unknown as number || 0,
+      numberOfChapters: story.chapters as unknown as number || 0,
+      language: story.language as unknown as string || '',
+      tone: story.tone as unknown as string || '',
+      species: story.species as unknown as string || '',
+      themeName: story.theme_name as unknown as string || '',
+      themeDescription: story.theme_description as unknown as string || '',
     }
   })
 }
