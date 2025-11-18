@@ -119,11 +119,12 @@ export default class StoriesController {
     const stories = await db
       .selectFrom('stories')
       .where('title', 'ilike', `%${payload.query}%`)
+      .innerJoin('themes', 'themes.id', 'stories.theme_id')
       .limit(50)
-      .select(['id', 'title', 'slug', 'cover_image'])
+      .select(['stories.id', 'stories.title', 'stories.synopsis', 'stories.cover_image', 'stories.slug', 'stories.public', 'stories.user_id', 'stories.created_at', 'stories.updated_at', 'stories.chapter_images', 'stories.chapters', 'stories.story_chapters', 'stories.created_at', 'stories.tone', 'stories.species', 'stories.conclusion', 'stories.theme_id', 'themes.name as theme_name', 'themes.description as theme_description'])
       .execute()
 
-    return response.json(stories)
+    return response.json(getStoriesPresenter(stories as unknown as StoryWithTheme[]))
   }
 
   public async createStory({ request, response, auth }: HttpContext) {

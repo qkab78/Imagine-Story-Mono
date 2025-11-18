@@ -1,7 +1,8 @@
 import { ChapterImage, Story, StoryChapter } from '#stories/entities/story_entity'
-import { Stories } from '#types/db'
+import { Themes } from '#types/db'
+import { StoryWithTheme } from "./get_stories_presenter.js";
 
-export const getStoryBySlugPresenter = (story: Stories): Story => {
+export const getStoryBySlugPresenter = (story: StoryWithTheme): Story => {
   const chapterImages =
     (story.chapter_images as unknown as ChapterImage[]).map((chapterImage) => ({
       chapterIndex: chapterImage.chapterIndex,
@@ -19,7 +20,9 @@ export const getStoryBySlugPresenter = (story: Stories): Story => {
     id: story.id as unknown as string,
     title: story.title,
     synopsis: story.synopsis,
-    theme: story.theme as unknown as string,
+    theme: story.theme_id as unknown as Themes,
+    themeName: story.theme_name as unknown as string,
+    themeDescription: story.theme_description as unknown as string,
     protagonist: story.protagonist as unknown as string,
     childAge: story.child_age as unknown as number,
     numberOfChapters: story.chapters,
