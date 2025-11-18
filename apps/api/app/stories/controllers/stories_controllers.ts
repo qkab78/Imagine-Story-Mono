@@ -25,13 +25,14 @@ import { generateImage, generateStory } from "#stories/helpers/stories_helper";
 import { generateCharacterProfiles } from '#stories/helpers/characters_helper'
 import { generateChapterImages } from '#stories/helpers/chapter_images_helper'
 import { StoryGenerationContext, ChapterImage } from '#stories/types/enhanced_story_types'
+import env from '#start/env'
 
 @inject()
 export default class StoriesController {
   public async getStories({ request, response }: HttpContext) {
     const payload = await getStoriesValidator.validate(request.qs());
-    const limit = payload.limit ?? 20;
-
+    const limit = payload.limit ?? Number(env.get('STORIES_QUERY_LIMIT'));
+    
     const stories = await db
       .selectFrom('stories')
       .where('public', '=', true)

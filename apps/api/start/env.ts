@@ -53,4 +53,5 @@ export default await Env.create(new URL('../', import.meta.url), {
   */
   OPENAI_API_KEY: Env.schema.string(),
   LEONARDO_AI_API_KEY: Env.schema.string(),
+  STORIES_QUERY_LIMIT: Env.schema.number(),
 })
