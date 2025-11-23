@@ -105,6 +105,9 @@ router
     router.get('/slug/:slug', [StoriesController, 'getStoryBySlug'])
     router.get('/:id', [StoriesController, 'getStoryById'])
     router.get('/search/suggestions', [StoriesController, 'getSuggestedStories'])
+    router.get('/all/themes', [StoriesController, 'getThemes'])
+    router.get('/all/tones', [StoriesController, 'getTones'])
+    router.get('/all/languages', [StoriesController, 'getLanguages'])
     router
       .group(() => {
         router.get('/user/me', [StoriesController, 'getStoriesByAuthenticatedUserId'])

@@ -12,6 +12,12 @@ export type StoryTone = {
   name: string;
   description: string;
 }
+export type StoryTheme = {
+  id: string;
+  name: string;
+  description: string;
+}
+
 export type StoryWithTheme = Stories & { 
   theme_name: string; 
   theme_description: string;

@@ -17,6 +17,9 @@ import {
   getStoryBySlugPresenter,
   getStoriesPresenter,
   StoryWithTheme,
+  StoryLanguage,
+  StoryTone,
+  StoryTheme,
 } from "#stories/presenters/index";
 import { StoryGenerated } from "#stories/types/stories_type";
 import { generateImage, generateStory } from "#stories/helpers/stories_helper";
@@ -26,6 +29,7 @@ import { generateCharacterProfiles } from '#stories/helpers/characters_helper'
 import { generateChapterImages } from '#stories/helpers/chapter_images_helper'
 import { StoryGenerationContext, ChapterImage } from '#stories/types/enhanced_story_types'
 import env from '#start/env'
+import { Languages, Themes, Tones } from '#types/db'
 
 @inject()
 export default class StoriesController {
@@ -494,6 +498,70 @@ export default class StoriesController {
     }
   }
 
+  /**
+   * Récupère tous les thèmes disponibles
+   */
+  public async getThemes({ response }: HttpContext) {
+    const themes = await db
+      .selectFrom('themes')
+      .select(['id', 'name', 'description'])
+      .orderBy('name', 'asc')
+      .execute()
+
+    return response.json(
+      themes.map((theme) => this.getThemePresenter(theme as unknown as Themes))
+    )
+  }
+  private getThemePresenter(theme: Themes): StoryTheme {
+    return {
+      id: theme.id as unknown as string,
+      name: theme.name,
+      description: theme.description as unknown as string,
+    }
+  }
+
+  /**
+   * Récupère toutes les tonalités disponibles
+   */
+  public async getTones({ response }: HttpContext) {
+    const tones = await db
+      .selectFrom('tones')
+      .select(['id', 'name', 'description'])
+      .orderBy('name', 'asc')
+      .execute()
+
+    return response.json(tones.map((tone) => this.getTonePresenter(tone as unknown as Tones)))
+  }
+
+  private getTonePresenter(tone: Tones): StoryTone {
+    return {
+      id: tone.id as unknown as string,
+      name: tone.name,
+      description: tone.description as unknown as string,
+    }
+  }
+
+  /**
+   * Récupère toutes les langues disponibles
+   */
+  public async getLanguages({ response }: HttpContext) {
+    const languages = await db
+      .selectFrom('languages')
+      .select(['id', 'code', 'name', 'is_free'])
+      .orderBy('name', 'asc')
+      .execute()
+
+    return response.json(languages.map((language) => this.getLanguagePresenter(language as unknown as Languages)))
+  }
+
+  private getLanguagePresenter(language: Languages): StoryLanguage {
+    return {
+      id: language.id as unknown as string,
+      code: language.code,
+      name: language.name,
+      isFree: language.is_free as unknown as boolean,
+    }
+  }
   /**
    * Récupère une histoire complète avec ses personnages
    */
