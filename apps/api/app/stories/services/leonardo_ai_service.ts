@@ -51,33 +51,43 @@ export async function generateChapterImagesWithLeonardo(
     throw new Error("Impossible de créer l'image de référence")
   }
 
-  // Génération séquentielle pour maintenir la cohérence
-  for (let index = 0; index < chapters.length; index++) {
-    try {
-      console.log(`Génération image pour chapitre ${index + 1}: ${chapters[index].title}`)
-
-      const chapterImage = await generateSingleChapterImageWithLeonardo(
-        context,
-        chapters[index],
-        index,
-        storySlug,
-        characterSeed
-      )
-
+  // Génération parallèle pour réduire le temps de traitement
+  console.log(`🚀 Génération parallèle de ${chapters.length} images de chapitres...`)
+  const generationPromises = chapters.map((chapter, index) => {
+    console.log(`📋 Planification génération image pour chapitre ${index + 1}: ${chapter.title}`)
+    return generateSingleChapterImageWithLeonardo(
+      context,
+      chapter,
+      index,
+      storySlug,
+      characterSeed
+    ).then((chapterImage) => {
       if (chapterImage) {
-        chapterImages.push(chapterImage)
-        successfulGeneration++
+        return { success: true, chapterImage, index }
       }
-
-      // Pause entre les générations pour éviter les rate limits
-      if (index < chapters.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 3000))
-      }
-    } catch (error: any) {
-      console.error(`Erreur génération chapitre ${index + 1}:`, error.message)
+      return { success: false, chapterImage: null, index, error: 'Aucune image générée' }
+    }).catch((error: any) => {
+      console.error(`❌ Erreur génération chapitre ${index + 1}:`, error.message)
       errors.push(`Chapitre ${index + 1}: ${error.message}`)
+      return { success: false, chapterImage: null, index, error: error.message }
+    })
+  })
+
+  // Attendre que toutes les générations se terminent (en parallèle)
+  const results = await Promise.all(generationPromises)
+
+  // Traiter les résultats et compter les succès
+  results.forEach((result) => {
+    if (result.success && result.chapterImage) {
+      chapterImages.push(result.chapterImage)
+      successfulGeneration++
+    } else if (!result.success && result.error) {
+      // L'erreur a déjà été ajoutée dans le catch, mais on s'assure qu'elle est bien dans le tableau
+      if (!errors.some(e => e.includes(`Chapitre ${result.index + 1}`))) {
+        errors.push(`Chapitre ${result.index + 1}: ${result.error}`)
+      }
     }
-  }
+  })
 
   return {
     images: chapterImages.sort((a, b) => a.chapterIndex - b.chapterIndex),
