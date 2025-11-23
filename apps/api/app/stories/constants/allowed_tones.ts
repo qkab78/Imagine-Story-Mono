@@ -1,6 +1,8 @@
 export const ALLOWED_TONES = {
   HAPPY: 'happy',
   CALM: 'calm',
-  MYSTERIOUS: 'mysterious',
   ADVENTUROUS: 'adventurous',
+  MAGICAL: 'magical',
+  EDUCATIONAL: 'educational',
+  PLAYFUL: 'playful',
 } as const

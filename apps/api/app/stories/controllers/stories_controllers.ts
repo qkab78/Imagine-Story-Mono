@@ -32,12 +32,41 @@ export default class StoriesController {
   public async getStories({ request, response }: HttpContext) {
     const payload = await getStoriesValidator.validate(request.qs());
     const limit = payload.limit ?? Number(env.get('STORIES_QUERY_LIMIT'));
-    
+
     const stories = await db
       .selectFrom('stories')
       .where('public', '=', true)
       .innerJoin('themes', 'themes.id', 'stories.theme_id')
-      .select(['stories.id', 'stories.title', 'stories.synopsis', 'stories.cover_image', 'stories.slug', 'stories.public', 'stories.user_id', 'stories.created_at', 'stories.updated_at', 'stories.chapter_images', 'stories.chapters', 'stories.story_chapters', 'stories.created_at', 'stories.tone', 'stories.species', 'stories.conclusion', 'stories.theme_id', 'themes.name as theme_name', 'themes.description as theme_description'])
+      .innerJoin('tones', 'tones.id', 'stories.tone_id')
+      .innerJoin('languages', 'languages.id', 'stories.language_id')
+      .select([
+        'stories.id',
+        'stories.title',
+        'stories.synopsis',
+        'stories.cover_image',
+        'stories.slug',
+        'stories.public',
+        'stories.user_id',
+        'stories.created_at',
+        'stories.updated_at',
+        'stories.chapter_images',
+        'stories.chapters',
+        'stories.story_chapters',
+        'stories.created_at',
+        'stories.tone_id',
+        'stories.species',
+        'stories.conclusion',
+        'stories.theme_id',
+        'themes.name as theme_name',
+        'themes.description as theme_description',
+        'tones.id as tone_id',
+        'tones.name as tone_name',
+        'tones.description as tone_description',
+        'languages.id as language_id',
+        'languages.name as language_name',
+        'languages.code as language_code',
+        'languages.is_free as language_is_free'
+      ])
       .limit(limit)
       .execute();
 
@@ -51,8 +80,36 @@ export default class StoriesController {
       .orderBy('created_at', 'desc')
       .innerJoin('themes', 'themes.id', 'stories.theme_id')
       .limit(5)
-      .select(['stories.id', 'stories.title', 'stories.synopsis', 'stories.cover_image', 'stories.slug', 'stories.public', 'stories.user_id', 'stories.created_at', 'stories.updated_at', 'stories.chapter_images', 'stories.chapters', 'stories.story_chapters', 'stories.created_at', 'stories.tone', 'stories.species', 'stories.conclusion', 'stories.theme_id', 'themes.name as theme_name', 'themes.description as theme_description'])
-      .execute();
+      .innerJoin('tones', 'tones.id', 'stories.tone_id')
+      .innerJoin('languages', 'languages.id', 'stories.language_id')
+      .select([
+        'stories.id',
+        'stories.title',
+        'stories.synopsis',
+        'stories.cover_image',
+        'stories.slug',
+        'stories.public',
+        'stories.user_id',
+        'stories.created_at',
+        'stories.updated_at',
+        'stories.chapter_images',
+        'stories.chapters',
+        'stories.story_chapters',
+        'stories.created_at',
+        'stories.tone_id',
+        'stories.species',
+        'stories.conclusion',
+        'stories.theme_id',
+        'themes.name as theme_name',
+        'themes.description as theme_description',
+        'tones.id as tone_id',
+        'tones.name as tone_name',
+        'tones.description as tone_description',
+        'languages.id as language_id',
+        'languages.name as language_name',
+        'languages.code as language_code',
+        'languages.is_free as language_is_free'
+      ]).execute();
 
     return response.json(getStoriesPresenter(latestStories as unknown as StoryWithTheme[]));
   }
@@ -63,7 +120,36 @@ export default class StoriesController {
       .selectFrom('stories')
       .where('stories.id', '=', payload.id)
       .innerJoin('themes', 'themes.id', 'stories.theme_id')
-      .select(['stories.id', 'stories.title', 'stories.synopsis', 'stories.cover_image', 'stories.slug', 'stories.public', 'stories.user_id', 'stories.created_at', 'stories.updated_at', 'stories.chapter_images', 'stories.chapters', 'stories.story_chapters', 'stories.created_at', 'stories.tone', 'stories.species', 'stories.conclusion', 'stories.theme_id', 'themes.name as theme_name', 'themes.description as theme_description'])
+      .innerJoin('tones', 'tones.id', 'stories.tone_id')
+      .innerJoin('languages', 'languages.id', 'stories.language_id')
+      .select([
+        'stories.id',
+        'stories.title',
+        'stories.synopsis',
+        'stories.cover_image',
+        'stories.slug',
+        'stories.public',
+        'stories.user_id',
+        'stories.created_at',
+        'stories.updated_at',
+        'stories.chapter_images',
+        'stories.chapters',
+        'stories.story_chapters',
+        'stories.created_at',
+        'stories.tone_id',
+        'stories.species',
+        'stories.conclusion',
+        'stories.theme_id',
+        'themes.name as theme_name',
+        'themes.description as theme_description',
+        'tones.id as tone_id',
+        'tones.name as tone_name',
+        'tones.description as tone_description',
+        'languages.id as language_id',
+        'languages.name as language_name',
+        'languages.code as language_code',
+        'languages.is_free as language_is_free'
+      ])
       .executeTakeFirst();
 
     if (!story) {
@@ -80,15 +166,42 @@ export default class StoriesController {
       .selectFrom('stories')
       .where('slug', '=', payload.slug)
       .innerJoin('themes', 'themes.id', 'stories.theme_id')
-      .select(['stories.id', 'stories.title', 'stories.synopsis', 'stories.cover_image', 'stories.slug', 'stories.public', 'stories.user_id', 'stories.created_at', 'stories.updated_at', 'stories.chapter_images', 'stories.chapters', 'stories.story_chapters', 'stories.created_at', 'stories.tone', 'stories.species', 'stories.conclusion', 'stories.theme_id', 'themes.name as theme_name', 'themes.description as theme_description'])
-      .executeTakeFirst();
+      .innerJoin('tones', 'tones.id', 'stories.tone_id')
+      .innerJoin('languages', 'languages.id', 'stories.language_id')
+      .select([
+        'stories.id',
+        'stories.title',
+        'stories.synopsis',
+        'stories.cover_image',
+        'stories.slug',
+        'stories.public',
+        'stories.user_id',
+        'stories.created_at',
+        'stories.updated_at',
+        'stories.chapter_images',
+        'stories.chapters',
+        'stories.story_chapters',
+        'stories.created_at',
+        'stories.tone_id',
+        'stories.species',
+        'stories.conclusion',
+        'stories.theme_id',
+        'themes.name as theme_name',
+        'themes.description as theme_description',
+        'tones.id as tone_id',
+        'tones.name as tone_name',
+        'tones.description as tone_description',
+        'languages.id as language_id',
+        'languages.name as language_name',
+        'languages.code as language_code',
+        'languages.is_free as language_is_free'
+      ]).executeTakeFirst();
 
     if (!stories) {
       throw new Error('Story not found')
     }
 
-    // @todo: remove any and check for a way to type the story returned by the database
-    return response.json(getStoryBySlugPresenter(stories as any))
+    return response.json(getStoryBySlugPresenter(stories as unknown as StoryWithTheme))
   }
 
   public async getStoriesByAuthenticatedUserId({ response, auth }: HttpContext) {
@@ -102,7 +215,37 @@ export default class StoriesController {
       .selectFrom('stories')
       // @ts-ignore
       .where('user_id', '=', user.id)
-      .selectAll()
+      .innerJoin('themes', 'themes.id', 'stories.theme_id')
+      .innerJoin('tones', 'tones.id', 'stories.tone_id')
+      .innerJoin('languages', 'languages.id', 'stories.language_id')
+      .select([
+        'stories.id',
+        'stories.title',
+        'stories.synopsis',
+        'stories.cover_image',
+        'stories.slug',
+        'stories.public',
+        'stories.user_id',
+        'stories.created_at',
+        'stories.updated_at',
+        'stories.chapter_images',
+        'stories.chapters',
+        'stories.story_chapters',
+        'stories.created_at',
+        'stories.tone_id',
+        'stories.species',
+        'stories.conclusion',
+        'stories.theme_id',
+        'themes.name as theme_name',
+        'themes.description as theme_description',
+        'tones.id as tone_id',
+        'tones.name as tone_name',
+        'tones.description as tone_description',
+        'languages.id as language_id',
+        'languages.name as language_name',
+        'languages.code as language_code',
+        'languages.is_free as language_is_free'
+      ])
       .execute()
 
     return response.json(stories)
@@ -120,8 +263,37 @@ export default class StoriesController {
       .selectFrom('stories')
       .where('title', 'ilike', `%${payload.query}%`)
       .innerJoin('themes', 'themes.id', 'stories.theme_id')
+      .innerJoin('tones', 'tones.id', 'stories.tone_id')
+      .innerJoin('languages', 'languages.id', 'stories.language_id')
+      .select([
+        'stories.id',
+        'stories.title',
+        'stories.synopsis',
+        'stories.cover_image',
+        'stories.slug',
+        'stories.public',
+        'stories.user_id',
+        'stories.created_at',
+        'stories.updated_at',
+        'stories.chapter_images',
+        'stories.chapters',
+        'stories.story_chapters',
+        'stories.created_at',
+        'stories.tone_id',
+        'stories.species',
+        'stories.conclusion',
+        'stories.theme_id',
+        'themes.name as theme_name',
+        'themes.description as theme_description',
+        'tones.id as tone_id',
+        'tones.name as tone_name',
+        'tones.description as tone_description',
+        'languages.id as language_id',
+        'languages.name as language_name',
+        'languages.code as language_code',
+        'languages.is_free as language_is_free'
+      ])
       .limit(50)
-      .select(['stories.id', 'stories.title', 'stories.synopsis', 'stories.cover_image', 'stories.slug', 'stories.public', 'stories.user_id', 'stories.created_at', 'stories.updated_at', 'stories.chapter_images', 'stories.chapters', 'stories.story_chapters', 'stories.created_at', 'stories.tone', 'stories.species', 'stories.conclusion', 'stories.theme_id', 'themes.name as theme_name', 'themes.description as theme_description'])
       .execute()
 
     return response.json(getStoriesPresenter(stories as unknown as StoryWithTheme[]))

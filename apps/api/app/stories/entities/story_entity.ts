@@ -1,3 +1,4 @@
+import { StoryLanguage, StoryTone } from "#stories/presenters/get_stories_presenter";
 import { Themes } from "#types/db";
 
 export interface StoryChapter {
@@ -22,8 +23,8 @@ export interface Story {
   protagonist: string;
   childAge: number;
   numberOfChapters: number;
-  language: string;
-  tone: string;
+  language: StoryLanguage;
+  tone: StoryTone;
   species: string;
   chapters: StoryChapter[];
   conclusion: string;
