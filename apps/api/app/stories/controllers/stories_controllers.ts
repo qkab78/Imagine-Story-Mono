@@ -326,20 +326,52 @@ export default class StoriesController {
 
     const chapters = numberOfChapters || 5
 
+    // Valider que les IDs sont fournis
+    if (!theme || !tone || !language) {
+      throw new errors.E_VALIDATION_ERROR('Les IDs de theme, tone et language sont requis')
+    }
+
     try {
       console.log("🎬 Début de la génération d'histoire complète...")
+
+      // Récupérer les informations des relations pour la génération
+      console.log("🔍 Récupération des informations des relations...")
+      
+      const themeRecord = await db
+        .selectFrom('themes')
+        .select(['id', 'name', 'description'])
+        .where('id', '=', theme)
+        .executeTakeFirst()
+
+      const toneRecord = await db
+        .selectFrom('tones')
+        .select(['id', 'name', 'description'])
+        .where('id', '=', tone)
+        .executeTakeFirst()
+
+      const languageRecord = await db
+        .selectFrom('languages')
+        .select(['id', 'code', 'name'])
+        .where('id', '=', language)
+        .executeTakeFirst()
+
+      if (!themeRecord || !toneRecord || !languageRecord) {
+        throw new errors.E_VALIDATION_ERROR(
+          `Relations introuvables: theme=${themeRecord ? 'OK' : 'MANQUANT'}, tone=${toneRecord ? 'OK' : 'MANQUANT'}, language=${languageRecord ? 'OK' : 'MANQUANT'}`
+        )
+      }
 
       // 1. Générer l'histoire avec un modèle IA
       console.log("📝 Génération du contenu de l'histoire...")
       const storyText = await generateStory({
         title,
         synopsis,
-        theme,
+        theme: themeRecord.name,
         protagonist,
         childAge,
         numberOfChapters: chapters,
-        language,
-        tone,
+        language: languageRecord.code.toLowerCase(),
+        tone: toneRecord.name,
         species,
       })
 
@@ -350,12 +382,12 @@ export default class StoriesController {
       const storyContext: StoryGenerationContext = {
         title: storyTextJson.title || title || '',
         synopsis: storyTextJson.synopsis || synopsis || '',
-        theme: storyTextJson.theme || theme || '',
+        theme: themeRecord.name,
         protagonist: storyTextJson.protagonist || protagonist || '',
         childAge: childAge || 5,
         numberOfChapters: chapters,
-        language: language || 'fr',
-        tone: tone || 'happy',
+        language: languageRecord.code.toLowerCase(),
+        tone: toneRecord.name,
         species: species || 'human',
       }
 
@@ -424,10 +456,10 @@ export default class StoriesController {
           chapters: storyTextJson.chapters?.length,
           slug,
           protagonist: storyContext.protagonist,
-          theme: storyContext.theme,
+          theme_id: theme,
           child_age: storyContext.childAge,
-          language: storyContext.language,
-          tone: storyContext.tone,
+          language_id: language,
+          tone_id: tone,
           species: storyContext.species,
           story_chapters: JSON.stringify(
             storyTextJson.chapters.map((chapter) => ({

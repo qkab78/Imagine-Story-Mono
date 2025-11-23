@@ -1,6 +1,6 @@
 import { ChapterImage, Story, StoryChapter } from '#stories/entities/story_entity'
 import { Themes } from '#types/db'
-import { StoryWithTheme } from "./get_stories_presenter.js";
+import { StoryLanguage, StoryTone, StoryWithTheme } from "./get_stories_presenter.js";
 
 export const getStoryBySlugPresenter = (story: StoryWithTheme): Story => {
   const chapterImages =
@@ -16,6 +16,17 @@ export const getStoryBySlugPresenter = (story: StoryWithTheme): Story => {
       content: chapter.content,
     })) || []
   const coverImage = story.cover_image.split('/').pop() || ''
+  const language: StoryLanguage = {
+    id: story.language_id as unknown as string,
+    name: story.language_name as unknown as string,
+    code: story.language_code as unknown as string,
+    isFree: story.language_is_free as unknown as boolean,
+  }
+  const tone: StoryTone = {
+    id: story.tone_id as unknown as string,
+    name: story.tone_name as unknown as string,
+    description: story.tone_description as unknown as string,
+  }
   return {
     id: story.id as unknown as string,
     title: story.title,
@@ -26,8 +37,8 @@ export const getStoryBySlugPresenter = (story: StoryWithTheme): Story => {
     protagonist: story.protagonist as unknown as string,
     childAge: story.child_age as unknown as number,
     numberOfChapters: story.chapters,
-    language: story.language as unknown as string,
-    tone: story.tone as unknown as string,
+    language: language as unknown as StoryLanguage,
+    tone: tone as unknown as StoryTone,
     species: story.species as unknown as string,
     conclusion: story.conclusion as unknown as string,
     coverImage,

@@ -239,18 +239,24 @@ function createLeonardoChapterPrompt(
   chapter: any,
   chapterIndex: number
 ): string {
-  const characterDescription = getConsistentCharacterDescription(context)
+  let characterDescription = getConsistentCharacterDescription(context)
+  characterDescription = sanitizeContent(characterDescription)
+  
   const chapterContent = sanitizeContent(chapter.content || '')
   const chapterSummary =
     chapterContent.substring(0, 120) + (chapterContent.length > 120 ? '...' : '')
+  
+  const chapterTitle = sanitizeContent(chapter.title || `Chapter ${chapterIndex + 1}`)
+  const theme = sanitizeContent(context.theme || 'adventure')
+  const protagonist = sanitizeContent(context.protagonist || 'character')
 
-  return `
+  const prompt = `
 EXACT CHARACTER REFERENCE: ${characterDescription}
 
-Children's book illustration showing this EXACT character in Chapter ${chapterIndex + 1}: ${chapter.title || `Chapter ${chapterIndex + 1}`}
+Children's book illustration showing this EXACT character in Chapter ${chapterIndex + 1}: ${chapterTitle}
 
 Story scene: ${chapterSummary}
-Setting: ${context.theme} environment
+Setting: ${theme} environment
 
 CRITICAL CONSISTENCY REQUIREMENTS:
 - Character appearance MUST be identical to reference: same colors, same features, same proportions, same clothing
@@ -259,8 +265,11 @@ CRITICAL CONSISTENCY REQUIREMENTS:
 - Same perspective and lighting style
 - Professional quality, child-friendly, detailed but clean
 
-The character "${context.protagonist}" must look exactly like the established design in every detail.
+The character "${protagonist}" must look exactly like the established design in every detail.
   `.trim()
+  
+  // Nettoyer le prompt final pour être sûr
+  return sanitizeContent(prompt)
 }
 
 /**
@@ -285,22 +294,32 @@ Safe content for young readers, happy and positive scene.
  * Génère une description physique consistante du personnage principal
  */
 function getConsistentCharacterDescription(context: StoryGenerationContext): string {
-  const species = context.species?.toLowerCase() || 'animal'
+  // Nettoyer l'espèce pour éviter les mots problématiques
+  let species = context.species?.toLowerCase() || 'animal'
+  species = species.replace(/petit(e)?\s+/gi, '').replace(/little\s+/gi, '').trim()
+  
   const protagonist = context.protagonist || 'character'
 
   const speciesDescriptions: Record<string, string> = {
-    rabbit: `${protagonist}, a small fluffy white rabbit with long ears, black eyes, pink nose, blue vest, brown pants`,
-    bear: `${protagonist}, a friendly brown bear with round ears, small black eyes, red shirt, blue overalls`,
+    rabbit: `${protagonist}, a fluffy white rabbit with long ears, black eyes, pink nose, blue vest, brown pants`,
+    bear: `${protagonist}, a friendly brown bear with round ears, black eyes, red shirt, blue overalls`,
     cat: `${protagonist}, an orange tabby cat with white chest, green eyes, yellow bow tie`,
     dog: `${protagonist}, a golden retriever puppy with floppy ears, brown eyes, blue collar`,
     fox: `${protagonist}, a red fox with pointed ears, amber eyes, white chest, green scarf`,
-    mouse: `${protagonist}, a small gray mouse with round ears, black eyes, purple jacket`,
+    mouse: `${protagonist}, a gray mouse with round ears, black eyes, purple jacket`,
     squirrel: `${protagonist}, a brown squirrel with bushy tail, dark eyes, acorn hat`,
-    elephant: `${protagonist}, a small gray elephant with large ears, colorful headband`,
+    elephant: `${protagonist}, a gray elephant with large ears, colorful headband`,
+    princesse: `${protagonist}, a young princess with long hair, colorful dress, crown, friendly smile`,
+    princess: `${protagonist}, a young princess with long hair, colorful dress, crown, friendly smile`,
   }
 
+  // Chercher une correspondance partielle dans les clés
+  const matchingKey = Object.keys(speciesDescriptions).find(key => 
+    species.includes(key) || key.includes(species)
+  )
+
   return (
-    speciesDescriptions[species] ||
+    (matchingKey ? speciesDescriptions[matchingKey] : null) ||
     `${protagonist}, a friendly ${species} with distinctive features, colorful clothing`
   )
 }
@@ -368,12 +387,16 @@ function sanitizeContent(content: string): string {
   })
 
   // Remplacements spécifiques pour éviter la modération
+  // IMPORTANT: Remplacer "petit" et "petite" AVANT de remplacer "tit" pour éviter la détection
   sanitized = sanitized
-    .replace(/petit\s+/gi, 'young ')
     .replace(/petite\s+/gi, 'young ')
+    .replace(/petit\s+/gi, 'young ')
+    .replace(/petite\b/gi, 'young')
+    .replace(/petit\b/gi, 'young')
     .replace(/little\s+/gi, 'young ')
     .replace(/small\s+/gi, 'young ')
     .replace(/tiny\s+/gi, 'young ')
+    // Remplacer "tit" seulement s'il n'est pas dans "petit" ou "petite" (déjà remplacés)
     .replace(/\btit\b/gi, 'bird')
 
   return sanitized
@@ -417,14 +440,19 @@ export async function generateCoverImageWithLeonardo(
     console.log('🖼️ Génération image de couverture avec Leonardo AI...')
 
     const characterSeed = generateCharacterSeed(context)
-    const characterDescription = getConsistentCharacterDescription(context)
+    let characterDescription = getConsistentCharacterDescription(context)
+    characterDescription = sanitizeContent(characterDescription)
 
-    const coverPrompt = `
-Book cover illustration for children's story: "${context.title}"
+    const title = sanitizeContent(context.title || '')
+    const theme = sanitizeContent(context.theme || 'adventure')
+    const synopsis = sanitizeContent(context.synopsis || '')
+
+    const coverPrompt = sanitizeContent(`
+Book cover illustration for children's story: "${title}"
 
 ${characterDescription} as the main character, prominently featured in the center of the composition.
-Setting: Beautiful ${context.theme} environment as background.
-Story synopsis: ${context.synopsis}
+Setting: Beautiful ${theme} environment as background.
+Story synopsis: ${synopsis}
 
 Style: Professional children's book cover, vibrant colors, magical atmosphere, high quality illustration.
 Composition: Main character in foreground, thematic background, title space at top.
@@ -432,7 +460,7 @@ Age-appropriate for ${context.childAge} years old, inviting and warm feeling.
 Art style: Modern children's book illustration, detailed but clean, professional cover quality.
 
 No text or titles in the image, just the visual cover scene.
-    `.trim()
+    `.trim())
 
     console.log(`🎭 Génération couverture avec seed: ${characterSeed}`)
 
@@ -547,16 +575,19 @@ async function createCharacterReference(
   characterSeed: number
 ): Promise<string | null> {
   try {
-    const characterDescription = getConsistentCharacterDescription(context)
+    let characterDescription = getConsistentCharacterDescription(context)
+    
+    // Nettoyer la description pour éviter la modération
+    characterDescription = sanitizeContent(characterDescription)
 
-    const referencePrompt = `
+    const referencePrompt = sanitizeContent(`
 Character reference sheet: ${characterDescription}
 
 Full body character design, front view, clean white background, children's book illustration style.
 Standing pose, friendly expression, detailed character design for consistency across multiple illustrations.
 Bright colors, professional quality, detailed but clean art style.
 Reference sheet for maintaining visual consistency.
-    `.trim()
+    `.trim())
 
     console.log(`🎭 Génération personnage de référence avec seed: ${characterSeed}`)
 
