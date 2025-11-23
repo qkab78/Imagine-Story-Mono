@@ -27,7 +27,9 @@ const leonardo = new Leonardo({
 export async function generateChapterImagesWithLeonardo(
   context: StoryGenerationContext,
   chapters: any[],
-  storySlug: string
+  storySlug: string,
+  referenceImageUrl?: string | null,
+  characterSeed?: number
 ): Promise<ChapterImageGenerationResponse> {
   const chapterImages: ChapterImage[] = []
   const errors: string[] = []
@@ -41,17 +43,25 @@ export async function generateChapterImagesWithLeonardo(
 
   console.log('🎨 Génération avec Leonardo AI - Stratégie de cohérence des personnages')
 
-  // Étape 1: Créer une image de référence du personnage
-  console.log("📝 Création d'une image de référence du personnage...")
-  const characterSeed = generateCharacterSeed(context)
-  const referenceImageUrl = await createCharacterReference(context, storySlug, characterSeed)
+  // Étape 1: Créer une image de référence du personnage (si non fournie)
+  let finalReferenceImageUrl = referenceImageUrl
+  let finalCharacterSeed = characterSeed
 
-  if (!referenceImageUrl) {
-    console.warn("⚠️ Impossible de créer l'image de référence, continuons avec prompts détaillés")
-    throw new Error("Impossible de créer l'image de référence")
+  if (!finalReferenceImageUrl || !finalCharacterSeed) {
+    console.log("📝 Création d'une image de référence du personnage...")
+    finalCharacterSeed = finalCharacterSeed || generateCharacterSeed(context)
+    finalReferenceImageUrl = await createCharacterReference(context, storySlug, finalCharacterSeed)
+
+    if (!finalReferenceImageUrl) {
+      console.warn("⚠️ Impossible de créer l'image de référence, continuons avec prompts détaillés")
+      throw new Error("Impossible de créer l'image de référence")
+    }
+  } else {
+    console.log("✅ Utilisation de l'image de référence fournie")
   }
 
   // Génération parallèle pour réduire le temps de traitement
+  const parallelStartTime = Date.now()
   console.log(`🚀 Génération parallèle de ${chapters.length} images de chapitres...`)
   const generationPromises = chapters.map((chapter, index) => {
     console.log(`📋 Planification génération image pour chapitre ${index + 1}: ${chapter.title}`)
@@ -60,7 +70,7 @@ export async function generateChapterImagesWithLeonardo(
       chapter,
       index,
       storySlug,
-      characterSeed
+      finalCharacterSeed!
     ).then((chapterImage) => {
       if (chapterImage) {
         return { success: true, chapterImage, index }
@@ -88,6 +98,9 @@ export async function generateChapterImagesWithLeonardo(
       }
     }
   })
+
+  const parallelEndTime = Date.now()
+  console.log(`⏱️  Génération parallèle images chapitres: ${((parallelEndTime - parallelStartTime) / 1000).toFixed(2)}s`)
 
   return {
     images: chapterImages.sort((a, b) => a.chapterIndex - b.chapterIndex),
@@ -693,7 +706,7 @@ export async function testLeonardoConnection(): Promise<boolean> {
 /**
  * Génère un seed unique basé sur le contexte de l'histoire
  */
-function generateCharacterSeed(context: StoryGenerationContext): number {
+export function generateCharacterSeed(context: StoryGenerationContext): number {
   // Créer un seed basé sur les caractéristiques du personnage
   const seedString = `${context.protagonist}-${context.species}-${context.theme}`
   let hash = 0
@@ -709,7 +722,7 @@ function generateCharacterSeed(context: StoryGenerationContext): number {
 /**
  * Crée une image de référence du personnage principal
  */
-async function createCharacterReference(
+export async function createCharacterReference(
   context: StoryGenerationContext,
   storySlug: string,
   characterSeed: number
