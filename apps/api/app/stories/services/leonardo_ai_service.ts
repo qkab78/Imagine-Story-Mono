@@ -232,6 +232,119 @@ async function waitForGeneration(generationId: string, maxAttempts = 30): Promis
 }
 
 /**
+ * Extrait les noms des personnages mentionnés dans le contenu du chapitre
+ */
+function extractCharactersFromContent(content: string, protagonist: string): string[] {
+  if (!content) return []
+  
+  const characterNames = new Set<string>()
+  const contentLower = content.toLowerCase()
+  const protagonistLower = protagonist.toLowerCase()
+  
+  // Patterns pour détecter les personnages
+  const patterns = [
+    // "Max et Robert", "Max and Robert"
+    /(?:et|and)\s+([A-Z][a-z]+)/g,
+    // "avec Robert", "with Robert"
+    /(?:avec|with)\s+([A-Z][a-z]+)/g,
+    // "Robert, l'ami", "Robert, the friend"
+    /([A-Z][a-z]+),\s*(?:l'|le|la|les|the|un|une|son|sa|ses|his|her|their)\s+(?:ami|friend|compagnon|companion)/gi,
+    // "Robert le renard", "Robert the fox"
+    /([A-Z][a-z]+)\s+(?:le|la|les|the|un|une)\s+(?:renard|fox|lapin|rabbit|ours|bear|chat|cat|chien|dog)/gi,
+    // "son ami Robert", "his friend Robert"
+    /(?:son|sa|ses|his|her|their|mon|ma|mes|my)\s+(?:ami|friend|compagnon|companion)\s+([A-Z][a-z]+)/gi,
+  ]
+  
+  // Extraire avec les patterns
+  patterns.forEach(pattern => {
+    let match
+    while ((match = pattern.exec(content)) !== null) {
+      const name = match[1]
+      if (name && name.toLowerCase() !== protagonistLower && name.length > 2) {
+        characterNames.add(name)
+      }
+    }
+  })
+  
+  // Chercher aussi les noms propres isolés qui apparaissent plusieurs fois (probablement des personnages)
+  const words = content.split(/\s+/)
+  const nameCounts = new Map<string, number>()
+  
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i].replace(/[.,!?;:()"«»]/g, '')
+    if (
+      word.length > 2 &&
+      word[0] === word[0].toUpperCase() &&
+      word.toLowerCase() !== protagonistLower &&
+      !word.match(/^(Le|La|Les|Un|Une|Des|De|Du|Et|Ou|Mais|Donc|Car|The|A|An|And|Or|But|So|For|With|To|From|In|On|At)$/)
+    ) {
+      const count = nameCounts.get(word) || 0
+      nameCounts.set(word, count + 1)
+    }
+  }
+  
+  // Ajouter les noms qui apparaissent au moins 2 fois
+  nameCounts.forEach((count, name) => {
+    if (count >= 2) {
+      characterNames.add(name)
+    }
+  })
+  
+  return Array.from(characterNames)
+}
+
+/**
+ * Crée une description pour un personnage secondaire basée sur le contexte
+ */
+function createSecondaryCharacterDescription(characterName: string, context: StoryGenerationContext, chapterContent: string): string {
+  const content = chapterContent.toLowerCase()
+  const nameLower = characterName.toLowerCase()
+  
+  // Chercher l'espèce associée au nom du personnage
+  let species = 'animal'
+  
+  // Patterns pour détecter l'espèce du personnage spécifique
+  const speciesPatterns = [
+    { pattern: new RegExp(`${nameLower}\\s+(?:le|la|les|the|un|une)\\s+(renard|fox)`, 'i'), species: 'fox' },
+    { pattern: new RegExp(`${nameLower}\\s+(?:le|la|les|the|un|une)\\s+(lapin|rabbit)`, 'i'), species: 'rabbit' },
+    { pattern: new RegExp(`${nameLower}\\s+(?:le|la|les|the|un|une)\\s+(ours|bear)`, 'i'), species: 'bear' },
+    { pattern: new RegExp(`${nameLower}\\s+(?:le|la|les|the|un|une)\\s+(chat|cat)`, 'i'), species: 'cat' },
+    { pattern: new RegExp(`${nameLower}\\s+(?:le|la|les|the|un|une)\\s+(chien|dog)`, 'i'), species: 'dog' },
+    { pattern: new RegExp(`${nameLower}\\s+(?:le|la|les|the|un|une)\\s+(souris|mouse)`, 'i'), species: 'mouse' },
+    { pattern: new RegExp(`${nameLower}\\s+(?:le|la|les|the|un|une)\\s+(écureuil|squirrel)`, 'i'), species: 'squirrel' },
+    // Patterns généraux si le nom n'est pas directement associé
+    { pattern: /renard|fox/i, species: 'fox' },
+    { pattern: /lapin|rabbit/i, species: 'rabbit' },
+    { pattern: /ours|bear/i, species: 'bear' },
+    { pattern: /chat|cat/i, species: 'cat' },
+    { pattern: /chien|dog/i, species: 'dog' },
+    { pattern: /souris|mouse/i, species: 'mouse' },
+    { pattern: /écureuil|squirrel/i, species: 'squirrel' },
+  ]
+  
+  // Chercher d'abord les patterns spécifiques au personnage
+  for (const { pattern, species: detectedSpecies } of speciesPatterns) {
+    if (pattern.test(content)) {
+      species = detectedSpecies
+      break
+    }
+  }
+  
+  // Utiliser la description générique basée sur l'espèce
+  const speciesDescriptions: Record<string, string> = {
+    fox: `a red fox with pointed ears, amber eyes, white chest, green scarf`,
+    rabbit: `a fluffy white rabbit with long ears, black eyes, pink nose`,
+    bear: `a friendly brown bear with round ears, black eyes, red shirt`,
+    cat: `an orange tabby cat with white chest, green eyes, yellow bow tie`,
+    dog: `a golden retriever puppy with floppy ears, brown eyes, blue collar`,
+    mouse: `a gray mouse with round ears, black eyes, purple jacket`,
+    squirrel: `a brown squirrel with bushy tail, dark eyes, acorn hat`,
+  }
+  
+  return `${characterName}, ${speciesDescriptions[species] || `a friendly ${species} with distinctive features, colorful clothing`}`
+}
+
+/**
  * Crée le prompt optimisé pour Leonardo AI avec cohérence renforcée
  */
 function createLeonardoChapterPrompt(
@@ -244,28 +357,45 @@ function createLeonardoChapterPrompt(
   
   const chapterContent = sanitizeContent(chapter.content || '')
   const chapterSummary =
-    chapterContent.substring(0, 120) + (chapterContent.length > 120 ? '...' : '')
+    chapterContent.substring(0, 200) + (chapterContent.length > 200 ? '...' : '')
   
   const chapterTitle = sanitizeContent(chapter.title || `Chapter ${chapterIndex + 1}`)
   const theme = sanitizeContent(context.theme || 'adventure')
   const protagonist = sanitizeContent(context.protagonist || 'character')
 
+  // Extraire les personnages secondaires mentionnés dans le chapitre
+  const secondaryCharacters = extractCharactersFromContent(chapter.content || '', context.protagonist || '')
+  
+  // Créer les descriptions des personnages secondaires
+  let secondaryCharactersDescription = ''
+  if (secondaryCharacters.length > 0) {
+    const descriptions = secondaryCharacters.map(charName => 
+      createSecondaryCharacterDescription(charName, context, chapter.content || '')
+    )
+    secondaryCharactersDescription = `
+Additional characters in this scene:
+${descriptions.map(desc => `- ${sanitizeContent(desc)}`).join('\n')}
+`
+  }
+
   const prompt = `
 EXACT CHARACTER REFERENCE: ${characterDescription}
-
-Children's book illustration showing this EXACT character in Chapter ${chapterIndex + 1}: ${chapterTitle}
+${secondaryCharactersDescription}
+Children's book illustration showing ${protagonist}${secondaryCharacters.length > 0 ? ` and ${secondaryCharacters.join(', ')}` : ''} in Chapter ${chapterIndex + 1}: ${chapterTitle}
 
 Story scene: ${chapterSummary}
 Setting: ${theme} environment
 
 CRITICAL CONSISTENCY REQUIREMENTS:
-- Character appearance MUST be identical to reference: same colors, same features, same proportions, same clothing
-- Only the background/scene changes, character stays exactly the same
+- Main character "${protagonist}" appearance MUST be identical to reference: same colors, same features, same proportions, same clothing
+${secondaryCharacters.length > 0 ? `- Include secondary characters: ${secondaryCharacters.join(', ')} in the scene\n` : ''}
+- Only the background/scene changes, characters stay consistent
 - Same art style: bright colorful children's book illustration
 - Same perspective and lighting style
 - Professional quality, child-friendly, detailed but clean
 
 The character "${protagonist}" must look exactly like the established design in every detail.
+${secondaryCharacters.length > 0 ? `Show all characters together in the scene: ${protagonist} and ${secondaryCharacters.join(', ')}.` : ''}
   `.trim()
   
   // Nettoyer le prompt final pour être sûr
