@@ -252,7 +252,7 @@ export default class StoriesController {
       ])
       .execute()
 
-    return response.json(stories)
+    return response.json(getStoriesPresenter(stories as unknown as StoryWithTheme[]))
   }
 
   public async getSuggestedStories({ request, response, auth }: HttpContext) {

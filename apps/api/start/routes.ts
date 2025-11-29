@@ -110,7 +110,7 @@ router
     router.get('/all/languages', [StoriesController, 'getLanguages'])
     router
       .group(() => {
-        router.get('/user/me', [StoriesController, 'getStoriesByAuthenticatedUserId'])
+        router.get('/users/me/stories', [StoriesController, 'getStoriesByAuthenticatedUserId'])
         router.post('/', [StoriesController, 'createStory'])
 
         // Routes pour les personnages
