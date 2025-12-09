@@ -62,7 +62,7 @@ export default defineConfig({
   tests: {
     suites: [
       {
-        files: ['app/**/stories/domain/**/*.spec(.ts|.js)'],
+        files: ['app/**/stories/**/*.spec(.ts|.js)'],
         name: 'stories',
         timeout: 2000,
       },

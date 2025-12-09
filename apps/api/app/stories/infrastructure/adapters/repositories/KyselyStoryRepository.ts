@@ -23,7 +23,7 @@ interface IKyselyStoryChapterImage {
 }
 
 export class KyselyStoryRepository implements IStoryRepository {
-    create(story: Story): Promise<{ id: string }> {
+    create(_story: Story): Promise<{ id: StoryId }> {
         throw new Error("Method not implemented.")
     }
 
