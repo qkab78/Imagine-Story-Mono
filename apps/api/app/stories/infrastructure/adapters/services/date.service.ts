@@ -1,4 +1,4 @@
-import { IDateService } from "./IDateService.js";
+import { IDateService } from "#stories/domain/services/IDateService";
 
 export class DateService implements IDateService {
     public now(): string {

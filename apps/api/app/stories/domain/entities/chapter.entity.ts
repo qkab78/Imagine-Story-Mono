@@ -1,16 +1,15 @@
 export class Chapter {
     constructor(
-        private readonly id: string,
-        private readonly title: string,
-        private readonly content: string,
-        private readonly images: ChapterImage[],
+        public readonly id: number,
+        public readonly title: string,
+        public readonly content: string,
+        public readonly image: ChapterImage | null,
     ) {}
 }
 
 export class ChapterImage {
     constructor(
-        private readonly id: string,
-        private readonly title: string,
-        private readonly imageUrl: string,
+        public readonly id: number,
+        public readonly imageUrl: string,
     ) {}
 }

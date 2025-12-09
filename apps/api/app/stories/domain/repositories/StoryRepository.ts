@@ -1,11 +1,7 @@
-import { Story } from "../entities/story.entity.js";
+import { Story } from "#stories/domain/entities/story.entity";
 
-export interface IStoryRepository {
-    findById(id: string): Promise<Story>;
-    findBySlug(slug: string): Promise<Story>;
-    findAll(): Promise<Story[]>;
-    findAllByUserId(userId: string): Promise<Story[]>;
-    findLatest(): Promise<Story[]>;
-    create(story: Story): Promise<Story>;
-    delete(id: string): Promise<void>;
+export abstract class IStoryRepository {
+    abstract findById(id: string): Promise<Story>;
+    abstract findAll(): Promise<{ stories: Story[], total: number }>;
+    abstract create(story: Story): Promise<{ id: string }>;
 }

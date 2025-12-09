@@ -4,9 +4,10 @@ import { Chapter } from "../entities/chapter.entity.js"
 import { Theme } from "../entities/theme.entity.js"
 import { Language } from "../entities/language.entity.js"
 import { IDateService } from "../services/IDateService.js"
+import { StoryId } from "../value-objects/story-id.vo.js"
 
 export class StoryBuilder {
-    public id: string | undefined
+    public id: StoryId | undefined
     public title: string | undefined
     public synopsis: string | undefined
     public protagonist: string | undefined
@@ -29,7 +30,7 @@ export class StoryBuilder {
         return new StoryBuilder(dateService)
     }
 
-    withId(id: string): StoryBuilder {
+    withId(id: StoryId): StoryBuilder {
         this.id = id
         return this
     }
@@ -85,8 +86,8 @@ export class StoryBuilder {
         return this
     }
 
-    withCreatedAt(): StoryBuilder {
-        this.createdAt = this.dateService.now()
+    withCreatedAt(createdAt?: string): StoryBuilder {
+        this.createdAt = createdAt ?? this.dateService.now()
         return this
     }
 
