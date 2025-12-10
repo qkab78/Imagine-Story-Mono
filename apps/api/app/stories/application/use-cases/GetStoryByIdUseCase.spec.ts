@@ -31,7 +31,8 @@ test.group(GetStoryByIdUseCase.name, () => {
         new Chapter(2, 'The title of the chapter', 'The content of the chapter', new ChapterImage(2, 'The image url of the chapter')),
     ]
     const storyId = new StoryId(new TestRandomService())
-    const story = new Story(storyId,
+    const story = new Story(
+        storyId,
         'The title of the story',
         'The synopsis of the story',
         'The protagonist of the story',
@@ -57,10 +58,10 @@ test.group(GetStoryByIdUseCase.name, () => {
             }
             return story
         }
-        findAll(): Promise<{ stories: Story[]; total: number }> {
+        findAll(_limit?: number, _offset?: number): Promise<{ stories: Story[]; total: number }> {
             throw new Error("Method not implemented.")
         }
-        create(story: Story): Promise<{ id: StoryId }> {
+        create(_story: Story): Promise<{ id: StoryId }> {
             throw new Error("Method not implemented.")
         }
     }
