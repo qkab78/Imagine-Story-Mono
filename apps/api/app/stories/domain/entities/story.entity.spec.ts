@@ -7,6 +7,7 @@ import { Theme } from "./theme.entity.js";
 import { Language } from "./language.entity.js";
 import { Tone } from "./tone.entity.js";
 import { Chapter, ChapterImage } from "./chapter.entity.js";
+import { StoryBuilder } from "../builders/story.builder.js";
 
 class TestRandomService implements IRandomService {
     public generateRandomUuid(): string {
@@ -26,25 +27,26 @@ test.group(Story.name, () => {
     const tone = new Tone('1', 'The name of the tone', 'The description of the tone')
     const storyId = new StoryId(new TestRandomService())
     test('should create a story', async ({ assert }) => {
-        const story = new Story(
-            storyId,
-            'The title of the story',
-            'The synopsis of the story',
-            'The protagonist of the story',
-            10, 
-            10, 
-            'The species of the story', 
-            'The conclusion of the story', 
-            'The cover image url of the story', 
-            'The owner id of the story', 
-            true, 
-            new TestDateService().now(), 
-            theme, 
-            language,
-            tone,
-            [])
+        const story = StoryBuilder.create(new TestDateService())
+            .withId(storyId)
+            .withTitle('The title of the story')
+            .withSynopsis('The synopsis of the story')
+            .withProtagonist('The protagonist of the story')
+            .withChildAge(10)
+            .withNumberOfChapters(10)
+            .withSpecies('The species of the story')
+            .withConclusion('The conclusion of the story')
+            .withCoverImageUrl('The cover image url of the story')
+            .withOwnerId('The owner id of the story')
+            .withIsPublic(true)
+            .withCreatedAt(new TestDateService().now())
+            .withTheme(theme)
+            .withLanguage(language)
+            .withTone(tone)
+            .withChapters([])
+            .build()
         assert.isDefined(story)
-        assert.equal(story.id.getValue(), storyId.getValue())
+        assert.equal(story.id.getValue(), '1234567890-1234-5678-9012-345678901234')
         assert.equal(story.title, 'The title of the story')
         assert.equal(story.synopsis, 'The synopsis of the story')
         assert.equal(story.protagonist, 'The protagonist of the story')
@@ -70,23 +72,24 @@ test.group(Story.name, () => {
     })
 
     test('should add a chapter to the story', async ({ assert }) => {
-        const story = new Story(
-            storyId,
-            'The title of the story',
-            'The synopsis of the story',
-            'The protagonist of the story',
-            10, 
-            10, 
-            'The species of the story', 
-            'The conclusion of the story', 
-            'The cover image url of the story', 
-            'The owner id of the story', 
-            true, 
-            new TestDateService().now(), 
-            theme, 
-            language,
-            tone,
-            [])
+        const story = StoryBuilder.create(new TestDateService())
+            .withId(storyId)
+            .withTitle('The title of the story')
+            .withSynopsis('The synopsis of the story')
+            .withProtagonist('The protagonist of the story')
+            .withChildAge(10)
+            .withNumberOfChapters(10)
+            .withSpecies('The species of the story')
+            .withConclusion('The conclusion of the story')
+            .withCoverImageUrl('The cover image url of the story')
+            .withOwnerId('The owner id of the story')
+            .withIsPublic(true)
+            .withCreatedAt(new TestDateService().now())
+            .withTheme(theme)
+            .withLanguage(language)
+            .withTone(tone)
+            .withChapters([])
+            .build()
         const chapterId = 1
         const chapterImage = new ChapterImage(chapterId, 'The image url of the chapter')
         const chapter = new Chapter(chapterId, 'The title of the chapter', 'The content of the chapter', chapterImage)

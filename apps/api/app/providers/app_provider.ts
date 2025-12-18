@@ -4,6 +4,11 @@ import PaymentService from '#payments/services/payment_service'
 import { IDateService } from '#stories/domain/services/IDateService'
 import { IRandomService } from '#stories/domain/services/IRandomService'
 import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
+import { IStoryGenerationService } from '#stories/domain/services/IStoryGeneration'
+import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
+import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
+import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
+import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositories/KyselyToneRepository'
 
 export default class AppProvider {
   constructor(protected app: ApplicationService) {}
@@ -20,6 +25,10 @@ export default class AppProvider {
     const { DateService } = await import('#stories/infrastructure/adapters/services/date.service')
     const { RandomService } = await import('#stories/infrastructure/adapters/services/random.service')
     const { KyselyStoryRepository } = await import('#stories/infrastructure/adapters/repositories/KyselyStoryRepository')
+    const { OpenAiStoryGenerationService } = await import('#stories/infrastructure/adapters/services/OpenAiStoryGeneration.service')
+    const { KyselyThemeRepository } = await import('#stories/infrastructure/adapters/repositories/KyselyThemeRepository')
+    const { KyselyLanguageRepository } = await import('#stories/infrastructure/adapters/repositories/KyselyLanguageRepository')
+
 
     this.app.container.singleton(PaymentService, () => {
       return new LemonSqueezyPaymentService()
@@ -32,6 +41,18 @@ export default class AppProvider {
     })
     this.app.container.singleton(IStoryRepository, () => {
       return this.app.container.make(KyselyStoryRepository)
+    })
+    this.app.container.singleton(IStoryGenerationService, () => {
+      return this.app.container.make(OpenAiStoryGenerationService)
+    })
+    this.app.container.singleton(IThemeRepository, () => {
+      return this.app.container.make(KyselyThemeRepository)
+    })
+    this.app.container.singleton(ILanguageRepository, () => {
+      return this.app.container.make(KyselyLanguageRepository)
+    })
+    this.app.container.singleton(IToneRepository, () => {
+      return this.app.container.make(KyselyToneRepository)
     })
   }
 

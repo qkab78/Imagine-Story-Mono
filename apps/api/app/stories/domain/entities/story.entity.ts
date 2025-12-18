@@ -9,19 +9,21 @@ export class Story {
         public readonly id: StoryId,
         public readonly title: string,
         public readonly synopsis: string,
-        public readonly protagonist: string,
-        public readonly childAge: number,
-        public readonly numberOfChapters: number,
-        public readonly species: string,
-        public readonly conclusion: string,
-        public readonly coverImageUrl: string,
-        public readonly ownerId: string,
-        public readonly isPublic: boolean,
-        public readonly createdAt: string,
         public readonly theme: Theme,
         public readonly language: Language,
         public readonly tone: Tone,
         public readonly chapters: Chapter[],
+        public readonly ownerId: string,
+        public readonly coverImageUrl: string,
+        public readonly numberOfChapters: number,
+        public readonly conclusion: string,
+
+        public readonly protagonist: string,
+        public readonly childAge: number,
+        public readonly species: string,
+        public readonly isPublic: boolean,
+        public readonly createdAt: string,
+
     ) {}
     addChapter(chapter: Chapter): void {
         this.chapters.push(chapter)

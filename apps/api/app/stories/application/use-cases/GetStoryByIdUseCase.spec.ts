@@ -11,6 +11,7 @@ import { Tone } from "#stories/domain/entities/tone.entity";
 import { Theme } from "#stories/domain/entities/theme.entity";
 import { ChapterImage } from "#stories/domain/entities/chapter.entity";
 import { Chapter } from "#stories/domain/entities/chapter.entity";
+import { StoryBuilder } from "#stories/domain/builders/story.builder";
 
 test.group(GetStoryByIdUseCase.name, () => {
     class TestRandomService implements IRandomService {
@@ -31,24 +32,24 @@ test.group(GetStoryByIdUseCase.name, () => {
         new Chapter(2, 'The title of the chapter', 'The content of the chapter', new ChapterImage(2, 'The image url of the chapter')),
     ]
     const storyId = new StoryId(new TestRandomService())
-    const story = new Story(
-        storyId,
-        'The title of the story',
-        'The synopsis of the story',
-        'The protagonist of the story',
-        10,
-        10,
-        'The species of the story',
-        'The conclusion of the story',
-        'The cover image url of the story',
-        'The owner id of the story',
-        true,
-        new TestDateService().now(),
-        theme,
-        language,
-        tone,
-        chapters
-    )
+    const story = StoryBuilder.create(new TestDateService())
+            .withId(storyId)
+            .withTitle('The title of the story')
+            .withSynopsis('The synopsis of the story')
+            .withProtagonist('The protagonist of the story')
+            .withChildAge(10)
+            .withNumberOfChapters(10)
+            .withSpecies('The species of the story')
+            .withConclusion('The conclusion of the story')
+            .withCoverImageUrl('The cover image url of the story')
+            .withOwnerId('The owner id of the story')
+            .withIsPublic(true)
+            .withCreatedAt(new TestDateService().now())
+            .withTheme(theme)
+            .withLanguage(language)
+            .withTone(tone)
+            .withChapters(chapters)
+            .build()
     class TestStoryRepository implements IStoryRepository {
         private readonly stories: Story[] = [story]
         async findById(id: string): Promise<Story> {
@@ -61,7 +62,7 @@ test.group(GetStoryByIdUseCase.name, () => {
         findAll(_limit?: number, _offset?: number): Promise<{ stories: Story[]; total: number }> {
             throw new Error("Method not implemented.")
         }
-        create(_story: Story): Promise<{ id: StoryId }> {
+        create(_story: Story): Promise<Story> {
             throw new Error("Method not implemented.")
         }
     }
