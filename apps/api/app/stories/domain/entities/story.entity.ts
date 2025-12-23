@@ -12,7 +12,6 @@ export class Story {
         public readonly synopsis: string,
         public readonly protagonist: string,
         public readonly childAge: number,
-        public readonly numberOfChapters: number,
         public readonly species: string,
         public readonly conclusion: string,
         public readonly coverImageUrl: string,
@@ -25,6 +24,10 @@ export class Story {
         public readonly chapters: readonly Chapter[],
     ) {}
 
+    get numberOfChapters(): number {
+        return this.chapters.length;
+    }
+
     toBuilder(builderInstance: StoryBuilder): StoryBuilder {
         return builderInstance
             .withId(this.id)
@@ -32,7 +35,6 @@ export class Story {
             .withSynopsis(this.synopsis)
             .withProtagonist(this.protagonist)
             .withChildAge(this.childAge)
-            .withNumberOfChapters(this.numberOfChapters)
             .withSpecies(this.species)
             .withConclusion(this.conclusion)
             .withCoverImageUrl(this.coverImageUrl)

@@ -63,14 +63,13 @@ export class CreateStoryUseCase {
         // Create the story
         const storyId = new StoryId(this.randomService)
         const createdAt = this.dateService.now()
-        
+
         const story = StoryBuilder.create(this.dateService)
             .withId(storyId)
             .withTitle(generatedStory.title)
             .withSynopsis(generatedStory.synopsis)
             .withProtagonist(generatedStory.protagonist)
             .withChildAge(generatedStory.childAge)
-            .withNumberOfChapters(generatedStory.numberOfChapters)
             .withLanguage(language)
             .withTone(tone)
             .withSpecies(generatedStory.species)

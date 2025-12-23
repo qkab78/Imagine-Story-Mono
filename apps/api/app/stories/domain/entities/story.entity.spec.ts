@@ -33,7 +33,6 @@ test.group(Story.name, () => {
             .withSynopsis('The synopsis of the story')
             .withProtagonist('The protagonist of the story')
             .withChildAge(10)
-            .withNumberOfChapters(10)
             .withSpecies('The species of the story')
             .withConclusion('The conclusion of the story')
             .withCoverImageUrl('The cover image url of the story')
@@ -51,7 +50,7 @@ test.group(Story.name, () => {
         assert.equal(story.synopsis, 'The synopsis of the story')
         assert.equal(story.protagonist, 'The protagonist of the story')
         assert.equal(story.childAge, 10)
-        assert.equal(story.numberOfChapters, 10)
+        assert.equal(story.numberOfChapters, 0)
         assert.equal(story.species, 'The species of the story')
         assert.equal(story.conclusion, 'The conclusion of the story')
         assert.equal(story.coverImageUrl, 'The cover image url of the story')
@@ -78,7 +77,6 @@ test.group(Story.name, () => {
             .withSynopsis('The synopsis of the story')
             .withProtagonist('The protagonist of the story')
             .withChildAge(10)
-            .withNumberOfChapters(10)
             .withSpecies('The species of the story')
             .withConclusion('The conclusion of the story')
             .withCoverImageUrl('The cover image url of the story')
@@ -97,12 +95,14 @@ test.group(Story.name, () => {
         const updatedStory = story.addChapter(chapter, StoryBuilder.create(new TestDateService()))
 
         assert.equal(updatedStory.chapters.length, 1)
+        assert.equal(updatedStory.numberOfChapters, 1)
         assert.equal(updatedStory.chapters[0].id, chapter.id)
         assert.equal(updatedStory.chapters[0].title, chapter.title)
         assert.equal(updatedStory.chapters[0].content, chapter.content)
         assert.equal(updatedStory.chapters[0].image?.id, chapterImage.id)
         assert.equal(updatedStory.chapters[0].image?.imageUrl, chapterImage.imageUrl)
         assert.equal(story.chapters.length, 0) // Original story should not be modified
+        assert.equal(story.numberOfChapters, 0) // Original numberOfChapters should still be 0
     })
 
     test('should get a chapter by id', async ({ assert }) => {
@@ -116,7 +116,6 @@ test.group(Story.name, () => {
             .withSynopsis('The synopsis of the story')
             .withProtagonist('The protagonist of the story')
             .withChildAge(10)
-            .withNumberOfChapters(10)
             .withSpecies('The species of the story')
             .withConclusion('The conclusion of the story')
             .withCoverImageUrl('The cover image url of the story')
@@ -144,7 +143,6 @@ test.group(Story.name, () => {
             .withSynopsis('The synopsis of the story')
             .withProtagonist('The protagonist of the story')
             .withChildAge(10)
-            .withNumberOfChapters(10)
             .withSpecies('The species of the story')
             .withConclusion('The conclusion of the story')
             .withCoverImageUrl('The cover image url of the story')
@@ -172,7 +170,6 @@ test.group(Story.name, () => {
             .withSynopsis('The synopsis of the story')
             .withProtagonist('The protagonist of the story')
             .withChildAge(10)
-            .withNumberOfChapters(10)
             .withSpecies('The species of the story')
             .withConclusion('The conclusion of the story')
             .withCoverImageUrl('The cover image url of the story')
@@ -188,6 +185,7 @@ test.group(Story.name, () => {
         const chapters = story.getAllChapters()
 
         assert.equal(chapters.length, 2)
+        assert.equal(story.numberOfChapters, 2)
         assert.equal(chapters[0].id, chapter1.id)
         assert.equal(chapters[1].id, chapter2.id)
     })

@@ -12,7 +12,6 @@ export class StoryBuilder {
     public synopsis: string | undefined
     public protagonist: string | undefined
     public childAge: number | undefined
-    public numberOfChapters: number | undefined
     public species: string | undefined
     public conclusion: string | undefined
     public coverImageUrl: string | undefined
@@ -54,12 +53,6 @@ export class StoryBuilder {
         this.childAge = childAge
         return this
     }
-
-    withNumberOfChapters(numberOfChapters: number): StoryBuilder {
-        this.numberOfChapters = numberOfChapters
-        return this
-    }
-
 
     withSpecies(species: string): StoryBuilder {
         this.species = species
@@ -127,9 +120,6 @@ export class StoryBuilder {
         if (!this.childAge) {
             throw new Error('Child age is required')
         }
-        if (!this.numberOfChapters) {
-            throw new Error('Number of chapters is required')
-        }
         if (!this.species) {
             throw new Error('Species is required')
         }
@@ -163,7 +153,6 @@ export class StoryBuilder {
             this.synopsis,
             this.protagonist,
             this.childAge,
-            this.numberOfChapters,
             this.species,
             this.conclusion,
             this.coverImageUrl,

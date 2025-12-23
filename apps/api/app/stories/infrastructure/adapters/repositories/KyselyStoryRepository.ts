@@ -89,7 +89,6 @@ export class KyselyStoryRepository implements IStoryRepository {
             .withSynopsis(storyData.synopsis)
             .withProtagonist(storyData.protagonist)
             .withChildAge(storyData.child_age)
-            .withNumberOfChapters(storyData.chapters)
             .withSpecies(storyData.species)
             .withConclusion(storyData.conclusion)
             .withCoverImageUrl(storyData.cover_image)
@@ -100,7 +99,6 @@ export class KyselyStoryRepository implements IStoryRepository {
             .withLanguage(language)
             .withTone(tone)
             .withCreatedAt(storyData.created_at.toISOString())
-            .withCoverImageUrl(storyData.cover_image)
             .build()
     }
 
