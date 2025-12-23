@@ -4,6 +4,7 @@ import type { Language } from "./language.entity.js";
 import type { Tone } from "./tone.entity.js";
 import type { StoryId } from "../value-objects/story-id.vo.js";
 import type { StoryBuilder } from "../builders/story.builder.js";
+import type { CreationDate } from "../value-objects/creation-date.vo.js";
 
 export class Story {
     constructor(
@@ -17,7 +18,7 @@ export class Story {
         public readonly coverImageUrl: string,
         public readonly ownerId: string,
         public readonly isPublic: boolean,
-        public readonly createdAt: string,
+        public readonly publicationDate: CreationDate,
         public readonly theme: Theme,
         public readonly language: Language,
         public readonly tone: Tone,
@@ -40,7 +41,7 @@ export class Story {
             .withCoverImageUrl(this.coverImageUrl)
             .withOwnerId(this.ownerId)
             .withIsPublic(this.isPublic)
-            .withCreatedAt(this.createdAt)
+            .withPublicationDate(this.publicationDate)
             .withTheme(this.theme)
             .withLanguage(this.language)
             .withTone(this.tone)

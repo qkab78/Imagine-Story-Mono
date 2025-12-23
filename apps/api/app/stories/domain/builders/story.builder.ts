@@ -5,6 +5,7 @@ import { Theme } from "../entities/theme.entity.js"
 import { Language } from "../entities/language.entity.js"
 import { IDateService } from "../services/IDateService.js"
 import { StoryId } from "../value-objects/story-id.vo.js"
+import { CreationDate } from "../value-objects/creation-date.vo.js"
 
 export class StoryBuilder {
     public id: StoryId | undefined
@@ -17,7 +18,7 @@ export class StoryBuilder {
     public coverImageUrl: string | undefined
     public ownerId: string | undefined
     public isPublic: boolean = false
-    public createdAt: string | undefined
+    public publicationDate: CreationDate | undefined
     public theme: Theme | undefined
     public language: Language | undefined
     public tone: Tone | undefined
@@ -79,8 +80,8 @@ export class StoryBuilder {
         return this
     }
 
-    withCreatedAt(createdAt?: string): StoryBuilder {
-        this.createdAt = createdAt ?? this.dateService.now()
+    withPublicationDate(publicationDate?: CreationDate): StoryBuilder {
+        this.publicationDate = publicationDate ?? CreationDate.fromString(this.dateService.now())
         return this
     }
 
@@ -132,8 +133,8 @@ export class StoryBuilder {
         if (!this.ownerId) {
             throw new Error('Owner id is required')
         }
-        if (!this.createdAt) {
-            throw new Error('Created at is required')
+        if (!this.publicationDate) {
+            throw new Error('Publication date is required')
         }
         if (!this.theme) {
             throw new Error('Theme is required')
@@ -158,7 +159,7 @@ export class StoryBuilder {
             this.coverImageUrl,
             this.ownerId,
             this.isPublic,
-            this.createdAt,
+            this.publicationDate,
             this.theme,
             this.language,
             this.tone,

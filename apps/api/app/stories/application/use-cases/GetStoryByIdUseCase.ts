@@ -19,8 +19,8 @@ interface GetStoryByIdPresenter {
     coverImageUrl: string
     ownerId: string
     isPublic: boolean
-    createdAt: string
-    chapters: Chapter[]
+    publicationDate: string
+    chapters: readonly Chapter[]
 }
 
 @inject()
@@ -51,7 +51,7 @@ export class GetStoryByIdUseCase {
             coverImageUrl: story.coverImageUrl,
             ownerId: story.ownerId,
             isPublic: story.isPublic,
-            createdAt: story.createdAt,
+            publicationDate: story.publicationDate.toISOString(),
             chapters: story.chapters,
         }
     }

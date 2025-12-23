@@ -62,7 +62,6 @@ export class CreateStoryUseCase {
 
         // Create the story
         const storyId = new StoryId(this.randomService)
-        const createdAt = this.dateService.now()
 
         const story = StoryBuilder.create(this.dateService)
             .withId(storyId)
@@ -77,7 +76,7 @@ export class CreateStoryUseCase {
             .withCoverImageUrl(generatedStory.coverImageUrl)
             .withOwnerId(generatedStory.ownerId)
             .withIsPublic(generatedStory.isPublic)
-            .withCreatedAt(createdAt)
+            .withPublicationDate()
             .withTheme(theme)
             .withChapters(generatedStory.chapters)
             .build()

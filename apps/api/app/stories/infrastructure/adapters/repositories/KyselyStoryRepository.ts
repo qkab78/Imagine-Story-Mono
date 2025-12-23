@@ -10,6 +10,7 @@ import { Chapter, ChapterImage } from "#stories/domain/entities/chapter.entity"
 import { ThemeBuilder } from "#stories/domain/builders/theme.builder"
 import { LanguageBuilder } from "#stories/domain/builders/language.builder"
 import { ToneBuilder } from "#stories/domain/builders/tone.builder"
+import { CreationDate } from "#stories/domain/value-objects/creation-date.vo"
 
 interface IKyselyStoryChapter {
     content: string
@@ -83,6 +84,8 @@ export class KyselyStoryRepository implements IStoryRepository {
             .withDescription(toneData.description ?? '')
             .build()
 
+        const publicationDate = CreationDate.fromString(storyData.created_at.toISOString())
+        
         return StoryBuilder.create(dateService)
             .withId(new StoryId(randomService, storyData.id.toString()))
             .withTitle(storyData.title)
@@ -98,7 +101,7 @@ export class KyselyStoryRepository implements IStoryRepository {
             .withTheme(theme)
             .withLanguage(language)
             .withTone(tone)
-            .withCreatedAt(storyData.created_at.toISOString())
+            .withPublicationDate(publicationDate)
             .build()
     }
 

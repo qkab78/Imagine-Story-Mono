@@ -8,6 +8,7 @@ import { Language } from "./language.entity.js";
 import { Tone } from "./tone.entity.js";
 import { Chapter, ChapterImage } from "./chapter.entity.js";
 import { StoryBuilder } from "../builders/story.builder.js";
+import { CreationDate } from "../value-objects/creation-date.vo.js";
 
 class TestRandomService implements IRandomService {
     public generateRandomUuid(): string {
@@ -38,7 +39,7 @@ test.group(Story.name, () => {
             .withCoverImageUrl('The cover image url of the story')
             .withOwnerId('The owner id of the story')
             .withIsPublic(true)
-            .withCreatedAt(new TestDateService().now())
+            .withPublicationDate(CreationDate.fromString(new TestDateService().now()))
             .withTheme(theme)
             .withLanguage(language)
             .withTone(tone)
@@ -56,7 +57,7 @@ test.group(Story.name, () => {
         assert.equal(story.coverImageUrl, 'The cover image url of the story')
         assert.equal(story.ownerId, 'The owner id of the story')
         assert.equal(story.isPublic, true)
-        assert.equal(story.createdAt, new TestDateService().now())
+        assert.equal(story.publicationDate.toISOString(), new TestDateService().now())
         assert.equal(story.theme.id, theme.id)
         assert.equal(story.theme.name, theme.name)
         assert.equal(story.theme.description, theme.description)
@@ -82,7 +83,7 @@ test.group(Story.name, () => {
             .withCoverImageUrl('The cover image url of the story')
             .withOwnerId('The owner id of the story')
             .withIsPublic(true)
-            .withCreatedAt(new TestDateService().now())
+            .withPublicationDate(CreationDate.fromString(new TestDateService().now()))
             .withTheme(theme)
             .withLanguage(language)
             .withTone(tone)
@@ -121,7 +122,7 @@ test.group(Story.name, () => {
             .withCoverImageUrl('The cover image url of the story')
             .withOwnerId('The owner id of the story')
             .withIsPublic(true)
-            .withCreatedAt(new TestDateService().now())
+            .withPublicationDate(CreationDate.fromString(new TestDateService().now()))
             .withTheme(theme)
             .withLanguage(language)
             .withTone(tone)
@@ -148,7 +149,7 @@ test.group(Story.name, () => {
             .withCoverImageUrl('The cover image url of the story')
             .withOwnerId('The owner id of the story')
             .withIsPublic(true)
-            .withCreatedAt(new TestDateService().now())
+            .withPublicationDate(CreationDate.fromString(new TestDateService().now()))
             .withTheme(theme)
             .withLanguage(language)
             .withTone(tone)
@@ -175,7 +176,7 @@ test.group(Story.name, () => {
             .withCoverImageUrl('The cover image url of the story')
             .withOwnerId('The owner id of the story')
             .withIsPublic(true)
-            .withCreatedAt(new TestDateService().now())
+            .withPublicationDate(CreationDate.fromString(new TestDateService().now()))
             .withTheme(theme)
             .withLanguage(language)
             .withTone(tone)
