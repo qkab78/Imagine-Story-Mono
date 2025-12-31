@@ -1,18 +1,31 @@
-import { Tone } from "#stories/domain/entities/tone.entity";
-import { IToneRepository } from "#stories/domain/repositories/ToneRepository";
-import { db } from "#services/db";
-import { ToneBuilder } from "#stories/domain/builders/tone.builder";
+import { Tone } from '#stories/domain/value-objects/settings/Tone.vo'
+import { ToneId } from '#stories/domain/value-objects/ids/ToneId.vo'
+import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
+import { db } from '#services/db'
 
+/**
+ * Kysely implementation of Tone repository
+ *
+ * Fetches tone reference data from the database and constructs Tone value objects.
+ */
 export class KyselyToneRepository implements IToneRepository {
-    async findById(id: string): Promise<Tone> {
-        const tone = await db.selectFrom('tones').where('id', '=', id).selectAll().executeTakeFirst()
-        if (!tone) {
-            throw new Error("Tone not found")
-        }
-        return ToneBuilder.create()
-            .withId(tone.id)
-            .withName(tone.name)
-            .withDescription(tone.description ?? '')
-            .build()
+  async findById(id: ToneId): Promise<Tone | null> {
+    const toneRow = await db
+      .selectFrom('tones')
+      .where('id', '=', id.getValue())
+      .selectAll()
+      .executeTakeFirst()
+
+    if (!toneRow) {
+      return null
     }
+
+    return Tone.create(toneRow.id, toneRow.name, toneRow.description ?? '')
+  }
+
+  async findAll(): Promise<Tone[]> {
+    const toneRows = await db.selectFrom('tones').selectAll().execute()
+
+    return toneRows.map((row) => Tone.create(row.id, row.name, row.description ?? ''))
+  }
 }

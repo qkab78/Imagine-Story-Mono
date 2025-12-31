@@ -1,16 +1,16 @@
-import { IStoryRepository } from "#stories/domain/repositories/StoryRepository"
-import { db } from "#services/db"
-import { Story } from "#stories/domain/entities/story.entity"
-import { StoryBuilder } from "#stories/domain/builders/story.builder"
-import app from "@adonisjs/core/services/app"
-import { StoryId } from "#stories/domain/value-objects/story-id.vo"
-import { DateService } from "../services/date.service.js"
-import { RandomService } from "../services/random.service.js"
-import { Chapter, ChapterImage } from "#stories/domain/entities/chapter.entity"
-import { ThemeBuilder } from "#stories/domain/builders/theme.builder"
-import { LanguageBuilder } from "#stories/domain/builders/language.builder"
-import { ToneBuilder } from "#stories/domain/builders/tone.builder"
-import { CreationDate } from "#stories/domain/value-objects/creation-date.vo"
+import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
+import { db } from '#services/db'
+import { Story } from '#stories/domain/entities/story.entity'
+import { StoryBuilder } from '#stories/domain/builders/story.builder'
+import app from '@adonisjs/core/services/app'
+import { StoryId } from '#stories/domain/value-objects/story-id.vo'
+import { DateService } from '../services/date.service.js'
+import { RandomService } from '../services/random.service.js'
+import { Chapter, ChapterImage } from '#stories/domain/entities/chapter.entity'
+import { Theme } from '#stories/domain/value-objects/settings/Theme.vo'
+import { Language } from '#stories/domain/value-objects/settings/Language.vo'
+import { Tone } from '#stories/domain/value-objects/settings/Tone.vo'
+import { CreationDate } from '#stories/domain/value-objects/creation-date.vo'
 
 interface IKyselyStoryChapter {
     content: string
@@ -67,22 +67,14 @@ export class KyselyStoryRepository implements IStoryRepository {
             )
         }) || []
 
-        const theme = ThemeBuilder.create()
-            .withId(themeData.id)
-            .withName(themeData.name)
-            .withDescription(themeData.description)
-            .build()
-        const language = LanguageBuilder.create()
-            .withId(languageData.id)
-            .withName(languageData.name)
-            .withIsFree(languageData.is_free)
-            .withCode(languageData.code)
-            .build()
-            const tone = ToneBuilder.create()
-            .withId(toneData.id)
-            .withName(toneData.name)
-            .withDescription(toneData.description ?? '')
-            .build()
+        const theme = Theme.create(themeData.id, themeData.name, themeData.description)
+        const language = Language.create(
+            languageData.id,
+            languageData.name,
+            languageData.code,
+            languageData.is_free
+        )
+        const tone = Tone.create(toneData.id, toneData.name, toneData.description ?? '')
 
         const publicationDate = CreationDate.fromString(storyData.created_at.toISOString())
         

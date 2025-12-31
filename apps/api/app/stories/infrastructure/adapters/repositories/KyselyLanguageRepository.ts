@@ -1,19 +1,38 @@
-import { Language } from "#stories/domain/entities/language.entity";
-import { ILanguageRepository } from "#stories/domain/repositories/LanguageRepository";
-import { db } from "#services/db";
-import { LanguageBuilder } from "#stories/domain/builders/language.builder";
+import { Language } from '#stories/domain/value-objects/settings/Language.vo'
+import { LanguageId } from '#stories/domain/value-objects/ids/LanguageId.vo'
+import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
+import { db } from '#services/db'
 
+/**
+ * Kysely implementation of Language repository
+ *
+ * Fetches language reference data from the database and constructs Language value objects.
+ */
 export class KyselyLanguageRepository implements ILanguageRepository {
-    async findById(id: string): Promise<Language> {
-        const language = await db.selectFrom('languages').where('id', '=', id).selectAll().executeTakeFirst()
-        if (!language) {
-            throw new Error("Language not found")
-        }
-        return LanguageBuilder.create()
-            .withId(language.id)
-            .withName(language.name)
-            .withCode(language.code)
-            .withIsFree(language.is_free)
-            .build()
+  async findById(id: LanguageId): Promise<Language | null> {
+    const languageRow = await db
+      .selectFrom('languages')
+      .where('id', '=', id.getValue())
+      .selectAll()
+      .executeTakeFirst()
+
+    if (!languageRow) {
+      return null
     }
+
+    return Language.create(
+      languageRow.id,
+      languageRow.name,
+      languageRow.code,
+      languageRow.is_free
+    )
+  }
+
+  async findAll(): Promise<Language[]> {
+    const languageRows = await db.selectFrom('languages').selectAll().execute()
+
+    return languageRows.map((row) =>
+      Language.create(row.id, row.name, row.code, row.is_free)
+    )
+  }
 }

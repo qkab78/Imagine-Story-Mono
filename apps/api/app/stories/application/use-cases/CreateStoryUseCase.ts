@@ -1,14 +1,17 @@
-import { StoryBuilder } from "#stories/domain/builders/story.builder";
-import { Story } from "#stories/domain/entities/story.entity";
-import { IStoryRepository } from "#stories/domain/repositories/StoryRepository";
-import { StoryId } from "#stories/domain/value-objects/story-id.vo";
-import { inject } from "@adonisjs/core";
-import { IDateService } from "#stories/domain/services/IDateService";
-import { IRandomService } from "#stories/domain/services/IRandomService";
-import { IStoryGenerationService } from "#stories/domain/services/IStoryGeneration";
-import { IThemeRepository } from "#stories/domain/repositories/ThemeRepository";
-import { ILanguageRepository } from "#stories/domain/repositories/LanguageRepository";
-import { IToneRepository } from "#stories/domain/repositories/ToneRepository";
+import { StoryBuilder } from '#stories/domain/builders/story.builder'
+import { Story } from '#stories/domain/entities/story.entity'
+import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
+import { StoryId } from '#stories/domain/value-objects/story-id.vo'
+import { inject } from '@adonisjs/core'
+import { IDateService } from '#stories/domain/services/IDateService'
+import { IRandomService } from '#stories/domain/services/IRandomService'
+import { IStoryGenerationService } from '#stories/domain/services/IStoryGeneration'
+import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
+import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
+import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
+import { ThemeId } from '#stories/domain/value-objects/ids/ThemeId.vo'
+import { LanguageId } from '#stories/domain/value-objects/ids/LanguageId.vo'
+import { ToneId } from '#stories/domain/value-objects/ids/ToneId.vo'
 
 export interface CreateStoryPayload {
     title: string
@@ -47,9 +50,9 @@ export class CreateStoryUseCase {
         const generatedStory = await this.storyGenerationService.generateStory(payload)
 
         const [theme, language, tone] = await Promise.all([
-            this.themeRepository.findById(generatedStory.theme),
-            this.languageRepository.findById(generatedStory.language),
-            this.toneRepository.findById(generatedStory.tone),
+            this.themeRepository.findById(ThemeId.create(generatedStory.theme)),
+            this.languageRepository.findById(LanguageId.create(generatedStory.language)),
+            this.toneRepository.findById(ToneId.create(generatedStory.tone)),
         ])
 
         if (!theme || !language || !tone) {

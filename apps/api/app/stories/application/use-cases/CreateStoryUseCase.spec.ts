@@ -9,12 +9,15 @@ import { IStoryGenerationService, StoryChapterImagesPayload, StoryCharacterPaylo
 import { Chapter, ChapterImage } from "#stories/domain/entities/chapter.entity";
 import { StoryGenerated } from "#stories/domain/services/types/StoryGenerated";
 import string from "@adonisjs/core/helpers/string";
-import { Language } from "#stories/domain/entities/language.entity";
 import { IToneRepository } from "#stories/domain/repositories/ToneRepository";
-import { Tone } from "#stories/domain/entities/tone.entity";
 import { IThemeRepository } from "#stories/domain/repositories/ThemeRepository";
-import { Theme } from "#stories/domain/entities/theme.entity";
 import { ILanguageRepository } from "#stories/domain/repositories/LanguageRepository";
+import { LanguageId } from "#stories/domain/value-objects/ids/LanguageId.vo";
+import { ThemeId } from "#stories/domain/value-objects/ids/ThemeId.vo";
+import { ToneId } from "#stories/domain/value-objects/ids/ToneId.vo";
+import { Theme } from "#stories/domain/value-objects/settings/Theme.vo";
+import { Language } from "#stories/domain/value-objects/settings/Language.vo";
+import { Tone } from "#stories/domain/value-objects/settings/Tone.vo";
 
 
 test.group(CreateStoryUseCase.name, () => {
@@ -25,7 +28,7 @@ test.group(CreateStoryUseCase.name, () => {
     }
     class TestRandomService implements IRandomService {
         generateRandomUuid(): string {
-            return '1234567890'
+            return '1720955b-4474-4a1d-bf99-3907a000ba65'
         }
     }
     class TestStoryRepository implements IStoryRepository {
@@ -83,18 +86,28 @@ test.group(CreateStoryUseCase.name, () => {
         }
     }
     class TestThemeRepository implements IThemeRepository {
-        async findById(id: string): Promise<Theme> {
-            return Promise.resolve(new Theme('1', 'The name of the theme', 'The description of the theme'))
+        findById(id: ThemeId): Promise<Theme | null> {
+            return Promise.resolve(Theme.create(id.getValue(), 'The name of the theme', 'The description of the theme'))
+        }
+        findAll(): Promise<Theme[]> {
+            return Promise.resolve([Theme.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the theme', 'The description of the theme')])
         }
     }
     class TestLanguageRepository implements ILanguageRepository {
-        async findById(id: string): Promise<Language> {
-            return Promise.resolve(new Language('1', 'The name of the language', 'The code of the language', true))
+        findById(id: LanguageId): Promise<Language | null> {
+            return Promise.resolve(Language.create(id.getValue(), 'The name of the language', 'The code of the language', true))
         }
+        findAll(): Promise<Language[]> {
+            return Promise.resolve([Language.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the language', 'The code of the language', true)])
+        }
+        
     }
     class TestToneRepository implements IToneRepository {
-        async findById(id: string): Promise<Tone> {
-            return Promise.resolve(new Tone('1', 'The name of the tone', 'The description of the tone'))
+        findById(id: ToneId): Promise<Tone> {
+            return Promise.resolve(Tone.create(id.getValue(), 'The name of the tone', 'The description of the tone'))
+        }
+        findAll(): Promise<Tone[]> {
+            return Promise.resolve([Tone.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the tone', 'The description of the tone')])
         }
     }
     test('should create a story', async ({ assert }) => {
@@ -117,21 +130,21 @@ test.group(CreateStoryUseCase.name, () => {
         const payload: CreateStoryPayload = {
             title: 'The title of the story',
             synopsis: 'The synopsis of the story',
-            theme: '1234567890',
+            theme: '1720955b-4474-4a1d-bf99-3907a000ba65',
             protagonist: 'The protagonist of the story',
             childAge: 10,
             numberOfChapters: 2,
-            language: '1234567890',
-            tone: '1234567890',
+            language: '1720955b-4474-4a1d-bf99-3907a000ba65',
+            tone: '1720955b-4474-4a1d-bf99-3907a000ba65',
             species: 'The species of the story',
             conclusion: 'The conclusion of the story',
             coverImageUrl: 'The cover image url of the story',
-            ownerId: '1234567890',
+            ownerId: '1720955b-4474-4a1d-bf99-3907a000ba65',
             isPublic: true,
         }
         const presenter = await createStoryUseCase.execute(payload)
         assert.isDefined(presenter)
-        assert.equal(presenter.id, '1234567890')
+        assert.equal(presenter.id, '1720955b-4474-4a1d-bf99-3907a000ba65')
         assert.equal(storyRepository.stories.length, 1)
     })
 })

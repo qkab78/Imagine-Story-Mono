@@ -1,10 +1,10 @@
-import type { Chapter } from "./chapter.entity.js";
-import type { Theme } from "./theme.entity.js";
-import type { Language } from "./language.entity.js";
-import type { Tone } from "./tone.entity.js";
-import type { StoryId } from "../value-objects/story-id.vo.js";
-import type { StoryBuilder } from "../builders/story.builder.js";
-import type { CreationDate } from "../value-objects/creation-date.vo.js";
+import type { Chapter } from './chapter.entity.js'
+import type { Theme } from '../value-objects/settings/Theme.vo.js'
+import type { Language } from '../value-objects/settings/Language.vo.js'
+import type { Tone } from '../value-objects/settings/Tone.vo.js'
+import type { StoryId } from '../value-objects/story-id.vo.js'
+import type { StoryBuilder } from '../builders/story.builder.js'
+import type { CreationDate } from '../value-objects/creation-date.vo.js'
 
 export class Story {
     constructor(

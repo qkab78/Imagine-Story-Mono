@@ -1,11 +1,11 @@
-import { Story } from "../entities/story.entity.js"
-import { Tone } from "../entities/tone.entity.js"
-import { Chapter } from "../entities/chapter.entity.js"
-import { Theme } from "../entities/theme.entity.js"
-import { Language } from "../entities/language.entity.js"
-import { IDateService } from "../services/IDateService.js"
-import { StoryId } from "../value-objects/story-id.vo.js"
-import { CreationDate } from "../value-objects/creation-date.vo.js"
+import { Story } from '../entities/story.entity.js'
+import { Tone } from '../value-objects/settings/Tone.vo.js'
+import { Chapter } from '../entities/chapter.entity.js'
+import { Theme } from '../value-objects/settings/Theme.vo.js'
+import { Language } from '../value-objects/settings/Language.vo.js'
+import { IDateService } from '../services/IDateService.js'
+import { StoryId } from '../value-objects/story-id.vo.js'
+import { CreationDate } from '../value-objects/creation-date.vo.js'
 
 export class StoryBuilder {
     public id: StoryId | undefined
