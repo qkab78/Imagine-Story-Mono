@@ -26,14 +26,21 @@ services:
       - 1025:1025
       - 8025:8025
   storage:
-    image: minio/minio
+    image: minio/minio:latest
     ports:
       - 9000:9000
+      - 8900:8900
     environment:
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=password
     volumes:
       - storage_data:/data
+    command: server /data --console-address ":8900"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   postgres_data:
