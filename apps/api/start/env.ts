@@ -54,4 +54,20 @@ export default await Env.create(new URL('../', import.meta.url), {
   OPENAI_API_KEY: Env.schema.string(),
   LEONARDO_AI_API_KEY: Env.schema.string(),
   STORIES_QUERY_LIMIT: Env.schema.number(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring storage
+  |----------------------------------------------------------
+  */
+  STORAGE_PROVIDER: Env.schema.enum(['local', 'minio'] as const),
+
+  // MinIO Configuration (optional - only required when STORAGE_PROVIDER=minio)
+  MINIO_ENDPOINT: Env.schema.string.optional(),
+  MINIO_PORT: Env.schema.number.optional(),
+  MINIO_USE_SSL: Env.schema.boolean.optional(),
+  MINIO_ROOT_USER: Env.schema.string.optional(),
+  MINIO_ROOT_PASSWORD: Env.schema.string.optional(),
+  MINIO_BUCKET: Env.schema.string.optional(),
+  MINIO_PRESIGNED_URL_EXPIRY: Env.schema.number.optional(), // seconds
 })

@@ -7,14 +7,13 @@ import { Leonardo } from '@leonardo-ai/sdk'
 import env from '#start/env'
 import fs from 'node:fs'
 import path from 'node:path'
-import { writeFile } from 'node:fs'
 import {
   StoryGenerationContext,
   ChapterImage,
   ChapterImageGenerationResponse,
 } from '../types/enhanced_story_types.js'
 import app from '@adonisjs/core/services/app'
-import axios from 'axios'
+import { IStorageService } from '#stories/domain/services/IStorageService'
 
 // Configuration Leonardo AI
 const leonardo = new Leonardo({
@@ -561,22 +560,15 @@ function sanitizeContent(content: string): string {
 async function downloadImage(imageUrl: string, fileName: string): Promise<string> {
   try {
     console.log(`Téléchargement de l'image: ${fileName}`)
-    const imagePath = app.makePath(`uploads/stories/chapters/${fileName}`)
-    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' })
+    const storageService = await app.container.make(IStorageService)
+    const destinationPath = `chapters/${fileName}`
 
-    if (!response.data || response.data.length === 0) {
-      throw new Error('Aucune image reçue')
-    }
-
-    return new Promise((resolve, reject) => {
-      writeFile(imagePath, response.data, (err) => {
-        if (err) reject(err)
-        console.log(`Image downloaded successfully! ${imagePath}`)
-      })
-
-      console.log(`Image sauvegardée: ${imagePath}`)
-      return resolve(imagePath)
+    const result = await storageService.uploadFromUrl(imageUrl, destinationPath, {
+      contentType: 'image/png',
     })
+
+    console.log(`Image sauvegardée: ${result.path}`)
+    return result.url
   } catch (error) {
     console.error(`Erreur téléchargement image ${fileName}:`, error)
     throw new Error(`Échec du téléchargement de l'image: ${error}`)
@@ -666,20 +658,15 @@ No text or titles in the image, just the visual cover scene.
 async function downloadCoverImage(imageUrl: string, fileName: string): Promise<string> {
   try {
     console.log(`📥 Téléchargement couverture: ${fileName}`)
-    const imagePath = app.makePath(`uploads/stories/covers/${fileName}`)
-    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' })
+    const storageService = await app.container.make(IStorageService)
+    const destinationPath = `covers/${fileName}`
 
-    if (!response.data || response.data.length === 0) {
-      throw new Error('Aucune image reçue')
-    }
-
-    return new Promise((resolve, reject) => {
-      writeFile(imagePath, response.data, (err) => {
-        if (err) reject(err)
-        console.log(`✅ Couverture téléchargée: ${imagePath}`)
-        resolve(imagePath)
-      })
+    const result = await storageService.uploadFromUrl(imageUrl, destinationPath, {
+      contentType: 'image/webp',
     })
+
+    console.log(`✅ Couverture téléchargée: ${result.path}`)
+    return result.url
   } catch (error) {
     console.error(`❌ Erreur téléchargement couverture ${fileName}:`, error)
     throw new Error(`Échec du téléchargement de l'image: ${error}`)
