@@ -25,9 +25,20 @@ services:
     ports:
       - 1025:1025
       - 8025:8025
+  storage:
+    image: minio/minio
+    ports:
+      - 9000:9000
+    environment:
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+    volumes:
+      - storage_data:/data
 
 volumes:
   postgres_data:
     driver: local
   redis_data:
+    driver: local
+  storage_data:
     driver: local
