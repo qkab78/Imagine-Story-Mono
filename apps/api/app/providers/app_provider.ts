@@ -8,6 +8,7 @@ import { IStoryGenerationService } from '#stories/domain/services/IStoryGenerati
 import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
 import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
 import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
+import { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublisher'
 import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositories/KyselyToneRepository'
 
 export default class AppProvider {
@@ -28,7 +29,7 @@ export default class AppProvider {
     const { OpenAiStoryGenerationService } = await import('#stories/infrastructure/adapters/services/OpenAiStoryGeneration.service')
     const { KyselyThemeRepository } = await import('#stories/infrastructure/adapters/repositories/KyselyThemeRepository')
     const { KyselyLanguageRepository } = await import('#stories/infrastructure/adapters/repositories/KyselyLanguageRepository')
-
+    const { InMemoryEventPublisher } = await import('#stories/infrastructure/adapters/events/InMemoryEventPublisher')
 
     this.app.container.singleton(PaymentService, () => {
       return new LemonSqueezyPaymentService()
@@ -53,6 +54,9 @@ export default class AppProvider {
     })
     this.app.container.singleton(IToneRepository, () => {
       return this.app.container.make(KyselyToneRepository)
+    })
+    this.app.container.singleton(IDomainEventPublisher, () => {
+      return this.app.container.make(InMemoryEventPublisher)
     })
   }
 
