@@ -17,7 +17,8 @@
     "db:seed:stories": "node ace seed:stories",
     "db:migrate": "node ace kysely:migrate",
     "db:rollback": "node ace kysely:rollback",
-    "queue:listen": "node ace queue:listen"
+    "queue:listen": "node ace queue:listen",
+    "test:stories": "node ace test --suite stories"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",

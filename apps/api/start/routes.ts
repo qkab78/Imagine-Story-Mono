@@ -23,6 +23,8 @@ const AuthController = () => import('#auth/controllers/auth_controllers')
 const RegisterController = () => import('#auth/controllers/register/register_controller')
 const PaymentsController = () => import('#payments/controllers/payments_controllers')
 
+const StoriesControllerPresenter = () => import('#stories/presenters/stories.controller')
+
 router.get('/', async ({ response }: HttpContext) => {
   console.log('[Route] GET / called')
   try {
@@ -103,7 +105,8 @@ router
     router.get('/', [StoriesController, 'getStories'])
     router.get('/all/latest', [StoriesController, 'getLatestStories'])
     router.get('/slug/:slug', [StoriesController, 'getStoryBySlug'])
-    router.get('/:id', [StoriesController, 'getStoryById'])
+    // router.get('/:id', [StoriesController, 'getStoryById'])
+    router.get('/:id', [StoriesControllerPresenter, 'getStoryById'])
     router.get('/search/suggestions', [StoriesController, 'getSuggestedStories'])
     router.get('/all/themes', [StoriesController, 'getThemes'])
     router.get('/all/tones', [StoriesController, 'getTones'])
