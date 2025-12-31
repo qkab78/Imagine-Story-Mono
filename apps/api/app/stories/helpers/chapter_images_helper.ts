@@ -7,8 +7,8 @@ import OpenAI from 'openai'
 import env from '#start/env'
 import fs from 'node:fs'
 import path from 'node:path'
-import { createWriteStream } from 'node:fs'
-import { pipeline } from 'node:stream/promises'
+import app from '@adonisjs/core/services/app'
+import { IStorageService } from '#stories/domain/services/IStorageService'
 import {
   StoryGenerationContext,
   ChapterImage,
@@ -352,46 +352,15 @@ Make it joyful, educational, and age-appropriate for ${context.childAge}-year-ol
  */
 async function downloadChapterImage(imageUrl: string, fileName: string): Promise<string> {
   try {
-    const response = await fetch(imageUrl)
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`)
-    }
+    const storageService = await app.container.make(IStorageService)
+    const destinationPath = `chapters/${fileName}`
 
-    const chaptersDir = path.join(process.cwd(), 'uploads', 'stories', 'chapters')
-    const filePath = path.join(chaptersDir, fileName)
-
-    if (!response.body) {
-      throw new Error('Aucun contenu dans la réponse')
-    }
-
-    // Utiliser des streams Node.js natifs pour plus de performance
-    const fileStream = createWriteStream(filePath)
-
-    // Convertir le ReadableStream web en stream Node.js
-    const nodeStream = new ReadableStream({
-      start(controller) {
-        const reader = response.body!.getReader()
-
-        function pump(): Promise<void> {
-          return reader.read().then(({ done, value }) => {
-            if (done) {
-              controller.close()
-              return
-            }
-            controller.enqueue(value)
-            return pump()
-          })
-        }
-
-        return pump()
-      },
+    const result = await storageService.uploadFromUrl(imageUrl, destinationPath, {
+      contentType: 'image/png',
     })
 
-    // Pipeline pour sauvegarder l'image
-    await pipeline(nodeStream as any, fileStream)
-
-    console.log(`Image sauvegardée: ${filePath}`)
-    return `chapters/${fileName}`
+    console.log(`Image sauvegardée: ${result.path}`)
+    return result.path
   } catch (error) {
     console.error(`Erreur téléchargement image ${fileName}:`, error)
     throw new Error(`Échec du téléchargement de l'image: ${error}`)

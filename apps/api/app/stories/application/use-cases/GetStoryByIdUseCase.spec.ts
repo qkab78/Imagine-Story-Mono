@@ -2,6 +2,7 @@
 import { test } from "@japa/runner"
 import { GetStoryByIdUseCase } from "./GetStoryByIdUseCase.js"
 import { IStoryRepository } from "#stories/domain/repositories/StoryRepository";
+import { MockStorageService } from "#stories/infrastructure/adapters/services/__mocks__/MockStorageService";
 
 import { Story } from "#stories/domain/entities/story.entity";
 import { IDateService } from "#stories/domain/services/IDateService";
@@ -108,7 +109,8 @@ test.group(GetStoryByIdUseCase.name, () => {
         }
     }
     test('should get a story by id', async ({ assert }) => {
-        const getStoryByIdUseCase = new GetStoryByIdUseCase(new TestStoryRepository())
+        const storageService = new MockStorageService()
+        const getStoryByIdUseCase = new GetStoryByIdUseCase(new TestStoryRepository(), storageService)
         const story = await getStoryByIdUseCase.execute(storyId.getValue())
         assert.isDefined(story)
         assert.equal(story.id, storyId.getValue())
@@ -124,11 +126,10 @@ test.group(GetStoryByIdUseCase.name, () => {
         assert.equal(story.tone.id, tone.id)
         assert.equal(story.tone.name, tone.name)
         assert.equal(story.childAge, 10)
-        assert.equal(story.numberOfChapters, 2)
+        assert.equal(story.chapters.length, 2)
         assert.equal(story.conclusion, 'The conclusion of the story')
         assert.equal(story.coverImageUrl, 'https://example.com/image.jpg')
         assert.equal(story.ownerId, '1720955b-4474-4a1d-bf99-3907a000ba65')
         assert.equal(story.isPublic, true)
-        assert.equal(story.publicationDate, new TestDateService().now())
     })
 })

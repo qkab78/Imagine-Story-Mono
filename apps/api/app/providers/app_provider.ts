@@ -9,7 +9,9 @@ import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
 import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
 import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
 import { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublisher'
+import { IStorageService } from '#stories/domain/services/IStorageService'
 import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositories/KyselyToneRepository'
+import storageConfig from '#config/storage'
 
 export default class AppProvider {
   constructor(protected app: ApplicationService) {}
@@ -30,6 +32,23 @@ export default class AppProvider {
     const { KyselyThemeRepository } = await import('#stories/infrastructure/adapters/repositories/KyselyThemeRepository')
     const { KyselyLanguageRepository } = await import('#stories/infrastructure/adapters/repositories/KyselyLanguageRepository')
     const { InMemoryEventPublisher } = await import('#stories/infrastructure/adapters/events/InMemoryEventPublisher')
+
+    // Storage service binding (conditional based on config)
+    const provider = storageConfig.default
+
+    if (provider === 'minio') {
+      const { MinIOStorageService } = await import('#stories/infrastructure/adapters/services/MinIOStorageService')
+      this.app.container.singleton(IStorageService, async () => {
+        const service = new MinIOStorageService()
+        await service.ensureBucketExists()
+        return service
+      })
+    } else {
+      const { LocalStorageService } = await import('#stories/infrastructure/adapters/services/LocalStorageService')
+      this.app.container.singleton(IStorageService, () => {
+        return new LocalStorageService()
+      })
+    }
 
     this.app.container.singleton(PaymentService, () => {
       return new LemonSqueezyPaymentService()
