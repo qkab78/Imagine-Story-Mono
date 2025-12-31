@@ -74,7 +74,17 @@ export class ImageUrl extends ValueObject<string> {
       return
     }
 
-    // For regular URLs, validate format
+    // For local paths (absolute or relative), accept them
+    // Examples: /images/covers/file.webp, chapters/file.png
+    if (url.startsWith('/') || !url.includes('://')) {
+      // Basic validation: ensure it looks like a file path
+      if (url.includes('..') || url.includes('\\')) {
+        throw new InvalidValueObjectException('Invalid path: directory traversal not allowed')
+      }
+      return
+    }
+
+    // For regular URLs (http://, https://), validate format
     try {
       const parsedUrl = new URL(url)
 
