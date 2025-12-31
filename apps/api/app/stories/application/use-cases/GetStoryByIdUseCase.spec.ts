@@ -17,6 +17,8 @@ import { Tone } from "#stories/domain/value-objects/settings/Tone.vo";
 import { StoryId } from "#stories/domain/value-objects/ids/StoryId.vo";
 import { OwnerId } from "#stories/domain/value-objects/ids/OwnerId.vo";
 import { IRandomService } from "#stories/domain/services/IRandomService";
+import { Slug } from "#stories/domain/value-objects/metadata/Slug.vo";
+import { PaginationParams, PaginatedResult, StoryFilters } from "./story/ListPublicStoriesUseCase.js";
 
 test.group(GetStoryByIdUseCase.name, () => {
     class TestRandomService implements IRandomService {
@@ -72,6 +74,24 @@ test.group(GetStoryByIdUseCase.name, () => {
             .withChapters(chapters)
             .build()
     class TestStoryRepository implements IStoryRepository {
+        findBySlug(slug: Slug): Promise<Story | null> {
+            throw new Error("Method not implemented.");
+        }
+        findByOwnerId(ownerId: OwnerId, pagination: PaginationParams): Promise<PaginatedResult<Story>> {
+            throw new Error("Method not implemented.");
+        }
+        findPublicStories(filters: StoryFilters, pagination: PaginationParams): Promise<PaginatedResult<Story>> {
+            throw new Error("Method not implemented.");
+        }
+        existsBySlug(slug: Slug, excludeId?: StoryId): Promise<boolean> {
+            throw new Error("Method not implemented.");
+        }
+        save(story: Story): Promise<void> {
+            throw new Error("Method not implemented.");
+        }
+        delete(id: StoryId): Promise<void> {
+            throw new Error("Method not implemented.");
+        }
         private readonly stories: Story[] = [story]
         async findById(id: string): Promise<Story> {
             const story = this.stories.find(story => story.id.equals(StoryId.create(id)))
