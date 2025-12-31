@@ -1,10 +1,16 @@
 /**
- * Base exception for all domain errors
+ * Domain Exception
+ *
+ * Base exception for all domain-level errors.
+ * Domain exceptions represent violations of business rules and invariants.
  */
 export class DomainException extends Error {
-  constructor(message: string) {
+  public readonly code: string
+
+  constructor(message: string, code: string = 'DOMAIN_ERROR') {
     super(message)
     this.name = 'DomainException'
-    Object.setPrototypeOf(this, DomainException.prototype)
+    this.code = code
+    Error.captureStackTrace(this, this.constructor)
   }
 }

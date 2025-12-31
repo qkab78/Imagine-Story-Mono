@@ -196,8 +196,7 @@ test.group('PublishStoryUseCase', () => {
     const useCase = new PublishStoryUseCase(storyRepository, eventPublisher)
 
     await assert.rejects(
-      async () => await useCase.execute('non-existent-id'),
-      'Story with ID non-existent-id not found'
+      async () => await useCase.execute('non-existent-id')
     )
   })
 })

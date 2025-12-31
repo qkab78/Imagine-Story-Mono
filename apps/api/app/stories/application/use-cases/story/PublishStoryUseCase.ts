@@ -2,6 +2,7 @@ import { inject } from '@adonisjs/core'
 import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
 import type { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublisher'
 import { StoryPublishedEvent } from '#stories/domain/events/StoryPublishedEvent'
+import { StoryNotFoundException } from '#stories/application/exceptions/StoryNotFoundException'
 
 /**
  * Publish Story Use Case
@@ -21,7 +22,7 @@ export class PublishStoryUseCase {
     const story = await this.storyRepository.findById(storyId)
 
     if (!story) {
-      throw new Error(`Story with ID ${storyId} not found`)
+      throw StoryNotFoundException.byId(storyId)
     }
 
     // 2. Check if already public

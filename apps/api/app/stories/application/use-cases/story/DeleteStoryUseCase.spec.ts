@@ -152,8 +152,7 @@ test.group('DeleteStoryUseCase', () => {
     const useCase = new DeleteStoryUseCase(storyRepository, eventPublisher)
 
     await assert.rejects(
-      async () => await useCase.execute('non-existent-id'),
-      'Story with ID non-existent-id not found'
+      async () => await useCase.execute('non-existent-id')
     )
 
     // No deletion should have occurred

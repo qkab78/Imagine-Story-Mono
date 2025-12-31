@@ -3,6 +3,7 @@ import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
 import type { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublisher'
 import { StoryDeletedEvent } from '#stories/domain/events/StoryDeletedEvent'
 import { StoryId } from '#stories/domain/value-objects/ids/StoryId.vo'
+import { StoryNotFoundException } from '#stories/application/exceptions/StoryNotFoundException'
 
 /**
  * Delete Story Use Case
@@ -22,7 +23,7 @@ export class DeleteStoryUseCase {
     const story = await this.storyRepository.findById(storyId)
 
     if (!story) {
-      throw new Error(`Story with ID ${storyId} not found`)
+      throw StoryNotFoundException.byId(storyId)
     }
 
     // 2. Delete the story
