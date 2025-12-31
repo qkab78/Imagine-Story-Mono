@@ -11,7 +11,7 @@ test.group('InMemoryEventPublisher', () => {
   test('should publish event to subscribed handlers', async ({ assert }) => {
     const publisher = new InMemoryEventPublisher()
     let handlerCalled = false
-    let receivedEvent: DomainEvent | null = null
+    let receivedEvent: DomainEvent | undefined
 
     // Subscribe to event
     publisher.subscribe('story.created', async (event) => {
