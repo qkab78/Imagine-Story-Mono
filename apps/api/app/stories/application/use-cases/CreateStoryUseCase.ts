@@ -1,7 +1,7 @@
 import { StoryBuilder } from '#stories/domain/builders/story.builder'
 import { Story } from '#stories/domain/entities/story.entity'
 import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
-import { StoryId } from '#stories/domain/value-objects/story-id.vo'
+import { StoryId } from '#stories/domain/value-objects/ids/StoryId.vo'
 import { inject } from '@adonisjs/core'
 import { IDateService } from '#stories/domain/services/IDateService'
 import { IRandomService } from '#stories/domain/services/IRandomService'
@@ -64,7 +64,7 @@ export class CreateStoryUseCase {
         }
 
         // Create the story
-        const storyId = new StoryId(this.randomService)
+        const storyId = StoryId.generate(this.randomService)
 
         const story = StoryBuilder.create(this.dateService)
             .withId(storyId)

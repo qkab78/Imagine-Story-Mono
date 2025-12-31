@@ -1,6 +1,8 @@
 import { test } from '@japa/runner'
 import { ChapterBuilder } from './chapter.builder.js'
 import { ChapterImage } from '../entities/chapter.entity.js'
+import { ChapterId } from '../value-objects/ids/ChapterId.vo.js'
+import { ImageUrl } from '../value-objects/media/ImageUrl.vo.js'
 
 test.group(ChapterBuilder.name, () => {
     test('should create a chapter builder', async ({ assert }) => {
@@ -9,7 +11,7 @@ test.group(ChapterBuilder.name, () => {
     })
 
     test('should build a chapter with image', async ({ assert }) => {
-        const chapterImage = new ChapterImage(1, 'https://example.com/image.jpg')
+        const chapterImage = ChapterImage.create(ChapterId.create(1), ImageUrl.create('https://example.com/image.jpg'))
         const chapter = ChapterBuilder.create()
             .withId(1)
             .withTitle('Chapter 1')
@@ -22,7 +24,7 @@ test.group(ChapterBuilder.name, () => {
         assert.equal(chapter.title, 'Chapter 1')
         assert.equal(chapter.content, 'This is the content of chapter 1')
         assert.isDefined(chapter.image)
-        assert.equal(chapter.image?.id, 1)
+        assert.equal(chapter.image?.chapterId.getValue(), 1)
         assert.equal(chapter.image?.imageUrl, 'https://example.com/image.jpg')
     })
 

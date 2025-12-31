@@ -1,6 +1,18 @@
 import { test } from '@japa/runner'
 import { StoryId } from './StoryId.vo.js'
 import { InvalidValueObjectException } from '#stories/domain/exceptions/InvalidValueObjectException'
+import { IRandomService } from "#stories/domain/services/IRandomService";
+
+class TestRandomService implements IRandomService {
+    public generateRandomUuid(): string {
+        return '1ed3df18-0bc3-4a08-aa6b-d5eb20e0dbc0'
+    }
+}
+class OtherTestRandomService implements IRandomService {
+    public generateRandomUuid(): string {
+        return '123e4567-e89b-12d3-a456-426614174000'
+    }
+}
 
 test.group('StoryId Value Object', () => {
   test('should create a StoryId from a valid UUID', ({ assert }) => {
@@ -12,15 +24,15 @@ test.group('StoryId Value Object', () => {
   })
 
   test('should generate a new StoryId with random UUID', ({ assert }) => {
-    const storyId = StoryId.generate()
+    const storyId = StoryId.generate(new TestRandomService())
 
     assert.isDefined(storyId)
     assert.match(storyId.getValue(), /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
   })
 
   test('should generate different UUIDs on each generate call', ({ assert }) => {
-    const storyId1 = StoryId.generate()
-    const storyId2 = StoryId.generate()
+    const storyId1 = StoryId.generate(new TestRandomService())
+    const storyId2 = StoryId.generate(new OtherTestRandomService())
 
     assert.notEqual(storyId1.getValue(), storyId2.getValue())
   })

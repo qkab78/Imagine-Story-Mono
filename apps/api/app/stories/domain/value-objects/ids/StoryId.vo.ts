@@ -1,5 +1,6 @@
 import { ValueObject } from '../base/ValueObject.js'
 import { InvalidValueObjectException } from '#stories/domain/exceptions/InvalidValueObjectException'
+import { IRandomService } from "#stories/domain/services/IRandomService";
 
 /**
  * Story unique identifier value object
@@ -31,8 +32,8 @@ export class StoryId extends ValueObject<string> {
    * Generate a new StoryId with a random UUID
    * @returns StoryId instance with new UUID
    */
-  public static generate(): StoryId {
-    return new StoryId(crypto.randomUUID())
+  public static generate(randomService: IRandomService): StoryId {
+    return new StoryId(randomService.generateRandomUuid())
   }
 
   /**

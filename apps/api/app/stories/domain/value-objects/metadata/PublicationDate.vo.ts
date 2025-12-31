@@ -1,5 +1,6 @@
 import { ValueObject } from '../base/ValueObject.js'
 import { InvalidValueObjectException } from '../../exceptions/InvalidValueObjectException.js'
+import { IDateService } from '#stories/domain/services/IDateService'
 
 /**
  * Publication date value object
@@ -39,8 +40,8 @@ export class PublicationDate extends ValueObject<Date> {
    * Create PublicationDate with current date/time
    * @returns PublicationDate instance with current date
    */
-  public static now(): PublicationDate {
-    return new PublicationDate(new Date())
+  public static now(dateService: IDateService): PublicationDate {
+    return new PublicationDate(new Date(dateService.now()))
   }
 
   /**

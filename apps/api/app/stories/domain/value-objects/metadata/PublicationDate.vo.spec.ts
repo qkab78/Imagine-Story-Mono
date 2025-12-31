@@ -1,6 +1,13 @@
 import { test } from '@japa/runner'
 import { PublicationDate } from './PublicationDate.vo.js'
 import { InvalidValueObjectException } from '#stories/domain/exceptions/InvalidValueObjectException'
+import { IDateService } from '#stories/domain/services/IDateService'
+
+class TestDateService implements IDateService {
+  public now(): string {
+    return '2025-01-01T00:00:00.000Z'
+  }
+}
 
 test.group('PublicationDate Value Object', () => {
   test('should create PublicationDate from Date object', ({ assert }) => {
@@ -20,11 +27,13 @@ test.group('PublicationDate Value Object', () => {
   })
 
   test('should create PublicationDate with current date using now()', ({ assert }) => {
-    const before = new Date()
-    const pubDate = PublicationDate.now()
-    const after = new Date()
-
+    const beforeDateString = new TestDateService().now()
+    const afterDateString = new TestDateService().now()
+    const before = new Date(beforeDateString)
+    const pubDate = PublicationDate.now(new TestDateService())
+    const after = new Date(afterDateString)
     assert.isDefined(pubDate)
+
     const dateValue = pubDate.toDate()
     assert.isTrue(dateValue >= before && dateValue <= after)
   })

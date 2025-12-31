@@ -1,13 +1,19 @@
 import { Story } from '../entities/story.entity.js'
 import { Tone } from '../value-objects/settings/Tone.vo.js'
-import { Chapter } from '../entities/chapter.entity.js'
 import { Theme } from '../value-objects/settings/Theme.vo.js'
 import { Language } from '../value-objects/settings/Language.vo.js'
-import { IDateService } from '../services/IDateService.js'
-import { StoryId } from '../value-objects/story-id.vo.js'
-import { CreationDate } from '../value-objects/creation-date.vo.js'
+import { StoryId } from '../value-objects/ids/StoryId.vo.js'
+import { Chapter } from '#stories/domain/entities/chapter.entity'
+import { ImageUrl } from '../value-objects/media/ImageUrl.vo.js'
+import { Slug } from '../value-objects/metadata/Slug.vo.js'
+import { OwnerId } from '../value-objects/ids/OwnerId.vo.js'
+import { ChildAge } from '../value-objects/metadata/ChildAge.vo.js'
+import { PublicationStatus } from '../value-objects/metadata/PublicationStatus.vo.js'
+import { PublicationDate } from '../value-objects/metadata/PublicationDate.vo.js'
+import { IDateService } from '#stories/domain/services/IDateService'
 
 export class StoryBuilder {
+    private dateService: IDateService
     public id: StoryId | undefined
     public title: string | undefined
     public synopsis: string | undefined
@@ -18,15 +24,17 @@ export class StoryBuilder {
     public coverImageUrl: string | undefined
     public ownerId: string | undefined
     public isPublic: boolean = false
-    public publicationDate: CreationDate | undefined
+    public publicationDate: PublicationDate | undefined
     public theme: Theme | undefined
     public language: Language | undefined
     public tone: Tone | undefined
     public chapters: Chapter[] = []
 
-    private constructor(private readonly dateService: IDateService) {}
+    private constructor(dateService: IDateService) {
+        this.dateService = dateService
+    }
 
-    static create(dateService: IDateService): StoryBuilder {
+    public static create(dateService: IDateService): StoryBuilder {
         return new StoryBuilder(dateService)
     }
 
@@ -80,8 +88,8 @@ export class StoryBuilder {
         return this
     }
 
-    withPublicationDate(publicationDate?: CreationDate): StoryBuilder {
-        this.publicationDate = publicationDate ?? CreationDate.fromString(this.dateService.now())
+    withPublicationDate(publicationDate?: PublicationDate): StoryBuilder {
+        this.publicationDate = publicationDate ?? PublicationDate.now(this.dateService)
         return this
     }
 
@@ -145,21 +153,22 @@ export class StoryBuilder {
         if (!this.tone) {
             throw new Error('Tone is required')
         }
-        if (!this.chapters) {
+        if (this.chapters.length === 0) {
             throw new Error('Chapters are required')
         }
-        return new Story(
+        return Story.create(
             this.id,
+            Slug.fromTitle(this.title),
+            ChildAge.create(this.childAge),
+            ImageUrl.create(this.coverImageUrl),
+            OwnerId.create(this.ownerId),
+            PublicationDate.now(this.dateService),
+            this.isPublic ? PublicationStatus.public() : PublicationStatus.private(),
             this.title,
             this.synopsis,
             this.protagonist,
-            this.childAge,
             this.species,
             this.conclusion,
-            this.coverImageUrl,
-            this.ownerId,
-            this.isPublic,
-            this.publicationDate,
             this.theme,
             this.language,
             this.tone,

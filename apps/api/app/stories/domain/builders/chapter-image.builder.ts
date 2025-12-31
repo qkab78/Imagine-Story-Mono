@@ -1,26 +1,27 @@
-import { ChapterImage } from "../entities/chapter.entity.js"
 
-export class ChapterImageBuilder {
+import { ImageUrl } from "../value-objects/media/ImageUrl.vo.js"
+
+export class ImageUrlBuilder {
     private id: number | undefined
     private imageUrl: string | undefined
 
     private constructor() {}
 
-    static create(): ChapterImageBuilder {
-        return new ChapterImageBuilder()
+    static create(): ImageUrlBuilder {
+        return new ImageUrlBuilder()
     }
 
-    withId(id: number): ChapterImageBuilder {
+    withId(id: number): ImageUrlBuilder {
         this.id = id
         return this
     }
 
-    withImageUrl(imageUrl: string): ChapterImageBuilder {
+    withImageUrl(imageUrl: string): ImageUrlBuilder {
         this.imageUrl = imageUrl
         return this
     }
 
-    public build(): ChapterImage {
+    public build(): ImageUrl {
         if (this.id === undefined) {
             throw new Error('Id is required')
         }
@@ -28,6 +29,6 @@ export class ChapterImageBuilder {
             throw new Error('Image URL is required')
         }
 
-        return new ChapterImage(this.id, this.imageUrl)
+        return ImageUrl.create(this.imageUrl)
     }
 }

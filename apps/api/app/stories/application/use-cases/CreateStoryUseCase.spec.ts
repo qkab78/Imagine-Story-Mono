@@ -6,7 +6,7 @@ import { Story } from "#stories/domain/entities/story.entity";
 import { IRandomService } from "#stories/domain/services/IRandomService";
 import { IDateService } from "#stories/domain/services/IDateService";
 import { IStoryGenerationService, StoryChapterImagesPayload, StoryCharacterPayload, StoryCharacterProfilesPayload, StoryCharacterReferencePayload, StoryGenerationPayload, StoryImagePayload } from "#stories/domain/services/IStoryGeneration";
-import { Chapter, ChapterImage } from "#stories/domain/entities/chapter.entity";
+
 import { StoryGenerated } from "#stories/domain/services/types/StoryGenerated";
 import string from "@adonisjs/core/helpers/string";
 import { IToneRepository } from "#stories/domain/repositories/ToneRepository";
@@ -18,6 +18,9 @@ import { ToneId } from "#stories/domain/value-objects/ids/ToneId.vo";
 import { Theme } from "#stories/domain/value-objects/settings/Theme.vo";
 import { Language } from "#stories/domain/value-objects/settings/Language.vo";
 import { Tone } from "#stories/domain/value-objects/settings/Tone.vo";
+import { ChapterFactory } from "#stories/domain/factories/ChapterFactory";
+import { ImageUrl } from "#stories/domain/value-objects/media/ImageUrl.vo";
+import { StoryId } from "#stories/domain/value-objects/ids/StoryId.vo";
 
 
 test.group(CreateStoryUseCase.name, () => {
@@ -46,9 +49,19 @@ test.group(CreateStoryUseCase.name, () => {
     }
     class TestStoryGenerationService implements IStoryGenerationService {
         generateStory(payload: StoryGenerationPayload): Promise<StoryGenerated> {
-            const chapter1 = new Chapter(1, 'The title of the chapter', 'The content of the chapter', null)
-            const chapter2 = new Chapter(2, 'The title of the chapter', 'The content of the chapter', null)
-            const chapters: Chapter[] = [chapter1, chapter2]
+            const chapter1 = ChapterFactory.create({
+                position: 1,
+                title: 'The title of the chapter',
+                content: 'The content of the chapter',
+                imageUrl: 'https://example.com/image.jpg',
+            })
+            const chapter2 = ChapterFactory.create({
+                position: 2,
+                title: 'The title of the chapter',
+                content: 'The content of the chapter',
+                imageUrl: 'https://example.com/image.jpg',
+            })
+            const chapters = [chapter1, chapter2]
 
             const storyGenerated: StoryGenerated = {
                 title: payload.title,
@@ -62,21 +75,24 @@ test.group(CreateStoryUseCase.name, () => {
                 species: payload.species,
                 conclusion: 'The conclusion of the story',
                 slug: string.slug(payload.title, { lower: true, trim: true }),
-                coverImageUrl: 'The cover image url of the story',
-                ownerId: 'The owner id of the story',
+                coverImageUrl: 'https://example.com/image.jpg',
+                ownerId: '1720955b-4474-4a1d-bf99-3907a000ba65',
                 isPublic: true,
                 chapters,
             }
             return Promise.resolve(storyGenerated)
         }
-        generateImage(payload: StoryImagePayload): Promise<ChapterImage> {
-            throw new Error("Method not implemented.")
+        generateImage(payload: StoryImagePayload): Promise<ImageUrl> {
+            return Promise.resolve(ImageUrl.create('https://example.com/image.jpg'))
         }
         generateCharacter(payload: StoryCharacterPayload): Promise<string> {
             throw new Error("Method not implemented.")
         }
-        generateChapterImages(payload: StoryChapterImagesPayload): Promise<ChapterImage[]> {
-            throw new Error("Method not implemented.")
+        generateChapterImages(payload: StoryChapterImagesPayload): Promise<ImageUrl[]> {
+            return Promise.resolve([
+                ImageUrl.create('https://example.com/image.jpg'),
+                ImageUrl.create('https://example.com/image.jpg'),
+            ])
         }
         generateCharacterReference(payload: StoryCharacterReferencePayload): Promise<string> {
             throw new Error("Method not implemented.")
@@ -138,13 +154,13 @@ test.group(CreateStoryUseCase.name, () => {
             tone: '1720955b-4474-4a1d-bf99-3907a000ba65',
             species: 'The species of the story',
             conclusion: 'The conclusion of the story',
-            coverImageUrl: 'The cover image url of the story',
+            coverImageUrl: 'https://example.com/image.jpg',
             ownerId: '1720955b-4474-4a1d-bf99-3907a000ba65',
             isPublic: true,
         }
         const presenter = await createStoryUseCase.execute(payload)
         assert.isDefined(presenter)
-        assert.equal(presenter.id, '1720955b-4474-4a1d-bf99-3907a000ba65')
+        assert.equal(presenter.id, StoryId.create('1720955b-4474-4a1d-bf99-3907a000ba65').getValue())
         assert.equal(storyRepository.stories.length, 1)
     })
 })

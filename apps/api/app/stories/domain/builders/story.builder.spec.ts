@@ -1,11 +1,15 @@
 import { test } from '@japa/runner'
-import { ThemeBuilder } from "./theme.builder.js"
-import { ToneBuilder } from "./tone.builder.js"
-import { LanguageBuilder } from "./language.builder.js"
 import { StoryBuilder } from "./story.builder.js"
 import { IDateService } from '../services/IDateService.js'
-import { StoryId } from '../value-objects/story-id.vo.js'
+import { StoryId } from '../value-objects/ids/StoryId.vo.js'
 import { IRandomService } from '../services/IRandomService.js'
+import { Theme } from '../value-objects/settings/Theme.vo.js'
+import { Language } from '../value-objects/settings/Language.vo.js'
+import { Tone } from '../value-objects/settings/Tone.vo.js'
+import { OwnerId } from '../value-objects/ids/OwnerId.vo.js'
+import { ImageUrl } from '../value-objects/media/ImageUrl.vo.js'
+import { Chapter, ChapterImage } from '../entities/chapter.entity.js'
+import { ChapterId } from '../value-objects/ids/ChapterId.vo.js'
 
 class TestDateService implements IDateService {
     public now(): string {
@@ -15,7 +19,7 @@ class TestDateService implements IDateService {
 
 class TestRandomService implements IRandomService {
     public generateRandomUuid(): string {
-        return '1234567890-1234-5678-9012-345678901234'
+        return '1ed3df18-0bc3-4a08-aa6b-d5eb20e0dbc0'
     }
 }
 
@@ -25,108 +29,172 @@ test.group(StoryBuilder.name, () => {
         assert.isDefined(storyBuilder)
     })
     test('should build a story', async ({ assert }) => {
-        const theme = ThemeBuilder.create().withId('1').withName('The name of the theme').withDescription('The description of the theme').build()
-        const language = LanguageBuilder.create().withId('1').withName('The name of the language').withCode('The code of the language').build()
-        const tone = ToneBuilder.create().withId('1').withName('The name of the tone').withDescription('The description of the tone').build()
-        const storyBuilder = StoryBuilder.create(new TestDateService())
-        const story = storyBuilder
-            .withId(new StoryId(new TestRandomService()))
+        const theme = Theme.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the theme', 'The description of the theme')
+        const language = Language.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the language', 'The code of the language', true)
+        const tone = Tone.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the tone', 'The description of the tone')
+        const storyId = StoryId.generate(new TestRandomService())
+        const owner = OwnerId.create('1720955b-4474-4a1d-bf99-3907a000ba65')
+        const coverImageUrl = ImageUrl.create('https://example.com/image.jpg')
+        const chapters = [
+            Chapter.create(
+                ChapterId.create(1),
+                'The title of the chapter',
+                'The content of the chapter',
+                ChapterImage.create(ChapterId.create(1), coverImageUrl)
+            ),
+            Chapter.create(
+                ChapterId.create(2),
+                'The title of the chapter',
+                'The content of the chapter',
+                ChapterImage.create(ChapterId.create(2), coverImageUrl)
+            )
+        ]
+        const story = StoryBuilder.create(new TestDateService())
+            .withId(storyId)
             .withTitle('The title of the story')
             .withSynopsis('The synopsis of the story')
             .withProtagonist('The protagonist of the story')
             .withChildAge(10)
             .withSpecies('The species of the story')
             .withConclusion('The conclusion of the story')
-            .withCoverImageUrl('The cover image url of the story')
-            .withOwnerId('The owner id of the story')
+            .withCoverImageUrl(coverImageUrl.getValue())
+            .withOwnerId(owner.getValue())
             .withIsPublic(true)
             .withPublicationDate()
             .withTheme(theme)
             .withLanguage(language)
             .withTone(tone)
-            .withChapters([])
+            .withChapters(chapters)
             .build()
         assert.isDefined(story)
-        assert.equal(story.id.getValue(), '1234567890-1234-5678-9012-345678901234')
+        assert.equal(story.id.getValue(), storyId.getValue())
         assert.equal(story.title, 'The title of the story')
         assert.equal(story.synopsis, 'The synopsis of the story')
         assert.equal(story.protagonist, 'The protagonist of the story')
         assert.equal(story.childAge, 10)
-        assert.equal(story.numberOfChapters, 0)
+        assert.equal(story.numberOfChapters, 2)
         assert.equal(story.species, 'The species of the story')
         assert.equal(story.conclusion, 'The conclusion of the story')
-        assert.equal(story.coverImageUrl, 'The cover image url of the story')
-        assert.equal(story.ownerId, 'The owner id of the story')
-        assert.equal(story.isPublic, true)
+        assert.equal(story.coverImageUrl, coverImageUrl.getValue())
+        assert.equal(story.ownerId, owner.getValue())
+        assert.equal(story.publicationStatus.isPublic(), true)
         assert.equal(story.publicationDate.toISOString(), new TestDateService().now())
         assert.equal(story.theme, theme)
-        assert.equal(story.language, language)
-        assert.equal(story.tone, tone)
-        assert.lengthOf(story.chapters, 0)
+        assert.equal(story.language.id, language.id)
+        assert.equal(story.language.name, language.name)
+        assert.equal(story.language.code, language.code)
+        assert.equal(story.language.isFree, language.isFree)
+        assert.equal(story.tone.id, tone.id)
+        assert.equal(story.tone.name, tone.name)
+        assert.equal(story.tone.description, tone.description)
+        assert.lengthOf(story.chapters, 2)
     })
     test('should throw an error if the id is not set', async ({ assert }) => {
         const storyBuilder = StoryBuilder.create(new TestDateService())
         assert.throws(() => storyBuilder.build(), 'Id is required')
     })
     test('should throw an error if the title is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService()))
+        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(StoryId.generate(new TestRandomService()))
         assert.throws(() => storyBuilder.build(), 'Title is required')
     })
     test('should throw an error if the synopsis is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story')
+        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(StoryId.generate(new TestRandomService())).withTitle('The title of the story')
         assert.throws(() => storyBuilder.build(), 'Synopsis is required')
     })
     test('should throw an error if the protagonist is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story')
+        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(StoryId.generate(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story')
         assert.throws(() => storyBuilder.build(), 'Protagonist is required')
     })
     test('should throw an error if the child age is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story')
+        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(StoryId.generate(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story')
         assert.throws(() => storyBuilder.build(), 'Child age is required')
     })
     test('should throw an error if the species is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10)
+        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(StoryId.generate(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10)
         assert.throws(() => storyBuilder.build(), 'Species is required')
     })
     test('should throw an error if the conclusion is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story')
+        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(StoryId.generate(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story')
         assert.throws(() => storyBuilder.build(), 'Conclusion is required')
     })
     test('should throw an error if the cover image url is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story')
+        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(StoryId.generate(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story')
         assert.throws(() => storyBuilder.build(), 'Cover image url is required')
     })
     test('should throw an error if the owner id is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story').withCoverImageUrl('The cover image url of the story')
+        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(StoryId.generate(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story').withCoverImageUrl('The cover image url of the story')
         assert.throws(() => storyBuilder.build(), 'Owner id is required')
     })
     test('should throw an error if the publication date is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story').withCoverImageUrl('The cover image url of the story').withOwnerId('The owner id of the story')
+        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(StoryId.generate(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story').withCoverImageUrl('The cover image url of the story').withOwnerId('The owner id of the story')
         assert.throws(() => storyBuilder.build(), 'Publication date is required')
     })
     test('should throw an error if the theme is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story').withCoverImageUrl('The cover image url of the story').withOwnerId('The owner id of the story').withPublicationDate()
+        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(StoryId.generate(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story').withCoverImageUrl('The cover image url of the story').withOwnerId('The owner id of the story').withPublicationDate()
         assert.throws(() => storyBuilder.build(), 'Theme is required')
     })
     test('should throw an error if the language is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story').withCoverImageUrl('The cover image url of the story').withOwnerId('The owner id of the story').withPublicationDate().withTheme(ThemeBuilder.create().withId('1').withName('The name of the theme').withDescription('The description of the theme').build())
+        const theme = Theme.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the theme', 'The description of the theme')
+        const tone = Tone.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the tone', 'The description of the tone')
+        const coverImageUrl = ImageUrl.create('https://example.com/image.jpg')
+        const owner = OwnerId.create('1720955b-4474-4a1d-bf99-3907a000ba65')
+        const storyBuilder = StoryBuilder.create(new TestDateService())
+            .withId(StoryId.generate(new TestRandomService()))
+            .withTitle('The title of the story')
+            .withSynopsis('The synopsis of the story')
+            .withProtagonist('The protagonist of the story')
+            .withChildAge(10)
+            .withSpecies('The species of the story')
+            .withConclusion('The conclusion of the story')
+            .withCoverImageUrl(coverImageUrl.getValue())
+            .withOwnerId(owner.getValue())
+            .withPublicationDate()
+            .withTheme(theme)
+            .withTone(tone)
+            .withChapters([])
         assert.throws(() => storyBuilder.build(), 'Language is required')
     })
     test('should throw an error if the tone is not set', async ({ assert }) => {
-        const storyBuilder = StoryBuilder.create(new TestDateService()).withId(new StoryId(new TestRandomService())).withTitle('The title of the story').withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story').withCoverImageUrl('The cover image url of the story').withOwnerId('The owner id of the story').withPublicationDate().withTheme(ThemeBuilder.create().withId('1').withName('The name of the theme').withDescription('The description of the theme').build()).withLanguage(LanguageBuilder.create().withId('1').withName('The name of the language').withCode('The code of the language').build())
+        const theme = Theme.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the theme', 'The description of the theme')
+        const language = Language.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the language', 'The code of the language', true)
+        const coverImageUrl = ImageUrl.create('https://example.com/image.jpg')
+        const owner = OwnerId.create('1720955b-4474-4a1d-bf99-3907a000ba65')
+        const storyBuilder = StoryBuilder.create(new TestDateService())
+            .withId(StoryId.generate(new TestRandomService()))
+            .withTitle('The title of the story')
+            .withSynopsis('The synopsis of the story')
+            .withProtagonist('The protagonist of the story')
+            .withChildAge(10)
+            .withSpecies('The species of the story')
+            .withConclusion('The conclusion of the story')
+            .withCoverImageUrl(coverImageUrl.getValue())
+            .withOwnerId(owner.getValue())
+            .withPublicationDate()
+            .withTheme(theme)
+            .withLanguage(language)
+            .withChapters([])
         assert.throws(() => storyBuilder.build(), 'Tone is required')
     })
     test('should throw an error if the chapters are not set', async ({ assert }) => {
+        const theme = Theme.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the theme', 'The description of the theme')
+        const language = Language.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the language', 'The code of the language', true)
+        const tone = Tone.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the tone', 'The description of the tone')
+        const coverImageUrl = ImageUrl.create('https://example.com/image.jpg')
+        const owner = OwnerId.create('1720955b-4474-4a1d-bf99-3907a000ba65')
         const storyBuilder = StoryBuilder.create(new TestDateService())
-            .withId(new StoryId(new TestRandomService()))
+            .withId(StoryId.generate(new TestRandomService()))
             .withTitle('The title of the story')
-            .withSynopsis('The synopsis of the story').withProtagonist('The protagonist of the story').withChildAge(10).withSpecies('The species of the story').withConclusion('The conclusion of the story').withCoverImageUrl('The cover image url of the story').withOwnerId('The owner id of the story')
+            .withSynopsis('The synopsis of the story')
+            .withProtagonist('The protagonist of the story')
+            .withChildAge(10)
+            .withSpecies('The species of the story')
+            .withConclusion('The conclusion of the story')
+            .withCoverImageUrl(coverImageUrl.getValue())
+            .withOwnerId(owner.getValue())
             .withPublicationDate()
-            .withTheme(ThemeBuilder.create().withId('1').withName('The name of the theme').withDescription('The description of the theme').build())
-            .withLanguage(LanguageBuilder.create().withId('1').withName('The name of the language').withCode('The code of the language').build())
-            .withTone(ToneBuilder.create().withId('1').withName('The name of the tone').withDescription('The description of the tone').build())
-        const story = storyBuilder.build()
-        assert.isDefined(story)
-        assert.lengthOf(story.chapters, 0)
+            .withTheme(theme)
+            .withLanguage(language)
+            .withTone(tone)
+        assert.throws(() => storyBuilder.build(), 'Chapters are required')
     })
 })

@@ -1,8 +1,8 @@
 import { Chapter } from "#stories/domain/entities/chapter.entity";
-import { Language } from "#stories/domain/entities/language.entity";
+import { Language } from "#stories/domain/value-objects/settings/Language.vo";
 import { Story } from "#stories/domain/entities/story.entity";
-import { Theme } from "#stories/domain/entities/theme.entity";
-import { Tone } from "#stories/domain/entities/tone.entity";
+import { Theme } from "#stories/domain/value-objects/settings/Theme.vo";
+import { Tone } from "#stories/domain/value-objects/settings/Tone.vo";
 import { IStoryRepository } from "#stories/domain/repositories/StoryRepository";
 import { inject } from "@adonisjs/core";
 
@@ -43,14 +43,14 @@ export class GetStoryByIdUseCase {
             title: story.title,
             synopsis: story.synopsis,
             theme: story.theme,
-            childAge: story.childAge,
+            childAge: story.childAge.getValue(),
             numberOfChapters: story.numberOfChapters,
             language: story.language,
             tone: story.tone,
             conclusion: story.conclusion,
-            coverImageUrl: story.coverImageUrl,
-            ownerId: story.ownerId,
-            isPublic: story.isPublic,
+            coverImageUrl: story.coverImageUrl.getValue(),
+            ownerId: story.ownerId.getValue(),
+            isPublic: story.isPublic(),
             publicationDate: story.publicationDate.toISOString(),
             chapters: story.chapters,
         }
