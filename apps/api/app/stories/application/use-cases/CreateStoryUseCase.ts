@@ -1,95 +1,123 @@
-import { StoryBuilder } from '#stories/domain/builders/story.builder'
-import { Story } from '#stories/domain/entities/story.entity'
-import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
-import { StoryId } from '#stories/domain/value-objects/ids/StoryId.vo'
 import { inject } from '@adonisjs/core'
+import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
 import { IDateService } from '#stories/domain/services/IDateService'
 import { IRandomService } from '#stories/domain/services/IRandomService'
 import { IStoryGenerationService } from '#stories/domain/services/IStoryGeneration'
 import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
 import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
 import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
+import type { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublisher'
+import { StoryFactory } from '#stories/domain/factories/StoryFactory'
+import { StoryCreatedEvent } from '#stories/domain/events/StoryCreatedEvent'
 import { ThemeId } from '#stories/domain/value-objects/ids/ThemeId.vo'
 import { LanguageId } from '#stories/domain/value-objects/ids/LanguageId.vo'
 import { ToneId } from '#stories/domain/value-objects/ids/ToneId.vo'
 
+/**
+ * Payload for creating a new story
+ */
 export interface CreateStoryPayload {
-    title: string
-    synopsis: string
-    theme: string
-    protagonist: string
-    childAge: number
-    numberOfChapters: number
-    language: string
-    tone: string
-    species: string
-    conclusion: string
-    coverImageUrl: string
-    ownerId: string
-    isPublic: boolean
+  title: string
+  synopsis: string
+  theme: string
+  protagonist: string
+  childAge: number
+  numberOfChapters: number
+  language: string
+  tone: string
+  species: string
+  conclusion: string
+  coverImageUrl: string
+  ownerId: string
+  isPublic: boolean
 }
 
-export interface CreateStoryPresenter {
-    id: string
+/**
+ * DTO returned after story creation
+ */
+export interface CreateStoryDTO {
+  id: string
+  slug: string
+  title: string
+  createdAt: Date
 }
 
+/**
+ * Create Story Use Case
+ *
+ * Orchestrates the creation of a new story:
+ * 1. Generates story content via AI service
+ * 2. Fetches theme, language, and tone settings
+ * 3. Creates story entity with chapters
+ * 4. Persists to repository
+ * 5. Publishes StoryCreatedEvent
+ */
 @inject()
 export class CreateStoryUseCase {
-    constructor(
-        private readonly storyRepository: IStoryRepository,
-        private readonly dateService: IDateService,
-        private readonly randomService: IRandomService,
-        private readonly storyGenerationService: IStoryGenerationService,
-        private readonly themeRepository: IThemeRepository,
-        private readonly languageRepository: ILanguageRepository,
-        private readonly toneRepository: IToneRepository,
-    ) { }
+  constructor(
+    private readonly storyRepository: IStoryRepository,
+    private readonly dateService: IDateService,
+    private readonly randomService: IRandomService,
+    private readonly storyGenerationService: IStoryGenerationService,
+    private readonly themeRepository: IThemeRepository,
+    private readonly languageRepository: ILanguageRepository,
+    private readonly toneRepository: IToneRepository,
+    private readonly eventPublisher: IDomainEventPublisher
+  ) {}
 
-    async execute(payload: CreateStoryPayload): Promise<CreateStoryPresenter> {
-        // Call the AI Service to generate the story
-        const generatedStory = await this.storyGenerationService.generateStory(payload)
+  async execute(payload: CreateStoryPayload): Promise<CreateStoryDTO> {
+    // 1. Generate story content via AI
+    const generatedStory = await this.storyGenerationService.generateStory(payload)
 
-        const [theme, language, tone] = await Promise.all([
-            this.themeRepository.findById(ThemeId.create(generatedStory.theme)),
-            this.languageRepository.findById(LanguageId.create(generatedStory.language)),
-            this.toneRepository.findById(ToneId.create(generatedStory.tone)),
-        ])
+    // 2. Fetch settings (theme, language, tone)
+    const [theme, language, tone] = await Promise.all([
+      this.themeRepository.findById(ThemeId.create(generatedStory.theme)),
+      this.languageRepository.findById(LanguageId.create(generatedStory.language)),
+      this.toneRepository.findById(ToneId.create(generatedStory.tone)),
+    ])
 
-        if (!theme || !language || !tone) {
-            throw new Error('Theme, language or tone not found')
-        }
-
-        if (generatedStory.chapters.length !== generatedStory.numberOfChapters) {
-            throw new Error('The number of chapters is not the same as the number of chapters generated')
-        }
-
-        // Create the story
-        const storyId = StoryId.generate(this.randomService)
-
-        const story = StoryBuilder.create(this.dateService)
-            .withId(storyId)
-            .withTitle(generatedStory.title)
-            .withSynopsis(generatedStory.synopsis)
-            .withProtagonist(generatedStory.protagonist)
-            .withChildAge(generatedStory.childAge)
-            .withLanguage(language)
-            .withTone(tone)
-            .withSpecies(generatedStory.species)
-            .withConclusion(generatedStory.conclusion)
-            .withCoverImageUrl(generatedStory.coverImageUrl)
-            .withOwnerId(generatedStory.ownerId)
-            .withIsPublic(generatedStory.isPublic)
-            .withPublicationDate()
-            .withTheme(theme)
-            .withChapters(generatedStory.chapters)
-            .build()
-        const createdStory = await this.storyRepository.create(story)
-        return this.createStoryPresenter(createdStory)
+    if (!theme || !language || !tone) {
+      throw new Error('Theme, language or tone not found')
     }
 
-    private createStoryPresenter(story: Story): CreateStoryPresenter {
-        return {
-            id: story.id.getValue(),
-        }
+    // 3. Validate generated chapters
+    if (generatedStory.chapters.length !== generatedStory.numberOfChapters) {
+      throw new Error(
+        `Expected ${generatedStory.numberOfChapters} chapters but received ${generatedStory.chapters.length}`
+      )
     }
+
+    // 4. Create story entity using factory (chapters are already entities from AI service)
+    const story = StoryFactory.create(this.dateService, this.randomService, {
+      title: generatedStory.title,
+      synopsis: generatedStory.synopsis,
+      protagonist: generatedStory.protagonist,
+      childAge: generatedStory.childAge,
+      species: generatedStory.species,
+      conclusion: generatedStory.conclusion,
+      coverImageUrl: generatedStory.coverImageUrl,
+      ownerId: generatedStory.ownerId,
+      isPublic: generatedStory.isPublic,
+      theme,
+      language,
+      tone,
+      chapters: generatedStory.chapters,
+    })
+
+    // 5. Persist story
+    await this.storyRepository.create(story)
+
+    // 6. Publish domain event
+    await this.eventPublisher.publish(
+      StoryCreatedEvent.create(story.id, story.ownerId, story.slug, story.title)
+    )
+
+    // 7. Return DTO
+    return {
+      id: story.id.getValue(),
+      slug: story.slug.getValue(),
+      title: story.title,
+      createdAt: story.publicationDate.getValue(),
+    }
+  }
 }

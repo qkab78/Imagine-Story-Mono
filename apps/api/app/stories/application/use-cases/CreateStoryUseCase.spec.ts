@@ -21,6 +21,12 @@ import { Tone } from "#stories/domain/value-objects/settings/Tone.vo";
 import { ChapterFactory } from "#stories/domain/factories/ChapterFactory";
 import { ImageUrl } from "#stories/domain/value-objects/media/ImageUrl.vo";
 import { StoryId } from "#stories/domain/value-objects/ids/StoryId.vo";
+import type { IDomainEventPublisher } from "#stories/domain/events/IDomainEventPublisher";
+import type { DomainEvent } from "#stories/domain/events/DomainEvent";
+import { StoryId as StoryIdVO } from "#stories/domain/value-objects/ids/StoryId.vo";
+import { Slug } from "#stories/domain/value-objects/metadata/Slug.vo";
+import { OwnerId } from "#stories/domain/value-objects/ids/OwnerId.vo";
+import type { StoryFilters, PaginationParams, PaginatedResult } from "#stories/application/use-cases/story/ListPublicStoriesUseCase";
 
 
 test.group(CreateStoryUseCase.name, () => {
@@ -36,15 +42,33 @@ test.group(CreateStoryUseCase.name, () => {
     }
     class TestStoryRepository implements IStoryRepository {
         public readonly stories: Story[] = []
-        findById(_id: string): Promise<Story> {
+        findById(_id: StoryIdVO | string): Promise<Story | null> {
             throw new Error("Method not implemented.")
         }
-        findAll(_limit?: number, _offset?: number): Promise<{ stories: Story[]; total: number }> {
+        findBySlug(_slug: Slug): Promise<Story | null> {
+            throw new Error("Method not implemented.")
+        }
+        findByOwnerId(_ownerId: OwnerId, _pagination: PaginationParams): Promise<PaginatedResult<Story>> {
+            throw new Error("Method not implemented.")
+        }
+        findPublicStories(_filters: StoryFilters, _pagination: PaginationParams): Promise<PaginatedResult<Story>> {
+            throw new Error("Method not implemented.")
+        }
+        existsBySlug(_slug: Slug, _excludeId?: StoryIdVO): Promise<boolean> {
             throw new Error("Method not implemented.")
         }
         create(story: Story): Promise<Story> {
             this.stories.push(story)
             return Promise.resolve(story)
+        }
+        save(_story: Story): Promise<void> {
+            throw new Error("Method not implemented.")
+        }
+        delete(_id: StoryIdVO): Promise<void> {
+            throw new Error("Method not implemented.")
+        }
+        findAll(_limit?: number, _offset?: number): Promise<{ stories: Story[]; total: number }> {
+            throw new Error("Method not implemented.")
         }
     }
     class TestStoryGenerationService implements IStoryGenerationService {
@@ -126,6 +150,15 @@ test.group(CreateStoryUseCase.name, () => {
             return Promise.resolve([Tone.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the tone', 'The description of the tone')])
         }
     }
+    class TestEventPublisher implements IDomainEventPublisher {
+        public readonly events: DomainEvent[] = []
+        async publish(event: DomainEvent): Promise<void> {
+            this.events.push(event)
+        }
+        async publishMany(events: DomainEvent[]): Promise<void> {
+            this.events.push(...events)
+        }
+    }
     test('should create a story', async ({ assert }) => {
         const storyRepository = new TestStoryRepository()
         const dateService = new TestDateService()
@@ -134,6 +167,7 @@ test.group(CreateStoryUseCase.name, () => {
         const themeRepository = new TestThemeRepository()
         const languageRepository = new TestLanguageRepository()
         const toneRepository = new TestToneRepository()
+        const eventPublisher = new TestEventPublisher()
         const createStoryUseCase = new CreateStoryUseCase(
             storyRepository,
             dateService,
@@ -141,7 +175,8 @@ test.group(CreateStoryUseCase.name, () => {
             storyGenerationService,
             themeRepository,
             languageRepository,
-            toneRepository
+            toneRepository,
+            eventPublisher
         )
         const payload: CreateStoryPayload = {
             title: 'The title of the story',
@@ -162,5 +197,7 @@ test.group(CreateStoryUseCase.name, () => {
         assert.isDefined(presenter)
         assert.equal(presenter.id, StoryId.create('1720955b-4474-4a1d-bf99-3907a000ba65').getValue())
         assert.equal(storyRepository.stories.length, 1)
+        assert.equal(eventPublisher.events.length, 1)
+        assert.equal(eventPublisher.events[0].eventName, 'story.created')
     })
 })
