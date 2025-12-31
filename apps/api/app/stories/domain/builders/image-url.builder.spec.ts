@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import { ImageUrlBuilder } from './chapter-image.builder.js'
+import { ImageUrlBuilder } from './image-url.builder.js'
 
 test.group(ImageUrlBuilder.name, () => {
     test('should create a chapter image builder', async ({ assert }) => {
