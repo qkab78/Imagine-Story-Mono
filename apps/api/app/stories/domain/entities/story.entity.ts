@@ -178,8 +178,8 @@ export class Story {
   /**
    * Get all chapters
    */
-  public get chapters(): readonly Chapter[] {
-    return this._chapters
+  public get chapters(): Chapter[] {
+    return [...this._chapters]
   }
 
   /**
@@ -297,7 +297,7 @@ export class Story {
   /**
    * Get all chapters
    */
-  public getAllChapters(): readonly Chapter[] {
-    return this._chapters
+  public getAllChapters(): Chapter[] {
+    return [...this._chapters]
   }
 }
