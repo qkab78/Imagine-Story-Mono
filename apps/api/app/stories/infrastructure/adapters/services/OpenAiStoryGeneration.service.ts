@@ -1,29 +1,28 @@
 import { inject } from '@adonisjs/core'
 import string from '@adonisjs/core/helpers/string'
-import { IStoryGenerationService, StoryChapterImagesPayload, StoryCharacterPayload, StoryCharacterProfilesPayload, StoryCharacterReferencePayload, StoryGenerationPayload, StoryImagePayload } from "#stories/domain/services/IStoryGeneration";
+import { IStoryGenerationService, StoryGenerationPayload } from "#stories/domain/services/IStoryGeneration";
 import { StoryGenerated } from "#stories/domain/services/types/StoryGenerated";
-import { ImageUrl } from "#stories/domain/value-objects/media/ImageUrl.vo";
-import { IStorageService } from '#stories/domain/services/IStorageService';
+import { IStoryImageGenerationService } from '#stories/domain/services/IStoryImageGenerationService';
 import { ChapterFactory } from '#stories/domain/factories/ChapterFactory';
+import type { ImageGenerationContext, ChapterContent, CharacterReferenceResult } from '#stories/domain/services/types/ImageGenerationTypes';
 import OpenAI from 'openai'
 import env from '#start/env'
 import { ALLOWED_LANGUAGES } from '#stories/constants/allowed_languages'
 import { LOCALES } from '#stories/constants/locales'
 
 /**
- * Service de génération d'histoires utilisant OpenAI pour le texte et Leonardo AI pour les images
+ * Service de génération d'histoires utilisant OpenAI pour le texte et un provider d'images
  *
  * Architecture:
  * - Génération de texte: OpenAI GPT
- * - Génération d'images: Leonardo AI avec support init images pour cohérence des personnages
- * - Storage: IStorageService (MinIO ou Local)
+ * - Génération d'images: Provider injectable (Leonardo AI, Gemini, etc.)
  */
 @inject()
 export class OpenAiStoryGenerationService implements IStoryGenerationService {
     private readonly openai: OpenAI
 
     constructor(
-        private readonly storageService: IStorageService
+        private readonly imageGenerationService: IStoryImageGenerationService
     ) {
         this.openai = new OpenAI({ apiKey: env.get('OPENAI_API_KEY') })
     }
@@ -112,27 +111,15 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
      *
      * Flux:
      * 1. Générer le contenu texte de l'histoire (OpenAI)
-     * 2. Générer la character reference sheet (Leonardo AI)
-     * 3. Upload character reference vers Leonardo AI pour obtenir initImageId
-     * 4. Générer cover image avec init image (Leonardo AI)
-     * 5. Générer chapter images avec init image (Leonardo AI)
+     * 2. Générer la character reference sheet (Image Provider)
+     * 3. Générer cover image avec character reference
+     * 4. Générer chapter images avec character reference
      */
     async generateStory(payload: StoryGenerationPayload): Promise<StoryGenerated> {
-        console.log('🎬 Début de la génération d\'histoire complète avec cohérence visuelle...')
+        console.log(`🎬 Début de la génération d'histoire complète avec ${this.imageGenerationService.getProviderName()}...`)
         const startTime = Date.now()
 
         try {
-            // Import dynamique des fonctions de leonardo_ai_service
-            const {
-                generateCharacterSeed,
-                createCharacterReference,
-                uploadCharacterReference,
-                generateCoverImageWithLeonardo,
-                generateChapterImagesWithLeonardo
-            } = await import('#stories/services/leonardo_ai_service')
-
-            const { generateCharacterProfiles } = await import('#stories/helpers/characters_helper')
-
             const slug = string.slug(payload.title, { lower: true, trim: true })
 
             // ÉTAPE 1: Générer le contenu texte de l'histoire via OpenAI
@@ -152,8 +139,8 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
             }
             console.log(`📖 ${storyTextJson.chapters.length} chapitre(s) généré(s)`)
 
-            // Créer le contexte de génération
-            const storyContext = {
+            // Créer le contexte de génération d'images
+            const imageContext: ImageGenerationContext = {
                 title: storyTextJson.title || payload.title,
                 synopsis: storyTextJson.synopsis || payload.synopsis,
                 theme: payload.theme,
@@ -163,79 +150,54 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
                 language: payload.language,
                 tone: payload.tone,
                 species: payload.species,
+                slug,
             }
 
-            // ÉTAPE 2: Générer le character seed (déterministe)
-            const characterSeed = generateCharacterSeed(storyContext)
-            console.log(`🎲 Character seed généré: ${characterSeed}`)
-
-            // ÉTAPE 3: Générer la character reference sheet
+            // ÉTAPE 2: Générer la character reference (si le provider supporte)
+            let characterReference: CharacterReferenceResult | undefined = undefined
             const referenceStartTime = Date.now()
-            console.log('🎨 Génération de la character reference sheet (Leonardo AI)...')
-
-            let initImageId: string | undefined
-            let referenceImagePath: string | null = null
+            console.log('🎨 Génération de la character reference sheet...')
 
             try {
-                referenceImagePath = await createCharacterReference(storyContext, slug, characterSeed)
-                console.log(`✅ Character reference créée: ${referenceImagePath}`)
-
-                // ÉTAPE 4: Upload vers Leonardo AI pour obtenir initImageId
-                if (referenceImagePath) {
-                    const referenceImageUrl = await this.storageService.getUrl(referenceImagePath)
-                    initImageId = await uploadCharacterReference(referenceImageUrl, storyContext.protagonist)
-
-                    const referenceEndTime = Date.now()
-                    console.log(`✅ Init image ID obtenu: ${initImageId} (${((referenceEndTime - referenceStartTime) / 1000).toFixed(2)}s)`)
-                }
+                characterReference = await this.imageGenerationService.createCharacterReference(imageContext)
+                const referenceEndTime = Date.now()
+                console.log(`✅ Character reference créée en ${((referenceEndTime - referenceStartTime) / 1000).toFixed(2)}s`)
             } catch (error: any) {
-                console.warn('⚠️ Échec upload character reference, fallback vers text-to-image:', error.message)
-                initImageId = undefined
+                console.warn('⚠️ Échec création character reference, fallback vers text-to-image:', error.message)
+                characterReference = undefined
             }
 
-            // ÉTAPE 5: Générer cover image et profils de personnages en parallèle
+            // ÉTAPE 3: Générer cover image
             const parallelStartTime = Date.now()
-            console.log('🚀 Génération parallèle: cover image + character profiles...')
-
-            const [coverImagePath, charactersResponse] = await Promise.allSettled([
-                // Cover image avec init image pour cohérence
-                generateCoverImageWithLeonardo({ ...storyContext, slug }, initImageId),
-                // Profils de personnages
-                generateCharacterProfiles(storyContext, storyTextJson).catch((error) => {
-                    console.error('❌ Erreur génération character profiles:', error)
-                    return { characters: [] }
-                }),
-            ])
-
-            if (coverImagePath.status === 'rejected') {
-                throw new Error('Échec génération cover image: ' + coverImagePath.reason)
-            }
-
-            const finalCoverImagePath = coverImagePath.value
-            if (!finalCoverImagePath) {
+            console.log('🚀 Génération cover image...')
+            const coverImagePath = await this.imageGenerationService.generateCoverImage(imageContext, characterReference)
+            if (!coverImagePath) {
                 throw new Error('Cover image path est null')
             }
-
             const parallelEndTime = Date.now()
-            console.log(`✅ Cover + profiles générés en ${((parallelEndTime - parallelStartTime) / 1000).toFixed(2)}s`)
+            console.log(`✅ Cover image générée en ${((parallelEndTime - parallelStartTime) / 1000).toFixed(2)}s`)
 
-            // ÉTAPE 6: Générer les images des chapitres avec init image
+            // ÉTAPE 4: Générer les images des chapitres avec character reference
             const chaptersStartTime = Date.now()
-            console.log('🎨 Génération des images de chapitres avec init image...')
+            console.log('🎨 Génération des images de chapitres...')
 
-            const chapterImagesResponse = await generateChapterImagesWithLeonardo(
-                storyContext,
-                storyTextJson.chapters,
-                slug,
-                referenceImagePath,
-                characterSeed,
-                initImageId // PASSER l'init image ID pour cohérence
+            // Préparer les chapitres pour la génération d'images
+            const chapterContents: ChapterContent[] = storyTextJson.chapters.map((chapter: any, index: number) => ({
+                title: chapter.title,
+                content: chapter.content,
+                index,
+            }))
+
+            const chapterImagesResponse = await this.imageGenerationService.generateChapterImages(
+                imageContext,
+                chapterContents,
+                characterReference
             )
 
             const chaptersEndTime = Date.now()
             console.log(`✅ ${chapterImagesResponse.metadata.successfulGeneration}/${storyTextJson.chapters.length} images de chapitres générées en ${((chaptersEndTime - chaptersStartTime) / 1000).toFixed(2)}s`)
 
-            // ÉTAPE 7: Construire le résultat StoryGenerated
+            // ÉTAPE 5: Construire le résultat StoryGenerated
             // Créer les Chapter entities avec ChapterFactory
             const chapterEntities = storyTextJson.chapters.map((chapter: any, index: number) => {
                 const chapterImage = chapterImagesResponse.images.find(img => img.chapterIndex === index)
@@ -250,13 +212,13 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
             const endTime = Date.now()
             const totalTime = ((endTime - startTime) / 1000).toFixed(2)
             console.log(`🎉 Histoire complète générée avec succès en ${totalTime}s`)
-            console.log(`📊 Résumé: ${initImageId ? '✅ Init images utilisées' : '⚠️ Text-to-image fallback'}`)
+            console.log(`📊 Résumé: ${characterReference?.referenceId ? '✅ Character reference utilisée' : '⚠️ Text-to-image sans référence'}`)
 
             return {
-                title: storyContext.title,
-                synopsis: storyContext.synopsis,
+                title: imageContext.title,
+                synopsis: imageContext.synopsis,
                 theme: payload.theme,
-                protagonist: storyContext.protagonist,
+                protagonist: imageContext.protagonist,
                 childAge: payload.childAge,
                 numberOfChapters: payload.numberOfChapters,
                 language: payload.language,
@@ -265,7 +227,7 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
                 conclusion: storyTextJson.conclusion || '',
                 slug,
                 chapters: chapterEntities,
-                coverImageUrl: finalCoverImagePath,
+                coverImageUrl: coverImagePath,
                 ownerId: payload.ownerId,
                 isPublic: payload.isPublic,
             }
@@ -273,126 +235,5 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
             console.error('💥 Erreur lors de la génération de l\'histoire:', error)
             throw new Error(`Story generation failed: ${error.message}`)
         }
-    }
-
-    async generateImage(payload: StoryImagePayload): Promise<ImageUrl> {
-        console.log('🖼️ Génération d\'image de couverture...')
-
-        const { generateCoverImageWithLeonardo } = await import('#stories/services/leonardo_ai_service')
-
-        const imagePath = await generateCoverImageWithLeonardo({
-            title: payload.title,
-            synopsis: payload.synopsis,
-            theme: payload.theme,
-            childAge: payload.childAge,
-            protagonist: payload.protagonist,
-            species: payload.species,
-            numberOfChapters: 5, // Default
-            language: 'en',
-            tone: 'friendly',
-            slug: payload.slug,
-        })
-
-        if (!imagePath) {
-            throw new Error('Failed to generate cover image')
-        }
-
-        return ImageUrl.create(imagePath)
-    }
-
-    async generateCharacter(payload: StoryCharacterPayload): Promise<string> {
-        console.log('👤 Génération d\'image de personnage...')
-
-        // Pour l'instant, on utilise la même méthode que la cover image
-        // TODO: Créer une méthode spécifique pour les personnages
-        const { generateCoverImageWithLeonardo } = await import('#stories/services/leonardo_ai_service')
-
-        const imagePath = await generateCoverImageWithLeonardo({
-            title: payload.title,
-            synopsis: payload.synopsis,
-            theme: payload.theme,
-            childAge: payload.childAge,
-            protagonist: payload.protagonist,
-            species: payload.species,
-            numberOfChapters: 5,
-            language: 'en',
-            tone: 'friendly',
-            slug: payload.slug,
-        })
-
-        if (!imagePath) {
-            throw new Error('Failed to generate character image')
-        }
-
-        return imagePath
-    }
-
-    async generateChapterImages(payload: StoryChapterImagesPayload): Promise<ImageUrl[]> {
-        console.log('📚 Génération d\'images de chapitres...')
-
-        const { generateChapterImages } = await import('#stories/helpers/chapter_images_helper')
-
-        // Note: Cette méthode ne supporte pas encore init images
-        // Pour utiliser init images, il faut passer par generateStory()
-        const chapterImagesResponse = await generateChapterImages(
-            {
-                title: payload.title,
-                synopsis: payload.synopsis,
-                theme: payload.theme,
-                childAge: payload.childAge,
-                protagonist: payload.protagonist,
-                species: payload.species,
-                numberOfChapters: 5,
-                language: 'en',
-                tone: 'friendly',
-            },
-            [], // chapters
-            payload.slug
-        )
-
-        return chapterImagesResponse.images.map(img => ImageUrl.create(img.imageUrl))
-    }
-
-    async generateCharacterReference(payload: StoryCharacterReferencePayload): Promise<string> {
-        console.log('🎨 Génération de character reference sheet...')
-
-        const { createCharacterReference } = await import('#stories/services/leonardo_ai_service')
-
-        const referenceImagePath = await createCharacterReference(
-            {
-                title: payload.story,
-                synopsis: '',
-                theme: '',
-                protagonist: '',
-                childAge: 5,
-                numberOfChapters: 5,
-                language: 'en',
-                tone: 'friendly',
-                species: '',
-            },
-            payload.slug,
-            payload.characterSeed
-        )
-
-        if (!referenceImagePath) {
-            throw new Error('Failed to generate character reference')
-        }
-
-        return referenceImagePath
-    }
-
-    async generateCharacterProfiles(payload: StoryCharacterProfilesPayload): Promise<Record<string, any>[]> {
-        console.log('👥 Génération de profils de personnages...')
-
-        const { generateCharacterProfiles } = await import('#stories/helpers/characters_helper')
-
-        const response = await generateCharacterProfiles(
-            payload.storyContent,
-            {
-                chapters: payload.chapters,
-            }
-        )
-
-        return response.characters || []
     }
 }

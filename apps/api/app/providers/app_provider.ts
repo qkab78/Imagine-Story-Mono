@@ -5,6 +5,7 @@ import { IDateService } from '#stories/domain/services/IDateService'
 import { IRandomService } from '#stories/domain/services/IRandomService'
 import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
 import { IStoryGenerationService } from '#stories/domain/services/IStoryGeneration'
+import { IStoryImageGenerationService } from '#stories/domain/services/IStoryImageGenerationService'
 import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
 import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
 import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
@@ -29,6 +30,7 @@ export default class AppProvider {
     const { RandomService } = await import('#stories/infrastructure/adapters/services/random.service')
     const { KyselyStoryRepository } = await import('#stories/infrastructure/adapters/repositories/KyselyStoryRepository')
     const { OpenAiStoryGenerationService } = await import('#stories/infrastructure/adapters/services/OpenAiStoryGeneration.service')
+    const { LeonardoAiImageGenerationService } = await import('#stories/infrastructure/adapters/services/LeonardoAiImageGenerationService')
     const { KyselyThemeRepository } = await import('#stories/infrastructure/adapters/repositories/KyselyThemeRepository')
     const { KyselyLanguageRepository } = await import('#stories/infrastructure/adapters/repositories/KyselyLanguageRepository')
     const { InMemoryEventPublisher } = await import('#stories/infrastructure/adapters/events/InMemoryEventPublisher')
@@ -49,6 +51,11 @@ export default class AppProvider {
         return new LocalStorageService()
       })
     }
+
+    // Image generation service binding (Leonardo AI par défaut)
+    this.app.container.singleton(IStoryImageGenerationService, () => {
+      return this.app.container.make(LeonardoAiImageGenerationService)
+    })
 
     this.app.container.singleton(PaymentService, () => {
       return new LemonSqueezyPaymentService()

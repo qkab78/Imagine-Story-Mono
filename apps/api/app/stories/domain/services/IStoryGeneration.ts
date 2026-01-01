@@ -4,11 +4,11 @@ import { StoryGenerated } from "./types/StoryGenerated.js";
 
 export abstract class IStoryGenerationService {
     abstract generateStory(payload: StoryGenerationPayload): Promise<StoryGenerated>;
-    abstract generateImage(payload: StoryImagePayload): Promise<ImageUrl>;
-    abstract generateCharacterReference(payload: StoryCharacterReferencePayload): Promise<string>;
-    abstract generateCharacter(payload: StoryCharacterPayload): Promise<string>;
-    abstract generateChapterImages(payload: StoryChapterImagesPayload): Promise<ImageUrl[]>;
-    abstract generateCharacterProfiles(payload: StoryCharacterProfilesPayload): Promise<Record<string, any>[]>;
+    abstract generateImage?(payload: StoryImagePayload): Promise<ImageUrl>;
+    abstract generateCharacterReference?(payload: StoryCharacterReferencePayload): Promise<string>;
+    abstract generateCharacter?(payload: StoryCharacterPayload): Promise<string>;
+    abstract generateChapterImages?(payload: StoryChapterImagesPayload): Promise<ImageUrl[]>;
+    abstract generateCharacterProfiles?(payload: StoryCharacterProfilesPayload): Promise<Record<string, any>[]>;
 }
 
 export interface StoryGenerationPayload {
