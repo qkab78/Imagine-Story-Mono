@@ -21,6 +21,8 @@ export interface StoryGenerationPayload {
     language: string;
     tone: string;
     species: string;
+    ownerId: string;
+    isPublic: boolean;
 }
 
 export interface StoryImagePayload {

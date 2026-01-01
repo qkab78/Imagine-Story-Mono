@@ -105,7 +105,6 @@ router
     router.get('/', [StoriesController, 'getStories'])
     router.get('/all/latest', [StoriesController, 'getLatestStories'])
     router.get('/slug/:slug', [StoriesController, 'getStoryBySlug'])
-    // router.get('/:id', [StoriesController, 'getStoryById'])
     router.get('/:id', [StoriesControllerPresenter, 'getStoryById'])
     router.get('/search/suggestions', [StoriesController, 'getSuggestedStories'])
     router.get('/all/themes', [StoriesController, 'getThemes'])
@@ -114,13 +113,7 @@ router
     router
       .group(() => {
         router.get('/users/me/stories', [StoriesController, 'getStoriesByAuthenticatedUserId'])
-        router.post('/', [StoriesController, 'createStory'])
-
-        // Routes pour les personnages
-        // router.get('/:id/characters', [CharactersController, 'getCharactersByStoryId'])
-        // router.get('/characters/:id', [CharactersController, 'getCharacterById'])
-        // router.put('/characters/:id', [CharactersController, 'updateCharacter'])
-        // router.delete('/characters/:id', [CharactersController, 'deleteCharacter'])
+        router.post('/', [StoriesControllerPresenter, 'createStory'])
       })
       .middleware(middleware.auth())
   })
