@@ -78,6 +78,7 @@
     "@adonisjs/drive-s3": "^1.3.3",
     "@adonisjs/lucid": "^21.6.1",
     "@adonisjs/mail": "^9.2.2",
+    "@google/genai": "^1.34.0",
     "@kitajs/html": "^4.2.9",
     "@kitajs/ts-html-plugin": "^4.1.1",
     "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
