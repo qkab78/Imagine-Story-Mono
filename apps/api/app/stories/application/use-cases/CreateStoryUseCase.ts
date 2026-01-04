@@ -12,6 +12,7 @@ import { StoryCreatedEvent } from '#stories/domain/events/StoryCreatedEvent'
 import { ThemeId } from '#stories/domain/value-objects/ids/ThemeId.vo'
 import { LanguageId } from '#stories/domain/value-objects/ids/LanguageId.vo'
 import { ToneId } from '#stories/domain/value-objects/ids/ToneId.vo'
+import { GenerationStatus } from '#stories/domain/value-objects/metadata/GenerationStatus.vo'
 
 /**
  * Payload for creating a new story
@@ -82,6 +83,7 @@ export class CreateStoryUseCase {
       theme: theme.name,
       language: language.name,
       tone: tone.name,
+      status: GenerationStatus.processing(),
     })
 
     // 3. Validate generated chapters

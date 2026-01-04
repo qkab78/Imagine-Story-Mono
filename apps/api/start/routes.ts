@@ -106,6 +106,7 @@ router
     router.get('/all/latest', [StoriesController, 'getLatestStories'])
     router.get('/slug/:slug', [StoriesController, 'getStoryBySlug'])
     router.get('/:id', [StoriesControllerPresenter, 'getStoryById'])
+    router.get('/:id/status', [StoriesControllerPresenter, 'getGenerationStatus'])
     router.get('/search/suggestions', [StoriesController, 'getSuggestedStories'])
     router.get('/all/themes', [StoriesController, 'getThemes'])
     router.get('/all/tones', [StoriesController, 'getTones'])

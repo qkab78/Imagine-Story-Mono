@@ -1,6 +1,7 @@
 
 import { ImageUrl } from "../value-objects/media/ImageUrl.vo.js";
 import { StoryGenerated } from "./types/StoryGenerated.js";
+import { GenerationStatus } from "../value-objects/metadata/GenerationStatus.vo.js";
 
 export abstract class IStoryGenerationService {
     abstract generateStory(payload: StoryGenerationPayload): Promise<StoryGenerated>;
@@ -23,6 +24,7 @@ export interface StoryGenerationPayload {
     species: string;
     ownerId: string;
     isPublic: boolean;
+    status: GenerationStatus;
 }
 
 export interface StoryImagePayload {

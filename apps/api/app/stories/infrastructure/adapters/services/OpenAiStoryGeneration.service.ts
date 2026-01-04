@@ -28,6 +28,31 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
     }
 
     /**
+     * Nettoie et extrait le JSON de la réponse OpenAI
+     * Gère les cas où OpenAI retourne du markdown ou du texte supplémentaire
+     */
+    private extractJsonFromResponse(text: string): string {
+        // Nettoyer le texte
+        let cleaned = text.trim()
+
+        // Retirer les blocs markdown ```json ... ``` ou ``` ... ```
+        const jsonBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+        if (jsonBlockMatch) {
+            cleaned = jsonBlockMatch[1].trim()
+        }
+
+        // Chercher le premier { et dernier } pour extraire le JSON
+        const firstBrace = cleaned.indexOf('{')
+        const lastBrace = cleaned.lastIndexOf('}')
+
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            cleaned = cleaned.substring(firstBrace, lastBrace + 1)
+        }
+
+        return cleaned
+    }
+
+    /**
      * Génère le contenu texte de l'histoire via OpenAI GPT
      * @private
      */
@@ -35,73 +60,66 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
         const { synopsis, theme, childAge, numberOfChapters, language, protagonist, tone, species } = payload
         const locale = LOCALES[language?.toUpperCase() as keyof typeof LOCALES] || LOCALES.ENGLISH
 
-        const prompt = `
-            You are the best children's storyteller in the world.
-
-            Write an original story for a ${childAge}-year-old child.
-            The story must be divided into exactly ${numberOfChapters} chapters, each with a clear title.
-            It should tell a complete and engaging story, with a beginning, middle, and a **clear ending**.
-
-            The main character is named ${protagonist}, a relatable ${species} of ${childAge} years old.
-            ${synopsis ? `Here is the basic synopsis: "${synopsis}".` : ''}
-            The main theme is: ${theme}.
-
-            The tone of the story is: ${tone}.
-
-            Use simple, vivid, age-appropriate language filled with adventure and imagination.
-            Each chapter should be **around 300-600 words**.
-            At the end of the last chapter, **write a proper conclusion** that wraps up the story, solves the main plot, or delivers a gentle lesson.
-            **Make sure the final chapter ends the story completely, with no cliffhanger.**
-            If the story is too long to fit, **shorten chapters if needed but always include the full ending.**
-            Write the entire story in ${language} (even the title and the conclusion).
-
-            I need you to return the story in the following JSON format:
-            {
-            "title": "The title of the story",
-            "synopsis": "The synopsis of the story",
-            "theme": "The theme of the story",
-            "protagonist": "The protagonist of the story",
-            "childAge": "The age of the protagonist",
-            "numberOfChapters": "The number of chapters in the story",
-            "language": "The language of the story",
-            "tone": "The tone of the story",
-            "species": "The species of the protagonist",
-            "slug": "The slug of the story",
-            "chapters": [
-                {
-                "title": "The title of the chapter",
-                "content": "The content of the chapter"
-                }
-            ],
-            "conclusion": "The conclusion of the story"
-            }
-        `
         const response = await this.openai.chat.completions.create({
-            model: 'gpt-4',
+            model: 'gpt-4o',
+            max_tokens: 16000,
+            temperature: 0.8,
             messages: [
                 {
                     role: 'system',
-                    content: `
-        You are the best children's storyteller in the world. You are writing a story for a child of ${childAge} years old.
-        You are writing in ${language} and the tone of the story is ${tone}.
-        You know all of those languages: ${Object.values(ALLOWED_LANGUAGES).join(', ')}.
-        Generate a title for the story.
-        Generate a slug in ${locale} from the title of the story.`,
+                    content: `You are a children's storyteller. Write complete stories in ${language} for ${childAge}-year-old children.
+IMPORTANT: You MUST write ALL ${numberOfChapters} chapters with full content (300-600 words each).
+Generate a title and slug (lowercase, ASCII only, no accents) for the story.
+Return ONLY valid JSON. No markdown, no code blocks, no explanations.`,
                 },
                 {
                     role: 'user',
-                    content: `
-          CRITICAL: You MUST return ONLY valid JSON. No explanations, no
-          markdown, no additional text.
+                    content: `Write a complete ${numberOfChapters}-chapter story for ${protagonist}, a ${childAge}-year-old ${species}.
 
-          Format EXACTLY like this:
-          {"title":"...","synopsis":"...","theme":"...","protagonist":"...","childAge":${childAge},"numberOfChapters":${numberOfChapters},"language":"${language}","tone":"${tone}","species":"${species}","slug":"...","chapters":[{"title":"...","content":"..."}],"conclusion":"..."}
-          Write an original story for a ${childAge}-year-old child...
-          ${prompt}
-          RETURN ONLY THE JSON OBJECT. NO OTHER TEXT.`,
+${synopsis ? `Synopsis: ${synopsis}` : ''}
+Theme: ${theme}
+Tone: ${tone}
+
+CRITICAL REQUIREMENTS:
+1. Write EXACTLY ${numberOfChapters} chapters
+2. Each chapter MUST have 300-600 words of actual story content
+3. Write in ${language}
+4. Include a conclusion at the end
+5. Slug must be lowercase ASCII (no accents: é→e, à→a, etc.)
+
+Return ONLY this JSON structure:
+{
+  "title": "Story title in ${language}",
+  "synopsis": "Brief summary",
+  "theme": "${theme}",
+  "protagonist": "${protagonist}",
+  "childAge": ${childAge},
+  "numberOfChapters": ${numberOfChapters},
+  "language": "${language}",
+  "tone": "${tone}",
+  "species": "${species}",
+  "slug": "lowercase-ascii-slug",
+  "chapters": [
+    {
+      "title": "Chapter 1 title",
+      "content": "Full chapter content here (300-600 words)..."
+    }
+  ],
+  "conclusion": "Story conclusion"
+}
+
+Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
                 },
             ],
         })
+
+        // Log de debug pour vérifier si la réponse a été tronquée
+        console.log('🔍 OpenAI finish_reason:', response.choices[0].finish_reason)
+        console.log('🔍 OpenAI usage:', JSON.stringify(response.usage))
+
+        if (response.choices[0].finish_reason === 'length') {
+            console.warn('⚠️ La réponse OpenAI a été tronquée (finish_reason: length). La réponse est incomplète.')
+        }
 
         return response.choices[0].message.content?.trim() || ''
     }
@@ -128,16 +146,47 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
 
             const storyText = await this.generateStoryText(payload)
 
-            const storyTextJson = JSON.parse(storyText) as any
+            // Log la réponse brute pour debug
+            console.log('📄 Longueur de la réponse OpenAI:', storyText.length, 'caractères')
+            console.log('📄 Réponse OpenAI brute (premiers 1000 chars):', storyText.substring(0, 1000))
+            console.log('📄 Réponse OpenAI brute (derniers 500 chars):', storyText.substring(storyText.length - 500))
+
+            // Nettoyer et extraire le JSON
+            let cleanedJson: string
+            try {
+                cleanedJson = this.extractJsonFromResponse(storyText)
+            } catch (error: any) {
+                console.error('❌ Erreur lors du nettoyage de la réponse:', error)
+                console.error('📄 Réponse complète:', storyText)
+                throw new Error(`Impossible d'extraire le JSON de la réponse OpenAI: ${error.message}`)
+            }
+
+            // Parser le JSON avec gestion d'erreur
+            let storyTextJson: any
+            try {
+                storyTextJson = JSON.parse(cleanedJson)
+            } catch (parseError: any) {
+                console.error('❌ Erreur de parsing JSON:', parseError.message)
+                console.error('📄 JSON nettoyé:', cleanedJson)
+                throw new Error(`Le JSON retourné par OpenAI est invalide: ${parseError.message}`)
+            }
+
             const storyEndTime = Date.now()
             console.log(`✅ Texte généré en ${((storyEndTime - storyStartTime) / 1000).toFixed(2)}s`)
 
-            // Vérifier que les chapitres existent
+            // Vérifier que les chapitres existent AVANT d'y accéder
             if (!storyTextJson.chapters || !Array.isArray(storyTextJson.chapters)) {
                 console.error('❌ Structure de la réponse OpenAI invalide:', JSON.stringify(storyTextJson, null, 2))
                 throw new Error('La réponse OpenAI ne contient pas de chapitres valides')
             }
+
+            // Vérifier que le nombre de chapitres correspond
+            if (storyTextJson.chapters.length !== payload.numberOfChapters) {
+                console.warn(`⚠️ Nombre de chapitres incorrect: attendu ${payload.numberOfChapters}, reçu ${storyTextJson.chapters.length}`)
+            }
+
             console.log(`📖 ${storyTextJson.chapters.length} chapitre(s) généré(s)`)
+            console.log('📄 Structure JSON complète:', JSON.stringify(storyTextJson, null, 2))
 
             // Créer le contexte de génération d'images
             const imageContext: ImageGenerationContext = {

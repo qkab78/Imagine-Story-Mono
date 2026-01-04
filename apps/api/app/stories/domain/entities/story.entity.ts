@@ -9,7 +9,9 @@ import type { ChildAge } from '../value-objects/metadata/ChildAge.vo.js'
 import type { ImageUrl } from '../value-objects/media/ImageUrl.vo.js'
 import type { PublicationDate } from '../value-objects/metadata/PublicationDate.vo.js'
 import { PublicationStatus } from '../value-objects/metadata/PublicationStatus.vo.js'
+import { GenerationStatus } from '../value-objects/metadata/GenerationStatus.vo.js'
 import { DomainException } from '../exceptions/DomainException.js'
+import { InvariantViolationException } from '../exceptions/InvariantViolationException.js'
 
 /**
  * Story Entity - Aggregate Root
@@ -34,14 +36,14 @@ import { DomainException } from '../exceptions/DomainException.js'
 export class Story {
   private static readonly MIN_TITLE_LENGTH = 1
   private static readonly MAX_TITLE_LENGTH = 100
-  private static readonly MIN_SYNOPSIS_LENGTH = 1
-  private static readonly MAX_SYNOPSIS_LENGTH = 500
+  // private static readonly MIN_SYNOPSIS_LENGTH = 1
+  // private static readonly MAX_SYNOPSIS_LENGTH = 500
   private static readonly MIN_PROTAGONIST_LENGTH = 1
   private static readonly MAX_PROTAGONIST_LENGTH = 50
   private static readonly MIN_SPECIES_LENGTH = 1
   private static readonly MAX_SPECIES_LENGTH = 50
-  private static readonly MIN_CONCLUSION_LENGTH = 1
-  private static readonly MAX_CONCLUSION_LENGTH = 1000
+  // private static readonly MIN_CONCLUSION_LENGTH = 1
+  // private static readonly MAX_CONCLUSION_LENGTH = 1000
   private static readonly MIN_CHAPTERS = 1
   private static readonly MAX_CHAPTERS = 20
 
@@ -49,7 +51,7 @@ export class Story {
     public readonly id: StoryId,
     public readonly slug: Slug,
     public readonly childAge: ChildAge,
-    public readonly coverImageUrl: ImageUrl,
+    public readonly coverImageUrl: ImageUrl | null = null,
     public readonly ownerId: OwnerId,
     public readonly publicationDate: PublicationDate,
     private readonly _publicationStatus: PublicationStatus,
@@ -61,9 +63,17 @@ export class Story {
     public readonly theme: Theme,
     public readonly language: Language,
     public readonly tone: Tone,
-    private readonly _chapters: readonly Chapter[]
+    private readonly _chapters: readonly Chapter[],
+    private _generationStatus: GenerationStatus,
+    private _jobId: string | null = null,
+    private _generationStartedAt: Date | null = null,
+    private _generationCompletedAt: Date | null = null,
+    private _generationError: string | null = null,
+    private _isGenerated: boolean = false
   ) {
-    this.validate()
+    if (this._isGenerated) {
+      this.validate()
+    }
   }
 
   /**
@@ -73,7 +83,7 @@ export class Story {
     id: StoryId,
     slug: Slug,
     childAge: ChildAge,
-    coverImageUrl: ImageUrl,
+    coverImageUrl: ImageUrl | null = null,
     ownerId: OwnerId,
     publicationDate: PublicationDate,
     publicationStatus: PublicationStatus,
@@ -85,7 +95,13 @@ export class Story {
     theme: Theme,
     language: Language,
     tone: Tone,
-    chapters: Chapter[]
+    chapters: Chapter[],
+    generationStatus: GenerationStatus = GenerationStatus.completed(),
+    jobId: string | null = null,
+    generationStartedAt: Date | null = null,
+    generationCompletedAt: Date | null = null,
+    generationError: string | null = null,
+    isGenerated: boolean = false
   ): Story {
     return new Story(
       id,
@@ -103,7 +119,13 @@ export class Story {
       theme,
       language,
       tone,
-      chapters
+      chapters,
+      generationStatus,
+      jobId,
+      generationStartedAt,
+      generationCompletedAt,
+      generationError,
+      isGenerated
     )
   }
 
@@ -119,14 +141,14 @@ export class Story {
     }
 
     // Validate synopsis length
-    if (
-      this.synopsis.length < Story.MIN_SYNOPSIS_LENGTH ||
-      this.synopsis.length > Story.MAX_SYNOPSIS_LENGTH
-    ) {
-      throw new DomainException(
-        `Synopsis must be between ${Story.MIN_SYNOPSIS_LENGTH} and ${Story.MAX_SYNOPSIS_LENGTH} characters`
-      )
-    }
+    // if (
+    //   this.synopsis.length < Story.MIN_SYNOPSIS_LENGTH ||
+    //   this.synopsis.length > Story.MAX_SYNOPSIS_LENGTH
+    // ) {
+    //   throw new DomainException(
+    //     `Synopsis must be between ${Story.MIN_SYNOPSIS_LENGTH} and ${Story.MAX_SYNOPSIS_LENGTH} characters`
+    //   )
+    // }
 
     // Validate protagonist length
     if (
@@ -149,14 +171,14 @@ export class Story {
     }
 
     // Validate conclusion length
-    if (
-      this.conclusion.length < Story.MIN_CONCLUSION_LENGTH ||
-      this.conclusion.length > Story.MAX_CONCLUSION_LENGTH
-    ) {
-      throw new DomainException(
-        `Conclusion must be between ${Story.MIN_CONCLUSION_LENGTH} and ${Story.MAX_CONCLUSION_LENGTH} characters`
-      )
-    }
+    // if (
+    //   this.conclusion.length < Story.MIN_CONCLUSION_LENGTH ||
+    //   this.conclusion.length > Story.MAX_CONCLUSION_LENGTH
+    // ) {
+    //   throw new DomainException(
+    //     `Conclusion must be between ${Story.MIN_CONCLUSION_LENGTH} and ${Story.MAX_CONCLUSION_LENGTH} characters`
+    //   )
+    // }
 
     // Validate chapters count
     if (this._chapters.length < Story.MIN_CHAPTERS) {
@@ -173,6 +195,41 @@ export class Story {
    */
   public get publicationStatus(): PublicationStatus {
     return this._publicationStatus
+  }
+
+  /**
+   * Get generation status
+   */
+  public get generationStatus(): GenerationStatus {
+    return this._generationStatus
+  }
+
+  /**
+   * Get job ID
+   */
+  public get jobId(): string | null {
+    return this._jobId
+  }
+
+  /**
+   * Get generation started at
+   */
+  public get generationStartedAt(): Date | null {
+    return this._generationStartedAt
+  }
+
+  /**
+   * Get generation completed at
+   */
+  public get generationCompletedAt(): Date | null {
+    return this._generationCompletedAt
+  }
+
+  /**
+   * Get generation error
+   */
+  public get generationError(): string | null {
+    return this._generationError
   }
 
   /**
@@ -228,7 +285,13 @@ export class Story {
       this.theme,
       this.language,
       this.tone,
-      this._chapters
+      this._chapters,
+      this._generationStatus,
+      this._jobId,
+      this._generationStartedAt,
+      this._generationCompletedAt,
+      this._generationError,
+      this._isGenerated
     )
   }
 
@@ -252,7 +315,13 @@ export class Story {
       this.theme,
       this.language,
       this.tone,
-      this._chapters
+      this._chapters,
+      this._generationStatus,
+      this._jobId,
+      this._generationStartedAt,
+      this._generationCompletedAt,
+      this._generationError,
+      this._isGenerated
     )
   }
 
@@ -283,7 +352,13 @@ export class Story {
       this.theme,
       this.language,
       this.tone,
-      [...this._chapters, chapter]
+      [...this._chapters, chapter],
+      this._generationStatus,
+      this._jobId,
+      this._generationStartedAt,
+      this._generationCompletedAt,
+      this._generationError,
+      this._isGenerated
     )
   }
 
@@ -299,5 +374,101 @@ export class Story {
    */
   public getAllChapters(): Chapter[] {
     return [...this._chapters]
+  }
+
+  /**
+   * Start generation process
+   * @throws InvariantViolationException if status is not pending
+   */
+  public startGeneration(jobId: string): void {
+    if (!this._generationStatus.isPending()) {
+      throw new InvariantViolationException(
+        'Can only start generation when status is pending'
+      )
+    }
+    this._generationStatus = GenerationStatus.processing()
+    this._jobId = jobId
+    this._generationStartedAt = new Date()
+    this._generationError = null
+  }
+
+  /**
+   * Complete generation process
+   * @throws InvariantViolationException if status is not processing
+   */
+  public completeGeneration(
+    chapters: Chapter[],
+    coverImageUrl: ImageUrl,
+    conclusion: string,
+    title: string,
+    slug: Slug
+  ): Story {
+    if (!this._generationStatus.isProcessing()) {
+      throw new InvariantViolationException(
+        'Can only complete generation when status is processing'
+      )
+    }
+
+    return new Story(
+      this.id,
+      slug,
+      this.childAge,
+      coverImageUrl,
+      this.ownerId,
+      this.publicationDate,
+      this._publicationStatus,
+      title,
+      this.synopsis,
+      this.protagonist,
+      this.species,
+      conclusion,
+      this.theme,
+      this.language,
+      this.tone,
+      chapters,
+      GenerationStatus.completed(),
+      this._jobId,
+      this._generationStartedAt,
+      new Date(),
+      null,
+      true
+    )
+  }
+
+  /**
+   * Fail generation process
+   * @throws InvariantViolationException if status is not processing
+   */
+  public failGeneration(error: string): void {
+    if (!this._generationStatus.isProcessing()) {
+      throw new InvariantViolationException(
+        'Can only fail generation when status is processing'
+      )
+    }
+    this._generationStatus = GenerationStatus.failed()
+    this._generationCompletedAt = new Date()
+    this._generationError = error
+  }
+
+  /**
+   * Check if generation can be retried
+   */
+  public canRetryGeneration(): boolean {
+    return this._generationStatus.isFailed()
+  }
+
+  /**
+   * Retry generation
+   * @throws InvariantViolationException if status is not failed
+   */
+  public retryGeneration(): void {
+    if (!this.canRetryGeneration()) {
+      throw new InvariantViolationException('Can only retry generation when status is failed')
+    }
+    this._generationStatus = GenerationStatus.pending()
+    this._generationStartedAt = null
+    this._generationCompletedAt = null
+    this._generationError = null
+    this._jobId = null
   }
 }

@@ -1,5 +1,6 @@
 import { GetStoryByIdUseCase } from "#stories/application/use-cases/GetStoryByIdUseCase"
-import { CreateStoryUseCase } from "#stories/application/use-cases/CreateStoryUseCase"
+import { QueueStoryCreationUseCase } from "#stories/application/use-cases/QueueStoryCreationUseCase"
+import { GetStoryGenerationStatusUseCase } from "#stories/application/use-cases/GetStoryGenerationStatusUseCase"
 import { getStoryByIdValidator } from "#stories/controllers/validators/get_story_by_id_validator"
 import { createStoryValidator } from "#stories/controllers/validators/create_story_validator"
 import { inject } from "@adonisjs/core"
@@ -9,7 +10,8 @@ import { HttpContext } from "@adonisjs/core/http"
 export default class StoriesController {
     constructor(
         private readonly getStoryByIdUseCase: GetStoryByIdUseCase,
-        private readonly createStoryUseCase: CreateStoryUseCase
+        private readonly queueStoryCreationUseCase: QueueStoryCreationUseCase,
+        private readonly getStoryGenerationStatusUseCase: GetStoryGenerationStatusUseCase
     ) {}
 
     async getStoryById({ request, response }: HttpContext) {
@@ -25,23 +27,31 @@ export default class StoriesController {
         // Get authenticated user (middleware already did auth)
         const user = auth.getUserOrFail()
 
-        // Execute use case with complete payload
-        const story = await this.createStoryUseCase.execute({
-            title: payload.title || 'Untitled Story',
+        // Utiliser la queue pour générer l'histoire en arrière-plan
+        const result = await this.queueStoryCreationUseCase.execute({
             synopsis: payload.synopsis || '',
-            theme: payload.theme || '',
             protagonist: payload.protagonist || '',
             childAge: payload.childAge || 5,
-            numberOfChapters: payload.numberOfChapters || 1,
-            language: payload.language || '',
-            tone: payload.tone || '',
             species: payload.species || '',
-            conclusion: '',
-            coverImageUrl: '',
             ownerId: String(user.id),
             isPublic: !payload.isPrivate,
+            themeId: payload.theme || '',
+            languageId: payload.language || '',
+            toneId: payload.tone || '',
+            numberOfChapters: payload.numberOfChapters || 3,
         })
 
-        return response.created(story)
+        return response.accepted({
+            message: 'Story generation queued successfully',
+            data: result,
+        })
+    }
+
+    async getGenerationStatus({ params, response }: HttpContext) {
+        const status = await this.getStoryGenerationStatusUseCase.execute(params.id)
+
+        return response.ok({
+            data: status,
+        })
     }
 }

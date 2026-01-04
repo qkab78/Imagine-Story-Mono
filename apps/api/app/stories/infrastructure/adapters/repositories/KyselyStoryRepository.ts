@@ -5,6 +5,7 @@ import { StoryMapper } from '#stories/infrastructure/mappers/StoryMapper'
 import { StoryId } from '#stories/domain/value-objects/ids/StoryId.vo'
 import { Slug } from '#stories/domain/value-objects/metadata/Slug.vo'
 import { OwnerId } from '#stories/domain/value-objects/ids/OwnerId.vo'
+import { GenerationStatus } from '#stories/domain/value-objects/metadata/GenerationStatus.vo'
 import type {
   StoryFilters,
   PaginationParams,
@@ -218,6 +219,49 @@ export class KyselyStoryRepository implements IStoryRepository {
     const stories = await Promise.all(storyRows.map((row) => this.mapRowToStory(row)))
 
     return { stories, total }
+  }
+
+  /**
+   * Find story by job ID
+   */
+  async findByJobId(jobId: string): Promise<Story | null> {
+    const storyRow = await db
+      .selectFrom('stories')
+      .where('job_id', '=', jobId)
+      .selectAll()
+      .executeTakeFirst()
+
+    if (!storyRow) {
+      return null
+    }
+
+    return this.mapRowToStory(storyRow)
+  }
+
+  /**
+   * Find all pending stories
+   */
+  async findPendingStories(): Promise<Story[]> {
+    const storyRows = await db
+      .selectFrom('stories')
+      .where('generation_status', '=', 'pending')
+      .selectAll()
+      .execute()
+
+    return Promise.all(storyRows.map((row) => this.mapRowToStory(row)))
+  }
+
+  /**
+   * Find stories by generation status
+   */
+  async findByGenerationStatus(status: GenerationStatus): Promise<Story[]> {
+    const storyRows = await db
+      .selectFrom('stories')
+      .where('generation_status', '=', status.getValue())
+      .selectAll()
+      .execute()
+
+    return Promise.all(storyRows.map((row) => this.mapRowToStory(row)))
   }
 
   /**
