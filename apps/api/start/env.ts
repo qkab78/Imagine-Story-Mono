@@ -70,4 +70,11 @@ export default await Env.create(new URL('../', import.meta.url), {
   MINIO_ROOT_PASSWORD: Env.schema.string.optional(),
   MINIO_BUCKET: Env.schema.string.optional(),
   MINIO_PRESIGNED_URL_EXPIRY: Env.schema.number.optional(), // seconds
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring frontend URL
+  |----------------------------------------------------------
+  */
+  FRONTEND_URL: Env.schema.string.optional(),
 })

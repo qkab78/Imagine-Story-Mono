@@ -6,6 +6,7 @@ import { ChildAge } from '../value-objects/metadata/ChildAge.vo.js'
 import { ImageUrl } from '../value-objects/media/ImageUrl.vo.js'
 import { PublicationDate } from '../value-objects/metadata/PublicationDate.vo.js'
 import { PublicationStatus } from '../value-objects/metadata/PublicationStatus.vo.js'
+import { GenerationStatus } from '../value-objects/metadata/GenerationStatus.vo.js'
 import type { Theme } from '../value-objects/settings/Theme.vo.js'
 import type { Language } from '../value-objects/settings/Language.vo.js'
 import type { Tone } from '../value-objects/settings/Tone.vo.js'
@@ -59,6 +60,52 @@ export class StoryFactory {
   }
 
   /**
+   * Create a new Story in pending state (waiting for generation)
+   */
+  public static createPending(
+    dateService: IDateService,
+    randomService: IRandomService,
+    params: {
+      title: string
+      synopsis: string
+      protagonist: string
+      childAge: number
+      species: string
+      ownerId: string
+      isPublic: boolean
+      theme: Theme
+      language: Language
+      tone: Tone,
+      isGenerated: boolean
+    }
+  ): Story {
+    return Story.create(
+      StoryId.generate(randomService),
+      Slug.fromTitle(params.title),
+      ChildAge.create(params.childAge),
+      null, // Vide tant que pas généré
+      OwnerId.create(params.ownerId),
+      PublicationDate.now(dateService),
+      params.isPublic ? PublicationStatus.public() : PublicationStatus.private(),
+      params.title,
+      params.synopsis,
+      params.protagonist,
+      params.species,
+      '', // conclusion vide
+      params.theme,
+      params.language,
+      params.tone,
+      [], // chapters vide
+      GenerationStatus.pending(), // Status pending
+      null, // jobId
+      null, // generationStartedAt
+      null, // generationCompletedAt
+      null, // generationError
+      params.isGenerated
+    )
+  }
+
+  /**
    * Reconstruct a Story from database data
    */
   public static reconstitute(params: {
@@ -78,6 +125,11 @@ export class StoryFactory {
     language: Language
     tone: Tone
     chapters: Chapter[]
+    generationStatus?: string
+    jobId?: string | null
+    generationStartedAt?: Date | null
+    generationCompletedAt?: Date | null
+    generationError?: string | null
   }): Story {
     return Story.create(
       StoryId.create(params.id),
@@ -95,7 +147,14 @@ export class StoryFactory {
       params.theme,
       params.language,
       params.tone,
-      params.chapters
+      params.chapters,
+      params.generationStatus
+        ? GenerationStatus.create(params.generationStatus as any)
+        : GenerationStatus.completed(),
+      params.jobId ?? null,
+      params.generationStartedAt ?? null,
+      params.generationCompletedAt ?? null,
+      params.generationError ?? null
     )
   }
 }

@@ -6,12 +6,13 @@ import { IStoryGenerationService } from '#stories/domain/services/IStoryGenerati
 import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
 import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
 import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
-import type { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublisher'
+import { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublisher'
 import { StoryFactory } from '#stories/domain/factories/StoryFactory'
 import { StoryCreatedEvent } from '#stories/domain/events/StoryCreatedEvent'
 import { ThemeId } from '#stories/domain/value-objects/ids/ThemeId.vo'
 import { LanguageId } from '#stories/domain/value-objects/ids/LanguageId.vo'
 import { ToneId } from '#stories/domain/value-objects/ids/ToneId.vo'
+import { GenerationStatus } from '#stories/domain/value-objects/metadata/GenerationStatus.vo'
 
 /**
  * Payload for creating a new story
@@ -63,22 +64,27 @@ export class CreateStoryUseCase {
     private readonly languageRepository: ILanguageRepository,
     private readonly toneRepository: IToneRepository,
     private readonly eventPublisher: IDomainEventPublisher
-  ) {}
+  ) { }
 
   async execute(payload: CreateStoryPayload): Promise<CreateStoryDTO> {
-    // 1. Generate story content via AI
-    const generatedStory = await this.storyGenerationService.generateStory(payload)
-
-    // 2. Fetch settings (theme, language, tone)
+    // 1. Fetch settings (theme, language, tone)
     const [theme, language, tone] = await Promise.all([
-      this.themeRepository.findById(ThemeId.create(generatedStory.theme)),
-      this.languageRepository.findById(LanguageId.create(generatedStory.language)),
-      this.toneRepository.findById(ToneId.create(generatedStory.tone)),
+      this.themeRepository.findById(ThemeId.create(payload.theme)),
+      this.languageRepository.findById(LanguageId.create(payload.language)),
+      this.toneRepository.findById(ToneId.create(payload.tone)),
     ])
 
     if (!theme || !language || !tone) {
       throw new Error('Theme, language or tone not found')
     }
+    // 2. Generate story content via AI
+    const generatedStory = await this.storyGenerationService.generateStory({
+      ...payload,
+      theme: theme.name,
+      language: language.name,
+      tone: tone.name,
+      status: GenerationStatus.processing(),
+    })
 
     // 3. Validate generated chapters
     if (generatedStory.chapters.length !== generatedStory.numberOfChapters) {

@@ -20,10 +20,10 @@ export class StoryDetailPresenter {
     story: Story,
     storageService: IStorageService
   ): Promise<StoryDetailDTO> {
-    const coverImageUrl = await this.resolveImageUrl(
-      story.coverImageUrl.getValue(),
-      storageService
-    )
+    const coverImageUrl = story.coverImageUrl ? await this.resolveImageUrl(
+        story.coverImageUrl.getValue(),
+        storageService
+      ) : null
     const chapters = await ChapterPresenter.toDTOs(story.getAllChapters(), storageService)
 
     return {

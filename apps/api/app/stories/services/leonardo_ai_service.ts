@@ -28,7 +28,8 @@ export async function generateChapterImagesWithLeonardo(
   chapters: any[],
   storySlug: string,
   referenceImageUrl?: string | null,
-  characterSeed?: number
+  characterSeed?: number,
+  initImageId?: string
 ): Promise<ChapterImageGenerationResponse> {
   const chapterImages: ChapterImage[] = []
   const errors: string[] = []
@@ -62,6 +63,11 @@ export async function generateChapterImagesWithLeonardo(
   // Génération parallèle pour réduire le temps de traitement
   const parallelStartTime = Date.now()
   console.log(`🚀 Génération parallèle de ${chapters.length} images de chapitres...`)
+
+  if (initImageId) {
+    console.log(`🎨 Utilisation init image ID pour tous les chapitres: ${initImageId}`)
+  }
+
   const generationPromises = chapters.map((chapter, index) => {
     console.log(`📋 Planification génération image pour chapitre ${index + 1}: ${chapter.title}`)
     return generateSingleChapterImageWithLeonardo(
@@ -69,7 +75,8 @@ export async function generateChapterImagesWithLeonardo(
       chapter,
       index,
       storySlug,
-      finalCharacterSeed!
+      finalCharacterSeed!,
+      initImageId
     ).then((chapterImage) => {
       if (chapterImage) {
         return { success: true, chapterImage, index }
@@ -121,7 +128,8 @@ async function generateSingleChapterImageWithLeonardo(
   chapter: any,
   chapterIndex: number,
   storySlug: string,
-  characterSeed: number
+  characterSeed: number,
+  initImageId?: string
 ): Promise<ChapterImage | null> {
   const fileName = `${storySlug}_chapter_${chapterIndex + 1}.png`
 
@@ -133,16 +141,25 @@ async function generateSingleChapterImageWithLeonardo(
     // Première tentative avec seed pour cohérence
     let response
     try {
-      response = await leonardo.image.createGeneration({
+      const generationParams: any = {
         prompt: prompt,
         modelId: 'aa77f04e-3eec-4034-9c07-d0f619684628', // Leonardo Phoenix
         width: 1024,
         height: 1024,
         numImages: 1,
-        guidanceScale: 7,
+        guidanceScale: 7, // Leonardo AI requiert un integer
         seed: characterSeed, // Utiliser le même seed pour la cohérence
         presetStyle: 'ANIME' as any,
-      })
+      }
+
+      // Si init image fournie, utiliser mode image-to-image
+      if (initImageId) {
+        generationParams.initImageId = initImageId
+        generationParams.initStrength = 0.4 // Équilibre personnage + contexte
+        console.log(`🔄 Chapitre ${chapterIndex + 1}: Mode image-to-image (strength: 0.4)`)
+      }
+
+      response = await leonardo.image.createGeneration(generationParams)
     } catch (moderationError: any) {
       // Si erreur de modération, essayer avec un prompt plus sûr
       if (
@@ -579,10 +596,14 @@ async function downloadImage(imageUrl: string, fileName: string): Promise<string
  * Génère une image de couverture avec Leonardo AI
  */
 export async function generateCoverImageWithLeonardo(
-  context: StoryGenerationContext & { slug: string }
+  context: StoryGenerationContext & { slug: string },
+  initImageId?: string
 ): Promise<string | null> {
   try {
     console.log('🖼️ Génération image de couverture avec Leonardo AI...')
+    if (initImageId) {
+      console.log(`🎨 Utilisation init image ID pour cohérence: ${initImageId}`)
+    }
 
     const characterSeed = generateCharacterSeed(context)
     let characterDescription = getConsistentCharacterDescription(context)
@@ -609,16 +630,25 @@ No text or titles in the image, just the visual cover scene.
 
     console.log(`🎭 Génération couverture avec seed: ${characterSeed}`)
 
-    const response = await leonardo.image.createGeneration({
+    const generationParams: any = {
       prompt: coverPrompt,
       modelId: 'aa77f04e-3eec-4034-9c07-d0f619684628',
       width: 1024,
       height: 1024,
       numImages: 1,
-      guidanceScale: 8,
-      seed: characterSeed, // Même seed que les chapitres pour cohérence
+      guidanceScale: 8, // Leonardo AI requiert un integer
+      seed: characterSeed,
       presetStyle: 'ANIME' as any,
-    })
+    }
+
+    // Si init image fournie, utiliser mode image-to-image
+    if (initImageId) {
+      generationParams.initImageId = initImageId
+      generationParams.initStrength = 0.3 // Conserve fortement le personnage
+      console.log(`🔄 Mode image-to-image activé (strength: 0.3)`)
+    }
+
+    const response = await leonardo.image.createGeneration(generationParams)
 
     const generationId = (response as any).object?.sdGenerationJob?.generationId
     if (!generationId) {
@@ -704,6 +734,51 @@ export function generateCharacterSeed(context: StoryGenerationContext): number {
   }
   // Retourner un nombre positif entre 1 et 4294967295
   return Math.abs(hash) || 1
+}
+
+/**
+ * Upload une image de référence vers Leonardo AI et retourne l'init image ID
+ * pour utilisation dans les générations image-to-image
+ */
+export async function uploadCharacterReference(
+  characterImageUrl: string,
+  characterName: string
+): Promise<string> {
+  try {
+    console.log(`📤 Upload character reference vers Leonardo AI: ${characterName}`)
+
+    // Télécharger l'image depuis l'URL
+    const axios = (await import('axios')).default
+    const response = await axios.get(characterImageUrl, {
+      responseType: 'arraybuffer',
+    })
+
+    if (!response.data || response.data.length === 0) {
+      throw new Error(`Failed to download image from ${characterImageUrl}`)
+    }
+
+    const imageBuffer = Buffer.from(response.data)
+
+    // Upload vers Leonardo AI pour obtenir l'init image ID
+    const uploadResult = await leonardo.initImages.uploadInitImage({
+      extension: 'png',
+      // @ts-ignore - Le SDK Leonardo AI accepte Buffer
+      file: imageBuffer,
+    })
+
+    const initImageId = (uploadResult as any)?.uploadInitImage?.id
+
+    if (!initImageId) {
+      console.error('Leonardo AI upload response:', uploadResult)
+      throw new Error('Failed to get init image ID from Leonardo AI')
+    }
+
+    console.log(`✅ Character reference uploaded, init image ID: ${initImageId}`)
+    return initImageId
+  } catch (error: any) {
+    console.error('❌ Failed to upload character reference:', error.message)
+    throw new Error(`Character reference upload failed: ${error.message}`)
+  }
 }
 
 /**

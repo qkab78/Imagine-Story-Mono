@@ -1,5 +1,4 @@
 import { Story } from '#stories/domain/entities/story.entity'
-import { StoryFactory } from '#stories/domain/factories/StoryFactory'
 import { ChapterFactory } from '#stories/domain/factories/ChapterFactory'
 import { Theme } from '#stories/domain/value-objects/settings/Theme.vo'
 import { Language } from '#stories/domain/value-objects/settings/Language.vo'
@@ -11,9 +10,7 @@ import { ImageUrl } from '#stories/domain/value-objects/media/ImageUrl.vo'
 import { OwnerId } from '#stories/domain/value-objects/ids/OwnerId.vo'
 import { PublicationDate } from '#stories/domain/value-objects/metadata/PublicationDate.vo'
 import { PublicationStatus } from '#stories/domain/value-objects/metadata/PublicationStatus.vo'
-import type { IDateService } from '#stories/domain/services/IDateService'
-import type { IRandomService } from '#stories/domain/services/IRandomService'
-
+import { GenerationStatus } from '#stories/domain/value-objects/metadata/GenerationStatus.vo'
 /**
  * Database row interfaces
  */
@@ -35,6 +32,11 @@ interface StoryRow {
   slug: string
   story_chapters: unknown
   chapter_images: unknown
+  generation_status?: string
+  job_id?: string | null
+  generation_started_at?: Date | null
+  generation_completed_at?: Date | null
+  generation_error?: string | null
 }
 
 interface ThemeRow {
@@ -121,7 +123,7 @@ export class StoryMapper {
       StoryId.create(storyRow.id),
       Slug.create(storyRow.slug),
       ChildAge.create(storyRow.child_age),
-      ImageUrl.create(storyRow.cover_image),
+      storyRow.generation_status === GenerationStatus.completed().getValue() ? ImageUrl.create(storyRow.cover_image) : null,
       OwnerId.create(storyRow.user_id),
       PublicationDate.create(storyRow.created_at),
       storyRow.public ? PublicationStatus.public() : PublicationStatus.private(),
@@ -133,7 +135,14 @@ export class StoryMapper {
       theme,
       language,
       tone,
-      chapters
+      chapters,
+      storyRow.generation_status
+        ? GenerationStatus.create(storyRow.generation_status as any)
+        : GenerationStatus.completed(),
+      storyRow.job_id ?? null,
+      storyRow.generation_started_at ?? null,
+      storyRow.generation_completed_at ?? null,
+      storyRow.generation_error ?? null
     )
   }
 
@@ -161,6 +170,11 @@ export class StoryMapper {
     chapters: number // Number of chapters
     story_chapters: string // JSON string
     chapter_images: string // JSON string
+    generation_status: string
+    job_id: string | null
+    generation_started_at: Date | null
+    generation_completed_at: Date | null
+    generation_error: string | null
   } {
     // Map chapters
     const storyChapters: StoryChapter[] = story.getAllChapters().map((chapter) => ({
@@ -191,7 +205,7 @@ export class StoryMapper {
       child_age: story.childAge.getValue(),
       species: story.species,
       conclusion: story.conclusion,
-      cover_image: story.coverImageUrl.getValue(),
+      cover_image: story.coverImageUrl?.getValue() || '',
       user_id: story.ownerId.getValue(),
       public: story.isPublic(),
       created_at: story.publicationDate.getValue(),
@@ -203,6 +217,11 @@ export class StoryMapper {
       chapters: story.getAllChapters().length,
       story_chapters: JSON.stringify(storyChapters),
       chapter_images: JSON.stringify(chapterImages),
+      generation_status: story.generationStatus.getValue(),
+      job_id: story.jobId,
+      generation_started_at: story.generationStartedAt,
+      generation_completed_at: story.generationCompletedAt,
+      generation_error: story.generationError,
     }
   }
 }

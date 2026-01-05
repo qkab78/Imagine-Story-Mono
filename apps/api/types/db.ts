@@ -67,7 +67,12 @@ export interface Stories {
   content: string;
   cover_image: string;
   created_at: Timestamp;
+  generation_completed_at: Timestamp | null;
+  generation_error: string | null;
+  generation_started_at: Timestamp | null;
+  generation_status: Generated<string>;
   id: Generated<string>;
+  job_id: string | null;
   language_id: string | null;
   protagonist: Generated<string>;
   public: Generated<boolean>;

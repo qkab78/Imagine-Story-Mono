@@ -1,14 +1,15 @@
 
 import { ImageUrl } from "../value-objects/media/ImageUrl.vo.js";
 import { StoryGenerated } from "./types/StoryGenerated.js";
+import { GenerationStatus } from "../value-objects/metadata/GenerationStatus.vo.js";
 
 export abstract class IStoryGenerationService {
     abstract generateStory(payload: StoryGenerationPayload): Promise<StoryGenerated>;
-    abstract generateImage(payload: StoryImagePayload): Promise<ImageUrl>;
-    abstract generateCharacterReference(payload: StoryCharacterReferencePayload): Promise<string>;
-    abstract generateCharacter(payload: StoryCharacterPayload): Promise<string>;
-    abstract generateChapterImages(payload: StoryChapterImagesPayload): Promise<ImageUrl[]>;
-    abstract generateCharacterProfiles(payload: StoryCharacterProfilesPayload): Promise<Record<string, any>[]>;
+    abstract generateImage?(payload: StoryImagePayload): Promise<ImageUrl>;
+    abstract generateCharacterReference?(payload: StoryCharacterReferencePayload): Promise<string>;
+    abstract generateCharacter?(payload: StoryCharacterPayload): Promise<string>;
+    abstract generateChapterImages?(payload: StoryChapterImagesPayload): Promise<ImageUrl[]>;
+    abstract generateCharacterProfiles?(payload: StoryCharacterProfilesPayload): Promise<Record<string, any>[]>;
 }
 
 export interface StoryGenerationPayload {
@@ -21,6 +22,9 @@ export interface StoryGenerationPayload {
     language: string;
     tone: string;
     species: string;
+    ownerId: string;
+    isPublic: boolean;
+    status: GenerationStatus;
 }
 
 export interface StoryImagePayload {

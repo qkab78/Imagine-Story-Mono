@@ -29,7 +29,7 @@ export interface StoryListItemDTO {
   protagonist: string
   species: string
   childAge: number
-  coverImageUrl: string
+  coverImageUrl: string | null
   isPublic: boolean
   publicationDate: Date
   theme: {
@@ -66,7 +66,7 @@ export interface StoryDetailDTO {
   species: string
   conclusion: string
   childAge: number
-  coverImageUrl: string
+  coverImageUrl: string | null
   isPublic: boolean
   publicationDate: Date
   theme: {

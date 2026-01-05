@@ -44,7 +44,6 @@ export async function generateCharacterProfiles(
       ],
       temperature: 0.8,
       max_tokens: 2000,
-      response_format: { type: 'json_object' },
     })
 
     const content = response.choices[0]?.message?.content

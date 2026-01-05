@@ -2,6 +2,7 @@ import { Story } from '#stories/domain/entities/story.entity'
 import { StoryId } from '#stories/domain/value-objects/ids/StoryId.vo'
 import { Slug } from '#stories/domain/value-objects/metadata/Slug.vo'
 import { OwnerId } from '#stories/domain/value-objects/ids/OwnerId.vo'
+import { GenerationStatus } from '#stories/domain/value-objects/metadata/GenerationStatus.vo'
 import type { StoryFilters, PaginationParams, PaginatedResult } from '#stories/application/use-cases/story/ListPublicStoriesUseCase'
 
 /**
@@ -22,6 +23,11 @@ export abstract class IStoryRepository {
     pagination: PaginationParams
   ): Promise<PaginatedResult<Story>>
   abstract existsBySlug(slug: Slug, excludeId?: StoryId): Promise<boolean>
+
+  // Queue-related queries
+  abstract findByJobId(jobId: string): Promise<Story | null>
+  abstract findPendingStories(): Promise<Story[]>
+  abstract findByGenerationStatus(status: GenerationStatus): Promise<Story[]>
 
   // Commands
   abstract create(story: Story): Promise<Story>
