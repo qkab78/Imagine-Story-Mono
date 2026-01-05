@@ -12,6 +12,7 @@ import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
 import { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublisher'
 import { IStorageService } from '#stories/domain/services/IStorageService'
 import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositories/KyselyToneRepository'
+import { IUserRepository } from '#users/domain/repositories/UserRepository'
 import storageConfig from '#config/storage'
 import env from '#start/env'
 
@@ -51,6 +52,9 @@ export default class AppProvider {
     )
     const { InMemoryEventPublisher } = await import(
       '#stories/infrastructure/adapters/events/InMemoryEventPublisher'
+    )
+    const { KyselyUserRepository } = await import(
+      '#users/infrastructure/repositories/KyselyUserRepository'
     )
 
     // Storage service binding (conditional based on config)
@@ -116,6 +120,9 @@ export default class AppProvider {
     })
     this.app.container.singleton(IDomainEventPublisher, () => {
       return this.app.container.make(InMemoryEventPublisher)
+    })
+    this.app.container.singleton(IUserRepository, () => {
+      return this.app.container.make(KyselyUserRepository)
     })
   }
 

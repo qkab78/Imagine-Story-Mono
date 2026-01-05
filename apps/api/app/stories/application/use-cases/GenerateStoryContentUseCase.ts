@@ -4,6 +4,11 @@ import { IStoryGenerationService } from '#stories/domain/services/IStoryGenerati
 import { ChapterFactory } from '#stories/domain/factories/ChapterFactory'
 import { ImageUrl } from '#stories/domain/value-objects/media/ImageUrl.vo'
 import { Slug } from '#stories/domain/value-objects/metadata/Slug.vo'
+import { IUserRepository } from '#users/domain/repositories/UserRepository'
+import queue from '@rlanz/bull-queue/services/main'
+import SendStoryGeneratedSuccessEmailJob from '#jobs/story/send_story_generated_success_email_job'
+import SendStoryGenerationFailedEmailJob from '#jobs/story/send_story_generation_failed_email_job'
+import type { Story } from '#stories/domain/entities/story.entity'
 
 export interface GenerateStoryContentPayload {
   storyId: string
@@ -21,7 +26,8 @@ export interface GenerateStoryContentPayload {
 export class GenerateStoryContentUseCase {
   constructor(
     private readonly storyRepository: IStoryRepository,
-    private readonly storyGenerationService: IStoryGenerationService
+    private readonly storyGenerationService: IStoryGenerationService,
+    private readonly userRepository: IUserRepository
   ) {}
 
   async execute(payload: GenerateStoryContentPayload) {
@@ -79,6 +85,11 @@ export class GenerateStoryContentUseCase {
 
       await this.storyRepository.save(updatedStory)
 
+      // Dispatch success email (non-blocking)
+      this.dispatchSuccessEmail(updatedStory).catch((error) => {
+        console.error('⚠️ Failed to dispatch success email job:', error.message)
+      })
+
       console.log(`✅ Story generation completed: ${payload.storyId}`)
       console.log(`📖 Generated title: "${storyGenerated.title}"`)
       console.log(`🔗 Generated slug: "${storyGenerated.slug}"`)
@@ -91,11 +102,96 @@ export class GenerateStoryContentUseCase {
       if (story.generationStatus.isProcessing()) {
         story.failGeneration(error.message)
         await this.storyRepository.save(story)
+
+        // Dispatch failure email (non-blocking)
+        this.dispatchFailureEmail(story, error.message).catch((emailError) => {
+          console.error('⚠️ Failed to dispatch failure email job:', emailError.message)
+        })
       } else {
-        console.error(`⚠️ Cannot mark story as failed: status is ${story.generationStatus.getValue()}, expected processing`)
+        console.error(
+          `⚠️ Cannot mark story as failed: status is ${story.generationStatus.getValue()}, expected processing`
+        )
       }
 
       throw error
     }
+  }
+
+  /**
+   * Dispatch success email notification job
+   */
+  private async dispatchSuccessEmail(story: Story): Promise<void> {
+    try {
+      // Retrieve user information
+      const user = await this.userRepository.findById(story.ownerId.getValue())
+
+      if (!user) {
+        console.warn(`⚠️ User not found: ${story.ownerId.getValue()}`)
+        return
+      }
+
+      // Dispatch email job
+      await queue.dispatch(SendStoryGeneratedSuccessEmailJob, {
+        recipientEmail: user.email.getValue(),
+        recipientName: user.getFullName(),
+        storyTitle: story.title,
+        storySlug: story.slug.getValue(),
+      })
+
+      console.log(`📧 Success email dispatched for ${user.email.getValue()}`)
+    } catch (error: any) {
+      console.error('❌ Error dispatching success email:', error.message)
+      // Don't throw - continue execution
+    }
+  }
+
+  /**
+   * Dispatch failure email notification job
+   */
+  private async dispatchFailureEmail(story: Story, errorMessage: string): Promise<void> {
+    try {
+      // Retrieve user information
+      const user = await this.userRepository.findById(story.ownerId.getValue())
+
+      if (!user) {
+        console.warn(`⚠️ User not found: ${story.ownerId.getValue()}`)
+        return
+      }
+
+      // Simplify error message for user
+      const userFriendlyError = this.simplifyErrorMessage(errorMessage)
+
+      // Dispatch email job
+      await queue.dispatch(SendStoryGenerationFailedEmailJob, {
+        recipientEmail: user.email.getValue(),
+        recipientName: user.getFullName(),
+        storyId: story.id.getValue(),
+        errorMessage: userFriendlyError,
+      })
+
+      console.log(`📧 Failure email dispatched for ${user.email.getValue()}`)
+    } catch (error: any) {
+      console.error('❌ Error dispatching failure email:', error.message)
+      // Don't throw - continue execution
+    }
+  }
+
+  /**
+   * Simplify technical error messages for end users
+   */
+  private simplifyErrorMessage(technicalError: string): string {
+    if (technicalError.includes('quota') || technicalError.includes('rate limit')) {
+      return 'Limite de requêtes atteinte. Veuillez réessayer dans quelques instants.'
+    }
+
+    if (technicalError.includes('timeout') || technicalError.includes('timed out')) {
+      return 'Le serveur a mis trop de temps à répondre. Veuillez réessayer.'
+    }
+
+    if (technicalError.includes('API') || technicalError.includes('OpenAI')) {
+      return 'Service de génération temporairement indisponible. Veuillez réessayer.'
+    }
+
+    return 'Une erreur technique est survenue. Notre équipe a été notifiée.'
   }
 }
