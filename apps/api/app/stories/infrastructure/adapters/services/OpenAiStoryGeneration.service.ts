@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import string from '@adonisjs/core/helpers/string'
+import logger from '@adonisjs/core/services/logger'
 import { IStoryGenerationService, StoryGenerationPayload } from "#stories/domain/services/IStoryGeneration";
 import { StoryGenerated } from "#stories/domain/services/types/StoryGenerated";
 import { IStoryImageGenerationService } from '#stories/domain/services/IStoryImageGenerationService';
@@ -7,7 +8,6 @@ import { ChapterFactory } from '#stories/domain/factories/ChapterFactory';
 import type { ImageGenerationContext, ChapterContent, CharacterReferenceResult } from '#stories/domain/services/types/ImageGenerationTypes';
 import OpenAI from 'openai'
 import env from '#start/env'
-import { ALLOWED_LANGUAGES } from '#stories/constants/allowed_languages'
 import { LOCALES } from '#stories/constants/locales'
 
 /**
@@ -114,11 +114,11 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
         })
 
         // Log de debug pour vérifier si la réponse a été tronquée
-        console.log('🔍 OpenAI finish_reason:', response.choices[0].finish_reason)
-        console.log('🔍 OpenAI usage:', JSON.stringify(response.usage))
+        logger.debug('🔍 OpenAI finish_reason:', response.choices[0].finish_reason)
+        logger.debug('🔍 OpenAI usage:', JSON.stringify(response.usage))
 
         if (response.choices[0].finish_reason === 'length') {
-            console.warn('⚠️ La réponse OpenAI a été tronquée (finish_reason: length). La réponse est incomplète.')
+            logger.warn('⚠️ La réponse OpenAI a été tronquée (finish_reason: length). La réponse est incomplète.')
         }
 
         return response.choices[0].message.content?.trim() || ''
@@ -134,7 +134,7 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
      * 4. Générer chapter images avec character reference
      */
     async generateStory(payload: StoryGenerationPayload): Promise<StoryGenerated> {
-        console.log(`🎬 Début de la génération d'histoire complète avec ${this.imageGenerationService.getProviderName()}...`)
+        logger.info(`🎬 Début de la génération d'histoire complète avec ${this.imageGenerationService.getProviderName()}...`)
         const startTime = Date.now()
 
         try {
@@ -142,22 +142,22 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
 
             // ÉTAPE 1: Générer le contenu texte de l'histoire via OpenAI
             const storyStartTime = Date.now()
-            console.log('📝 Génération du contenu texte de l\'histoire (OpenAI)...')
+            logger.info('📝 Génération du contenu texte de l\'histoire (OpenAI)...')
 
             const storyText = await this.generateStoryText(payload)
 
             // Log la réponse brute pour debug
-            console.log('📄 Longueur de la réponse OpenAI:', storyText.length, 'caractères')
-            console.log('📄 Réponse OpenAI brute (premiers 1000 chars):', storyText.substring(0, 1000))
-            console.log('📄 Réponse OpenAI brute (derniers 500 chars):', storyText.substring(storyText.length - 500))
+            logger.debug('📄 Longueur de la réponse OpenAI:', storyText.length, 'caractères')
+            logger.debug('📄 Réponse OpenAI brute (premiers 1000 chars):', storyText.substring(0, 1000))
+            logger.debug('📄 Réponse OpenAI brute (derniers 500 chars):', storyText.substring(storyText.length - 500))
 
             // Nettoyer et extraire le JSON
             let cleanedJson: string
             try {
                 cleanedJson = this.extractJsonFromResponse(storyText)
             } catch (error: any) {
-                console.error('❌ Erreur lors du nettoyage de la réponse:', error)
-                console.error('📄 Réponse complète:', storyText)
+                logger.error('❌ Erreur lors du nettoyage de la réponse:', error)
+                logger.error('📄 Réponse complète:', storyText)
                 throw new Error(`Impossible d'extraire le JSON de la réponse OpenAI: ${error.message}`)
             }
 
@@ -166,27 +166,27 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
             try {
                 storyTextJson = JSON.parse(cleanedJson)
             } catch (parseError: any) {
-                console.error('❌ Erreur de parsing JSON:', parseError.message)
-                console.error('📄 JSON nettoyé:', cleanedJson)
+                logger.error('❌ Erreur de parsing JSON:', parseError.message)
+                logger.error('📄 JSON nettoyé:', cleanedJson)
                 throw new Error(`Le JSON retourné par OpenAI est invalide: ${parseError.message}`)
             }
 
             const storyEndTime = Date.now()
-            console.log(`✅ Texte généré en ${((storyEndTime - storyStartTime) / 1000).toFixed(2)}s`)
+            logger.info(`✅ Texte généré en ${((storyEndTime - storyStartTime) / 1000).toFixed(2)}s`)
 
             // Vérifier que les chapitres existent AVANT d'y accéder
             if (!storyTextJson.chapters || !Array.isArray(storyTextJson.chapters)) {
-                console.error('❌ Structure de la réponse OpenAI invalide:', JSON.stringify(storyTextJson, null, 2))
+                logger.error('❌ Structure de la réponse OpenAI invalide:', JSON.stringify(storyTextJson, null, 2))
                 throw new Error('La réponse OpenAI ne contient pas de chapitres valides')
             }
 
             // Vérifier que le nombre de chapitres correspond
             if (storyTextJson.chapters.length !== payload.numberOfChapters) {
-                console.warn(`⚠️ Nombre de chapitres incorrect: attendu ${payload.numberOfChapters}, reçu ${storyTextJson.chapters.length}`)
+                logger.warn(`⚠️ Nombre de chapitres incorrect: attendu ${payload.numberOfChapters}, reçu ${storyTextJson.chapters.length}`)
             }
 
-            console.log(`📖 ${storyTextJson.chapters.length} chapitre(s) généré(s)`)
-            console.log('📄 Structure JSON complète:', JSON.stringify(storyTextJson, null, 2))
+            logger.info(`📖 ${storyTextJson.chapters.length} chapitre(s) généré(s)`)
+            logger.debug('📄 Structure JSON complète:', JSON.stringify(storyTextJson, null, 2))
 
             // Créer le contexte de génération d'images
             const imageContext: ImageGenerationContext = {
@@ -205,30 +205,30 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
             // ÉTAPE 2: Générer la character reference (si le provider supporte)
             let characterReference: CharacterReferenceResult | undefined = undefined
             const referenceStartTime = Date.now()
-            console.log('🎨 Génération de la character reference sheet...')
+            logger.info('🎨 Génération de la character reference sheet...')
 
             try {
                 characterReference = await this.imageGenerationService.createCharacterReference(imageContext)
                 const referenceEndTime = Date.now()
-                console.log(`✅ Character reference créée en ${((referenceEndTime - referenceStartTime) / 1000).toFixed(2)}s`)
+                logger.info(`✅ Character reference créée en ${((referenceEndTime - referenceStartTime) / 1000).toFixed(2)}s`)
             } catch (error: any) {
-                console.warn('⚠️ Échec création character reference, fallback vers text-to-image:', error.message)
+                logger.warn('⚠️ Échec création character reference, fallback vers text-to-image:', error.message)
                 characterReference = undefined
             }
 
             // ÉTAPE 3: Générer cover image
             const parallelStartTime = Date.now()
-            console.log('🚀 Génération cover image...')
+            logger.info('🚀 Génération cover image...')
             const coverImagePath = await this.imageGenerationService.generateCoverImage(imageContext, characterReference)
             if (!coverImagePath) {
                 throw new Error('Cover image path est null')
             }
             const parallelEndTime = Date.now()
-            console.log(`✅ Cover image générée en ${((parallelEndTime - parallelStartTime) / 1000).toFixed(2)}s`)
+            logger.info(`✅ Cover image générée en ${((parallelEndTime - parallelStartTime) / 1000).toFixed(2)}s`)
 
             // ÉTAPE 4: Générer les images des chapitres avec character reference
             const chaptersStartTime = Date.now()
-            console.log('🎨 Génération des images de chapitres...')
+            logger.info('🎨 Génération des images de chapitres...')
 
             // Préparer les chapitres pour la génération d'images
             const chapterContents: ChapterContent[] = storyTextJson.chapters.map((chapter: any, index: number) => ({
@@ -244,7 +244,7 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
             )
 
             const chaptersEndTime = Date.now()
-            console.log(`✅ ${chapterImagesResponse.metadata.successfulGeneration}/${storyTextJson.chapters.length} images de chapitres générées en ${((chaptersEndTime - chaptersStartTime) / 1000).toFixed(2)}s`)
+            logger.info(`✅ ${chapterImagesResponse.metadata.successfulGeneration}/${storyTextJson.chapters.length} images de chapitres générées en ${((chaptersEndTime - chaptersStartTime) / 1000).toFixed(2)}s`)
 
             // ÉTAPE 5: Construire le résultat StoryGenerated
             // Créer les Chapter entities avec ChapterFactory
@@ -260,8 +260,8 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
 
             const endTime = Date.now()
             const totalTime = ((endTime - startTime) / 1000).toFixed(2)
-            console.log(`🎉 Histoire complète générée avec succès en ${totalTime}s`)
-            console.log(`📊 Résumé: ${characterReference?.referenceId ? '✅ Character reference utilisée' : '⚠️ Text-to-image sans référence'}`)
+            logger.info(`🎉 Histoire complète générée avec succès en ${totalTime}s`)
+            logger.info(`📊 Résumé: ${characterReference?.referenceId ? '✅ Character reference utilisée' : '⚠️ Text-to-image sans référence'}`)
 
             return {
                 title: imageContext.title,
@@ -281,7 +281,7 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
                 isPublic: payload.isPublic,
             }
         } catch (error: any) {
-            console.error('💥 Erreur lors de la génération de l\'histoire:', error)
+            logger.error('💥 Erreur lors de la génération de l\'histoire:', error)
             throw new Error(`Story generation failed: ${error.message}`)
         }
     }

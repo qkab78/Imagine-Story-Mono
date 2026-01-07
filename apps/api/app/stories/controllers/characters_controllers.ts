@@ -3,6 +3,7 @@
  */
 
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import type { HttpContext } from '@adonisjs/core/http'
 import { errors } from '@vinejs/vine'
 import { db } from '#services/db'
@@ -130,7 +131,7 @@ export default class CharactersController {
         data: updatedCharacter[0],
       })
     } catch (error) {
-      console.error('Erreur mise à jour personnage:', error)
+      logger.error('Erreur mise à jour personnage:', error)
       return response.internalServerError({
         message: 'Erreur lors de la mise à jour du personnage',
       })
@@ -170,7 +171,7 @@ export default class CharactersController {
         message: `Personnage "${character.name}" supprimé avec succès`,
       })
     } catch (error) {
-      console.error('Erreur suppression personnage:', error)
+      logger.error('Erreur suppression personnage:', error)
       return response.internalServerError({
         message: 'Erreur lors de la suppression du personnage',
       })

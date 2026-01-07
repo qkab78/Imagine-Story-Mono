@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import type { HttpContext } from '@adonisjs/core/http'
 import { errors } from '@vinejs/vine'
 import string from '@adonisjs/core/helpers/string'
@@ -333,11 +334,11 @@ export default class StoriesController {
 
     try {
       const startTime = Date.now()
-      console.log("🎬 Début de la génération d'histoire complète...")
+      logger.info("🎬 Début de la génération d'histoire complète...")
 
       // Récupérer les informations des relations pour la génération (en parallèle)
       const dbStartTime = Date.now()
-      console.log("🔍 Récupération des informations des relations...")
+      logger.info("🔍 Récupération des informations des relations...")
       
       const [themeRecord, toneRecord, languageRecord] = await Promise.all([
         db
@@ -363,11 +364,11 @@ export default class StoriesController {
         )
       }
       const dbEndTime = Date.now()
-      console.log(`⏱️  Récupération DB: ${((dbEndTime - dbStartTime) / 1000).toFixed(2)}s`)
+      logger.info(`⏱️  Récupération DB: ${((dbEndTime - dbStartTime) / 1000).toFixed(2)}s`)
 
       // 1. Générer l'histoire avec un modèle IA
       const storyStartTime = Date.now()
-      console.log("📝 Génération du contenu de l'histoire...")
+      logger.info("📝 Génération du contenu de l'histoire...")
       const storyText = await generateStory({
         title,
         synopsis,
@@ -383,7 +384,7 @@ export default class StoriesController {
       const storyTextJson = JSON.parse(storyText) as StoryGenerated
       const slug = string.slug(storyTextJson.slug, { lower: true, trim: true })
       const storyEndTime = Date.now()
-      console.log(`⏱️  Génération texte histoire: ${((storyEndTime - storyStartTime) / 1000).toFixed(2)}s`)
+      logger.info(`⏱️  Génération texte histoire: ${((storyEndTime - storyStartTime) / 1000).toFixed(2)}s`)
 
       // Créer le contexte pour les générations supplémentaires
       const storyContext: StoryGenerationContext = {
@@ -400,7 +401,7 @@ export default class StoriesController {
 
       // 2. Générer l'image de couverture, l'image de référence et les personnages en parallèle
       const parallelStartTime = Date.now()
-      console.log("🚀 Génération parallèle: couverture, référence personnage et personnages...")
+      logger.info("🚀 Génération parallèle: couverture, référence personnage et personnages...")
       
       // Importer les fonctions nécessaires pour générer l'image de référence
       const { generateCharacterSeed, createCharacterReference } = await import('#stories/services/leonardo_ai_service')
@@ -422,7 +423,7 @@ export default class StoriesController {
         createCharacterReference(storyContext, slug, characterSeed),
         // Profils de personnages
         generateCharacterProfiles(storyContext, storyTextJson).catch((error) => {
-          console.error('❌ Erreur génération personnages:', error)
+          logger.error('❌ Erreur génération personnages:', error)
           return { characters: [] }
         }),
       ])
@@ -438,28 +439,28 @@ export default class StoriesController {
       let charactersData: any[] = []
       if (charactersResponse.status === 'fulfilled') {
         charactersData = charactersResponse.value.characters || []
-        console.log(`✅ ${charactersData.length} personnages générés`)
+        logger.info(`✅ ${charactersData.length} personnages générés`)
       } else {
-        console.error('❌ Erreur génération personnages:', charactersResponse.reason)
+        logger.error('❌ Erreur génération personnages:', charactersResponse.reason)
       }
 
       if (finalReferenceImageUrl) {
-        console.log('✅ Image de référence du personnage générée')
+        logger.info('✅ Image de référence du personnage générée')
       } else {
-        console.warn('⚠️ Échec de la génération de l\'image de référence')
+        logger.warn('⚠️ Échec de la génération de l\'image de référence')
       }
       const parallelEndTime = Date.now()
-      console.log(`⏱️  Génération parallèle (couverture/référence/personnages): ${((parallelEndTime - parallelStartTime) / 1000).toFixed(2)}s`)
+      logger.info(`⏱️  Génération parallèle (couverture/référence/personnages): ${((parallelEndTime - parallelStartTime) / 1000).toFixed(2)}s`)
 
       // 4. Générer les images de chapitres si demandé
       let chapterImages: ChapterImage[] = [];
       if (!storyTextJson.chapters || storyTextJson.chapters.length === 0) {
-        console.log('🎨 Pas de chapitres à générer');
+        logger.info('🎨 Pas de chapitres à générer');
         throw new errors.E_VALIDATION_ERROR('Pas de chapitres à générer');
       }
 
       const chaptersStartTime = Date.now()
-      console.log('🎨 Génération des images de chapitres...')
+      logger.info('🎨 Génération des images de chapitres...')
       try {
         // Passer l'image de référence et le seed si disponibles pour éviter de les régénérer
         const { generateChapterImagesWithLeonardo } = await import('#stories/services/leonardo_ai_service')
@@ -478,22 +479,22 @@ export default class StoriesController {
             )
         chapterImages.push(...chapterImagesResponse.images)
         const chaptersEndTime = Date.now()
-        console.log(
+        logger.info(
           `✅ ${chapterImagesResponse.metadata.successfulGeneration}/${storyTextJson.chapters.length} images de chapitres générées`
         )
-        console.log(`⏱️  Génération images chapitres: ${((chaptersEndTime - chaptersStartTime) / 1000).toFixed(2)}s`)
+        logger.info(`⏱️  Génération images chapitres: ${((chaptersEndTime - chaptersStartTime) / 1000).toFixed(2)}s`)
 
         if (chapterImagesResponse.metadata.errors) {
-          console.warn('⚠️ Erreurs lors de la génération:', chapterImagesResponse.metadata.errors)
+          logger.warn('⚠️ Erreurs lors de la génération:', chapterImagesResponse.metadata.errors)
         }
       } catch (error) {
-        console.error('❌ Erreur génération images chapitres:', error)
+        logger.error('❌ Erreur génération images chapitres:', error)
         // Continue sans les images de chapitres en cas d'erreur
       }
 
       // 5. Enregistrer l'histoire en base de données
       const dbSaveStartTime = Date.now()
-      console.log('💾 Enregistrement en base de données...')
+      logger.info('💾 Enregistrement en base de données...')
       const story = await db
         .insertInto('stories')
         .values({
@@ -528,12 +529,12 @@ export default class StoriesController {
 
       const createdStory = story[0]
       const dbSaveEndTime = Date.now()
-      console.log(`⏱️  Enregistrement histoire en DB: ${((dbSaveEndTime - dbSaveStartTime) / 1000).toFixed(2)}s`)
+      logger.info(`⏱️  Enregistrement histoire en DB: ${((dbSaveEndTime - dbSaveStartTime) / 1000).toFixed(2)}s`)
 
       // 6. Enregistrer les personnages si générés
       if (charactersData.length > 0) {
         const charactersSaveStartTime = Date.now()
-        console.log('👥 Enregistrement des personnages...')
+        logger.info('👥 Enregistrement des personnages...')
         try {
           await db
             .insertInto('characters')
@@ -554,10 +555,10 @@ export default class StoriesController {
             )
             .execute()
           const charactersSaveEndTime = Date.now()
-          console.log(`✅ ${charactersData.length} personnages sauvegardés`)
-          console.log(`⏱️  Enregistrement personnages: ${((charactersSaveEndTime - charactersSaveStartTime) / 1000).toFixed(2)}s`)
+          logger.info(`✅ ${charactersData.length} personnages sauvegardés`)
+          logger.info(`⏱️  Enregistrement personnages: ${((charactersSaveEndTime - charactersSaveStartTime) / 1000).toFixed(2)}s`)
         } catch (error) {
-          console.error('❌ Erreur sauvegarde personnages:', error)
+          logger.error('❌ Erreur sauvegarde personnages:', error)
         }
       }
 
@@ -566,10 +567,10 @@ export default class StoriesController {
 
       const endTime = Date.now()
       const totalTime = ((endTime - startTime) / 1000).toFixed(2)
-      console.log(`🎉 Histoire complète générée avec succès!`)
-      console.log(`⏱️  ════════════════════════════════════════`)
-      console.log(`⏱️  TEMPS TOTAL: ${totalTime}s`)
-      console.log(`⏱️  ════════════════════════════════════════`)
+      logger.info(`🎉 Histoire complète générée avec succès!`)
+      logger.info(`⏱️  ════════════════════════════════════════`)
+      logger.info(`⏱️  TEMPS TOTAL: ${totalTime}s`)
+      logger.info(`⏱️  ════════════════════════════════════════`)
 
       return response.created({
         message: 'Histoire créée avec succès',
@@ -582,7 +583,7 @@ export default class StoriesController {
         },
       })
     } catch (error) {
-      console.error("💥 Erreur lors de la création de l'histoire:", error)
+      logger.error("💥 Erreur lors de la création de l'histoire:", error)
       return response.internalServerError({
         message: "Erreur lors de la création de l'histoire",
         error: error instanceof Error ? error.message : 'Erreur inconnue',

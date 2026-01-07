@@ -1,3 +1,4 @@
+import logger from '@adonisjs/core/services/logger'
 import env from '#start/env'
 import { ALLOWED_LANGUAGES } from '#stories/constants/allowed_languages'
 import { LOCALES } from '#stories/constants/locales'
@@ -97,7 +98,7 @@ export async function generateImage(payload: StoryContentPayload) {
   const leonardoAvailable = await testLeonardoConnection()
 
   if (leonardoAvailable) {
-    console.log('🎨 Génération image de couverture avec Leonardo AI...')
+    logger.info('🎨 Génération image de couverture avec Leonardo AI...')
     try {
       const storyContext: StoryGenerationContext & { slug: string } = {
         title: title || '',
@@ -114,16 +115,16 @@ export async function generateImage(payload: StoryContentPayload) {
 
       const leonardoResult = await generateCoverImageWithLeonardo(storyContext)
       if (leonardoResult) {
-        console.log('✅ Image de couverture générée avec Leonardo AI')
+        logger.info('✅ Image de couverture générée avec Leonardo AI')
         return leonardoResult
       }
     } catch (error) {
-      console.error('❌ Erreur Leonardo AI pour couverture, fallback DALL-E:', error)
+      logger.error('❌ Erreur Leonardo AI pour couverture, fallback DALL-E:', error)
     }
   }
 
   // Fallback sur DALL-E
-  console.log('🤖 Génération image de couverture avec DALL-E (fallback)...')
+  logger.info('🤖 Génération image de couverture avec DALL-E (fallback)...')
   return await generateImageWithDallE(payload)
 }
 
@@ -154,7 +155,7 @@ export async function downloadImage(url: string, filename: string): Promise<stri
   return new Promise((resolve, reject) => {
     writeFile(imagePath, response.data, (err) => {
       if (err) reject(err)
-      console.log(`Image downloaded successfully! ${imagePath}`)
+      logger.info(`Image downloaded successfully! ${imagePath}`)
     })
 
     return resolve(imagePath)

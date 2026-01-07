@@ -2,6 +2,7 @@
  * Service de génération des profils de personnages pour les histoires
  */
 
+import logger from '@adonisjs/core/services/logger'
 import OpenAI from 'openai'
 
 import {
@@ -61,8 +62,8 @@ export async function generateCharacterProfiles(
         .replace(/\s*```$/, '')
       parsedResponse = JSON.parse(cleanedContent)
     } catch (parseError) {
-      console.error('Erreur parsing JSON personnages:', parseError)
-      console.error('Contenu reçu:', content)
+      logger.error('Erreur parsing JSON personnages:', parseError)
+      logger.error('Contenu reçu:', content)
       throw new Error('Réponse OpenAI invalide - format JSON attendu')
     }
 
@@ -73,11 +74,11 @@ export async function generateCharacterProfiles(
         if (isGeneratedCharacter(char)) {
           validCharacters.push(char)
         } else {
-          console.warn('Personnage ignoré (format invalide):', char)
+          logger.warn('Personnage ignoré (format invalide):', char)
         }
       }
     } else {
-      console.warn('Format de réponse inattendu:', parsedResponse)
+      logger.warn('Format de réponse inattendu:', parsedResponse)
     }
 
     return {
@@ -89,7 +90,7 @@ export async function generateCharacterProfiles(
       },
     }
   } catch (error) {
-    console.error('Erreur lors de la génération des personnages:', error)
+    logger.error('Erreur lors de la génération des personnages:', error)
     throw new Error('Échec de la génération des profils de personnages')
   }
 }
@@ -183,7 +184,7 @@ export async function generateCharacterImage(
 
     return response.data?.[0]?.url || null
   } catch (error) {
-    console.error(`Erreur génération image pour ${character.name}:`, error)
+    logger.error(`Erreur génération image pour ${character.name}:`, error)
     return null
   }
 }

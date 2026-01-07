@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import { GoogleGenAI } from '@google/genai'
 import env from '#start/env'
 import { IStoryImageGenerationService } from '#stories/domain/services/IStoryImageGenerationService'
@@ -46,10 +47,10 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
     _characterReference?: CharacterReferenceResult
   ): Promise<string> {
     try {
-      console.log('🖼️ Génération image de couverture avec Gemini Imagen 3 (Nano Banana)...')
+      logger.info('🖼️ Génération image de couverture avec Gemini Imagen 3 (Nano Banana)...')
 
       const coverPrompt = this.buildCoverPrompt(context)
-      console.log(`🎨 Génération couverture pour: ${context.title}`)
+      logger.info(`🎨 Génération couverture pour: ${context.title}`)
 
       // Générer l'image avec Gemini
       const imageData = await this.generateImageWithRetry(coverPrompt)
@@ -62,10 +63,10 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
         'image/png'
       )
 
-      console.log('✅ Image de couverture Gemini Imagen créée')
+      logger.info('✅ Image de couverture Gemini Imagen créée')
       return coverPath
     } catch (error: any) {
-      console.error('❌ Erreur génération couverture Gemini:', error)
+      logger.error('❌ Erreur génération couverture Gemini:', error)
       throw new Error(`Cover image generation failed: ${error.message}`)
     }
   }
@@ -82,10 +83,10 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
     const errors: string[] = []
     let successfulGeneration = 0
 
-    console.log('🎨 Génération avec Gemini Imagen 3 - Génération parallèle')
+    logger.info('🎨 Génération avec Gemini Imagen 3 - Génération parallèle')
 
     const parallelStartTime = Date.now()
-    console.log(`🚀 Génération parallèle de ${chapters.length} images de chapitres...`)
+    logger.info(`🚀 Génération parallèle de ${chapters.length} images de chapitres...`)
 
     const generationPromises = chapters.map((chapter) =>
       this.generateSingleChapterImage(context, chapter)
@@ -101,7 +102,7 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
           }
         })
         .catch((error: any) => {
-          console.error(`❌ Erreur génération chapitre ${chapter.index + 1}:`, error.message)
+          logger.error(`❌ Erreur génération chapitre ${chapter.index + 1}:`, error.message)
           errors.push(`Chapitre ${chapter.index + 1}: ${error.message}`)
           return { success: false, result: null, index: chapter.index, error: error.message }
         })
@@ -121,7 +122,7 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
     const parallelEndTime = Date.now()
     const generationTimeMs = parallelEndTime - parallelStartTime
 
-    console.log(`✅ ${successfulGeneration}/${chapters.length} images de chapitres générées`)
+    logger.info(`✅ ${successfulGeneration}/${chapters.length} images de chapitres générées`)
 
     return {
       images: chapterImages,
@@ -141,7 +142,7 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
   async createCharacterReference(
     _context: ImageGenerationContext
   ): Promise<CharacterReferenceResult | undefined> {
-    console.log(
+    logger.info(
       'ℹ️ Gemini Imagen ne supporte pas les character references - mode text-to-image uniquement'
     )
     return undefined
@@ -155,10 +156,10 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
       // Test simple: générer une petite image test
       const testPrompt = 'A simple test image: a small blue circle on white background'
       await this.generateImageWithRetry(testPrompt)
-      console.log('✅ Connexion Gemini Imagen réussie')
+      logger.info('✅ Connexion Gemini Imagen réussie')
       return true
     } catch (error) {
-      console.error('❌ Erreur connexion Gemini Imagen:', error)
+      logger.error('❌ Erreur connexion Gemini Imagen:', error)
       return false
     }
   }
@@ -179,7 +180,7 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
     chapter: ChapterContent
   ): Promise<ChapterImageResult | null> {
     try {
-      console.log(`📋 Génération image chapitre ${chapter.index + 1}: ${chapter.title}`)
+      logger.info(`📋 Génération image chapitre ${chapter.index + 1}: ${chapter.title}`)
 
       const chapterPrompt = this.buildChapterPrompt(context, chapter)
 
@@ -194,7 +195,7 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
         'image/png'
       )
 
-      console.log(`✅ Image chapitre ${chapter.index + 1} générée`)
+      logger.info(`✅ Image chapitre ${chapter.index + 1} générée`)
 
       return {
         chapterIndex: chapter.index,
@@ -202,7 +203,7 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
         chapterTitle: chapter.title,
       }
     } catch (error: any) {
-      console.error(`❌ Erreur génération chapitre ${chapter.index + 1}:`, error.message)
+      logger.error(`❌ Erreur génération chapitre ${chapter.index + 1}:`, error.message)
       throw error
     }
   }
@@ -249,10 +250,10 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
         throw new Error('Aucune image trouvée dans la réponse Gemini')
       } catch (error: any) {
         lastError = error
-        console.warn(`⚠️ Tentative ${attempt}/${retries} échouée:`, error.message)
+        logger.warn(`⚠️ Tentative ${attempt}/${retries} échouée:`, error.message)
 
         if (attempt < retries) {
-          console.log(`🔄 Nouvelle tentative dans ${this.RETRY_DELAY_MS}ms...`)
+          logger.info(`🔄 Nouvelle tentative dans ${this.RETRY_DELAY_MS}ms...`)
           await new Promise((resolve) => setTimeout(resolve, this.RETRY_DELAY_MS))
         }
       }
@@ -273,7 +274,7 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
     contentType: string
   ): Promise<string> {
     try {
-      console.log(`📥 Sauvegarde image: ${destinationPath}`)
+      logger.info(`📥 Sauvegarde image: ${destinationPath}`)
 
       // Convertir base64 en Buffer
       const imageBuffer = Buffer.from(base64Data, 'base64')
@@ -283,10 +284,10 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
         contentType,
       })
 
-      console.log(`✅ Image sauvegardée: ${result.path}`)
+      logger.info(`✅ Image sauvegardée: ${result.path}`)
       return result.path
     } catch (error: any) {
-      console.error(`❌ Erreur sauvegarde image ${destinationPath}:`, error)
+      logger.error(`❌ Erreur sauvegarde image ${destinationPath}:`, error)
       throw new Error(`Image save failed: ${error.message}`)
     }
   }

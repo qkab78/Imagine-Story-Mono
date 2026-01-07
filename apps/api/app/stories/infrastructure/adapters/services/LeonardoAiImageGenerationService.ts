@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import { Leonardo } from '@leonardo-ai/sdk'
 import env from '#start/env'
 import { IStoryImageGenerationService } from '#stories/domain/services/IStoryImageGenerationService'
@@ -50,18 +51,18 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
     characterReference?: CharacterReferenceResult
   ): Promise<string> {
     try {
-      console.log('🖼️ Génération image de couverture avec Leonardo AI...')
+      logger.info('🖼️ Génération image de couverture avec Leonardo AI...')
 
       const characterSeed = characterReference?.seed ?? this.generateCharacterSeed(context)
       const initImageId = characterReference?.referenceId
 
       if (initImageId) {
-        console.log(`🎨 Utilisation init image ID pour cohérence: ${initImageId}`)
+        logger.info(`🎨 Utilisation init image ID pour cohérence: ${initImageId}`)
       }
 
       const coverPrompt = this.buildCoverPrompt(context)
 
-      console.log(`🎭 Génération couverture avec seed: ${characterSeed}`)
+      logger.info(`🎭 Génération couverture avec seed: ${characterSeed}`)
 
       const generationParams: any = {
         prompt: coverPrompt,
@@ -78,7 +79,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
       if (initImageId) {
         generationParams.initImageId = initImageId
         generationParams.initStrength = this.COVER_INIT_STRENGTH
-        console.log(`🔄 Mode image-to-image activé (strength: ${this.COVER_INIT_STRENGTH})`)
+        logger.info(`🔄 Mode image-to-image activé (strength: ${this.COVER_INIT_STRENGTH})`)
       }
 
       const response = await this.leonardo.image.createGeneration(generationParams)
@@ -88,7 +89,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
         throw new Error("Pas d'ID de génération pour l'image de couverture")
       }
 
-      console.log(`⏳ Attente génération couverture: ${generationId}`)
+      logger.info(`⏳ Attente génération couverture: ${generationId}`)
       const generatedImages = await this.waitForGeneration(generationId)
 
       if (!generatedImages || generatedImages.length === 0) {
@@ -108,10 +109,10 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
         'image/webp'
       )
 
-      console.log('✅ Image de couverture Leonardo AI créée')
+      logger.info('✅ Image de couverture Leonardo AI créée')
       return coverPath
     } catch (error: any) {
-      console.error('❌ Erreur génération couverture Leonardo AI:', error)
+      logger.error('❌ Erreur génération couverture Leonardo AI:', error)
       throw new Error(`Cover image generation failed: ${error.message}`)
     }
   }
@@ -128,18 +129,18 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
     const errors: string[] = []
     let successfulGeneration = 0
 
-    console.log('🎨 Génération avec Leonardo AI - Stratégie de cohérence des personnages')
+    logger.info('🎨 Génération avec Leonardo AI - Stratégie de cohérence des personnages')
 
     const characterSeed = characterReference?.seed ?? this.generateCharacterSeed(context)
     const initImageId = characterReference?.referenceId
 
     if (initImageId) {
-      console.log(`🎨 Utilisation init image ID pour tous les chapitres: ${initImageId}`)
+      logger.info(`🎨 Utilisation init image ID pour tous les chapitres: ${initImageId}`)
     }
 
     // Génération parallèle pour réduire le temps de traitement
     const parallelStartTime = Date.now()
-    console.log(`🚀 Génération parallèle de ${chapters.length} images de chapitres...`)
+    logger.info(`🚀 Génération parallèle de ${chapters.length} images de chapitres...`)
 
     const generationPromises = chapters.map((chapter) =>
       this.generateSingleChapterImage(context, chapter, characterSeed, initImageId)
@@ -155,7 +156,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
           }
         })
         .catch((error: any) => {
-          console.error(`❌ Erreur génération chapitre ${chapter.index + 1}:`, error.message)
+          logger.error(`❌ Erreur génération chapitre ${chapter.index + 1}:`, error.message)
           errors.push(`Chapitre ${chapter.index + 1}: ${error.message}`)
           return { success: false, result: null, index: chapter.index, error: error.message }
         })
@@ -175,7 +176,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
     const parallelEndTime = Date.now()
     const generationTimeMs = parallelEndTime - parallelStartTime
 
-    console.log(`✅ ${successfulGeneration}/${chapters.length} images de chapitres générées`)
+    logger.info(`✅ ${successfulGeneration}/${chapters.length} images de chapitres générées`)
 
     return {
       images: chapterImages,
@@ -195,12 +196,12 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
     context: ImageGenerationContext
   ): Promise<CharacterReferenceResult> {
     try {
-      console.log('🎨 Création character reference sheet avec Leonardo AI...')
+      logger.info('🎨 Création character reference sheet avec Leonardo AI...')
 
       const characterSeed = this.generateCharacterSeed(context)
       const referencePrompt = this.buildCharacterReferencePrompt(context)
 
-      console.log(`🎭 Génération personnage de référence avec seed: ${characterSeed}`)
+      logger.info(`🎭 Génération personnage de référence avec seed: ${characterSeed}`)
 
       const response = await this.leonardo.image.createGeneration({
         prompt: referencePrompt,
@@ -218,7 +219,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
         throw new Error("Pas d'ID pour l'image de référence")
       }
 
-      console.log(`⏳ Attente génération référence: ${generationId}`)
+      logger.info(`⏳ Attente génération référence: ${generationId}`)
       const generatedImages = await this.waitForGeneration(generationId)
 
       if (!generatedImages || generatedImages.length === 0) {
@@ -245,7 +246,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
         context.protagonist
       )
 
-      console.log(`✅ Character reference créée avec init image ID: ${initImageId}`)
+      logger.info(`✅ Character reference créée avec init image ID: ${initImageId}`)
 
       return {
         referenceImagePath,
@@ -253,7 +254,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
         seed: characterSeed,
       }
     } catch (error: any) {
-      console.error('❌ Erreur création character reference:', error)
+      logger.error('❌ Erreur création character reference:', error)
       throw new Error(`Character reference creation failed: ${error.message}`)
     }
   }
@@ -264,13 +265,13 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
   async testConnection(): Promise<boolean> {
     try {
       const response = await this.leonardo.user.getUserSelf()
-      console.log(
+      logger.info(
         '✅ Connexion Leonardo AI réussie:',
         (response as any).user_details?.[0]?.user?.username || 'Utilisateur'
       )
       return true
     } catch (error) {
-      console.error('❌ Erreur connexion Leonardo AI:', error)
+      logger.error('❌ Erreur connexion Leonardo AI:', error)
       return false
     }
   }
@@ -293,7 +294,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
     initImageId?: string
   ): Promise<ChapterImageResult | null> {
     try {
-      console.log(`📋 Génération image chapitre ${chapter.index + 1}: ${chapter.title}`)
+      logger.info(`📋 Génération image chapitre ${chapter.index + 1}: ${chapter.title}`)
 
       const chapterPrompt = this.buildChapterPrompt(context, chapter)
 
@@ -318,20 +319,20 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
       const generationId = (response as any).object?.sdGenerationJob?.generationId
 
       if (!generationId) {
-        console.error(`❌ Pas d'ID pour chapitre ${chapter.index + 1}`)
+        logger.error(`❌ Pas d'ID pour chapitre ${chapter.index + 1}`)
         return null
       }
 
       const generatedImages = await this.waitForGeneration(generationId)
 
       if (!generatedImages || generatedImages.length === 0) {
-        console.error(`❌ Aucune image générée pour chapitre ${chapter.index + 1}`)
+        logger.error(`❌ Aucune image générée pour chapitre ${chapter.index + 1}`)
         return null
       }
 
       const chapterImageUrl = generatedImages[0].url
       if (!chapterImageUrl) {
-        console.error(`❌ URL manquante pour chapitre ${chapter.index + 1}`)
+        logger.error(`❌ URL manquante pour chapitre ${chapter.index + 1}`)
         return null
       }
 
@@ -343,7 +344,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
         'image/webp'
       )
 
-      console.log(`✅ Image chapitre ${chapter.index + 1} générée`)
+      logger.info(`✅ Image chapitre ${chapter.index + 1} générée`)
 
       return {
         chapterIndex: chapter.index,
@@ -351,7 +352,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
         chapterTitle: chapter.title,
       }
     } catch (error: any) {
-      console.error(`❌ Erreur génération chapitre ${chapter.index + 1}:`, error.message)
+      logger.error(`❌ Erreur génération chapitre ${chapter.index + 1}:`, error.message)
       throw error
     }
   }
@@ -365,7 +366,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
     characterName: string
   ): Promise<string> {
     try {
-      console.log(`📤 Upload character reference vers Leonardo AI: ${characterName}`)
+      logger.info(`📤 Upload character reference vers Leonardo AI: ${characterName}`)
 
       // Télécharger l'image depuis l'URL
       const axios = (await import('axios')).default
@@ -389,14 +390,14 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
       const initImageId = (uploadResult as any)?.uploadInitImage?.id
 
       if (!initImageId) {
-        console.error('Leonardo AI upload response:', uploadResult)
+        logger.error('Leonardo AI upload response:', uploadResult)
         throw new Error('Failed to get init image ID from Leonardo AI')
       }
 
-      console.log(`✅ Character reference uploaded, init image ID: ${initImageId}`)
+      logger.info(`✅ Character reference uploaded, init image ID: ${initImageId}`)
       return initImageId
     } catch (error: any) {
-      console.error('❌ Failed to upload character reference:', error.message)
+      logger.error('❌ Failed to upload character reference:', error.message)
       throw new Error(`Character reference upload failed: ${error.message}`)
     }
   }
@@ -424,7 +425,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
         // Attendre avant le prochain poll
         await new Promise((resolve) => setTimeout(resolve, this.POLL_INTERVAL_MS))
       } catch (error: any) {
-        console.error('❌ Erreur polling Leonardo AI:', error.message)
+        logger.error('❌ Erreur polling Leonardo AI:', error.message)
         throw error
       }
     }
@@ -442,16 +443,16 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
     contentType: string
   ): Promise<string> {
     try {
-      console.log(`📥 Téléchargement image: ${destinationPath}`)
+      logger.info(`📥 Téléchargement image: ${destinationPath}`)
 
       const result = await this.storageService.uploadFromUrl(imageUrl, destinationPath, {
         contentType,
       })
 
-      console.log(`✅ Image sauvegardée: ${result.path}`)
+      logger.info(`✅ Image sauvegardée: ${result.path}`)
       return result.path
     } catch (error: any) {
-      console.error(`❌ Erreur téléchargement image ${destinationPath}:`, error)
+      logger.error(`❌ Erreur téléchargement image ${destinationPath}:`, error)
       throw new Error(`Image download failed: ${error.message}`)
     }
   }

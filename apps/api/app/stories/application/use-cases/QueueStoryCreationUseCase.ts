@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import queue from '@rlanz/bull-queue/services/main'
 import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
 import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
@@ -37,7 +38,7 @@ export class QueueStoryCreationUseCase {
   ) {}
 
   async execute(payload: QueueStoryCreationPayload) {
-    console.log('📝 Queuing story creation...')
+    logger.info('📝 Queuing story creation...')
 
     // 1. Récupérer les entités de configuration
     const [theme, language, tone] = await Promise.all([
@@ -53,7 +54,7 @@ export class QueueStoryCreationUseCase {
     // Create a temporary title with the current date and time
     const temporaryTitle = `Story ${this.dateService.now().toString()}`
 
-    console.log(`📝 Temporary title: ${temporaryTitle}`)
+    logger.info(`📝 Temporary title: ${temporaryTitle}`)
 
     // 2. Créer une Story avec status="pending"
     const story = StoryFactory.createPending(this.dateService, this.randomService, {
@@ -96,7 +97,7 @@ export class QueueStoryCreationUseCase {
     story.startGeneration(job.id)
     await this.storyRepository.save(story)
 
-    console.log(`✅ Story queued: ${story.id.getValue()}, Job ID: ${job.id}`)
+    logger.info(`✅ Story queued: ${story.id.getValue()}, Job ID: ${job.id}`)
 
     return {
       id: story.id.getValue(),

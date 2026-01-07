@@ -3,6 +3,7 @@
  * Utilise Leonardo AI pour une meilleure cohérence des personnages
  */
 
+import logger from '@adonisjs/core/services/logger'
 import OpenAI from 'openai'
 import env from '#start/env'
 import fs from 'node:fs'
@@ -38,15 +39,15 @@ export async function generateChapterImages(
   const leonardoAvailable = await testLeonardoConnection()
 
   if (leonardoAvailable) {
-    console.log('🎨 Utilisation de Leonardo AI pour la génération des images de chapitres')
+    logger.info('🎨 Utilisation de Leonardo AI pour la génération des images de chapitres')
     try {
       return await generateChapterImagesWithLeonardo(context, chapters, storySlug)
     } catch (error) {
-      console.error('❌ Erreur Leonardo AI, fallback sur DALL-E:', error)
+      logger.error('❌ Erreur Leonardo AI, fallback sur DALL-E:', error)
       return await generateChapterImagesWithDallE(context, chapters, storySlug)
     }
   } else {
-    console.log('🤖 Utilisation de DALL-E pour la génération des images de chapitres')
+    logger.info('🤖 Utilisation de DALL-E pour la génération des images de chapitres')
     return await generateChapterImagesWithDallE(context, chapters, storySlug)
   }
 }
@@ -123,7 +124,7 @@ async function generateSingleChapterImage(
   storySlug: string
 ): Promise<ChapterImage | null> {
   const fileName = `${storySlug}_chapter_${chapterIndex + 1}.png`
-  console.log(`Génération image pour chapitre ${chapterIndex + 1}: ${chapter.title}`)
+  logger.info(`Génération image pour chapitre ${chapterIndex + 1}: ${chapter.title}`)
 
   // Première tentative avec le prompt complet
   try {
@@ -154,11 +155,11 @@ async function generateSingleChapterImage(
       generatedAt: new Date().toISOString(),
     }
   } catch (error: any) {
-    console.warn(`Première tentative échouée pour chapitre ${chapterIndex + 1}:`, error.message)
+    logger.warn(`Première tentative échouée pour chapitre ${chapterIndex + 1}:`, error.message)
 
     // Si c'est une violation de content policy, essayer avec le prompt simplifié
     if (error.code === 'content_policy_violation' || error.message?.includes('safety system')) {
-      console.log(`Retry avec prompt simplifié pour chapitre ${chapterIndex + 1}`)
+      logger.info(`Retry avec prompt simplifié pour chapitre ${chapterIndex + 1}`)
 
       try {
         const simplifiedPrompt = createChapterImagePrompt(context, chapter, chapterIndex, true)
@@ -188,7 +189,7 @@ async function generateSingleChapterImage(
           generatedAt: new Date().toISOString(),
         }
       } catch (retryError) {
-        console.error(`Retry échoué pour chapitre ${chapterIndex + 1}:`, retryError)
+        logger.error(`Retry échoué pour chapitre ${chapterIndex + 1}:`, retryError)
         throw retryError
       }
     } else {
@@ -359,10 +360,10 @@ async function downloadChapterImage(imageUrl: string, fileName: string): Promise
       contentType: 'image/png',
     })
 
-    console.log(`Image sauvegardée: ${result.path}`)
+    logger.info(`Image sauvegardée: ${result.path}`)
     return result.path
   } catch (error) {
-    console.error(`Erreur téléchargement image ${fileName}:`, error)
+    logger.error(`Erreur téléchargement image ${fileName}:`, error)
     throw new Error(`Échec du téléchargement de l'image: ${error}`)
   }
 }

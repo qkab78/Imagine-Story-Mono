@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
 import { IStoryGenerationService } from '#stories/domain/services/IStoryGeneration'
 import { ChapterFactory } from '#stories/domain/factories/ChapterFactory'
@@ -31,7 +32,7 @@ export class GenerateStoryContentUseCase {
   ) {}
 
   async execute(payload: GenerateStoryContentPayload) {
-    console.log(`🤖 Generating story content for: ${payload.storyId}`)
+    logger.info(`🤖 Generating story content for: ${payload.storyId}`)
 
     // 1. Récupérer la story
     const story = await this.storyRepository.findById(payload.storyId)
@@ -87,16 +88,16 @@ export class GenerateStoryContentUseCase {
 
       // Dispatch success email (non-blocking)
       this.dispatchSuccessEmail(updatedStory).catch((error) => {
-        console.error('⚠️ Failed to dispatch success email job:', error.message)
+        logger.error('⚠️ Failed to dispatch success email job:', error.message)
       })
 
-      console.log(`✅ Story generation completed: ${payload.storyId}`)
-      console.log(`📖 Generated title: "${storyGenerated.title}"`)
-      console.log(`🔗 Generated slug: "${storyGenerated.slug}"`)
+      logger.info(`✅ Story generation completed: ${payload.storyId}`)
+      logger.info(`📖 Generated title: "${storyGenerated.title}"`)
+      logger.info(`🔗 Generated slug: "${storyGenerated.slug}"`)
 
       return updatedStory
     } catch (error: any) {
-      console.error(`❌ Story generation failed: ${error.message}`)
+      logger.error(`❌ Story generation failed: ${error.message}`)
 
       // Marquer comme échoué seulement si le status est processing
       if (story.generationStatus.isProcessing()) {
@@ -105,10 +106,10 @@ export class GenerateStoryContentUseCase {
 
         // Dispatch failure email (non-blocking)
         this.dispatchFailureEmail(story, error.message).catch((emailError) => {
-          console.error('⚠️ Failed to dispatch failure email job:', emailError.message)
+          logger.error('⚠️ Failed to dispatch failure email job:', emailError.message)
         })
       } else {
-        console.error(
+        logger.error(
           `⚠️ Cannot mark story as failed: status is ${story.generationStatus.getValue()}, expected processing`
         )
       }
@@ -126,7 +127,7 @@ export class GenerateStoryContentUseCase {
       const user = await this.userRepository.findById(story.ownerId.getValue())
 
       if (!user) {
-        console.warn(`⚠️ User not found: ${story.ownerId.getValue()}`)
+        logger.warn(`⚠️ User not found: ${story.ownerId.getValue()}`)
         return
       }
 
@@ -138,9 +139,9 @@ export class GenerateStoryContentUseCase {
         storySlug: story.slug.getValue(),
       })
 
-      console.log(`📧 Success email dispatched for ${user.email.getValue()}`)
+      logger.info(`📧 Success email dispatched for ${user.email.getValue()}`)
     } catch (error: any) {
-      console.error('❌ Error dispatching success email:', error.message)
+      logger.error('❌ Error dispatching success email:', error.message)
       // Don't throw - continue execution
     }
   }
@@ -154,7 +155,7 @@ export class GenerateStoryContentUseCase {
       const user = await this.userRepository.findById(story.ownerId.getValue())
 
       if (!user) {
-        console.warn(`⚠️ User not found: ${story.ownerId.getValue()}`)
+        logger.warn(`⚠️ User not found: ${story.ownerId.getValue()}`)
         return
       }
 
@@ -169,9 +170,9 @@ export class GenerateStoryContentUseCase {
         errorMessage: userFriendlyError,
       })
 
-      console.log(`📧 Failure email dispatched for ${user.email.getValue()}`)
+      logger.info(`📧 Failure email dispatched for ${user.email.getValue()}`)
     } catch (error: any) {
-      console.error('❌ Error dispatching failure email:', error.message)
+      logger.error('❌ Error dispatching failure email:', error.message)
       // Don't throw - continue execution
     }
   }
