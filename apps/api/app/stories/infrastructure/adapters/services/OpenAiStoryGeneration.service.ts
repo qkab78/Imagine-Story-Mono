@@ -1,14 +1,14 @@
 import { inject } from '@adonisjs/core'
-import string from '@adonisjs/core/helpers/string'
 import logger from '@adonisjs/core/services/logger'
 import { IStoryGenerationService, StoryGenerationPayload } from "#stories/domain/services/IStoryGeneration";
 import { StoryGenerated } from "#stories/domain/services/types/StoryGenerated";
 import { IStoryImageGenerationService } from '#stories/domain/services/IStoryImageGenerationService';
+import { IStoryRepository } from '#stories/domain/repositories/StoryRepository';
 import { ChapterFactory } from '#stories/domain/factories/ChapterFactory';
+import { Slug } from '#stories/domain/value-objects/metadata/Slug.vo';
 import type { ImageGenerationContext, ChapterContent, CharacterReferenceResult } from '#stories/domain/services/types/ImageGenerationTypes';
 import OpenAI from 'openai'
 import env from '#start/env'
-import { LOCALES } from '#stories/constants/locales'
 
 /**
  * Service de génération d'histoires utilisant OpenAI pour le texte et un provider d'images
@@ -22,9 +22,49 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
     private readonly openai: OpenAI
 
     constructor(
-        private readonly imageGenerationService: IStoryImageGenerationService
+        private readonly imageGenerationService: IStoryImageGenerationService,
+        private readonly storyRepository: IStoryRepository
     ) {
         this.openai = new OpenAI({ apiKey: env.get('OPENAI_API_KEY') })
+    }
+
+    /**
+     * Génère un slug unique en vérifiant s'il existe déjà dans la base de données.
+     * Si le slug existe, incrémente avec un suffixe numérique (ex: my-story-2, my-story-3)
+     * @private
+     */
+    private async generateUniqueSlug(baseTitle: string): Promise<string> {
+        const MAX_SLUG_ATTEMPTS = 100
+
+        // Utiliser Slug.fromTitle() pour générer un slug valide selon les règles de validation
+        const baseSlugVO = Slug.fromTitle(baseTitle)
+        const baseSlug = baseSlugVO.getValue()
+        let counter = 2
+
+        // Vérifier si le slug de base existe déjà
+        if (!(await this.storyRepository.existsBySlug(baseSlugVO))) {
+            return baseSlug
+        }
+
+        // Le slug existe, chercher une variante unique
+        logger.info(`🔄 Slug "${baseSlug}" existe déjà, recherche d'un slug unique...`)
+
+        while (counter <= MAX_SLUG_ATTEMPTS) {
+            const candidateSlug = `${baseSlug}-${counter}`
+            const candidateSlugVO = Slug.create(candidateSlug)
+
+            if (!(await this.storyRepository.existsBySlug(candidateSlugVO))) {
+                logger.info(`✅ Slug unique trouvé: "${candidateSlug}" (original: "${baseSlug}")`)
+                return candidateSlug
+            }
+
+            counter++
+        }
+
+        // Fallback avec timestamp si trop de duplications
+        const timestampSlug = `${baseSlug}-${Date.now()}`
+        logger.warn(`⚠️ Plus de ${MAX_SLUG_ATTEMPTS} duplications, utilisation du timestamp: ${timestampSlug}`)
+        return timestampSlug
     }
 
     /**
@@ -58,7 +98,6 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
      */
     private async generateStoryText(payload: StoryGenerationPayload): Promise<string> {
         const { synopsis, theme, childAge, numberOfChapters, language, protagonist, tone, species } = payload
-        const locale = LOCALES[language?.toUpperCase() as keyof typeof LOCALES] || LOCALES.ENGLISH
 
         const response = await this.openai.chat.completions.create({
             model: 'gpt-4o',
@@ -138,7 +177,8 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
         const startTime = Date.now()
 
         try {
-            const slug = string.slug(payload.title, { lower: true, trim: true })
+            // Générer un slug unique en vérifiant les duplications
+            const slug = await this.generateUniqueSlug(payload.title)
 
             // ÉTAPE 1: Générer le contenu texte de l'histoire via OpenAI
             const storyStartTime = Date.now()
