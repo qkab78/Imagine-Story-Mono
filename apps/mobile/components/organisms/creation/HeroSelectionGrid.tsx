@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Hero } from '@/domain/stories/value-objects/Hero';
+import { Language } from '@/domain/stories/value-objects/settings/Language';
 import { HeroCard } from '@/components/molecules/creation/HeroCard';
 import { FormField } from '@/components/molecules/creation/FormField';
 import { SelectField } from '@/components/molecules/creation/SelectField';
@@ -13,7 +14,6 @@ import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 import { StoryCreationRules } from '@/domain/stories/rules/story-creation.rules';
 import { AGE_OPTIONS, CHAPTERS_OPTIONS } from '@/types/creation';
-import { ALLOWED_LANGUAGES } from '@imagine-story/api/app/stories/constants/allowed_languages';
 import type { StoryCreationFormData } from '@/types/creation';
 
 interface HeroSelectionGridProps {
@@ -22,23 +22,25 @@ interface HeroSelectionGridProps {
   onHeroSelect: (hero: Hero) => void;
   control: Control<StoryCreationFormData>;
   onContinue: () => void;
+  languages: Language[];
 }
 
-const languages = [
-  { label: '🇫🇷 Français', value: ALLOWED_LANGUAGES.FR },
-  { label: '🇬🇧 Anglais', value: ALLOWED_LANGUAGES.EN },
-  { label: '🇪🇸 Espagnol', value: ALLOWED_LANGUAGES.ES },
-  { label: '🇩🇪 Allemand', value: ALLOWED_LANGUAGES.DE },
-  { label: '🇮🇹 Italien', value: ALLOWED_LANGUAGES.IT },
-  { label: '🇵🇹 Portugais', value: ALLOWED_LANGUAGES.PT },
-  { label: '🇨🇩 Lingala', value: ALLOWED_LANGUAGES.LI },
-  { label: '🇳🇱 Néerlandais', value: ALLOWED_LANGUAGES.NL },
-  { label: '🇵🇱 Polonais', value: ALLOWED_LANGUAGES.PL },
-  { label: '🇷🇺 Russe', value: ALLOWED_LANGUAGES.RU },
-  { label: '🇹🇷 Turc', value: ALLOWED_LANGUAGES.TR },
-  { label: '🇦🇪 Arabe', value: ALLOWED_LANGUAGES.AR },
-  { label: '🇯🇵 Japonais', value: ALLOWED_LANGUAGES.JA },
-];
+// Language code to emoji mapping
+const LANGUAGE_EMOJIS: Record<string, string> = {
+  'FR': '🇫🇷',
+  'EN': '🇬🇧',
+  'ES': '🇪🇸',
+  'DE': '🇩🇪',
+  'IT': '🇮🇹',
+  'PT': '🇵🇹',
+  'LI': '🇨🇩',
+  'NL': '🇳🇱',
+  'PL': '🇵🇱',
+  'RU': '🇷🇺',
+  'TR': '🇹🇷',
+  'AR': '🇦🇪',
+  'JA': '🇯🇵',
+};
 
 export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
   heroes,
@@ -46,7 +48,15 @@ export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
   onHeroSelect,
   control,
   onContinue,
+  languages,
 }) => {
+  // Build language options with UUIDs from API
+  const languageOptions = useMemo(() => {
+    return languages.map(lang => ({
+      label: `${LANGUAGE_EMOJIS[lang.code.toUpperCase()] || '🌍'} ${lang.name}`,
+      value: lang.getIdValue(), // Use UUID from backend
+    }));
+  }, [languages]);
   const { field: heroNameField, fieldState: heroNameFieldState } = useController({
     name: 'heroName',
     control,
@@ -107,7 +117,7 @@ export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
         name="language"
         label="Langue de l'histoire"
         placeholder="Choisir une langue 🌍"
-        options={languages}
+        options={languageOptions}
         control={control}
         error={languageField.error}
       />

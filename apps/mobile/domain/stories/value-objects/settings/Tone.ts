@@ -47,4 +47,18 @@ export class Tone {
   public getIdValue(): string {
     return this.id.getValue()
   }
+
+  /**
+   * Get the tone name
+   */
+  public getName(): string {
+    return this.name
+  }
+
+  /**
+   * Get the tone description
+   */
+  public getDescription(): string {
+    return this.description
+  }
 }

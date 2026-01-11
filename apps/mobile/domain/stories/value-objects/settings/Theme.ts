@@ -47,4 +47,18 @@ export class Theme {
   public getIdValue(): string {
     return this.id.getValue()
   }
+
+  /**
+   * Get the theme name
+   */
+  public getName(): string {
+    return this.name
+  }
+
+  /**
+   * Get the theme description
+   */
+  public getDescription(): string {
+    return this.description
+  }
 }
