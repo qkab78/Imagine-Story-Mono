@@ -14,7 +14,15 @@ export class GetStoryBySlugUseCase {
    * @returns Story entity
    */
   public static async execute(slug: string): Promise<Story> {
-    const dto = await getStoryBySlug(slug)
-    return StoryDTOMapper.toDomain(dto)
+    try {
+      const dto = await getStoryBySlug(slug)
+      console.log('[GetStoryBySlugUseCase] DTO received:', JSON.stringify(dto, null, 2))
+      const story = StoryDTOMapper.toDomain(dto)
+      console.log('[GetStoryBySlugUseCase] Story mapped successfully')
+      return story
+    } catch (error) {
+      console.error('[GetStoryBySlugUseCase] Error:', error)
+      throw error
+    }
   }
 }

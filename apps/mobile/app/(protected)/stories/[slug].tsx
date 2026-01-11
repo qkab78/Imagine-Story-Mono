@@ -1,64 +1,68 @@
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, ActivityIndicator, View } from 'react-native'
 import React, { useEffect } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useQuery } from '@tanstack/react-query'
-import { ScrollView } from 'react-native-gesture-handler'
-import { getStoryBySlug } from '@/api/stories'
+import { useStoryDetail } from '@/features/stories/hooks/useStoryDetail'
+import { StoryDetail } from '@/components/organisms/story/StoryDetail'
+import Text from '@/components/ui/Text'
+import { colors } from '@/theme/colors'
 
 const StoryScreen = () => {
   const router = useRouter();
   const { slug } = useLocalSearchParams()
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['story', slug],
-    queryFn: () => getStoryBySlug(slug as string),
-  })
+
+  // Use the useStoryDetail hook which returns domain entities
+  const { data: story, isLoading, error } = useStoryDetail(slug as string)
 
   useEffect(() => {
-    router.setParams({
-      title: data?.title || '',
-    });
-  }, [router, data?.title, slug]);
+    if (story) {
+      router.setParams({
+        title: story.title || '',
+      });
+    }
+  }, [router, story?.title, slug]);
 
   if (isLoading) {
-    return <Text>Loading...</Text>
-  }
-
-  if (error || !data) {
-    return <Text>Error fetching story</Text>
-  }
-
-
-  return (
-    <View>
-      <View style={{ display: 'flex' }}>
-        <View style={{ padding: 20 }}>
-          <Image
-            source={{ uri: data.coverImage }}
-            style={{ width: 150, height: 200 }}
-          />
-        </View>
-        <View style={{ padding: 20 }}>
-          <Text>Title: {data.title}</Text>
-          <Text>Synopsis: {data.synopsis}</Text>
-        </View>
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.accentBlue} />
+        <Text style={styles.loadingText}>Chargement de l'histoire...</Text>
       </View>
+    )
+  }
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ display: 'flex', flexDirection: 'row' }}
-      >
-        {data.chapters.map((chapter, index) => (
-          <View key={index} style={{ padding: 20, width: 400, gap: 20 }}>
-            <Text>{`Chapitre ${index + 1} : ${chapter.title}`}</Text>
-            <Text style={{ textAlign: 'justify', lineHeight: 30, fontSize: 15 }}>{chapter.content}</Text>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
-  )
+  if (error || !story) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Erreur lors du chargement de l'histoire</Text>
+      </View>
+    )
+  }
+
+  // Use the StoryDetail organism with domain entity
+  return <StoryDetail story={story} />
 }
 
-export default StoryScreen
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: colors.error,
+    textAlign: 'center',
+  },
+})
 
-const styles = StyleSheet.create({})
+export default StoryScreen

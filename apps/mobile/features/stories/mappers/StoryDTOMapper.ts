@@ -106,13 +106,18 @@ export class StoryDTOMapper {
       this.chapterDTOToDomain(chapterDto)
     )
 
+    // Handle publicationDate - it might be a string or Date object from the API
+    const publicationDateString = typeof dto.publicationDate === 'string'
+      ? dto.publicationDate
+      : dto.publicationDate?.toISOString()
+
     return Story.create(
       StoryId.create(dto.id),
       Slug.create(dto.slug),
       ChildAge.create(dto.childAge),
       dto.coverImageUrl ? ImageUrl.create(dto.coverImageUrl) : null,
       OwnerId.create(dto.ownerId),
-      PublicationDate.fromString(dto.publicationDate.toISOString()),
+      PublicationDate.fromString(publicationDateString),
       PublicationStatus.fromBoolean(dto.isPublic),
       dto.title,
       dto.synopsis,
@@ -155,13 +160,19 @@ export class StoryDTOMapper {
   public static listItemToDomain(dto: StoryListItemDTO): Story {
     // List items don't have chapters, so we create an empty array
     // The actual chapters will be loaded when viewing the story detail
+
+    // Handle publicationDate - it might be a string or Date object from the API
+    const publicationDateString = typeof dto.publicationDate === 'string'
+      ? dto.publicationDate
+      : dto.publicationDate.toISOString()
+
     return Story.create(
       StoryId.create(dto.id),
       Slug.create(dto.slug),
       ChildAge.create(dto.childAge),
       dto.coverImageUrl ? ImageUrl.create(dto.coverImageUrl) : null,
       OwnerId.create(dto.ownerId),
-      PublicationDate.fromString(dto.publicationDate.toISOString()),
+      PublicationDate.fromString(publicationDateString),
       PublicationStatus.fromBoolean(dto.isPublic),
       dto.title,
       dto.synopsis,
