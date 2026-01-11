@@ -38,12 +38,6 @@ export interface ActionCardProps {
   testID?: string;
 }
 
-export interface StoryItemProps {
-  story: Story;
-  onPress: (storyId: string) => void;
-  onLongPress?: (storyId: string) => void;
-}
-
 export interface WelcomeHeaderProps {
   user: AuthStore["user"];
 }
@@ -51,11 +45,4 @@ export interface WelcomeHeaderProps {
 export interface AgeBadgeProps {
   minAge: number;
   maxAge: number;
-}
-
-export interface RecentStoriesSectionProps {
-  stories: Story[];
-  onStoryPress: (storyId: string) => void;
-  onStoryLongPress?: (storyId: string) => void;
-  isLoading?: boolean;
 }
