@@ -19,11 +19,13 @@ export class StoryListItemPresenter {
     story: Story,
     storageService: IStorageService
   ): Promise<StoryListItemDTO> {
-    const coverImageUrl = await this.resolveImageUrl(
-      story.coverImageUrl.getValue(),
-      storageService
-    )
-
+    let coverImageUrl = null
+    if (story.coverImageUrl) {
+      coverImageUrl = await this.resolveImageUrl(
+        story.coverImageUrl.getValue(),
+        storageService
+      )
+    }
     return {
       id: story.id.getValue(),
       slug: story.slug.getValue(),

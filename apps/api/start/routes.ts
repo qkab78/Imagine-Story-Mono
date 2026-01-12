@@ -102,18 +102,23 @@ router.get('/images/chapters/:fileName', async ({ request, response }: HttpConte
 // Stories
 router
   .group(() => {
-    router.get('/', [StoriesController, 'getStories'])
-    router.get('/all/latest', [StoriesController, 'getLatestStories'])
-    router.get('/slug/:slug', [StoriesController, 'getStoryBySlug'])
+    // Clean architecture endpoints (using use cases)
+    router.get('/', [StoriesControllerPresenter, 'getPublicStories'])
+    router.get('/all/latest', [StoriesControllerPresenter, 'getLatestPublicStories'])
     router.get('/:id', [StoriesControllerPresenter, 'getStoryById'])
     router.get('/:id/status', [StoriesControllerPresenter, 'getGenerationStatus'])
+
+    // Legacy endpoints (to be refactored)
+    router.get('/slug/:slug', [StoriesController, 'getStoryBySlug'])
     router.get('/search/suggestions', [StoriesController, 'getSuggestedStories'])
     router.get('/all/themes', [StoriesController, 'getThemes'])
     router.get('/all/tones', [StoriesController, 'getTones'])
     router.get('/all/languages', [StoriesController, 'getLanguages'])
+
+    // Authenticated endpoints
     router
       .group(() => {
-        router.get('/users/me/stories', [StoriesController, 'getStoriesByAuthenticatedUserId'])
+        router.get('/users/me/stories', [StoriesControllerPresenter, 'getUserStories'])
         router.post('/', [StoriesControllerPresenter, 'createStory'])
       })
       .middleware(middleware.auth())
