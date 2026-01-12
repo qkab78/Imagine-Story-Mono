@@ -1,5 +1,6 @@
 import { Story } from '@/domain/stories/entities/Story'
 import { Chapter } from '@/domain/stories/entities/Chapter'
+import { StoryListItem } from '@/domain/stories/value-objects/StoryListItem'
 import { StoryId } from '@/domain/stories/value-objects/ids/StoryId'
 import { ChapterId } from '@/domain/stories/value-objects/ids/ChapterId'
 import { OwnerId } from '@/domain/stories/value-objects/ids/OwnerId'
@@ -152,33 +153,29 @@ export class StoryDTOMapper {
   }
 
   /**
-   * Map backend StoryListItemDTO to frontend Story entity (without chapters)
-   * Note: This creates a Story with empty chapters array since list items don't include chapters
+   * Map backend StoryListItemDTO to frontend StoryListItem (without chapters)
+   * Note: This creates a lightweight StoryListItem for list views
    * @param dto Backend StoryListItemDTO
-   * @returns Frontend Story entity
+   * @returns Frontend StoryListItem
    */
-  public static listItemToDomain(dto: StoryListItemDTO): Story {
-    // List items don't have chapters, so we create an empty array
-    // The actual chapters will be loaded when viewing the story detail
-
+  public static listItemToDomain(dto: StoryListItemDTO): StoryListItem {
     // Handle publicationDate - it might be a string or Date object from the API
     const publicationDateString = typeof dto.publicationDate === 'string'
       ? dto.publicationDate
-      : dto.publicationDate.toISOString()
+      : dto.publicationDate?.toISOString()
 
-    return Story.create(
+    return StoryListItem.create(
       StoryId.create(dto.id),
       Slug.create(dto.slug),
+      dto.title,
+      dto.synopsis,
+      dto.protagonist,
+      dto.species,
       ChildAge.create(dto.childAge),
       dto.coverImageUrl ? ImageUrl.create(dto.coverImageUrl) : null,
       OwnerId.create(dto.ownerId),
       PublicationDate.fromString(publicationDateString),
       PublicationStatus.fromBoolean(dto.isPublic),
-      dto.title,
-      dto.synopsis,
-      dto.protagonist,
-      dto.species,
-      '', // Conclusion not available in list items
       Theme.create(dto.theme.id, dto.theme.name, dto.theme.description),
       Language.create(
         dto.language.id,
@@ -187,8 +184,7 @@ export class StoryDTOMapper {
         dto.language.isFree
       ),
       Tone.create(dto.tone.id, dto.tone.name, dto.tone.description),
-      [], // Empty chapters array for list items
-      GenerationStatus.completed()
+      dto.numberOfChapters
     )
   }
 }

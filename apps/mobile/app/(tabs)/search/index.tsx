@@ -29,7 +29,7 @@ import { colors } from '../../../theme/colors';
 import { spacing } from '../../../theme/spacing';
 import { typography } from '../../../theme/typography';
 import useAuthStore from '@/store/auth/authStore';
-import { Story } from '@/domain/stories/entities/Story';
+import { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
 import { useStoryList, useLatestStories } from '@/features/stories/hooks/useStoryList';
 
 const { width } = Dimensions.get('window');
@@ -118,7 +118,7 @@ const getThemeEmoji = (theme?: string) => {
 };
 
 // Conversion domain Story entities vers DiscoverStory
-const mapStoriestoDiscoverStory = (stories: Story[]): DiscoverStory[] => {
+const mapStoriestoDiscoverStory = (stories: StoryListItem[]): DiscoverStory[] => {
   return stories.map(story => {
     const childAge = story.childAge.getValue();
     const publicationDate = story.publicationDate.toDate();

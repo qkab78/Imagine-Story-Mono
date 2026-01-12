@@ -23,12 +23,15 @@ export const getLatestStories = async (token: string): Promise<StoryListItemDTO[
     },
   })
 
+  console.log('response', response)
   if (!response.ok) {
     const error: ApiErrorResponse = await response.json().catch(() => ({}))
     throw new Error(error.message || `Failed to fetch latest stories: ${response.statusText}`)
   }
 
-  return response.json()
+  // Backend returns { stories: Story[] } from clean architecture use case
+  const data = await response.json()
+  return data.stories || data
 }
 
 /**
@@ -50,7 +53,9 @@ export const getStoriesByAuthenticatedUserId = async (token: string): Promise<St
     throw new Error(error.message || `Failed to fetch user stories: ${response.statusText}`)
   }
 
-  return response.json()
+  // Backend returns { stories: Story[], total, page, limit, totalPages } from clean architecture use case
+  const data = await response.json()
+  return data.stories || data
 }
 
 /**
@@ -68,7 +73,9 @@ export const getStories = async (token: string): Promise<StoryListItemDTO[]> => 
     throw new Error(error.message || `Failed to fetch stories: ${response.statusText}`)
   }
 
-  return response.json()
+  // Backend returns { stories: Story[], total, page, limit, totalPages } from clean architecture use case
+  const data = await response.json()
+  return data.stories || data
 }
 
 /**

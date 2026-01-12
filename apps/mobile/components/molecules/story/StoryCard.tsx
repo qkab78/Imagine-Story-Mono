@@ -6,7 +6,7 @@ import Animated, {
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
-import { Story } from '@/domain/stories/entities/Story';
+import { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
 import { StoryThumbnail } from '@/components/atoms/story/StoryThumbnail';
 import { StoryTitle } from '@/components/atoms/story/StoryTitle';
 import { StoryMeta } from './StoryMeta';
@@ -16,7 +16,7 @@ import { colors } from '@/theme/colors';
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface StoryCardProps {
-  story: Story;
+  story: StoryListItem;
   onPress: (storyId: string) => void;
   onLongPress?: (storyId: string) => void;
 }

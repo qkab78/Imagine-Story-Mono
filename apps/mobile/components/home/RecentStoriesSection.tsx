@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Story } from '@/domain/stories/entities/Story';
+import { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
 import { StoryCard } from '@/components/molecules/story/StoryCard';
 import Text from '@/components/ui/Text';
 import { colors } from '@/theme/colors';
@@ -8,7 +8,7 @@ import { typography } from '@/theme/typography';
 import { spacing } from '@/theme/spacing';
 
 interface RecentStoriesSectionProps {
-  stories: Story[];
+  stories: StoryListItem[];
   onStoryPress: (storyId: string) => void;
   onStoryLongPress?: (storyId: string) => void;
   isLoading?: boolean;
