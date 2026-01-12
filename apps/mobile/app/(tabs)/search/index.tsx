@@ -7,11 +7,11 @@ import {
   SafeAreaView,
   Pressable,
   TextInput,
-  FlatList,
   Dimensions,
   ActivityIndicator,
   Image
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -274,7 +274,7 @@ const HorizontalStories: React.FC<HorizontalStoriesProps> = ({ stories, onStoryP
   }
 
   return (
-    <FlatList
+    <FlashList
       horizontal
       data={stories}
       keyExtractor={(item) => item.id}
@@ -297,14 +297,19 @@ const VerticalStories: React.FC<VerticalStoriesProps> = ({ stories, onStoryPress
     );
   }
 
+  const limitedStories = stories.slice(0, 5);
+
   return (
-    <View style={styles.verticalList}>
-      {stories.slice(0, 5).map((story) => {
-        return (
-          <StoryCard key={story.id} story={story} variant="vertical" onPress={onStoryPress} />
-        )
-      })}
-    </View>
+    <FlashList
+      data={limitedStories}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <StoryCard story={item} variant="vertical" onPress={onStoryPress} />
+      )}
+      contentContainerStyle={styles.verticalList}
+      scrollEnabled={false}
+      showsVerticalScrollIndicator={false}
+    />
   );
 };
 

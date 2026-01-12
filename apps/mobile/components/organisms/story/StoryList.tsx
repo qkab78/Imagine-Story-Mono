@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { Story } from '@/domain/stories/entities/Story';
 import { StoryCard } from '@/components/molecules/story/StoryCard';
 import { spacing } from '@/theme/spacing';
@@ -18,7 +19,7 @@ export const StoryList: React.FC<StoryListProps> = ({
   ListEmptyComponent,
 }) => {
   return (
-    <FlatList
+    <FlashList
       data={stories}
       keyExtractor={(item) => item.id.getValue()}
       renderItem={({ item }) => (

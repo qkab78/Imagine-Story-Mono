@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { Chapter } from '@/domain/stories/entities/Chapter';
 import { ChapterCard } from '@/components/molecules/story/ChapterCard';
 import { spacing } from '@/theme/spacing';
@@ -10,7 +11,7 @@ interface ChapterListProps {
 
 export const ChapterList: React.FC<ChapterListProps> = ({ chapters }) => {
   return (
-    <FlatList
+    <FlashList
       data={chapters}
       keyExtractor={(item) => String(item.id.getValue())}
       renderItem={({ item, index }) => (

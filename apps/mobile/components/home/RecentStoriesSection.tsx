@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
 import { StoryCard } from '@/components/molecules/story/StoryCard';
 import Text from '@/components/ui/Text';
@@ -45,16 +46,20 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
       </View>
 
       <View style={styles.listContainer}>
-        {stories.map((story, index) => (
-          <View key={story.id.getValue()}>
+        <FlashList
+          data={stories}
+          keyExtractor={(item) => item.id.getValue()}
+          renderItem={({ item }) => (
             <StoryCard
-              story={story}
+              story={item}
               onPress={onStoryPress}
               onLongPress={onStoryLongPress}
             />
-            {index < stories.length - 1 && <View style={styles.separator} />}
-          </View>
-        ))}
+          )}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          scrollEnabled={false}
+          showsVerticalScrollIndicator={false}
+        />
       </View>
     </View>
   );
@@ -91,6 +96,8 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: spacing.sm,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.cardBorder,
   },
   emptyContainer: {
     backgroundColor: colors.cardBackground,
