@@ -1,10 +1,10 @@
 import { create } from "zustand";
-import { Stories } from "@imagine-story/api/types/db";
+import { Story } from "@/domain/stories/entities/Story";
 import { StoryCreationFormData } from "@/types/creation";
 
 export type StoryStore = {
-  activeStory?: Stories;
-  setActiveStory: (story?: Stories) => void;
+  activeStory?: Story;
+  setActiveStory: (story?: Story) => void;
   createStoryPayload: StoryCreationFormData | undefined;
   setCreateStoryPayload: (payload: StoryCreationFormData) => void;
   resetCreateStoryPayload: () => void;

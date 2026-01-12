@@ -7,11 +7,11 @@ import {
   SafeAreaView,
   Pressable,
   TextInput,
-  FlatList,
   Dimensions,
   ActivityIndicator,
   Image
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -25,12 +25,12 @@ import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 
-import { getLatestStories, getSuggestedStories, getStories } from '@/api/stories';
 import { colors } from '../../../theme/colors';
 import { spacing } from '../../../theme/spacing';
 import { typography } from '../../../theme/typography';
 import useAuthStore from '@/store/auth/authStore';
-import { Story } from '@imagine-story/api/stories/entities';
+import { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
+import { useStoryList, useLatestStories } from '@/features/stories/hooks/useStoryList';
 
 const { width } = Dimensions.get('window');
 
@@ -45,7 +45,7 @@ interface DiscoverStory {
   isNew?: boolean;
   isPopular?: boolean;
   slug: string;
-  coverImage?: string;
+  coverImageUrl?: string | null;
   theme?: string;
   tone?: string;
   childAge?: number;
@@ -117,24 +117,30 @@ const getThemeEmoji = (theme?: string) => {
   return themeMap[theme?.toLowerCase() || ''] || '📖';
 };
 
-// Conversion Stories vers DiscoverStory
-const mapStoriestoDiscoverStory = (stories: Story[]): DiscoverStory[] => {
-  return stories.map(story => ({
-    id: story.id as unknown as string,
-    title: story.title,
-    emoji: getThemeEmoji(story.theme as unknown as string),
-    ageRange: `${story.childAge || 4}-${(story.childAge || 4) + 2} ans`,
-    chapters: story.chapters.length,
-    category: story.theme as unknown as string,
-    slug: story.slug || '',
-    coverImage: story.coverImage,
-    theme: story.theme as unknown as string,
-    tone: story.tone as unknown as string,
-    childAge: story.childAge as unknown as number,
-    numberOfChapters: story.chapters.length,
-    isNew: new Date(story.createdAt) > new Date(Date.now() - 1000 * 60 * 60 * 24 * 30), // Pour les nouvelles histoires
-    isPopular: Math.random() > 0.7, // Logique temporaire pour populaires
-  }));
+// Conversion domain Story entities vers DiscoverStory
+const mapStoriestoDiscoverStory = (stories: StoryListItem[]): DiscoverStory[] => {
+  return stories.map(story => {
+    const childAge = story.childAge.getValue();
+    const publicationDate = story.publicationDate.toDate();
+    const thirtyDaysAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30);
+
+    return {
+      id: story.id.getValue(),
+      title: story.title,
+      emoji: getThemeEmoji(story.theme.getName()),
+      ageRange: `${childAge}-${childAge + 2} ans`,
+      chapters: story.numberOfChapters,
+      category: story.theme.getName(),
+      slug: story.slug.getValue(),
+      coverImageUrl: story.coverImageUrl?.getValue() || null,
+      theme: story.theme.getName(),
+      tone: story.tone.getName(),
+      childAge: childAge,
+      numberOfChapters: story.numberOfChapters,
+      isNew: publicationDate > thirtyDaysAgo,
+      isPopular: Math.random() > 0.7, // Logique temporaire pour populaires
+    };
+  });
 };
 
 // Composant SearchBar avec animations
@@ -207,10 +213,10 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, variant = 'horizontal', on
         <View style={styles.storyCardContent}>
           {/* Emoji cover */}
           <View style={[styles.storyCover, isHorizontal && styles.horizontalCover]}>
-              {story.coverImage && (
-                <Image source={{ uri: `${process.env.EXPO_PUBLIC_API_URL}/images/covers/${story.coverImage}` }} style={styles.storyCoverImage} />
+              {story.coverImageUrl && (
+                <Image source={{ uri: story.coverImageUrl }} style={styles.storyCoverImage} />
             )}
-            {!story.coverImage && (
+            {!story.coverImageUrl && (
               <Text style={styles.storyCoverEmoji}>{story.emoji}</Text>
             )}
           </View>
@@ -268,7 +274,7 @@ const HorizontalStories: React.FC<HorizontalStoriesProps> = ({ stories, onStoryP
   }
 
   return (
-    <FlatList
+    <FlashList
       horizontal
       data={stories}
       keyExtractor={(item) => item.id}
@@ -291,14 +297,19 @@ const VerticalStories: React.FC<VerticalStoriesProps> = ({ stories, onStoryPress
     );
   }
 
+  const limitedStories = stories.slice(0, 5);
+
   return (
-    <View style={styles.verticalList}>
-      {stories.slice(0, 5).map((story) => {
-        return (
-          <StoryCard key={story.id} story={story} variant="vertical" onPress={onStoryPress} />
-        )
-      })}
-    </View>
+    <FlashList
+      data={limitedStories}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <StoryCard story={item} variant="vertical" onPress={onStoryPress} />
+      )}
+      contentContainerStyle={styles.verticalList}
+      scrollEnabled={false}
+      showsVerticalScrollIndicator={false}
+    />
   );
 };
 
@@ -314,28 +325,24 @@ const DiscoverScreen: React.FC = () => {
   // Debouncing pour la recherche
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  // Queries
-  const { data: latestStories = [], isLoading: isLoadingLatest } = useQuery({
-    queryKey: ['latest-stories', token],
-    queryFn: () => getLatestStories(token!),
-    enabled: !!token,
-  });
+  // Queries using clean architecture hooks
+  const { data: latestStories = [], isLoading: isLoadingLatest } = useLatestStories();
+  const { data: allStories = [], isLoading: isLoadingAll } = useStoryList();
 
-  const { data: allStories = [], isLoading: isLoadingAll } = useQuery({
-    queryKey: ['all-stories', token],
-    queryFn: () => getStories(token!),
-    enabled: !!token,
-  });
+  // For search, we still need a query but we'll filter locally for now
+  // TODO: Create a dedicated search use case when backend supports it
+  const searchResults = useMemo(() => {
+    if (debouncedSearchQuery.length < 2) return [];
+    return allStories.filter(story =>
+      story.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+    );
+  }, [allStories, debouncedSearchQuery]);
 
-  const { data: searchResults = [], isLoading: isLoadingSearch } = useQuery({
-    queryKey: ['search-stories', debouncedSearchQuery, token],
-    queryFn: () => getSuggestedStories(token!, debouncedSearchQuery),
-    enabled: !!token && debouncedSearchQuery.length > 2,
-  });
+  const isLoadingSearch = isLoadingAll && debouncedSearchQuery.length > 2;
 
   // Transformation des données
-  const newStories = useMemo(() => mapStoriestoDiscoverStory(latestStories as unknown as Story[]), [latestStories]);
-  const allDiscoverStories = useMemo(() => mapStoriestoDiscoverStory(allStories as unknown as Story[]), [allStories]);
+  const newStories = useMemo(() => mapStoriestoDiscoverStory(latestStories), [latestStories]);
+  const allDiscoverStories = useMemo(() => mapStoriestoDiscoverStory(allStories), [allStories]);
 
   const recommendedStories = useMemo(() =>
     allDiscoverStories.filter(() => Math.random() > 0.5).slice(0, 6),
@@ -387,14 +394,7 @@ const DiscoverScreen: React.FC = () => {
             {showSearchResults ? (
               <Section title="Résultats de recherche" emoji="🔍">
                 <VerticalStories
-                  stories={searchResults.map(story => ({
-                    id: story.id as unknown as string,
-                    title: story.title,
-                    slug: story.slug || '',
-                    emoji: '📖',
-                    ageRange: '4-6 ans',
-                    chapters: 3,
-                  }))}
+                  stories={mapStoriestoDiscoverStory(searchResults)}
                   onStoryPress={handleStoryPress}
                   isLoading={isLoadingSearch}
                 />

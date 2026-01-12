@@ -1,9 +1,19 @@
 import React from 'react';
-import { StyleSheet, Platform } from 'react-native';
-import { View, Text, FlatList } from 'react-native';
-import StoryItem from './StoryItem';
-import type { RecentStoriesSectionProps } from '@/types/home';
-import { Story } from '@imagine-story/api/stories/entities';
+import { StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
+import { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
+import { StoryCard } from '@/components/molecules/story/StoryCard';
+import Text from '@/components/ui/Text';
+import { colors } from '@/theme/colors';
+import { typography } from '@/theme/typography';
+import { spacing } from '@/theme/spacing';
+
+interface RecentStoriesSectionProps {
+  stories: StoryListItem[];
+  onStoryPress: (storyId: string) => void;
+  onStoryLongPress?: (storyId: string) => void;
+  isLoading?: boolean;
+}
 
 const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
   stories,
@@ -11,16 +21,6 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
   onStoryLongPress,
   isLoading = false,
 }) => {
-  const renderStoryItem = ({ item }: { item: Story }) => (
-    <StoryItem
-      story={item}
-      onPress={onStoryPress}
-      onLongPress={onStoryLongPress}
-    />
-  );
-
-  const keyExtractor = (item: Story) => String(item.id);
-
   if (stories.length === 0 && !isLoading) {
     return (
       <View style={styles.container}>
@@ -44,15 +44,21 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
       <View style={styles.header}>
         <Text style={styles.title}>✨ Histoires récentes</Text>
       </View>
-      
+
       <View style={styles.listContainer}>
-        <FlatList
+        <FlashList
           data={stories}
-          renderItem={renderStoryItem}
-          keyExtractor={keyExtractor}
-          showsVerticalScrollIndicator={false}
-          scrollEnabled={false}
+          keyExtractor={(item) => item.id.getValue()}
+          renderItem={({ item }) => (
+            <StoryCard
+              story={item}
+              onPress={onStoryPress}
+              onLongPress={onStoryLongPress}
+            />
+          )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
+          scrollEnabled={false}
+          showsVerticalScrollIndicator={false}
         />
       </View>
     </View>
@@ -61,22 +67,22 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
-    marginTop: 8,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.xs,
   },
   header: {
-    marginBottom: 16,
+    marginBottom: spacing.base,
   },
   title: {
-    fontSize: 18,
+    fontSize: typography.fontSize.lg,
+    fontFamily: typography.fontFamily.medium,
     fontWeight: '700',
-    color: '#2E7D32',
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    color: colors.safetyGreen,
   },
   listContainer: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 20,
-    padding: 16,
+    backgroundColor: colors.cardBackground,
+    borderRadius: spacing.lg,
+    padding: spacing.base,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -86,15 +92,17 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255,193,7,0.2)',
+    borderColor: colors.cardBorder,
   },
   separator: {
-    height: 12,
+    height: spacing.sm,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.cardBorder,
   },
   emptyContainer: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderRadius: 20,
-    padding: 32,
+    backgroundColor: colors.cardBackground,
+    borderRadius: spacing.lg,
+    padding: spacing.xl * 2,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -105,21 +113,21 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255,193,7,0.2)',
+    borderColor: colors.cardBorder,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.medium,
     fontWeight: '600',
-    color: '#424242',
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    color: colors.textPrimary,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
   emptySubtext: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.primary,
     fontWeight: '400',
-    color: '#616161',
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });

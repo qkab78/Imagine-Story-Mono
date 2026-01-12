@@ -1,13 +1,11 @@
-import React, { useCallback } from 'react';
-import { 
-  StyleSheet, 
-  ScrollView, 
+import React, { useCallback, useState } from 'react';
+import {
+  StyleSheet,
+  ScrollView,
   RefreshControl,
   StatusBar,
   Platform,
-  Dimensions,
   View,
-  Text,
   ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,23 +15,31 @@ import { LinearGradient } from 'expo-linear-gradient';
 import WelcomeHeader from '@/components/home/WelcomeHeader';
 import ActionCard from '@/components/home/ActionCard';
 import RecentStoriesSection from '@/components/home/RecentStoriesSection';
+import Text from '@/components/ui/Text';
 
 // Hooks
-import { useHomeScreen } from '@/hooks/useHomeScreen';
+import { useLatestStories } from '@/features/stories/hooks/useStoryList';
+import useAuthStore from '@/store/auth/authStore';
 
 // Types
 import { useRouter } from 'expo-router';
+import { colors } from '@/theme/colors';
+import { typography } from '@/theme/typography';
 
 const HomeScreen = () => {
   const router = useRouter();
-  const { 
-    user, 
-    recentStories, 
-    isLoading,
-    isRefreshing, 
-    refreshData,
-    markStoryAsRead
-  } = useHomeScreen();
+  const { user } = useAuthStore();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Fetch stories using clean architecture hook
+  const { data: stories = [], isLoading, refetch } = useLatestStories();
+
+  // Refresh handler
+  const refreshData = useCallback(async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+  }, [refetch]);
 
   // Navigation handlers
   const handleCreateStory = useCallback(() => {
@@ -46,8 +52,7 @@ const HomeScreen = () => {
 
   const handleStoryPress = useCallback((storyId: string) => {
     router.push(`/stories/${storyId}`);
-    markStoryAsRead(storyId);
-  }, [router, markStoryAsRead]);
+  }, [router]);
 
   // Loading state
   if (isLoading || !user) {
@@ -61,7 +66,7 @@ const HomeScreen = () => {
           end={{ x: 1, y: 1 }}
         >
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#FF6B9D" />
+            <ActivityIndicator size="large" color={colors.primaryPink} />
             <Text style={styles.loadingText}>Chargement de tes histoires...</Text>
           </View>
         </LinearGradient>
@@ -92,8 +97,8 @@ const HomeScreen = () => {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={refreshData}
-              tintColor="#FF6B9D"
-              colors={['#FF6B9D']}
+              tintColor={colors.primaryPink}
+              colors={[colors.primaryPink]}
             />
           }
         >
@@ -119,11 +124,11 @@ const HomeScreen = () => {
             testID="read-stories-card"
           />
           
-          {/* Recent Stories */}
+          {/* Recent Stories - now receiving domain entities */}
           <RecentStoriesSection
-            stories={recentStories}
+            stories={stories}
             onStoryPress={handleStoryPress}
-            isLoading={false}
+            isLoading={isLoading}
           />
         </ScrollView>
       </LinearGradient>
@@ -152,10 +157,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.medium,
     fontWeight: '600',
-    color: '#2E7D32',
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    color: colors.safetyGreen,
     textAlign: 'center',
     marginTop: 16,
   },
