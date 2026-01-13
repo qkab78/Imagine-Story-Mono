@@ -40,12 +40,12 @@ export class StoryFormMapper {
   ): CreateStoryPayload {
     return {
       synopsis: formData.theme.description || '',
-      theme: formData.theme.id, // Should be UUID from backend
+      theme: formData.theme.id, // UUID from backend
       protagonist: formData.heroName,
       childAge: formData.age,
       numberOfChapters: formData.numberOfChapters,
-      language: formData.language, // Should be UUID from backend
-      tone: formData.tone.id, // Should be UUID from backend, but currently using mood
+      language: formData.language.id, // UUID from backend
+      tone: formData.tone.id, // UUID from backend
       species: formData.hero.name, // Map hero name to species
       // Optional fields
       title: undefined,

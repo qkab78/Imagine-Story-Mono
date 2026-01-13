@@ -42,8 +42,8 @@ export const SettingsScreen: React.FC = () => {
   const router = useRouter();
   const { createStoryPayload, setCreateStoryPayload } = useStoryStore();
 
-  const [language, setLanguage] = useState<string>(
-    createStoryPayload?.language || 'FR'
+  const [selectedLanguageId, setSelectedLanguageId] = useState<string>(
+    createStoryPayload?.language?.id || ''
   );
   const [age, setAge] = useState<number | null>(
     createStoryPayload?.age || null
@@ -53,6 +53,7 @@ export const SettingsScreen: React.FC = () => {
   );
 
   // Languages from API
+  const [languages, setLanguages] = useState<LanguageDTO[]>([]);
   const [languageOptions, setLanguageOptions] = useState<SelectOption[]>([]);
   const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
 
@@ -63,20 +64,22 @@ export const SettingsScreen: React.FC = () => {
         setIsLoadingLanguages(true);
         const languagesData = await getLanguages();
 
+        // Store the full language data
+        setLanguages(languagesData);
+
         // Map LanguageDTO to SelectOption
         const options: SelectOption[] = languagesData.map((lang: LanguageDTO) => ({
           label: `${lang.name}`,
-          value: lang.code,
+          value: lang.id,
           icon: getLanguageFlag(lang.code),
         }));
 
         setLanguageOptions(options);
       } catch (error) {
         console.error('Error fetching languages:', error);
-        // Fallback to default language
-        setLanguageOptions([
-          { label: 'Français 🇫🇷', value: 'FR', icon: '🇫🇷' },
-        ]);
+        // Fallback to empty - user must select a language
+        setLanguages([]);
+        setLanguageOptions([]);
       } finally {
         setIsLoadingLanguages(false);
       }
@@ -111,18 +114,24 @@ export const SettingsScreen: React.FC = () => {
 
   const handleContinue = () => {
     // Validation
-    if (!age) {
-      // Could show error, but let's just return
+    if (!selectedLanguageId || !age || !chapters) {
       return;
     }
 
-    if (!chapters) {
+    // Find the selected language object
+    const selectedLanguage = languages.find((lang) => lang.id === selectedLanguageId);
+    if (!selectedLanguage) {
       return;
     }
 
     // Save to store
     setCreateStoryPayload({
-      language,
+      language: {
+        id: selectedLanguage.id,
+        name: selectedLanguage.name,
+        code: selectedLanguage.code,
+        icon: getLanguageFlag(selectedLanguage.code),
+      },
       age,
       numberOfChapters: chapters,
     });
@@ -179,8 +188,8 @@ export const SettingsScreen: React.FC = () => {
               label="Dans quelle langue ?"
               placeholder="Sélectionnez une langue"
               options={languageOptions}
-              value={language}
-              onValueChange={(value) => setLanguage(value as string)}
+              value={selectedLanguageId}
+              onValueChange={(value) => setSelectedLanguageId(value as string)}
             />
           )}
 
@@ -218,7 +227,7 @@ export const SettingsScreen: React.FC = () => {
               title="Continuer"
               icon="→"
               onPress={handleContinue}
-              disabled={!age || !chapters}
+              disabled={!selectedLanguageId || !age || !chapters}
             />
           </View>
         </View>

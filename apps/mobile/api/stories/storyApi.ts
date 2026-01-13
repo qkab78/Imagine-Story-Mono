@@ -114,7 +114,8 @@ export const createStory = async (payload: CreateStoryPayload, token: string): P
     throw new Error(error.message || error.errors?.join(', ') || `Failed to create story: ${response.statusText}`)
   }
 
-  return response.json()
+  const data = await response.json()
+  return data as StoryCreatedResponse
 }
 
 /**

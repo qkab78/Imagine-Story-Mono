@@ -13,6 +13,13 @@ export interface Theme {
   color: string;
 }
 
+export interface Language {
+  id: string;
+  name: string;
+  code: string;
+  icon: string;
+}
+
 export interface Tone {
   id: string;
   emoji: string;
@@ -93,7 +100,7 @@ export const TONES: Tone[] = [
 export interface StoryCreationFormData {
   hero?: Hero;
   heroName?: string;
-  language?: string;
+  language?: Language;
   age?: number;
   numberOfChapters?: number;
   theme?: Theme;
@@ -104,7 +111,7 @@ export interface StoryCreationFormData {
 export interface StoryCreationRequest {
   hero: Hero;
   heroName: string;
-  language: string;
+  language: Language;
   age: number;
   numberOfChapters: number;
   theme: Theme;

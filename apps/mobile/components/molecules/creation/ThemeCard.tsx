@@ -53,7 +53,6 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({
   emoji,
   name,
   description,
-  color,
   isSelected,
   onPress,
 }) => {
@@ -86,123 +85,79 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({
       accessibilityLabel={`Thème ${name}`}
       accessibilityState={{ selected: isSelected }}
     >
-      <LinearGradient
-        colors={[color, adjustColor(color, -20)]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradient}
-      >
-        <View style={styles.content}>
+      <View style={[styles.background, isSelected && styles.backgroundSelected]}>
+        <LinearGradient
+          colors={isSelected ? [colors.warmAmber, '#E8A957'] : ['#A8D4C0', '#7FB8A0']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.iconCircle}
+        >
           <Text style={styles.emoji}>{emoji}</Text>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.description}>{description}</Text>
-        </View>
-
-        {isSelected && (
-          <View style={styles.checkmarkContainer}>
-            <View style={styles.checkmark}>
-              <Text style={styles.checkmarkText}>✓</Text>
-            </View>
-          </View>
-        )}
-      </LinearGradient>
+        </LinearGradient>
+        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.description}>{description}</Text>
+      </View>
     </AnimatedTouchableOpacity>
   );
 };
 
-/**
- * Helper function to darken/lighten a color
- */
-function adjustColor(color: string, amount: number): string {
-  const clamp = (val: number) => Math.min(Math.max(val, 0), 255);
-  const num = parseInt(color.replace('#', ''), 16);
-  const r = clamp((num >> 16) + amount);
-  const g = clamp(((num >> 8) & 0x00ff) + amount);
-  const b = clamp((num & 0x0000ff) + amount);
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
-}
-
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 20,
+    borderRadius: 16,
     overflow: 'hidden',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: 'transparent',
     shadowColor: colors.deepForest,
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
     elevation: 4,
   },
   containerSelected: {
-    borderColor: colors.warmAmber,
-    shadowColor: colors.warmAmber,
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 8,
+    borderColor: colors.forestGreen,
+    shadowColor: colors.deepForest,
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 6,
   },
-  gradient: {
-    padding: 16,
-    height: 160,
+  background: {
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    paddingVertical: 16,
+    alignItems: 'center',
+    gap: 12,
+  },
+  backgroundSelected: {
+    backgroundColor: 'rgba(47, 107, 79, 0.08)',
+  },
+  iconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
     justifyContent: 'center',
   },
-  content: {
-    alignItems: 'center',
-    gap: 6,
-  },
   emoji: {
-    fontSize: 40,
-    marginBottom: 2,
+    fontSize: 28,
   },
   name: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    marginBottom: 4,
   },
   description: {
     fontSize: 12,
-    fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '400',
+    color: colors.textMuted,
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
     lineHeight: 16,
-  },
-  checkmarkContainer: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-  },
-  checkmark: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.warmAmber,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  checkmarkText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
   },
 });
 

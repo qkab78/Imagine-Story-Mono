@@ -1,86 +1,183 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Tone } from '@/domain/stories/value-objects/settings/Tone';
-import { GlassCard } from '@/components/molecules/glass/GlassCard';
-import Text from '@/components/ui/Text';
+import { StyleSheet, TouchableOpacity, Platform, View } from 'react-native';
+import { Text } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 import { colors } from '@/theme/colors';
-import { typography } from '@/theme/typography';
-import { spacing } from '@/theme/spacing';
 
-interface ToneCardProps {
-  tone: Tone;
-  emoji?: string;
+export interface ToneCardProps {
+  /** Emoji du ton */
+  emoji: string;
+
+  /** Nom du ton */
+  name: string;
+
+  /** Description du ton */
+  description: string;
+
+  /** État de sélection */
   isSelected: boolean;
-  onPress: (tone: Tone) => void;
+
+  /** Callback lors de la sélection */
+  onPress: () => void;
 }
 
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+
+/**
+ * ToneCard - Molecule pour une carte de ton
+ *
+ * Carte cliquable avec emoji, nom et description sur fond blanc.
+ * Utilisée dans l'écran Tone Selection.
+ *
+ * @example
+ * ```tsx
+ * <ToneCard
+ *   emoji="😊"
+ *   name="Joyeux"
+ *   description="Une histoire pleine de rires et de bonne humeur"
+ *   isSelected={selectedTone?.id === tone.id}
+ *   onPress={() => onToneSelect(tone)}
+ * />
+ * ```
+ */
 export const ToneCard: React.FC<ToneCardProps> = ({
-  tone,
   emoji,
+  name,
+  description,
   isSelected,
-  onPress
+  onPress,
 }) => {
+  const scale = useSharedValue(1);
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.95, { damping: 10, stiffness: 400 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 10, stiffness: 400 });
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
-    <GlassCard
-      glassStyle="clear"
-      tintColor={isSelected ? 'rgba(107, 70, 193, 0.1)' : undefined}
-      onPress={() => onPress(tone)}
-      borderRadius={16}
-      padding={spacing.base}
+    <AnimatedTouchableOpacity
       style={[
-        styles.toneCard,
-        isSelected && styles.toneSelected,
+        styles.container,
+        isSelected && styles.containerSelected,
+        animatedStyle,
       ]}
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      activeOpacity={0.9}
+      accessibilityRole="button"
+      accessibilityLabel={`Ton ${name}`}
+      accessibilityState={{ selected: isSelected }}
     >
-      <View
-        style={styles.toneContent}
-        accessibilityLabel={`Choisir le ton ${tone.name}`}
-        accessibilityRole="button"
-        accessibilityHint={tone.description}
-      >
-        {emoji && <Text style={styles.toneEmoji}>{emoji}</Text>}
-        <View style={styles.toneText}>
-          <Text style={styles.toneName}>{tone.name}</Text>
-          <Text style={styles.toneDescription}>{tone.description}</Text>
+      <View style={styles.background}>
+        <View style={styles.content}>
+          <View style={styles.emojiContainer}>
+            <Text style={styles.emoji}>{emoji}</Text>
+          </View>
+          <View style={styles.textContent}>
+            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.description}>{description}</Text>
+          </View>
+          <View style={[styles.checkCircle, isSelected && styles.checkCircleSelected]}>
+            {isSelected && <Text style={styles.checkmark}>✓</Text>}
+          </View>
         </View>
       </View>
-    </GlassCard>
+    </AnimatedTouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  toneCard: {
-    marginBottom: spacing.base,
-    // backgroundColor, borderWidth, borderColor, borderRadius, padding, shadows handled by GlassCard
-  },
-  toneSelected: {
-    borderColor: colors.primaryPink,
+  container: {
+    borderRadius: 20,
+    overflow: 'hidden',
     borderWidth: 3,
+    borderColor: 'transparent',
+    shadowColor: colors.deepForest,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  toneContent: {
+  containerSelected: {
+    borderColor: colors.forestGreen,
+    shadowColor: colors.forestGreen,
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 6,
+  },
+  background: {
+    backgroundColor: '#FFFFFF',
+    padding: 18,
+    minHeight: 88,
+    justifyContent: 'center',
+  },
+  content: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 16,
   },
-  toneEmoji: {
-    fontSize: 24,
-    marginRight: spacing.base,
+  emojiContainer: {
+    width: 48,
+    height: 48,
+    backgroundColor: colors.creamSurface,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
-  toneText: {
+  emoji: {
+    fontSize: 26,
+  },
+  textContent: {
     flex: 1,
+    gap: 2,
   },
-  toneName: {
-    fontSize: typography.fontSize.base,
-    fontFamily: typography.fontFamily.medium,
+  name: {
+    fontSize: 16,
     fontWeight: '700',
     color: colors.textPrimary,
-    marginBottom: spacing.xs,
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
   },
-  toneDescription: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
+  description: {
+    fontSize: 13,
     fontWeight: '400',
-    color: colors.textSecondary,
-    lineHeight: typography.fontSize.sm * 1.3,
+    color: colors.textMuted,
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    lineHeight: 18,
+  },
+  checkCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#A8D4C0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  checkCircleSelected: {
+    backgroundColor: colors.forestGreen,
+    borderColor: colors.forestGreen,
+  },
+  checkmark: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
 });
 
