@@ -8,6 +8,7 @@ import Animated, {
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
+import { GlassCard } from '@/components/molecules/glass/GlassCard';
 import type { ActionCardProps } from '@/types/home';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
@@ -54,7 +55,19 @@ const ActionCard: React.FC<ActionCardProps> = ({
       accessibilityLabel={`${title}. ${description}`}
       accessibilityHint="Appuyez pour continuer"
     >
-      <View style={styles.card}>
+      <GlassCard
+        glassStyle="regular"
+        tintColor="rgba(107, 70, 193, 0.1)"
+        borderRadius={20}
+        padding={24}
+        style={styles.card}
+      >
+        {/* Gradient overlay subtil pour la profondeur */}
+        <LinearGradient
+          colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.1)']}
+          style={styles.gradientOverlay}
+        />
+
         <View style={styles.content}>
           <LinearGradient
             colors={iconGradient as [string, string]}
@@ -64,13 +77,13 @@ const ActionCard: React.FC<ActionCardProps> = ({
           >
             <Text style={styles.icon}>{icon}</Text>
           </LinearGradient>
-          
+
           <View style={styles.textContainer}>
             <Text style={styles.title}>{title}</Text>
             <Text style={styles.description}>{description}</Text>
           </View>
         </View>
-      </View>
+      </GlassCard>
     </AnimatedTouchableOpacity>
   );
 };
@@ -81,23 +94,20 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   card: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    overflow: 'hidden',
+  },
+  gradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     borderRadius: 20,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255,193,7,0.2)',
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
+    zIndex: 1,
   },
   iconContainer: {
     width: 56,
