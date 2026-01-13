@@ -29,6 +29,11 @@ const palette = {
   kidBlue: '#2196F3',
   kidPurple: '#9C27B0',
   kidCyan: '#03DAC6',
+  // Glass effect colors
+  glassLight: 'rgba(255, 255, 255, 0.7)',
+  glassMedium: 'rgba(255, 255, 255, 0.5)',
+  glassBorder: 'rgba(255, 255, 255, 0.2)',
+  glassAccent: 'rgba(107, 70, 193, 0.05)',
 }
 
 const theme = createTheme({
@@ -67,6 +72,11 @@ const theme = createTheme({
     kidBlue: palette.kidBlue,
     kidPurple: palette.kidPurple,
     kidCyan: palette.kidCyan,
+    // Glass effect colors
+    glassLight: palette.glassLight,
+    glassMedium: palette.glassMedium,
+    glassBorder: palette.glassBorder,
+    glassAccent: palette.glassAccent,
   },
   spacing: {
     s: 8,

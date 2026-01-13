@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Hero } from '@/domain/stories/value-objects/Hero';
 import { HeroEmoji } from '@/components/atoms/creation/HeroEmoji';
+import { GlassCard } from '@/components/molecules/glass/GlassCard';
 import Text from '@/components/ui/Text';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
@@ -16,30 +17,36 @@ interface HeroCardProps {
 
 export const HeroCard: React.FC<HeroCardProps> = ({ hero, isSelected, onPress }) => {
   return (
-    <TouchableOpacity
+    <GlassCard
+      glassStyle="clear"
+      tintColor={isSelected ? 'rgba(107, 70, 193, 0.1)' : 'rgba(255, 255, 255, 0.05)'}
+      onPress={() => onPress(hero)}
+      borderRadius={16}
+      padding={0}
       style={[
         styles.heroOption,
         isSelected && styles.heroSelected,
       ]}
-      onPress={() => onPress(hero)}
-      activeOpacity={0.8}
-      accessibilityLabel={`Choisir ${hero.name}`}
-      accessibilityRole="button"
     >
-      <LinearGradient
-        colors={
-          isSelected
-            ? [colors.primaryPink, colors.secondaryOrange]
-            : [colors.secondaryOrange, '#FF8A65']
-        }
-        style={styles.heroGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <View
+        accessibilityLabel={`Choisir ${hero.name}`}
+        accessibilityRole="button"
       >
-        <HeroEmoji emoji={hero.emoji} />
-        <Text style={styles.heroName}>{hero.name}</Text>
-      </LinearGradient>
-    </TouchableOpacity>
+        <LinearGradient
+          colors={
+            isSelected
+              ? [colors.primaryPink, colors.secondaryOrange]
+              : [colors.secondaryOrange, '#FF8A65']
+          }
+          style={styles.heroGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <HeroEmoji emoji={hero.emoji} />
+          <Text style={styles.heroName}>{hero.name}</Text>
+        </LinearGradient>
+      </View>
+    </GlassCard>
   );
 };
 
@@ -47,25 +54,20 @@ const styles = StyleSheet.create({
   heroOption: {
     width: '30%',
     aspectRatio: 1,
-    borderRadius: 16,
     marginBottom: spacing.base,
-    borderWidth: 3,
-    borderColor: 'transparent',
     overflow: 'hidden',
+    // borderRadius, borderWidth handled by GlassCard
   },
   heroSelected: {
     borderColor: colors.primaryPink,
-    shadowColor: colors.primaryPink,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 8,
+    borderWidth: 3,
   },
   heroGradient: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.sm,
+    borderRadius: 16,
   },
   heroName: {
     fontSize: typography.fontSize.sm,

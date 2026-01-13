@@ -318,6 +318,14 @@ const DiscoverScreen: React.FC = () => {
   const router = useRouter();
   const token = useAuthStore(state => state.token);
 
+  // Register as searchable page
+  const { useSearchContext } = require('@/hooks/useSearchContext');
+  const setCurrentPage = useSearchContext((state: any) => state.setCurrentPage);
+
+  useEffect(() => {
+    setCurrentPage('search/index');
+  }, [setCurrentPage]);
+
   // États
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);

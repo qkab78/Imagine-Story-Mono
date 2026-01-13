@@ -5,13 +5,11 @@ import { Language } from '@/domain/stories/value-objects/settings/Language';
 import { HeroCard } from '@/components/molecules/creation/HeroCard';
 import { FormField } from '@/components/molecules/creation/FormField';
 import { SelectField } from '@/components/molecules/creation/SelectField';
+import { GlassCard } from '@/components/molecules/glass/GlassCard';
 import { Control, useController } from 'react-hook-form';
-import { User, Globe } from 'lucide-react-native';
+import { User } from 'lucide-react-native';
 import KidButton from '@/components/Onboarding/KidButton';
-import Box from '@/components/ui/Box';
-import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
-import { typography } from '@/theme/typography';
 import { StoryCreationRules } from '@/domain/stories/rules/story-creation.rules';
 import { AGE_OPTIONS, CHAPTERS_OPTIONS } from '@/types/creation';
 import type { StoryCreationFormData } from '@/types/creation';
@@ -85,13 +83,19 @@ export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
     defaultValue: 3,
   });
 
-  const { field: languageField } = useController({
+  const { field: languageField, fieldState: languageFieldState } = useController({
     name: 'language',
     control,
   });
 
   return (
-    <Box style={styles.container}>
+    <GlassCard
+      glassStyle="regular"
+      tintColor="rgba(107, 70, 193, 0.05)"
+      borderRadius={20}
+      padding={spacing.lg}
+      style={styles.container}
+    >
       <View style={styles.heroGrid}>
         {heroes.map((hero) => (
           <HeroCard
@@ -119,7 +123,7 @@ export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
         placeholder="Choisir une langue 🌍"
         options={languageOptions}
         control={control}
-        error={languageField.error}
+        error={languageFieldState.error}
       />
 
       <SelectField
@@ -145,24 +149,15 @@ export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
           onPress={onContinue}
         />
       </View>
-    </Box>
+    </GlassCard>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.cardBackground,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-    borderRadius: 20,
-    padding: spacing.lg,
     marginBottom: spacing.xs,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 8,
     flex: 1,
+    // backgroundColor, borderWidth, borderColor, borderRadius, padding, shadows handled by GlassCard
   },
   heroGrid: {
     flexDirection: 'row',

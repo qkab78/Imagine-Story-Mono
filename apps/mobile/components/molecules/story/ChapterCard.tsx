@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Chapter } from '@/domain/stories/entities/Chapter';
 import { StoryTitle } from '@/components/atoms/story/StoryTitle';
+import { GlassCard } from '@/components/molecules/glass/GlassCard';
 import Text from '@/components/ui/Text';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
@@ -14,24 +15,26 @@ interface ChapterCardProps {
 
 export const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, position }) => {
   return (
-    <View style={styles.container}>
+    <GlassCard
+      glassStyle="clear"
+      tintColor="rgba(107, 70, 193, 0.03)"
+      borderRadius={16}
+      padding={spacing.base}
+      style={styles.container}
+    >
       <View style={styles.header}>
         <Text style={styles.chapterNumber}>Chapitre {position}</Text>
         <StoryTitle title={chapter.title} variant="small" />
       </View>
       <Text style={styles.content}>{chapter.content}</Text>
-    </View>
+    </GlassCard>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.cardBackground,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-    borderRadius: 16,
-    padding: spacing.base,
     marginBottom: spacing.base,
+    // backgroundColor, borderWidth, borderColor, borderRadius, padding handled by GlassCard
   },
   header: {
     marginBottom: spacing.sm,

@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Tone } from '@/domain/stories/value-objects/settings/Tone';
+import { GlassCard } from '@/components/molecules/glass/GlassCard';
 import Text from '@/components/ui/Text';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
@@ -13,57 +14,48 @@ interface ToneCardProps {
   onPress: (tone: Tone) => void;
 }
 
-export const ToneCard: React.FC<ToneCardProps> = ({ 
-  tone, 
+export const ToneCard: React.FC<ToneCardProps> = ({
+  tone,
   emoji,
-  isSelected, 
-  onPress 
+  isSelected,
+  onPress
 }) => {
   return (
-    <TouchableOpacity
+    <GlassCard
+      glassStyle="clear"
+      tintColor={isSelected ? 'rgba(107, 70, 193, 0.1)' : undefined}
+      onPress={() => onPress(tone)}
+      borderRadius={16}
+      padding={spacing.base}
       style={[
         styles.toneCard,
         isSelected && styles.toneSelected,
       ]}
-      onPress={() => onPress(tone)}
-      activeOpacity={0.8}
-      accessibilityLabel={`Choisir le ton ${tone.name}`}
-      accessibilityRole="button"
-      accessibilityHint={tone.description}
     >
-      <View style={styles.toneContent}>
+      <View
+        style={styles.toneContent}
+        accessibilityLabel={`Choisir le ton ${tone.name}`}
+        accessibilityRole="button"
+        accessibilityHint={tone.description}
+      >
         {emoji && <Text style={styles.toneEmoji}>{emoji}</Text>}
         <View style={styles.toneText}>
           <Text style={styles.toneName}>{tone.name}</Text>
           <Text style={styles.toneDescription}>{tone.description}</Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </GlassCard>
   );
 };
 
 const styles = StyleSheet.create({
   toneCard: {
-    backgroundColor: colors.cardBackground,
-    borderWidth: 2,
-    borderColor: colors.cardBorder,
-    borderRadius: 16,
-    padding: spacing.base,
     marginBottom: spacing.base,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
+    // backgroundColor, borderWidth, borderColor, borderRadius, padding, shadows handled by GlassCard
   },
   toneSelected: {
     borderColor: colors.primaryPink,
     borderWidth: 3,
-    shadowColor: colors.primaryPink,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   toneContent: {
     flexDirection: 'row',
