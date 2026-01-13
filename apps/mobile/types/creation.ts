@@ -1,5 +1,6 @@
 export interface Hero {
   id: string;
+  species?: 'girl' | 'boy' | 'robot' | 'superhero' | 'superheroine' | 'animal';
   emoji: string;
   name: string;
 }
@@ -90,13 +91,13 @@ export const TONES: Tone[] = [
 
 // Types pour React Hook Form
 export interface StoryCreationFormData {
-  hero: Hero;
-  heroName: string;
-  language: string;
-  age: number;
-  numberOfChapters: number;
-  theme: Theme;
-  tone: Tone;
+  hero?: Hero;
+  heroName?: string;
+  language?: string;
+  age?: number;
+  numberOfChapters?: number;
+  theme?: Theme;
+  tone?: Tone;
 }
 
 // Types pour l'API
