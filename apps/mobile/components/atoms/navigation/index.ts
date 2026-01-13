@@ -1,0 +1,1 @@
+export { GlassTabBackground } from './GlassTabBackground';
