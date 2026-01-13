@@ -1,81 +1,78 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, View, Platform } from 'react-native';
 import { colors } from '@/theme/colors';
-import { typography } from '@/theme/typography';
-import { spacing } from '@/theme/spacing';
 import Text from '@/components/ui/Text';
+import { ProgressSegment } from '@/components/atoms/creation';
 
 interface StepIndicatorProps {
   currentStep: number;
   totalSteps: number;
-  title: string;
 }
 
-const StepIndicator: React.FC<StepIndicatorProps> = ({ 
-  currentStep, 
-  totalSteps, 
-  title 
+/**
+ * StepIndicator - Indicateur de progression
+ *
+ * Affiche une barre de progression avec segments individuels et le texte "Étape X sur Y".
+ * Supporte maintenant 4 étapes avec les nouveaux ProgressSegment atoms.
+ *
+ * @example
+ * ```tsx
+ * <StepIndicator currentStep={2} totalSteps={4} />
+ * ```
+ */
+const StepIndicator: React.FC<StepIndicatorProps> = ({
+  currentStep,
+  totalSteps,
 }) => {
-  const progressWidth = (currentStep / totalSteps) * 100;
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBackground}>
-          <LinearGradient
-            colors={[colors.primaryPink, colors.secondaryOrange]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={[styles.progressBar, { width: `${progressWidth}%` }]}
-          />
-        </View>
+      {/* Progress bar avec segments */}
+      <View style={styles.progressBar}>
+        {Array.from({ length: totalSteps }).map((_, index) => {
+          const stepNumber = index + 1;
+          let status: 'pending' | 'active' | 'completed' = 'pending';
+
+          if (currentStep > stepNumber) {
+            status = 'completed';
+          } else if (currentStep === stepNumber) {
+            status = 'active';
+          }
+
+          return (
+            <ProgressSegment
+              key={index}
+              status={status}
+              flex={1}
+            />
+          );
+        })}
       </View>
+
+      {/* Label du step */}
+      <Text style={styles.stepLabel}>
+        Étape {currentStep} sur {totalSteps}
+      </Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.cardBackground,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-    borderRadius: 20,
-    padding: spacing.lg,
-    marginBottom: spacing.xl,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 8,
+    marginBottom: 40,
   },
-  
-  title: {
-    fontSize: typography.fontSize.base,
-    fontFamily: typography.fontFamily.medium,
-    fontWeight: '600' as const,
-    color: colors.textSecondary,
-    marginBottom: spacing.base,
-    textAlign: 'center' as const,
-  },
-  
-  progressContainer: {
-    alignItems: 'center',
-  },
-  
-  progressBackground: {
-    width: '100%',
-    height: 8,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  
   progressBar: {
-    height: '100%',
-    borderRadius: 4,
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  stepLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    textAlign: 'center',
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
   },
 });
 

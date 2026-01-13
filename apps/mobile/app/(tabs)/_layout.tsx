@@ -14,20 +14,20 @@ function LegacyJavaScriptTabs() {
   const user = useAuthStore(state => state.user);
   const defaultScreenOptions = {
     tabBarActiveBackgroundColor: 'transparent',
-    tabBarActiveTintColor: '#6B46C1',
-    tabBarInactiveTintColor: '#A78BFA',
+    tabBarActiveTintColor: '#2F6B4F', // Forêt Magique - vert forêt
+    tabBarInactiveTintColor: '#7FB8A0', // Forêt Magique - vert menthe
     tabBarStyle: {
-      backgroundColor: '#F0E6FF',
-      borderTopColor: '#E8D5FF',
+      backgroundColor: '#FFF8F1', // Forêt Magique - crème chaleureux
+      borderTopColor: 'rgba(127, 184, 160, 0.2)', // Forêt Magique - bordure menthe
       elevation: 0,
       shadowOpacity: 0,
     },
     headerStyle: {
-      backgroundColor: '#F0E6FF',
+      backgroundColor: '#FFF8F1', // Forêt Magique - crème chaleureux
       elevation: 0,
       shadowOpacity: 0,
     },
-    headerTintColor: '#6B46C1',
+    headerTintColor: '#2F6B4F', // Forêt Magique - vert forêt
   };
 
   return (
@@ -36,17 +36,17 @@ function LegacyJavaScriptTabs() {
         name="index"
         options={{
           ...defaultScreenOptions,
-          title: 'Home',
+          title: 'Accueil',
           headerShown: false,
           tabBarIcon: ({ color }) => <HouseIcon color={color} />,
         }}
       />
       <Tabs.Screen
-        name="stories/creation"
+        name="create"
         redirect={user?.role === Role.GUEST}
         options={{
           ...defaultScreenOptions,
-          title: 'Hero Selection',
+          title: 'Créer',
           headerShown: false,
           tabBarIcon: ({ color }) => <SquarePenIcon color={color} />,
         }}
@@ -55,7 +55,7 @@ function LegacyJavaScriptTabs() {
         name="search/index"
         options={{
           ...defaultScreenOptions,
-          title: 'Search',
+          title: 'Recherche',
           headerShown: false,
           tabBarIcon: ({ color }) => <SearchIcon color={color} />,
         }}
@@ -74,7 +74,7 @@ function LegacyJavaScriptTabs() {
         name="settings"
         options={{
           ...defaultScreenOptions,
-          title: 'Settings',
+          title: 'Réglages',
           tabBarIcon: ({ color }) => <CogIcon color={color} />,
         }}
       />
@@ -106,9 +106,9 @@ export default function TabLayout() {
             <Label>Accueil</Label>
           </NativeTabs.Trigger>
 
-          {/* Stories Creation Tab - Hidden for guests */}
+          {/* Create Tab - Hidden for guests */}
           {user?.role !== Role.GUEST && (
-            <NativeTabs.Trigger name="stories/creation">
+            <NativeTabs.Trigger name="create">
               <Icon sf="square.and.pencil" />
               <Label>Créer</Label>
             </NativeTabs.Trigger>
