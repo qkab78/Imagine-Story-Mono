@@ -1,28 +1,36 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LibraryHeader, LibraryStoryGrid } from '@/components/organisms/library';
-import { LibraryFilterTabs } from '@/components/molecules/library';
+import { FilterSheet } from '@/components/organisms/filters';
 import { useLibraryStories } from '@/features/library/hooks';
-import { LibraryFilterType } from '@/types/library';
+import { useStoryFilters } from '@/features/filters';
 import { LIBRARY_COLORS } from '@/constants/library';
 
 export const LibraryScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [activeFilter, setActiveFilter] = useState<LibraryFilterType>('all');
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   const {
     stories,
     isLoading,
     highlightedStoryId,
     newStoryIds,
-    filterStories,
     clearHighlight,
     totalCount,
   } = useLibraryStories();
+
+  const {
+    filters,
+    toggleTheme,
+    toggleTone,
+    resetFilters,
+    applyFilters,
+    activeFiltersCount,
+  } = useStoryFilters();
 
   // Clear highlight when leaving screen
   useEffect(() => {
@@ -31,8 +39,11 @@ export const LibraryScreen = () => {
     };
   }, [clearHighlight]);
 
-  // Get filtered stories
-  const filteredStories = filterStories(activeFilter);
+  // Apply filters to stories
+  const filteredStories = useMemo(
+    () => applyFilters(stories),
+    [stories, applyFilters]
+  );
 
   const handleStoryPress = useCallback(
     (storyId: string) => {
@@ -44,17 +55,17 @@ export const LibraryScreen = () => {
     [stories, router]
   );
 
-  const handleSearchPress = useCallback(() => {
-    router.push('/search');
-  }, [router]);
+  const handleFilterPress = useCallback(() => {
+    setIsFilterSheetOpen(true);
+  }, []);
+
+  const handleFilterSheetClose = useCallback(() => {
+    setIsFilterSheetOpen(false);
+  }, []);
 
   const handleCreateStoryPress = useCallback(() => {
     router.push('/create');
   }, [router]);
-
-  const handleFilterChange = useCallback((filter: LibraryFilterType) => {
-    setActiveFilter(filter);
-  }, []);
 
   return (
     <LinearGradient
@@ -62,11 +73,10 @@ export const LibraryScreen = () => {
       style={styles.container}
     >
       <View style={[styles.content, { paddingTop: insets.top }]}>
-        <LibraryHeader storyCount={totalCount} onSearchPress={handleSearchPress} />
-
-        <LibraryFilterTabs
-          activeFilter={activeFilter}
-          onFilterChange={handleFilterChange}
+        <LibraryHeader
+          storyCount={totalCount}
+          onFilterPress={handleFilterPress}
+          activeFiltersCount={activeFiltersCount}
         />
 
         {isLoading ? (
@@ -84,6 +94,16 @@ export const LibraryScreen = () => {
           />
         )}
       </View>
+
+      <FilterSheet
+        visible={isFilterSheetOpen}
+        onClose={handleFilterSheetClose}
+        selectedThemes={filters.themes}
+        selectedTones={filters.tones}
+        onToggleTheme={toggleTheme}
+        onToggleTone={toggleTone}
+        onReset={resetFilters}
+      />
     </LinearGradient>
   );
 };

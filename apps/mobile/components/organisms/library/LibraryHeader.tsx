@@ -1,22 +1,24 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { StoryCountText } from '@/components/atoms/library';
-import { LibrarySearchButton } from '@/components/molecules/library';
+import { FilterButton } from '@/components/atoms/filters';
 import { LIBRARY_COLORS, LIBRARY_TYPOGRAPHY, LIBRARY_SPACING } from '@/constants/library';
 
 interface LibraryHeaderProps {
   storyCount: number;
-  onSearchPress: () => void;
+  onFilterPress: () => void;
+  activeFiltersCount?: number;
 }
 
 export const LibraryHeader: React.FC<LibraryHeaderProps> = ({
   storyCount,
-  onSearchPress,
+  onFilterPress,
+  activeFiltersCount = 0,
 }) => {
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
         <Text style={styles.title}>Ma Bibliothèque</Text>
-        <LibrarySearchButton onPress={onSearchPress} />
+        <FilterButton onPress={onFilterPress} activeFiltersCount={activeFiltersCount} />
       </View>
       <StoryCountText count={storyCount} />
     </View>
