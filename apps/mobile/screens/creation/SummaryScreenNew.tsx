@@ -10,6 +10,7 @@ import useStoryStore from '@/store/stories/storyStore';
 import { createStory } from '@/api/stories/storyApi';
 import { StoryFormMapper } from '@/features/stories/mappers/StoryFormMapper';
 import useAuthStore from '@/store/auth/authStore';
+import { addPendingGeneration, setLastCreatedStoryId } from '@/store/library/libraryStorage';
 
 // Configure notification handler
 Notifications.setNotificationHandler({
@@ -95,6 +96,12 @@ export const SummaryScreenNew: React.FC = () => {
       // Create story
       const response = await createStory(backendPayload, token);
 
+      // Add to pending generations for polling
+      if (response.data?.id && response.data?.jobId) {
+        addPendingGeneration(response.data.jobId, response.data.id);
+        setLastCreatedStoryId(response.data.id);
+      }
+
       // Send success notification with backend message
       await sendSuccessNotification(
         response.message || 'Votre histoire est en cours de génération !'
@@ -103,8 +110,8 @@ export const SummaryScreenNew: React.FC = () => {
       // Reset the creation payload
       resetCreateStoryPayload();
 
-      // Redirect to home immediately
-      router.push('/');
+      // Redirect to library to see the story being generated
+      router.push('/library');
     } catch (err: any) {
       console.error('Error generating story:', err);
       setError(err.message || 'Une erreur est survenue lors de la génération de l\'histoire');

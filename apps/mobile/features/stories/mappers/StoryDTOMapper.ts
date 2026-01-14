@@ -89,6 +89,7 @@ export interface StoryListItemDTO {
   }
   ownerId: string
   numberOfChapters: number
+  generationStatus?: 'pending' | 'processing' | 'completed' | 'failed'
 }
 
 /**

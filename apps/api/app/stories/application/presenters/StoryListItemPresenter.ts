@@ -42,6 +42,7 @@ export class StoryListItemPresenter {
       tone: TonePresenter.toDTO(story.tone),
       ownerId: story.ownerId.getValue(),
       numberOfChapters: story.chapters.length,
+      generationStatus: story.generationStatus.getValue() as 'pending' | 'processing' | 'completed' | 'failed',
     }
   }
 
