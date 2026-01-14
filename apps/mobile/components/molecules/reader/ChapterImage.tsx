@@ -1,4 +1,5 @@
-import { View, Image, Text, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, Image, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   READER_COLORS,
@@ -15,18 +16,17 @@ export const ChapterImage: React.FC<ChapterImageProps> = ({
   imageUrl,
   chapterIndex = 0,
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
   const placeholderEmoji =
     CHAPTER_PLACEHOLDER_EMOJIS[chapterIndex % CHAPTER_PLACEHOLDER_EMOJIS.length];
 
+  const showPlaceholder = !imageUrl || hasError;
+
   return (
     <View style={styles.container}>
-      {imageUrl ? (
-        <Image
-          source={{ uri: imageUrl }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      ) : (
+      {showPlaceholder ? (
         <LinearGradient
           colors={[
             READER_COLORS.placeholderGradientStart,
@@ -36,6 +36,25 @@ export const ChapterImage: React.FC<ChapterImageProps> = ({
         >
           <Text style={styles.emoji}>{placeholderEmoji}</Text>
         </LinearGradient>
+      ) : (
+        <>
+          <Image
+            source={{ uri: imageUrl }}
+            style={styles.image}
+            resizeMode="cover"
+            onLoadStart={() => setIsLoading(true)}
+            onLoadEnd={() => setIsLoading(false)}
+            onError={() => {
+              setHasError(true);
+              setIsLoading(false);
+            }}
+          />
+          {isLoading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color={READER_COLORS.primary} />
+            </View>
+          )}
+        </>
       )}
       <LinearGradient
         colors={['transparent', READER_COLORS.background]}
@@ -71,6 +90,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 100,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 248, 240, 0.7)',
   },
 });
 

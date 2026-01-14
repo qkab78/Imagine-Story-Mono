@@ -2,8 +2,6 @@ import { useState, useCallback, useMemo } from 'react';
 import { useStoryById } from '@/features/stories/hooks/useStoryById';
 import type { ReaderChapter, ReaderProgress } from '@/types/reader';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
 export const useStoryReader = (storyId: string) => {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,14 +12,15 @@ export const useStoryReader = (storyId: string) => {
   const chapters: ReaderChapter[] = useMemo(() => {
     if (!story) return [];
 
-    return story.getAllChapters().map((chapter) => ({
-      id: chapter.id.getValue().toString(),
-      title: chapter.title,
-      content: chapter.content,
-      imageUrl: chapter.image?.imageUrl
-        ? `${API_URL}/images/chapters/${chapter.image.imageUrl.getValue()}`
-        : undefined,
-    }));
+    return story.getAllChapters().map((chapter) => {
+      const rawImageUrl = chapter.image?.imageUrl?.getValue();
+      return {
+        id: chapter.id.getValue().toString(),
+        title: chapter.title,
+        content: chapter.content,
+        imageUrl: rawImageUrl,
+      };
+    });
   }, [story]);
 
   const currentChapter = chapters[currentChapterIndex];
