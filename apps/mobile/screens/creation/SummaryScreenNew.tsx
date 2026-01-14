@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import * as Notifications from 'expo-notifications';
 import { colors } from '@/theme/colors';
 import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
 import { createStory } from '@/api/stories/storyApi';
 import { StoryFormMapper } from '@/features/stories/mappers/StoryFormMapper';
 import useAuthStore from '@/store/auth/authStore';
+
+// Configure notification handler
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 /**
  * SummaryScreenNew - Écran récapitulatif avant génération
@@ -24,10 +36,35 @@ export const SummaryScreenNew: React.FC = () => {
   const { createStoryPayload, resetCreateStoryPayload } = useStoryStore();
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Request notification permissions on mount
+  useEffect(() => {
+    const requestPermissions = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        console.warn('Notification permissions not granted');
+      }
+    };
+    requestPermissions();
+  }, []);
 
   const handleBack = () => {
     router.back();
+  };
+
+  const sendSuccessNotification = async (message: string) => {
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: '✨ Histoire en cours de génération !',
+          body: message,
+          sound: true,
+        },
+        trigger: null, // Show immediately
+      });
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
   };
 
   const handleGenerateStory = async () => {
@@ -47,7 +84,6 @@ export const SummaryScreenNew: React.FC = () => {
     try {
       setIsGenerating(true);
       setError(null);
-      setSuccessMessage(null);
 
       // Map form data to backend payload
       const backendPayload = StoryFormMapper.toBackendPayload(
@@ -59,16 +95,16 @@ export const SummaryScreenNew: React.FC = () => {
       // Create story
       const response = await createStory(backendPayload, token);
 
-      // Show success notification with backend message
-      setSuccessMessage(response.message || 'Votre histoire est en cours de génération !');
+      // Send success notification with backend message
+      await sendSuccessNotification(
+        response.message || 'Votre histoire est en cours de génération !'
+      );
 
       // Reset the creation payload
       resetCreateStoryPayload();
 
-      // Redirect to home after a short delay
-      setTimeout(() => {
-        router.push('/');
-      }, 3000);
+      // Redirect to home immediately
+      router.push('/');
     } catch (err: any) {
       console.error('Error generating story:', err);
       setError(err.message || 'Une erreur est survenue lors de la génération de l\'histoire');
@@ -220,22 +256,14 @@ export const SummaryScreenNew: React.FC = () => {
               <Text style={styles.errorBannerText}>{error}</Text>
             </View>
           )}
-
-          {/* Success Display */}
-          {successMessage && (
-            <View style={styles.successBanner}>
-              <Text style={styles.successBannerIcon}>✨</Text>
-              <Text style={styles.successBannerText}>{successMessage}</Text>
-            </View>
-          )}
         </View>
 
         {/* Navigation Footer */}
         <View style={styles.footer}>
           <TouchableOpacity
-            style={[styles.magicButton, (isGenerating || successMessage) && styles.magicButtonDisabled]}
+            style={[styles.magicButton, isGenerating && styles.magicButtonDisabled]}
             onPress={handleGenerateStory}
-            disabled={isGenerating || !!successMessage}
+            disabled={isGenerating}
             accessibilityRole="button"
           >
             <Text style={styles.magicButtonText}>
@@ -247,10 +275,10 @@ export const SummaryScreenNew: React.FC = () => {
           <TouchableOpacity
             style={styles.modifyButton}
             onPress={handleBack}
-            disabled={isGenerating || !!successMessage}
+            disabled={isGenerating}
             accessibilityRole="button"
           >
-            <Text style={[styles.modifyButtonText, (isGenerating || successMessage) && styles.modifyButtonTextDisabled]}>
+            <Text style={[styles.modifyButtonText, isGenerating && styles.modifyButtonTextDisabled]}>
               Modifier
             </Text>
           </TouchableOpacity>
@@ -444,34 +472,6 @@ const styles = StyleSheet.create({
     color: '#DC2626',
     textAlign: 'center',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
-  },
-  successBanner: {
-    backgroundColor: '#D1FAE5',
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    shadowColor: colors.forestGreen,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  successBannerIcon: {
-    fontSize: 24,
-  },
-  successBannerText: {
-    flex: 1,
-    fontSize: 15,
-    color: '#065F46',
-    fontWeight: '600',
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
-    lineHeight: 22,
   },
   footer: {
     flexDirection: 'column',
