@@ -1,24 +1,30 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '@/store/auth/authStore';
 import { getStoriesByAuthenticatedUserId } from '@/api/stories/storyApi';
 import { StoryListItemDTO } from '@/api/stories/storyTypes';
-import { LibraryStory, LibraryFilterType, GenerationStatusType } from '@/types/library';
+import { LibraryStory, LibraryFilterType } from '@/types/library';
 import {
-  getPendingGenerations,
   getLastCreatedStoryId,
   clearLastCreatedStoryId,
 } from '@/store/library/libraryStorage';
 import { isRecentDate } from '@/utils/date';
 
+const POLLING_INTERVAL = 5000; // 5 seconds
+
 /**
  * Transforms API story to LibraryStory format
  */
-const transformToLibraryStory = (
-  dto: StoryListItemDTO,
-  pendingJobIds: string[]
-): LibraryStory => {
-  const isGenerating = pendingJobIds.includes(dto.id);
+const transformToLibraryStory = (dto: StoryListItemDTO): LibraryStory => {
+  // Use generationStatus from API directly
+  const apiStatus = dto.generationStatus || 'completed';
+  const isGenerating = apiStatus === 'pending' || apiStatus === 'processing';
+
+  // Calculate progress based on status
+  let progress: number | undefined;
+  if (apiStatus === 'pending') progress = 10;
+  else if (apiStatus === 'processing') progress = 50;
+  else if (apiStatus === 'completed') progress = 100;
 
   return {
     id: dto.id,
@@ -37,16 +43,17 @@ const transformToLibraryStory = (
       emoji: dto.theme.description,
     },
     generationStatus: isGenerating ? 'generating' : 'completed',
-    generationProgress: isGenerating ? 50 : undefined, // TODO: real progress from websocket
+    generationProgress: progress,
   };
 };
 
 /**
- * Hook for fetching and managing library stories
+ * Hook for fetching and managing library stories with automatic polling
  */
 export const useLibraryStories = () => {
   const { token } = useAuthStore();
   const queryClient = useQueryClient();
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Fetch user stories
   const {
@@ -59,21 +66,42 @@ export const useLibraryStories = () => {
     queryKey: ['library', 'stories', token],
     queryFn: () => getStoriesByAuthenticatedUserId(token || ''),
     enabled: !!token,
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: 1000 * 30, // 30 seconds
   });
-
-  // Get pending generations from MMKV
-  const pendingGenerations = useMemo(() => getPendingGenerations(), []);
-  const pendingStoryIds = useMemo(
-    () => pendingGenerations.map((p) => p.storyId),
-    [pendingGenerations]
-  );
 
   // Transform stories to LibraryStory format
   const stories = useMemo<LibraryStory[]>(() => {
     if (!storiesData) return [];
-    return storiesData.map((dto) => transformToLibraryStory(dto, pendingStoryIds));
-  }, [storiesData, pendingStoryIds]);
+    return storiesData.map(transformToLibraryStory);
+  }, [storiesData]);
+
+  // Check if there are any generating stories
+  const hasGeneratingStories = useMemo(() => {
+    return stories.some((s) => s.generationStatus === 'generating');
+  }, [stories]);
+
+  // Set up polling when there are generating stories
+  useEffect(() => {
+    // Clear any existing interval
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+
+    // Only poll if there are generating stories
+    if (hasGeneratingStories) {
+      pollingRef.current = setInterval(() => {
+        refetch();
+      }, POLLING_INTERVAL);
+    }
+
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+  }, [hasGeneratingStories, refetch]);
 
   // Get highlighted story ID (last created)
   const highlightedStoryId = useMemo(() => getLastCreatedStoryId(), []);

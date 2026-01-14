@@ -147,6 +147,45 @@ export const getStoryById = async (id: string): Promise<StoryDetailDTO> => {
 }
 
 /**
+ * Generation Status Response
+ */
+export interface GenerationStatusResponse {
+  id: string
+  status: 'pending' | 'processing' | 'completed' | 'failed'
+  jobId?: string
+  startedAt?: string
+  completedAt?: string
+  error?: string
+  isCompleted: boolean
+  isFailed: boolean
+  isPending: boolean
+  isProcessing: boolean
+}
+
+/**
+ * Get story generation status
+ */
+export const getStoryGenerationStatus = async (storyId: string, token: string): Promise<GenerationStatusResponse> => {
+  if (!token) {
+    throw new Error('No token provided')
+  }
+
+  const response = await fetch(STORY_ENDPOINTS.STORY_GENERATION_STATUS(storyId), {
+    headers: {
+      Authorization: token,
+    },
+  })
+
+  if (!response.ok) {
+    const error: ApiErrorResponse = await response.json().catch(() => ({}))
+    throw new Error(error.message || `Failed to fetch generation status: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  return data.data
+}
+
+/**
  * Get all available themes
  */
 export const getThemes = async (): Promise<ThemeDTO[]> => {

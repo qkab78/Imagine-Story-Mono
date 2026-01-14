@@ -31,7 +31,7 @@ export const GenerationSpinner: React.FC<GenerationSpinnerProps> = ({
       -1, // Infinite repeat
       false
     );
-  }, []);
+  }, [rotation]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotation.value}deg` }],
@@ -46,7 +46,7 @@ export const GenerationSpinner: React.FC<GenerationSpinnerProps> = ({
           width: size,
           height: size,
           borderWidth,
-          borderColor: `${color}30`, // 30% opacity
+          borderColor: 'rgba(255, 255, 255, 0.3)',
           borderTopColor: color,
           borderRadius: size / 2,
         },
