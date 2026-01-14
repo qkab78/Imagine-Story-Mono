@@ -15,11 +15,8 @@ export class GetStoriesUseCase {
    */
   public static async execute(token: string): Promise<StoryListItem[]> {
     try {
-      console.log('[GetStoriesUseCase] Fetching all stories with token:', token ? 'present' : 'missing')
       const dtos = await getStories(token)
-      console.log('[GetStoriesUseCase] Received DTOs count:', dtos.length)
       const stories = dtos.map((dto) => StoryDTOMapper.listItemToDomain(dto))
-      console.log('[GetStoriesUseCase] Mapped to domain entities count:', stories.length)
       return stories
     } catch (error) {
       console.error('[GetStoriesUseCase] Error fetching all stories:', error)
@@ -34,11 +31,8 @@ export class GetStoriesUseCase {
    */
   public static async getLatest(token: string): Promise<StoryListItem[]> {
     try {
-      console.log('[GetStoriesUseCase.getLatest] Fetching latest stories with token:', token ? 'present' : 'missing')
       const dtos = await getLatestStories(token)
-      console.log('[GetStoriesUseCase.getLatest] Received DTOs count:', dtos.length)
       const stories = dtos.map((dto) => StoryDTOMapper.listItemToDomain(dto))
-      console.log('[GetStoriesUseCase.getLatest] Mapped to domain entities count:', stories.length)
       return stories
     } catch (error) {
       console.error('[GetStoriesUseCase.getLatest] Error fetching latest stories:', error)
@@ -53,11 +47,8 @@ export class GetStoriesUseCase {
    */
   public static async getByUserId(token: string): Promise<StoryListItem[]> {
     try {
-      console.log('[GetStoriesUseCase.getByUserId] Fetching user stories with token:', token ? 'present' : 'missing')
       const dtos = await getStoriesByAuthenticatedUserId(token)
-      console.log('[GetStoriesUseCase.getByUserId] Received DTOs count:', dtos.length)
       const stories = dtos.map((dto) => StoryDTOMapper.listItemToDomain(dto))
-      console.log('[GetStoriesUseCase.getByUserId] Mapped to domain entities count:', stories.length)
       return stories
     } catch (error) {
       console.error('[GetStoriesUseCase.getByUserId] Error fetching user stories:', error)

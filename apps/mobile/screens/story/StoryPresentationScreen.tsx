@@ -216,7 +216,7 @@ const StoryPresentationScreen: React.FC<StoryPresentationScreenProps> = ({ story
   };
 
   const handleReadStory = () => {
-    router.push(`/stories/${story.id}/read`);
+    router.push(`/stories/${story.id}/reader`);
   };
 
   return (
@@ -240,8 +240,8 @@ const StoryPresentationScreen: React.FC<StoryPresentationScreenProps> = ({ story
 
             <StoryInfo
               title={story.title}
-              theme={story.theme}
-              tone={story.tone}
+              theme={story.theme.name}
+              tone={story.tone.name}
               childAge={story.childAge}
               numberOfChapters={story.numberOfChapters}
               synopsis={story.synopsis}

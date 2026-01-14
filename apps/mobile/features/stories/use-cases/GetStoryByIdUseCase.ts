@@ -16,9 +16,7 @@ export class GetStoryByIdUseCase {
   public static async execute(id: string): Promise<Story> {
     try {
       const dto = await getStoryById(id)
-      console.log('[GetStoryByIdUseCase] DTO received:', JSON.stringify(dto, null, 2))
       const story = StoryDTOMapper.toDomain(dto)
-      console.log('[GetStoryByIdUseCase] Story mapped successfully')
       return story
     } catch (error) {
       console.error('[GetStoryByIdUseCase] Error:', error)
