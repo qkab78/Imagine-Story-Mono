@@ -12,16 +12,22 @@ import type { ReaderChapter } from '@/types/reader';
 interface ReaderContentProps {
   chapter: ReaderChapter;
   chapterIndex: number;
+  isLastChapter?: boolean;
+  conclusion?: string;
 }
 
 export const ReaderContent: React.FC<ReaderContentProps> = ({
   chapter,
   chapterIndex,
+  isLastChapter = false,
+  conclusion,
 }) => {
   // Split content into paragraphs
   const paragraphs = chapter.content
     .split('\n\n')
     .filter((p) => p.trim().length > 0);
+
+  const showConclusion = isLastChapter && conclusion;
 
   return (
     <ScrollView
@@ -56,6 +62,18 @@ export const ReaderContent: React.FC<ReaderContentProps> = ({
             );
           })}
         </View>
+
+        {/* Conclusion (only on last chapter) */}
+        {showConclusion && (
+          <View style={styles.conclusionContainer}>
+            <View style={styles.conclusionCard}>
+              <Text style={styles.conclusionTitle}>Fin de l'histoire</Text>
+              <View style={styles.conclusionDivider} />
+              <Text style={styles.conclusionText}>{conclusion}</Text>
+              <Text style={styles.conclusionEmoji}>✨ 🌟 ✨</Text>
+            </View>
+          </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -92,7 +110,42 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito',
     color: READER_COLORS.textPrimary,
     textAlign: 'justify',
-    textIndent: '24px',
+  },
+  conclusionContainer: {
+    marginTop: READER_SPACING.xxxl,
+  },
+  conclusionCard: {
+    backgroundColor: 'rgba(246, 193, 119, 0.15)',
+    borderWidth: 2,
+    borderColor: READER_COLORS.accent,
+    borderRadius: 16,
+    padding: READER_SPACING.xxl,
+    alignItems: 'center',
+  },
+  conclusionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    fontFamily: 'Quicksand',
+    color: READER_COLORS.textPrimary,
+    marginBottom: READER_SPACING.md,
+  },
+  conclusionDivider: {
+    width: 40,
+    height: 2,
+    backgroundColor: READER_COLORS.accent,
+    borderRadius: 1,
+    marginBottom: READER_SPACING.lg,
+  },
+  conclusionText: {
+    fontSize: READER_TYPOGRAPHY.storyText.fontSize,
+    lineHeight: READER_TYPOGRAPHY.storyText.lineHeight,
+    fontFamily: 'Nunito',
+    color: READER_COLORS.textPrimary,
+    textAlign: 'center',
+  },
+  conclusionEmoji: {
+    fontSize: 24,
+    marginTop: READER_SPACING.lg,
   },
 });
 

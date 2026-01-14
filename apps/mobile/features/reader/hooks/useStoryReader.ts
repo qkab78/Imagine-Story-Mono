@@ -65,15 +65,20 @@ export const useStoryReader = (storyId: string) => {
     setIsMenuOpen(false);
   }, []);
 
+  // Check if current chapter is the last one
+  const isLastChapter = currentChapterIndex === totalChapters - 1;
+
   return {
     // Story data
     story,
     storyTitle: story?.title || '',
+    conclusion: story?.conclusion || '',
     chapters,
     currentChapter,
     currentChapterIndex,
     totalChapters,
     progress,
+    isLastChapter,
     // State
     isLoading,
     error: error?.message,

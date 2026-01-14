@@ -15,11 +15,13 @@ export const StoryReaderScreen: React.FC = () => {
 
   const {
     storyTitle,
+    conclusion,
     chapters,
     currentChapter,
     currentChapterIndex,
     totalChapters,
     progress,
+    isLastChapter,
     isLoading,
     error,
     isMenuOpen,
@@ -75,6 +77,8 @@ export const StoryReaderScreen: React.FC = () => {
       <ReaderContent
         chapter={currentChapter}
         chapterIndex={currentChapterIndex}
+        isLastChapter={isLastChapter}
+        conclusion={conclusion}
       />
 
       {/* Footer */}
