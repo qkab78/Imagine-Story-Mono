@@ -15,10 +15,12 @@ export type { ThemeDTO, LanguageDTO, ToneDTO }
  * Story Created Response (from backend)
  */
 export interface StoryCreatedResponse {
-  id: string
-  slug: string
-  title: string
-  createdAt: Date
+  data: {
+    id: string
+    jobId: string
+    status: string
+  }
+  message: string
 }
 
 /**

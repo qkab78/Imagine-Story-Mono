@@ -1,90 +1,163 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Theme } from '@/domain/stories/value-objects/settings/Theme';
-import { GlassCard } from '@/components/molecules/glass/GlassCard';
-import Text from '@/components/ui/Text';
+import { StyleSheet, TouchableOpacity, Platform, View } from 'react-native';
+import { Text } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '@/theme/colors';
-import { typography } from '@/theme/typography';
-import { spacing } from '@/theme/spacing';
 
-interface ThemeCardProps {
-  theme: Theme;
-  emoji?: string;
-  color?: string;
+export interface ThemeCardProps {
+  /** Emoji du thème */
+  emoji: string;
+
+  /** Nom du thème */
+  name: string;
+
+  /** Description du thème */
+  description: string;
+
+  /** Couleur du thème */
+  color: string;
+
+  /** État de sélection */
   isSelected: boolean;
-  onPress: (theme: Theme) => void;
-  cardWidth?: number;
-  cardHeight?: number;
+
+  /** Callback lors de la sélection */
+  onPress: () => void;
 }
 
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+
+/**
+ * ThemeCard - Molecule pour une carte de thème
+ *
+ * Carte cliquable avec emoji, nom, description et gradient coloré.
+ * Utilisée dans l'écran Theme Selection.
+ *
+ * @example
+ * ```tsx
+ * <ThemeCard
+ *   emoji="🏰"
+ *   name="Royaume magique"
+ *   description="Châteaux, princes et princesses"
+ *   color="#FF6B9D"
+ *   isSelected={selectedTheme?.id === theme.id}
+ *   onPress={() => onThemeSelect(theme)}
+ * />
+ * ```
+ */
 export const ThemeCard: React.FC<ThemeCardProps> = ({
-  theme,
   emoji,
-  color,
+  name,
+  description,
   isSelected,
   onPress,
-  cardWidth,
-  cardHeight = 120
 }) => {
+  const scale = useSharedValue(1);
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.95, { damping: 10, stiffness: 400 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 10, stiffness: 400 });
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
-    <GlassCard
-      glassStyle="clear"
-      tintColor={isSelected ? 'rgba(107, 70, 193, 0.1)' : 'rgba(255, 255, 255, 0.05)'}
-      onPress={() => onPress(theme)}
-      borderRadius={16}
-      padding={spacing.base}
+    <AnimatedTouchableOpacity
       style={[
-        styles.themeCard,
-        { width: cardWidth, minHeight: cardHeight },
-        isSelected && styles.themeSelected,
+        styles.container,
+        isSelected && styles.containerSelected,
+        animatedStyle,
       ]}
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      activeOpacity={0.9}
+      accessibilityRole="button"
+      accessibilityLabel={`Thème ${name}`}
+      accessibilityState={{ selected: isSelected }}
     >
-      <View
-        style={styles.content}
-        accessibilityLabel={`Choisir le thème ${theme.name}`}
-        accessibilityRole="button"
-        accessibilityHint={theme.description}
-      >
-        {emoji && <Text style={styles.themeEmoji}>{emoji}</Text>}
-        <Text style={styles.themeName}>{theme.name}</Text>
-        <Text style={styles.themeDescription}>{theme.description}</Text>
+      <View style={[styles.background, isSelected && styles.backgroundSelected]}>
+        <LinearGradient
+          colors={isSelected ? [colors.warmAmber, '#E8A957'] : ['#A8D4C0', '#7FB8A0']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.iconCircle}
+        >
+          <Text style={styles.emoji}>{emoji}</Text>
+        </LinearGradient>
+        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.description}>{description}</Text>
       </View>
-    </GlassCard>
+    </AnimatedTouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  themeCard: {
-    marginBottom: spacing.base,
-    // backgroundColor, borderWidth, borderColor, borderRadius, padding, shadows handled by GlassCard
+  container: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+    shadowColor: colors.deepForest,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
   },
-  themeSelected: {
-    borderColor: colors.safetyGreen,
-    borderWidth: 3,
+  containerSelected: {
+    borderColor: colors.forestGreen,
+    shadowColor: colors.deepForest,
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 6,
   },
-  content: {
+  background: {
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    paddingVertical: 16,
+    alignItems: 'center',
+    gap: 12,
+  },
+  backgroundSelected: {
+    backgroundColor: 'rgba(47, 107, 79, 0.08)',
+  },
+  iconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  themeEmoji: {
-    fontSize: 32,
-    marginBottom: spacing.xs,
+  emoji: {
+    fontSize: 28,
   },
-  themeName: {
-    fontSize: typography.fontSize.base,
-    fontFamily: typography.fontFamily.medium,
+  name: {
+    fontSize: 15,
     fontWeight: '700',
     color: colors.textPrimary,
     textAlign: 'center',
-    marginBottom: spacing.xs,
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    marginBottom: 4,
   },
-  themeDescription: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
+  description: {
+    fontSize: 12,
     fontWeight: '400',
-    color: colors.textTertiary,
+    color: colors.textMuted,
     textAlign: 'center',
-    lineHeight: typography.fontSize.sm * 1.3,
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    lineHeight: 16,
   },
 });
 

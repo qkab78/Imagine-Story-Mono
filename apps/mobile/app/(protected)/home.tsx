@@ -43,7 +43,7 @@ const HomeScreen = () => {
 
   // Navigation handlers
   const handleCreateStory = useCallback(() => {
-    router.push('/stories/creation/hero-selection');
+    router.push('/stories/creation/welcome');
   }, [router]);
 
   const handleReadStories = useCallback(() => {
