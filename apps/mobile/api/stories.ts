@@ -49,7 +49,7 @@ export const getStoriesByAuthenticatedUserId = async (token: string) => {
     throw new Error('No token provided');
   }
 
-  const response = await fetch(`${apiUrl}/stories/user/me`, {
+  const response = await fetch(`${apiUrl}/stories/users/me`, {
     headers: {
       Authorization: token,
     },

@@ -3,7 +3,7 @@ import { Role } from "@imagine-story/api/users/models/role";
 import { Tabs } from "expo-router";
 import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { HouseIcon, SquarePenIcon, CircleUserRoundIcon, CogIcon, SearchIcon } from "lucide-react-native";
+import { HouseIcon, SquarePenIcon, CircleUserRoundIcon, CogIcon, SearchIcon, LibraryIcon } from "lucide-react-native";
 import { Platform } from "react-native";
 import { useNativeTabsSupport } from "@/hooks/useNativeTabsSupport";
 
@@ -39,6 +39,16 @@ function LegacyJavaScriptTabs() {
           title: 'Accueil',
           headerShown: false,
           tabBarIcon: ({ color }) => <HouseIcon color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="library"
+        redirect={user?.role === Role.GUEST}
+        options={{
+          ...defaultScreenOptions,
+          title: 'Bibliothèque',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <LibraryIcon color={color} />,
         }}
       />
       <Tabs.Screen
@@ -105,6 +115,14 @@ export default function TabLayout() {
             <Icon sf="house.fill" />
             <Label>Accueil</Label>
           </NativeTabs.Trigger>
+
+          {/* Library Tab - Hidden for guests */}
+          {user?.role !== Role.GUEST && (
+            <NativeTabs.Trigger name="library">
+              <Icon sf="books.vertical.fill" />
+              <Label>Bibliothèque</Label>
+            </NativeTabs.Trigger>
+          )}
 
           {/* Create Tab - Hidden for guests */}
           {user?.role !== Role.GUEST && (

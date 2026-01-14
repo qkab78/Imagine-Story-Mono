@@ -118,7 +118,7 @@ router
     // Authenticated endpoints
     router
       .group(() => {
-        router.get('/users/me/stories', [StoriesControllerPresenter, 'getUserStories'])
+        router.get('/users/me', [StoriesControllerPresenter, 'getUserStories'])
         router.post('/', [StoriesControllerPresenter, 'createStory'])
       })
       .middleware(middleware.auth())
