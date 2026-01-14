@@ -20,6 +20,22 @@ import {
   Music,
   // Filter icon
   SlidersHorizontal,
+  // Profile icons
+  User,
+  CreditCard,
+  Pencil,
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  Bell,
+  Globe,
+  MessageCircle,
+  Star,
+  FileText,
+  Lock,
+  Crown,
+  LogOut,
+  Trash2,
 } from 'lucide-react-native';
 import { useLiquidGlass } from '@/hooks/useLiquidGlass';
 
@@ -45,6 +61,22 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<{ size: number; color: st
   Music,
   // Filter icon
   SlidersHorizontal,
+  // Profile icons
+  User,
+  CreditCard,
+  Pencil,
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  Bell,
+  Globe,
+  MessageCircle,
+  Star,
+  FileText,
+  Lock,
+  Crown,
+  LogOut,
+  Trash2,
 };
 
 export interface IconConfig {

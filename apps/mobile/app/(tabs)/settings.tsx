@@ -1,12 +1,5 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { ProfileScreen } from '@/components/screens/profile';
 
-const Tab = () => {
-  return (
-    <View>
-      <Text>Settings</Text>
-    </View>
-  )
+export default function SettingsTab() {
+  return <ProfileScreen />;
 }
-
-export default Tab
