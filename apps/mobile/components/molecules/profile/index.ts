@@ -4,3 +4,7 @@ export { SettingsItem } from './SettingsItem';
 export { SettingsToggleItem } from './SettingsToggleItem';
 export { LogoutButton } from './LogoutButton';
 export { DeleteAccountButton } from './DeleteAccountButton';
+export { FeatureItem } from './FeatureItem';
+export { PlanOption } from './PlanOption';
+export { AlertBox } from './AlertBox';
+export { SubscriptionCard } from './SubscriptionCard';

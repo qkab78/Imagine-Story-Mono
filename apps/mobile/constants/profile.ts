@@ -14,6 +14,10 @@ export const PROFILE_COLORS = {
   avatarGradientStart: '#2F6B4F',
   avatarGradientEnd: '#7FB8A0',
 
+  // Subscription gradient
+  subscriptionGradientStart: '#2F6B4F',
+  subscriptionGradientEnd: '#7FB8A0',
+
   // Text
   textPrimary: '#1F3D2B',
   textSecondary: '#4A6B5A',
@@ -25,9 +29,20 @@ export const PROFILE_COLORS = {
 
   // Separators
   separator: 'rgba(127, 184, 160, 0.1)',
+  separatorLight: '#F0F0F0',
+
+  // Form inputs
+  inputBackground: '#F8F8F8',
+  inputBorder: '#E8E8E8',
+  inputBorderFocus: '#2F6B4F',
+
+  // Alert
+  alertBackground: '#FFF3E0',
+  alertBorder: '#F6C177',
 
   // Actions
   primary: '#2F6B4F',
+  primaryLight: '#3D7A5E',
   accent: '#F6C177',
   danger: '#FF6B6B',
   dangerLight: 'rgba(255, 107, 107, 0.1)',
@@ -60,6 +75,8 @@ export const PROFILE_ICONS = {
   subscription: { sfSymbol: 'creditcard.fill', lucide: 'CreditCard' },
   edit: { sfSymbol: 'pencil', lucide: 'Pencil' },
   chevronRight: { sfSymbol: 'chevron.right', lucide: 'ChevronRight' },
+  chevronLeft: { sfSymbol: 'chevron.left', lucide: 'ChevronLeft' },
+  check: { sfSymbol: 'checkmark', lucide: 'Check' },
 
   // Preferences
   notifications: { sfSymbol: 'bell.fill', lucide: 'Bell' },
@@ -73,6 +90,7 @@ export const PROFILE_ICONS = {
 
   // Premium
   crown: { sfSymbol: 'crown.fill', lucide: 'Crown' },
+  sparkles: { sfSymbol: 'sparkles', lucide: 'Sparkles' },
 
   // Actions
   logout: { sfSymbol: 'rectangle.portrait.and.arrow.right', lucide: 'LogOut' },
