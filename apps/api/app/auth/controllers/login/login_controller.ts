@@ -35,6 +35,7 @@ export default class LoginController {
         fullname: `${user.firstname} ${user.lastname}`,
         role: user.role,
         avatar: '',
+        createdAt: user.created_at,
       },
     })
   }

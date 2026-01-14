@@ -203,7 +203,7 @@ export const ProfileContent: React.FC = () => {
         onClose={() => setShowPersonalInfo(false)}
         name={user?.fullname || 'Utilisateur'}
         email={user?.email || 'N/A'}
-        registrationDate={formatDate(undefined)}
+        registrationDate={formatDate(user?.createdAt)}
         storiesCount={12}
       />
 

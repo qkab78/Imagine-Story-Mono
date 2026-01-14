@@ -3,15 +3,34 @@ import { Alert, Linking, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Application from 'expo-application';
 import { MMKV } from 'react-native-mmkv';
+import { useMutation } from '@tanstack/react-query';
 import useAuthStore from '@/store/auth/authStore';
+import { logout } from '@/api/auth';
 import { PROFILE_EXTERNAL_URLS } from '@/constants/profile';
+import { router } from 'expo-router';
 
 const storage = new MMKV({ id: 'profile-settings' });
 
 export const useProfileSettings = () => {
-  const { user, setToken, setUser } = useAuthStore();
+  const { token, user, setToken, setUser } = useAuthStore();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [appVersion, setAppVersion] = useState('1.0.0');
+
+  const logoutMutation = useMutation({
+    mutationFn: (authToken: string) => logout(authToken),
+    onSuccess: () => {
+      setToken('');
+      setUser(undefined);
+      router.push('/login');
+    },
+    onError: (error) => {
+      console.error('Logout error:', error);
+      // Clear state even on error
+      setToken('');
+      setUser(undefined);
+      router.push('/login');
+    },
+  });
 
   useEffect(() => {
     const stored = storage.getBoolean('notifications_enabled');
@@ -54,13 +73,14 @@ export const useProfileSettings = () => {
           text: 'Se déconnecter',
           style: 'destructive',
           onPress: () => {
-            setToken('');
-            setUser(undefined);
+            if (token) {
+              logoutMutation.mutate(token);
+            }
           },
         },
       ]
     );
-  }, [setToken, setUser]);
+  }, [token, logoutMutation]);
 
   const handleDeleteAccount = useCallback(() => {
     Alert.alert(
@@ -97,7 +117,7 @@ export const useProfileSettings = () => {
         },
       ]
     );
-  }, [setToken, setUser]);
+  }, []);
 
   const openHelp = useCallback(() => {
     Linking.openURL(PROFILE_EXTERNAL_URLS.help);
