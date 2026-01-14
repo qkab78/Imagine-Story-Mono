@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { ChapterDivider, DropCapText } from '@/components/atoms/reader';
 import { ChapterImage } from '@/components/molecules/reader';
@@ -22,6 +23,13 @@ export const ReaderContent: React.FC<ReaderContentProps> = ({
   isLastChapter = false,
   conclusion,
 }) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Scroll to top when chapter changes
+  useEffect(() => {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+  }, [chapterIndex]);
+
   // Split content into paragraphs
   const paragraphs = chapter.content
     .split('\n\n')
@@ -31,6 +39,7 @@ export const ReaderContent: React.FC<ReaderContentProps> = ({
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       style={styles.scrollView}
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
