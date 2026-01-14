@@ -10,6 +10,7 @@ import Animated, {
 import { kidSlides } from './kidSlides';
 import KidOnboardingScreen from './KidOnboardingScreen';
 import { router } from 'expo-router';
+import { hasCompletedNotificationOnboarding } from '@/store/notifications/notificationStorage';
 
 const { width } = Dimensions.get('window');
 
@@ -76,11 +77,25 @@ const KidOnboardingContainer: React.FC = () => {
   };
 
   const handleComplete = () => {
-    router.replace('/login');
+    const notificationOnboardingCompleted = hasCompletedNotificationOnboarding();
+    console.log('[Onboarding] handleComplete - notificationOnboardingCompleted:', notificationOnboardingCompleted);
+
+    if (!notificationOnboardingCompleted) {
+      console.log('[Onboarding] Navigating to notification-permission');
+      router.push('/notification-permission');
+    } else {
+      console.log('[Onboarding] Navigating to login');
+      router.replace('/login');
+    }
   };
 
   const handleSkip = () => {
-    router.replace('/login');
+    // Vérifier si l'écran de notifications a déjà été complété
+    if (!hasCompletedNotificationOnboarding()) {
+      router.push('/notification-permission');
+    } else {
+      router.replace('/login');
+    }
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
