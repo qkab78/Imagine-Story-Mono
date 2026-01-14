@@ -177,7 +177,7 @@ const ProfileScreen: React.FC = () => {
           <ProfileCard
             fullname={user?.fullname ?? ''}
             avatar={'👨‍👩‍👧'}
-            role={Role[user?.role as keyof typeof Role].toLowerCase()}
+            role={Role[user?.role as keyof typeof Role]?.toLowerCase() ?? ''}
           />
 
           {/* Premium Section */}
