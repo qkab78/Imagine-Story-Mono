@@ -51,7 +51,7 @@ const HomeScreen = () => {
   }, [router]);
 
   const handleStoryPress = useCallback((storyId: string) => {
-    router.push(`/stories/${storyId}`);
+    router.push(`/stories/${storyId}/reader`);
   }, [router]);
 
   // Loading state

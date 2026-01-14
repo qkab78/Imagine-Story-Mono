@@ -72,13 +72,13 @@ const StoryGenerationScreen: React.FC = () => {
 
         Alert.alert(
           'Histoire créée ! 🎉',
-          `"${response.title}" a été générée avec succès !`,
+          '',
           [
             {
               text: 'Voir l\'histoire',
               onPress: () => {
                 resetCreateStoryPayload();
-                router.push(`/stories/${response.slug}`);
+                router.push(`/stories/${response.data.id}/reader`);
               }
             }
           ]

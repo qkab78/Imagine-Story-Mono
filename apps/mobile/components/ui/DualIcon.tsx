@@ -36,6 +36,10 @@ import {
   Crown,
   LogOut,
   Trash2,
+  // Reader icons
+  X,
+  MoreVertical,
+  List,
 } from 'lucide-react-native';
 import { useLiquidGlass } from '@/hooks/useLiquidGlass';
 
@@ -77,6 +81,10 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<{ size: number; color: st
   Crown,
   LogOut,
   Trash2,
+  // Reader icons
+  X,
+  MoreVertical,
+  List,
 };
 
 export interface IconConfig {

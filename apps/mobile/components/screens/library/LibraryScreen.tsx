@@ -49,7 +49,7 @@ export const LibraryScreen = () => {
     (storyId: string) => {
       const story = stories.find((s) => s.id === storyId);
       if (story) {
-        router.push(`/stories/${story.id}`);
+        router.push(`/stories/${story.id}/reader`);
       }
     },
     [stories, router]

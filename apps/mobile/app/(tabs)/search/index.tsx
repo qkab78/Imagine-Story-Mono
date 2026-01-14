@@ -364,7 +364,7 @@ const DiscoverScreen: React.FC = () => {
 
   // Handlers
   const handleStoryPress = (story: DiscoverStory) => {
-    router.push(`/stories/${story.slug}`);
+    router.push(`/stories/${story.id}/reader`);
   };
 
   const handleSearchFocus = () => {
