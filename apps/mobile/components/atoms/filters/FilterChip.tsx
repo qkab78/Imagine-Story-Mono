@@ -1,15 +1,17 @@
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, View, Text, StyleSheet } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
+import { DualIcon, type IconConfig } from '@/components/ui';
 import { LIBRARY_COLORS, LIBRARY_SPACING } from '@/constants/library';
 
 interface FilterChipProps {
   label: string;
   isSelected: boolean;
   onPress: () => void;
+  icon?: IconConfig;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -18,6 +20,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   label,
   isSelected,
   onPress,
+  icon,
 }) => {
   const scale = useSharedValue(1);
 
@@ -33,6 +36,8 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     transform: [{ scale: scale.value }],
   }));
 
+  const iconColor = isSelected ? LIBRARY_COLORS.primary : LIBRARY_COLORS.textSecondary;
+
   return (
     <AnimatedPressable
       style={[
@@ -44,6 +49,11 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       onPressOut={handlePressOut}
       onPress={onPress}
     >
+      {icon && (
+        <View style={styles.iconContainer}>
+          <DualIcon icon={icon} size={16} color={iconColor} />
+        </View>
+      )}
       <Text style={[styles.label, isSelected && styles.labelSelected]}>
         {label}
       </Text>
@@ -53,12 +63,15 @@ export const FilterChip: React.FC<FilterChipProps> = ({
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#F8F8F8',
     borderRadius: 20,
     paddingHorizontal: LIBRARY_SPACING.lg,
     paddingVertical: LIBRARY_SPACING.md,
     borderWidth: 2,
     borderColor: 'transparent',
+    gap: LIBRARY_SPACING.xs,
   },
   selected: {
     backgroundColor: 'white',
@@ -68,6 +81,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 3,
+  },
+  iconContainer: {
+    width: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   label: {
     fontSize: 14,

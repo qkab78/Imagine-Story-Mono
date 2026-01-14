@@ -84,3 +84,19 @@ export const getThemeIcons = (themeName: string): { sfSymbol: string; lucide: st
 export const getThemeEmoji = (themeName: string): string => {
   return THEME_EMOJIS[themeName] || THEME_EMOJIS.default;
 };
+
+// Icônes par tone (SF Symbol name, Lucide name)
+export const TONE_ICONS: Record<string, { sfSymbol: string; lucide: string }> = {
+  happy: { sfSymbol: 'sun.max.fill', lucide: 'Sun' },
+  calm: { sfSymbol: 'moon.fill', lucide: 'Moon' },
+  adventurous: { sfSymbol: 'figure.hiking', lucide: 'Compass' },
+  magical: { sfSymbol: 'wand.and.stars', lucide: 'Wand2' },
+  educational: { sfSymbol: 'lightbulb.fill', lucide: 'Lightbulb' },
+  playful: { sfSymbol: 'face.smiling.fill', lucide: 'Smile' },
+  default: { sfSymbol: 'music.note', lucide: 'Music' },
+};
+
+// Helper pour obtenir les icônes d'un tone
+export const getToneIcons = (toneName: string): { sfSymbol: string; lucide: string } => {
+  return TONE_ICONS[toneName] || TONE_ICONS.default;
+};

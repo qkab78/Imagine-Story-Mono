@@ -1,8 +1,11 @@
 import { Pressable, View, Text, StyleSheet } from 'react-native';
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
-import { SlidersHorizontal } from 'lucide-react-native';
-import { useLiquidGlass } from '@/hooks/useLiquidGlass';
+import { DualIcon } from '@/components/ui';
 import { LIBRARY_COLORS, LIBRARY_DIMENSIONS } from '@/constants/library';
+
+const FILTER_ICON = {
+  sfSymbol: 'line.3.horizontal.decrease',
+  lucide: 'SlidersHorizontal',
+};
 
 interface FilterButtonProps {
   onPress: () => void;
@@ -13,29 +16,12 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
   onPress,
   activeFiltersCount = 0,
 }) => {
-  const { hasGlassSupport } = useLiquidGlass();
-
-  const renderIcon = () => {
-    if (hasGlassSupport) {
-      return (
-        <SymbolView
-          name={'line.3.horizontal.decrease' as SymbolViewProps['name']}
-          size={18}
-          tintColor="white"
-          weight="medium"
-        />
-      );
-    }
-
-    return <SlidersHorizontal size={18} color="white" />;
-  };
-
   return (
     <Pressable
       style={({ pressed }) => [styles.container, pressed && styles.pressed]}
       onPress={onPress}
     >
-      {renderIcon()}
+      <DualIcon icon={FILTER_ICON} size={18} color="white" />
       {activeFiltersCount > 0 && (
         <View style={styles.badge}>
           <Text style={styles.badgeText}>{activeFiltersCount}</Text>

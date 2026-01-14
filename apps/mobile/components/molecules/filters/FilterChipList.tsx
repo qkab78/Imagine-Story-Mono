@@ -5,6 +5,10 @@ import { LIBRARY_COLORS, LIBRARY_SPACING } from '@/constants/library';
 interface FilterChipItem {
   id: string;
   label: string;
+  icon?: {
+    sfSymbol: string;
+    lucide: string;
+  };
 }
 
 interface FilterChipListProps {
@@ -38,6 +42,7 @@ export const FilterChipList: React.FC<FilterChipListProps> = ({
           <FilterChip
             key={item.id}
             label={item.label}
+            icon={item.icon}
             isSelected={selectedIds.includes(item.id)}
             onPress={() => onToggle(item.id)}
           />

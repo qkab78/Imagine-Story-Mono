@@ -22,7 +22,7 @@ import { FilterSection, FilterChipList } from '@/components/molecules/filters';
 import { getThemes, getTones } from '@/api/stories/storyApi';
 import { ThemeDTO, ToneDTO } from '@/api/stories/storyTypes';
 import { LIBRARY_COLORS, LIBRARY_SPACING } from '@/constants/library';
-import { THEME_ICONS } from '@/types/library';
+import { THEME_ICONS, TONE_ICONS } from '@/types/library';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SHEET_HEIGHT = SCREEN_HEIGHT * 0.6;
@@ -70,10 +70,11 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
     icon: THEME_ICONS[theme.name] || THEME_ICONS.default,
   }));
 
-  // Transform tones for FilterChipList (text only)
+  // Transform tones for FilterChipList with icons
   const toneItems = tones.map((tone) => ({
     id: tone.id,
     label: tone.name,
+    icon: TONE_ICONS[tone.name] || TONE_ICONS.default,
   }));
 
   // Handle visibility changes

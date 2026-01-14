@@ -1,45 +1,17 @@
 import { Pressable, View, Text, StyleSheet } from 'react-native';
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
-import {
-  PawPrint,
-  Search,
-  Flame,
-  Map,
-  BookOpen,
-  Heart,
-  Home,
-  Sparkles,
-  Book,
-} from 'lucide-react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { useLiquidGlass } from '@/hooks/useLiquidGlass';
+import { DualIcon, type IconConfig } from '@/components/ui';
 import { LIBRARY_COLORS, LIBRARY_SPACING } from '@/constants/library';
-
-// Map Lucide icon names to components
-const LUCIDE_ICONS: Record<string, React.ComponentType<{ size: number; color: string }>> = {
-  PawPrint,
-  Search,
-  Flame,
-  Map,
-  BookOpen,
-  Heart,
-  Home,
-  Sparkles,
-  Book,
-};
 
 interface FilterOptionProps {
   label: string;
   isSelected: boolean;
   onPress: () => void;
-  icon?: {
-    sfSymbol: string;
-    lucide: string;
-  };
+  icon?: IconConfig;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -51,7 +23,6 @@ export const FilterOption: React.FC<FilterOptionProps> = ({
   icon,
 }) => {
   const scale = useSharedValue(1);
-  const { hasGlassSupport } = useLiquidGlass();
 
   const handlePressIn = () => {
     scale.value = withSpring(0.95, { damping: 20, stiffness: 400 });
@@ -67,24 +38,6 @@ export const FilterOption: React.FC<FilterOptionProps> = ({
 
   const iconColor = isSelected ? LIBRARY_COLORS.primary : LIBRARY_COLORS.textSecondary;
 
-  const renderIcon = () => {
-    if (!icon) return null;
-
-    if (hasGlassSupport) {
-      return (
-        <SymbolView
-          name={icon.sfSymbol as SymbolViewProps['name']}
-          size={28}
-          tintColor={iconColor}
-          weight="medium"
-        />
-      );
-    }
-
-    const LucideIcon = LUCIDE_ICONS[icon.lucide] || Book;
-    return <LucideIcon size={28} color={iconColor} />;
-  };
-
   return (
     <AnimatedPressable
       style={[
@@ -96,9 +49,11 @@ export const FilterOption: React.FC<FilterOptionProps> = ({
       onPressOut={handlePressOut}
       onPress={onPress}
     >
-      <View style={styles.iconContainer}>
-        {renderIcon()}
-      </View>
+      {icon && (
+        <View style={styles.iconContainer}>
+          <DualIcon icon={icon} size={28} color={iconColor} />
+        </View>
+      )}
       <Text style={[styles.label, isSelected && styles.labelSelected]} numberOfLines={2}>
         {label}
       </Text>

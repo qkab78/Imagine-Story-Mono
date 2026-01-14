@@ -15,4 +15,6 @@ export { default as Toggle } from './Toggle';
 
 // Icons
 export { default as IconSymbol } from './IconSymbol';
+export { DualIcon } from './DualIcon';
+export type { IconConfig } from './DualIcon';
 export { default as TabBarBackground } from './TabBarBackground';
