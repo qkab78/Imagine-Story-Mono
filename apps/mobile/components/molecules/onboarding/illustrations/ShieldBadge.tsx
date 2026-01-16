@@ -29,11 +29,11 @@ export const ShieldBadge: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.shieldContainer}>
         <Text style={styles.shieldEmoji}>🛡️</Text>
-      </View>
 
-      <Animated.View style={[styles.checkBadge, badgeStyle]}>
-        <Text style={styles.checkEmoji}>✓</Text>
-      </Animated.View>
+        <Animated.View style={[styles.checkBadge, badgeStyle]}>
+          <Text style={styles.checkEmoji}>✓</Text>
+        </Animated.View>
+      </View>
 
       <View style={[styles.sparkle, styles.sparkle1]}>
         <SparkleIcon type="sparkle" size={32} />
@@ -53,8 +53,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   shieldContainer: {
-    width: 140,
-    height: 160,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: '#2F6B4F',
     alignItems: 'center',
     justifyContent: 'center',
@@ -63,12 +64,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 40,
     elevation: 12,
-    // Shield shape using transform
-    transform: [{ scaleY: 1.2 }],
-    borderRadius: 70,
   },
   shieldEmoji: {
-    fontSize: 64,
+    fontSize: 56,
   },
   checkBadge: {
     position: 'absolute',
@@ -78,8 +76,8 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    bottom: 20,
-    right: 30,
+    bottom: -10,
+    right: -10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
