@@ -11,45 +11,35 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { AgeBadge } from '@/components/atoms/auth';
 import { AuthHeader, AuthFooter } from '@/components/molecules/auth';
-import { LoginForm } from '@/components/organisms/auth';
+import { SignupForm, type SignupData } from '@/components/organisms/auth';
 import useAuthStore from '@/store/auth/authStore';
 
-const LoginScreen = () => {
+const SignupScreen = () => {
   const router = useRouter();
-  const { login } = useAuthStore();
+  const { register } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleSignup = async (data: SignupData) => {
     try {
       setIsLoading(true);
-      await login(email, password);
-      // La navigation sera gérée par le store après login réussi
+      await register({
+        fullname: `${data.firstName} ${data.lastName}`,
+        email: data.email,
+        password: data.password,
+      });
+      // La navigation sera gérée par le store après inscription réussie
     } catch (error: any) {
       Alert.alert(
-        'Erreur de connexion',
-        error.message || 'Une erreur est survenue lors de la connexion'
+        "Erreur d'inscription",
+        error.message || "Une erreur est survenue lors de l'inscription"
       );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    Alert.alert(
-      'Bientôt disponible',
-      'La connexion avec Google sera bientôt disponible ! 🚀'
-    );
-  };
-
-  const handleForgotPassword = () => {
-    Alert.alert(
-      'Mot de passe oublié',
-      'Un email de réinitialisation te sera envoyé bientôt ! 📧'
-    );
-  };
-
-  const handleSignupPress = () => {
-    router.push('/signup');
+  const handleLoginPress = () => {
+    router.push('/login');
   };
 
   return (
@@ -72,22 +62,19 @@ const LoginScreen = () => {
           >
             <AuthHeader
               icon="✨"
-              title="Bon retour ! 👋"
-              subtitle="Connecte-toi pour retrouver tes histoires magiques"
-              variant="default"
+              title="Rejoins l'aventure ! ✨"
+              subtitle="Crée ton compte pour sauvegarder tes histoires magiques"
+              variant="signup"
+              compact
             />
 
-            <LoginForm
-              onSubmit={handleLogin}
-              onGoogleSignIn={handleGoogleSignIn}
-              onForgotPassword={handleForgotPassword}
-              loading={isLoading}
-            />
+            <SignupForm onSubmit={handleSignup} loading={isLoading} />
 
             <AuthFooter
-              question="Pas encore de compte ?"
-              linkText="S'inscrire"
-              onLinkPress={handleSignupPress}
+              question="Déjà un compte ?"
+              linkText="Se connecter"
+              onLinkPress={handleLoginPress}
+              compact
             />
           </ScrollView>
         </KeyboardAvoidingView>
@@ -112,9 +99,9 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
     paddingHorizontal: 32,
-    paddingTop: 100,
-    paddingBottom: 32,
+    paddingTop: 80,
+    paddingBottom: 24,
   },
 });
 
-export default LoginScreen;
+export default SignupScreen;

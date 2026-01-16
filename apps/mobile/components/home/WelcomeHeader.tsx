@@ -10,10 +10,13 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import type { WelcomeHeaderProps } from '@/types/home';
+import useAuthStore from '@/store/auth/authStore';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ user }) => {
+  const firstname = useAuthStore(state => state.getFirstname());
+  const initials = useAuthStore(state => state.getInitials());
   const bounceAnimation = useSharedValue(0);
 
   useEffect(() => {
@@ -35,22 +38,26 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ user }) => {
     <View style={styles.container}>
       <View style={styles.textSection}>
         <Text style={styles.greeting}>
-          Bonjour {user?.fullname} ! 👋
+          Bonjour {firstname} ! 👋
         </Text>
         <Text style={styles.subtitle}>
           Prête pour une nouvelle aventure ?
         </Text>
       </View>
-      
+
       <AnimatedLinearGradient
         colors={['#F6C177', '#E8A957']}
         style={[styles.avatar, animatedAvatarStyle]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <Text style={styles.avatarText}>
-          {user?.fullname?.charAt(0).toUpperCase()}
-        </Text>
+        {
+          initials ? <Text style={styles.avatarText}>
+            {initials}
+          </Text> : <Text style={styles.avatarText}>
+            {firstname?.charAt(0).toUpperCase()}
+          </Text>
+        }
       </AnimatedLinearGradient>
     </View>
   );
