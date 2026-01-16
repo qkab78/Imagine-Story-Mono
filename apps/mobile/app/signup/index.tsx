@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
 import {
   StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,30 +10,18 @@ import { useRouter } from 'expo-router';
 import { AgeBadge } from '@/components/atoms/auth';
 import { AuthHeader, AuthFooter } from '@/components/molecules/auth';
 import { SignupForm, type SignupData } from '@/components/organisms/auth';
-import useAuthStore from '@/store/auth/authStore';
+import { useRegister } from '@/hooks/useAuth';
 
 const SignupScreen = () => {
   const router = useRouter();
-  const { register } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(false);
+  const registerMutation = useRegister();
 
-  const handleSignup = async (data: SignupData) => {
-    try {
-      setIsLoading(true);
-      await register({
-        fullname: `${data.firstName} ${data.lastName}`,
-        email: data.email,
-        password: data.password,
-      });
-      // La navigation sera gérée par le store après inscription réussie
-    } catch (error: any) {
-      Alert.alert(
-        "Erreur d'inscription",
-        error.message || "Une erreur est survenue lors de l'inscription"
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSignup = (data: SignupData) => {
+    registerMutation.mutate({
+      fullname: `${data.firstName} ${data.lastName}`,
+      email: data.email,
+      password: data.password,
+    });
   };
 
   const handleLoginPress = () => {
@@ -68,7 +54,7 @@ const SignupScreen = () => {
               compact
             />
 
-            <SignupForm onSubmit={handleSignup} loading={isLoading} />
+            <SignupForm onSubmit={handleSignup} loading={registerMutation.isPending} />
 
             <AuthFooter
               question="Déjà un compte ?"

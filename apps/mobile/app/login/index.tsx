@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   StyleSheet,
   ScrollView,
@@ -12,33 +11,19 @@ import { useRouter } from 'expo-router';
 import { AgeBadge } from '@/components/atoms/auth';
 import { AuthHeader, AuthFooter } from '@/components/molecules/auth';
 import { LoginForm } from '@/components/organisms/auth';
-import useAuthStore from '@/store/auth/authStore';
+import { useLogin, useGoogleSignIn } from '@/hooks/useAuth';
 
 const LoginScreen = () => {
   const router = useRouter();
-  const { login } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(false);
+  const loginMutation = useLogin();
+  const googleSignInMutation = useGoogleSignIn();
 
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      await login(email, password);
-      // La navigation sera gérée par le store après login réussi
-    } catch (error: any) {
-      Alert.alert(
-        'Erreur de connexion',
-        error.message || 'Une erreur est survenue lors de la connexion'
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const handleLogin = (email: string, password: string) => {
+    loginMutation.mutate({ email, password });
   };
 
-  const handleGoogleSignIn = async () => {
-    Alert.alert(
-      'Bientôt disponible',
-      'La connexion avec Google sera bientôt disponible ! 🚀'
-    );
+  const handleGoogleSignIn = () => {
+    googleSignInMutation.mutate();
   };
 
   const handleForgotPassword = () => {
@@ -81,7 +66,7 @@ const LoginScreen = () => {
               onSubmit={handleLogin}
               onGoogleSignIn={handleGoogleSignIn}
               onForgotPassword={handleForgotPassword}
-              loading={isLoading}
+              loading={loginMutation.isPending}
             />
 
             <AuthFooter
