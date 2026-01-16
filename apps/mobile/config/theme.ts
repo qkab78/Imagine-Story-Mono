@@ -34,6 +34,14 @@ const palette = {
   glassMedium: 'rgba(255, 255, 255, 0.5)',
   glassBorder: 'rgba(255, 255, 255, 0.2)',
   glassAccent: 'rgba(107, 70, 193, 0.05)',
+  // Onboarding colors (new design)
+  onboardingPrimary: '#2F6B4F',
+  onboardingPrimaryLight: '#3D7A5E',
+  onboardingSecondary: '#7FB8A0',
+  onboardingAccent: '#F6C177',
+  onboardingAccentWarm: '#E8A957',
+  onboardingTextPrimary: '#1F3D2B',
+  onboardingTextSecondary: '#4A6B5A',
 }
 
 const theme = createTheme({
@@ -77,6 +85,14 @@ const theme = createTheme({
     glassMedium: palette.glassMedium,
     glassBorder: palette.glassBorder,
     glassAccent: palette.glassAccent,
+    // Onboarding colors (new design)
+    onboardingPrimary: palette.onboardingPrimary,
+    onboardingPrimaryLight: palette.onboardingPrimaryLight,
+    onboardingSecondary: palette.onboardingSecondary,
+    onboardingAccent: palette.onboardingAccent,
+    onboardingAccentWarm: palette.onboardingAccentWarm,
+    onboardingTextPrimary: palette.onboardingTextPrimary,
+    onboardingTextSecondary: palette.onboardingTextSecondary,
   },
   spacing: {
     s: 8,

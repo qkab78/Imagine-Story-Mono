@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
@@ -14,28 +13,11 @@ import { hasCompletedNotificationOnboarding } from '@/store/notifications/notifi
 
 const { width } = Dimensions.get('window');
 
-const getGradientLocations = (slideId: number) => {
-  switch (slideId) {
-    case 0: return [0, 1];
-    case 1: return [0, 1];
-    case 2: return [0, 1];
-  }
-};
-const getGradientColors = (slideId: number) => {
-  switch (slideId) {
-    case 0: return ['#FFE0F0', '#FFF3E0']; // Rose pastel gradient
-    case 1: return ['#E8F5E8', '#F0FFF0']; // Vert pastel gradient
-    case 2: return ['#E3F2FD', '#F0F8FF']; // Bleu pastel gradient
-    default: return ['#FFE0F0', '#FFF0F8'];
-  }
-};
-
-
 const KidOnboardingContainer: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const translateX = useSharedValue(0);
   const insets = useSafeAreaInsets();
-  
+
   const totalSlides = kidSlides.length;
 
   const goToNextSlide = () => {
@@ -48,7 +30,6 @@ const KidOnboardingContainer: React.FC = () => {
         mass: 0.8,
       });
     } else {
-      // Last slide - navigate to login
       handleComplete();
     }
   };
@@ -89,58 +70,44 @@ const KidOnboardingContainer: React.FC = () => {
     }
   };
 
-  const handleSkip = () => {
-    // Vérifier si l'écran de notifications a déjà été complété
-    if (!hasCompletedNotificationOnboarding()) {
-      router.push('/notification-permission');
-    } else {
-      router.replace('/login');
-    }
-  };
-
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
   }));
 
   return (
-    // @ts-ignore
-    <LinearGradient
-      colors={getGradientColors(currentSlide) as [string, string]}
-      locations={getGradientLocations(currentSlide) as [number, number]}
-      style={[styles.container, { paddingTop: insets.top }]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-    >
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <Animated.View
         style={[
           styles.animatedContainer,
           animatedStyle,
         ]}
       >
-        {kidSlides.map((slide) => (
+        {kidSlides.map((slide, index) => (
           <KidOnboardingScreen
             key={slide.id}
             slide={slide}
             currentSlide={currentSlide}
             totalSlides={totalSlides}
             onNext={goToNextSlide}
-            onSkip={handleSkip}
+            onBack={goToPreviousSlide}
             onDotPress={goToSlide}
+            onComplete={handleComplete}
           />
         ))}
       </Animated.View>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
   },
   animatedContainer: {
     flex: 1,
     flexDirection: 'row',
-    width: width * 3, // 3 écrans
+    width: width * 3,
   },
 });
 
