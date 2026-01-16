@@ -3,38 +3,29 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { AgeBadge } from '@/components/atoms/auth';
 import { AuthHeader, AuthFooter } from '@/components/molecules/auth';
-import { LoginForm } from '@/components/organisms/auth';
-import { useLogin, useGoogleSignIn } from '@/hooks/useAuth';
+import { SignupForm, type SignupData } from '@/components/organisms/auth';
+import { useRegister } from '@/hooks/useAuth';
 
-const LoginScreen = () => {
+const SignupScreen = () => {
   const router = useRouter();
-  const loginMutation = useLogin();
-  const googleSignInMutation = useGoogleSignIn();
+  const registerMutation = useRegister();
 
-  const handleLogin = (email: string, password: string) => {
-    loginMutation.mutate({ email, password });
+  const handleSignup = (data: SignupData) => {
+    registerMutation.mutate({
+      fullname: `${data.firstName} ${data.lastName}`,
+      email: data.email,
+      password: data.password,
+    });
   };
 
-  const handleGoogleSignIn = () => {
-    googleSignInMutation.mutate();
-  };
-
-  const handleForgotPassword = () => {
-    Alert.alert(
-      'Mot de passe oublié',
-      'Un email de réinitialisation te sera envoyé bientôt ! 📧'
-    );
-  };
-
-  const handleSignupPress = () => {
-    router.push('/signup');
+  const handleLoginPress = () => {
+    router.push('/login');
   };
 
   return (
@@ -57,22 +48,19 @@ const LoginScreen = () => {
           >
             <AuthHeader
               icon="✨"
-              title="Bon retour ! 👋"
-              subtitle="Connecte-toi pour retrouver tes histoires magiques"
-              variant="default"
+              title="Rejoins l'aventure ! ✨"
+              subtitle="Crée ton compte pour sauvegarder tes histoires magiques"
+              variant="signup"
+              compact
             />
 
-            <LoginForm
-              onSubmit={handleLogin}
-              onGoogleSignIn={handleGoogleSignIn}
-              onForgotPassword={handleForgotPassword}
-              loading={loginMutation.isPending}
-            />
+            <SignupForm onSubmit={handleSignup} loading={registerMutation.isPending} />
 
             <AuthFooter
-              question="Pas encore de compte ?"
-              linkText="S'inscrire"
-              onLinkPress={handleSignupPress}
+              question="Déjà un compte ?"
+              linkText="Se connecter"
+              onLinkPress={handleLoginPress}
+              compact
             />
           </ScrollView>
         </KeyboardAvoidingView>
@@ -97,9 +85,9 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
     paddingHorizontal: 32,
-    paddingTop: 100,
-    paddingBottom: 32,
+    paddingTop: 80,
+    paddingBottom: 24,
   },
 });
 
-export default LoginScreen;
+export default SignupScreen;
