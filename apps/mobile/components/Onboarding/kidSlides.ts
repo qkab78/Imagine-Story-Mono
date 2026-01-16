@@ -1,92 +1,35 @@
+export type IllustrationType = 'books' | 'wand' | 'shield';
 
 export type KidSlide = {
   id: number;
-  emoji: string;
-  title: string;
-  subtitle: string;
-  backgroundGradient: [string, string];
-  features?: FeatureItem[];
-  securityItems?: SecurityItem[];
-  buttonText: string;
-  buttonEmoji: string;
-}
-
-export type FeatureItem = {
-  emoji: string;
+  illustrationType: IllustrationType;
   title: string;
   description: string;
-  gradientColors: [string, string];
-}
-
-export type SecurityItem = {
-  icon: string;
-  title: string;
-  description: string;
+  buttonLabel: string;
+  isLast?: boolean;
 }
 
 export const kidSlides: KidSlide[] = [
   {
     id: 1,
-    emoji: "📚",
-    title: "Bienvenue dans Mon Petit Conteur !",
-    subtitle: "L'app magique qui crée des histoires merveilleuses rien que pour votre enfant",
-    backgroundGradient: ["#FF6B9D", "#FFB74D"],
-    buttonText: "C'est parti !",
-    buttonEmoji: "🚀",
+    illustrationType: 'books',
+    title: 'Mon Petit Conteur',
+    description: 'Des histoires magiques personnalisées qui émerveilleront votre enfant',
+    buttonLabel: 'Commencer',
   },
   {
     id: 2,
-    emoji: "🪄",
-    title: "Créer une histoire, c'est facile !",
-    subtitle: "En 3 étapes simples, votre enfant aura sa propre histoire magique",
-    backgroundGradient: ["#E8F5E8", "#F0FFF0"],
-    features: [
-      {
-        emoji: "🧚‍♀️",
-        title: "1. Choisis ton héros",
-        description: "Princesse, dragon, pirate...",
-        gradientColors: ["#9C27B0", "#E91E63"],
-      },
-      {
-        emoji: "🎨",
-        title: "2. Dis-nous ton rêve",
-        description: "Quelques mots suffisent !",
-        gradientColors: ["#2196F3", "#03DAC6"],
-      },
-      {
-        emoji: "📖",
-        title: "3. Lis ton histoire",
-        description: "Ton histoire au bout des doigts",
-        gradientColors: ["#FF9800", "#FF5722"],
-      },
-    ],
-    buttonText: "J'ai compris !",
-    buttonEmoji: "😊",
+    illustrationType: 'wand',
+    title: 'Créez en 3 étapes',
+    description: 'Choisissez un héros, partagez un rêve, et découvrez une histoire unique en quelques instants',
+    buttonLabel: 'Suivant',
   },
   {
     id: 3,
-    emoji: "🛡️",
-    title: "Parents, soyez rassurés !",
-    subtitle: "Votre enfant explore en toute sécurité notre application",
-    backgroundGradient: ["#E3F2FD", "#F0F8FF"],
-    securityItems: [
-      {
-        icon: "🔒",
-        title: "Mode hors-ligne :",
-        description: "Lisez vos histoires sans connexion",
-      },
-      {
-        icon: "👥",
-        title: "Contrôle parental :",
-        description: "Vous gérez tout",
-      },
-      {
-        icon: "🎯",
-        title: "Adapté à l'âge :",
-        description: "Vocabulaire et thèmes 3-8 ans",
-      },
-    ],
-    buttonText: "Commencer l'aventure !",
-    buttonEmoji: "🌟",
+    illustrationType: 'shield',
+    title: '100% sécurisé',
+    description: 'Contenu adapté à l\'âge, contrôle parental complet et mode hors-ligne pour une tranquillité d\'esprit totale',
+    buttonLabel: 'C\'est parti !',
+    isLast: true,
   },
 ];
