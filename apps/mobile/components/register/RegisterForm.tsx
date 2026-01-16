@@ -76,10 +76,10 @@ export const RegisterForm = () => {
     <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
       <Box justifyContent="center" alignItems="center" gap={"m"} width={300}>
         <Box gap={"s"} width="100%">
-          <Box 
-            backgroundColor="white" 
-            borderRadius="l" 
-            paddingHorizontal="m" 
+          <Box
+            backgroundColor="white"
+            borderRadius="l"
+            paddingHorizontal="m"
             paddingVertical="m"
             style={{
               borderWidth: 2,
@@ -90,10 +90,10 @@ export const RegisterForm = () => {
               shadowRadius: 8,
             }}
           >
-            <TextInput 
-              name="firstname" 
-              placeholder="Prénom" 
-              control={control} 
+            <TextInput
+              name="firstname"
+              placeholder="Prénom"
+              control={control}
               style={{ fontSize: 16, color: '#424242' }}
               Icon={User}
             />
@@ -106,10 +106,10 @@ export const RegisterForm = () => {
         </Box>
 
         <Box gap={"s"} width="100%">
-          <Box 
-            backgroundColor="white" 
-            borderRadius="l" 
-            paddingHorizontal="m" 
+          <Box
+            backgroundColor="white"
+            borderRadius="l"
+            paddingHorizontal="m"
             paddingVertical="m"
             style={{
               borderWidth: 2,
@@ -120,10 +120,10 @@ export const RegisterForm = () => {
               shadowRadius: 8,
             }}
           >
-            <TextInput 
-              name="lastname" 
-              placeholder="Nom de famille" 
-              control={control} 
+            <TextInput
+              name="lastname"
+              placeholder="Nom de famille"
+              control={control}
               style={{ fontSize: 16, color: '#424242' }}
               Icon={User}
             />
@@ -136,10 +136,10 @@ export const RegisterForm = () => {
         </Box>
 
         <Box gap={"s"} width="100%">
-          <Box 
-            backgroundColor="white" 
-            borderRadius="l" 
-            paddingHorizontal="m" 
+          <Box
+            backgroundColor="white"
+            borderRadius="l"
+            paddingHorizontal="m"
             paddingVertical="m"
             style={{
               borderWidth: 2,
@@ -150,10 +150,10 @@ export const RegisterForm = () => {
               shadowRadius: 8,
             }}
           >
-            <TextInput 
-              name="email" 
-              placeholder="Email" 
-              control={control} 
+            <TextInput
+              name="email"
+              placeholder="Email"
+              control={control}
               style={{ fontSize: 16, color: '#424242' }}
               Icon={Mail}
             />
@@ -166,10 +166,10 @@ export const RegisterForm = () => {
         </Box>
 
         <Box gap={"s"} width="100%">
-          <Box 
-            backgroundColor="white" 
-            borderRadius="l" 
-            paddingHorizontal="m" 
+          <Box
+            backgroundColor="white"
+            borderRadius="l"
+            paddingHorizontal="m"
             paddingVertical="m"
             flexDirection="row"
             alignItems="center"
@@ -183,21 +183,21 @@ export const RegisterForm = () => {
             }}
           >
             <Box flex={1}>
-              <TextInput 
-                name="password" 
-                placeholder="Mot de passe sécurisé" 
+              <TextInput
+                name="password"
+                placeholder="Mot de passe sécurisé"
                 control={control}
                 showPassword={showPassword}
                 style={{ fontSize: 16, color: '#424242' }}
                 Icon={Lock}
               />
             </Box>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setShowPassword(!showPassword)}
               style={{ paddingLeft: 12 }}
             >
-              {showPassword ? 
-                <EyeOff size={20} color="#FF6B9D" /> : 
+              {showPassword ?
+                <EyeOff size={20} color="#FF6B9D" /> :
                 <Eye size={20} color="#FF6B9D" />
               }
             </TouchableOpacity>
@@ -210,10 +210,10 @@ export const RegisterForm = () => {
         </Box>
 
         <Box gap={"s"} width="100%">
-          <Box 
-            backgroundColor="white" 
-            borderRadius="l" 
-            paddingHorizontal="m" 
+          <Box
+            backgroundColor="white"
+            borderRadius="l"
+            paddingHorizontal="m"
             paddingVertical="m"
             flexDirection="row"
             alignItems="center"
@@ -227,21 +227,21 @@ export const RegisterForm = () => {
             }}
           >
             <Box flex={1}>
-              <TextInput 
-                name="confirmPassword" 
-                placeholder="Confirme ton mot de passe" 
+              <TextInput
+                name="confirmPassword"
+                placeholder="Confirme ton mot de passe"
                 control={control}
                 showPassword={showConfirmPassword}
                 style={{ fontSize: 16, color: '#424242' }}
                 Icon={Lock}
               />
             </Box>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}
               style={{ paddingLeft: 12 }}
             >
-              {showConfirmPassword ? 
-                <EyeOff size={20} color="#FF6B9D" /> : 
+              {showConfirmPassword ?
+                <EyeOff size={20} color="#FF6B9D" /> :
                 <Eye size={20} color="#FF6B9D" />
               }
             </TouchableOpacity>
@@ -253,8 +253,8 @@ export const RegisterForm = () => {
           )}
         </Box>
 
-        <TouchableOpacity 
-          onPress={handleSubmit(onSubmit)} 
+        <TouchableOpacity
+          onPress={handleSubmit(onSubmit)}
           disabled={isSubmitting || mutation.isPending}
           style={{ width: '100%', marginTop: 20 }}
         >
@@ -273,9 +273,9 @@ export const RegisterForm = () => {
               shadowRadius: 16,
             }}
           >
-            <Text 
-              variant="buttonLabel" 
-              color="white" 
+            <Text
+              variant="buttonLabel"
+              color="white"
               fontSize={17}
               fontWeight="700"
             >
