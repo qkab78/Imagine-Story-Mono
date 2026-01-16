@@ -43,7 +43,7 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ user }) => {
       </View>
       
       <AnimatedLinearGradient
-        colors={['#FF6B9D', '#FFB74D']}
+        colors={['#F6C177', '#E8A957']}
         style={[styles.avatar, animatedAvatarStyle]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -60,41 +60,41 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 40,
-    marginBottom: 32,
+    alignItems: 'flex-start',
+    paddingHorizontal: 24,
+    paddingTop: 50,
+    paddingBottom: 24,
   },
   textSection: {
     flex: 1,
   },
   greeting: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
-    color: '#2E7D32',
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    color: '#2F6B4F',
+    fontFamily: 'Quicksand',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    fontWeight: '400',
-    color: '#424242',
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    fontWeight: '600',
+    color: '#4A6B5A',
+    fontFamily: 'Nunito',
     lineHeight: 22,
   },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#FF6B9D',
+    shadowColor: '#F6C177',
     shadowOffset: {
       width: 0,
       height: 4,
     },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 6,
   },
   avatarText: {

@@ -1,14 +1,12 @@
 import React, { useCallback } from 'react';
-import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { View, Text } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
-import { GlassCard } from '@/components/molecules/glass/GlassCard';
+import { HomeIcon } from '@/components/atoms/home';
 import type { ActionCardProps } from '@/types/home';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
@@ -35,7 +33,7 @@ const ActionCard: React.FC<ActionCardProps> = ({
   }, []);
 
   const handlePress = useCallback(() => {
-    runOnJS(onPress)();
+    onPress();
   }, [onPress]);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -55,94 +53,54 @@ const ActionCard: React.FC<ActionCardProps> = ({
       accessibilityLabel={`${title}. ${description}`}
       accessibilityHint="Appuyez pour continuer"
     >
-      <GlassCard
-        glassStyle="regular"
-        tintColor="rgba(107, 70, 193, 0.1)"
-        borderRadius={20}
-        padding={24}
-        style={styles.card}
-      >
-        {/* Gradient overlay subtil pour la profondeur */}
-        <LinearGradient
-          colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.1)']}
-          style={styles.gradientOverlay}
-        />
-
+      <View style={styles.card}>
         <View style={styles.content}>
-          <LinearGradient
-            colors={iconGradient as [string, string]}
-            style={styles.iconContainer}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <Text style={styles.icon}>{icon}</Text>
-          </LinearGradient>
+          <HomeIcon emoji={icon} gradient={iconGradient as [string, string]} size={64} />
 
           <View style={styles.textContainer}>
             <Text style={styles.title}>{title}</Text>
             <Text style={styles.description}>{description}</Text>
           </View>
         </View>
-      </GlassCard>
+      </View>
     </AnimatedTouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
-    marginBottom: 16,
+    // No margin needed here, will be handled by parent
   },
   card: {
-    overflow: 'hidden',
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
     borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    zIndex: 1,
-  },
-  iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  icon: {
-    fontSize: 24,
+    gap: 20,
   },
   textContainer: {
     flex: 1,
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
-    color: '#2E7D32',
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    color: '#2F6B4F',
+    fontFamily: 'Quicksand',
     marginBottom: 4,
   },
   description: {
     fontSize: 14,
     fontWeight: '400',
-    color: '#616161',
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+    color: '#4A6B5A',
+    fontFamily: 'Nunito',
     lineHeight: 20,
   },
 });

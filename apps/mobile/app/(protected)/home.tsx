@@ -13,8 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 // Components
 import WelcomeHeader from '@/components/home/WelcomeHeader';
-import ActionCard from '@/components/home/ActionCard';
-import RecentStoriesSection from '@/components/home/RecentStoriesSection';
+import { QuickActionsSection, RecentStoriesSection } from '@/components/organisms/home';
 import Text from '@/components/ui/Text';
 
 // Hooks
@@ -60,7 +59,7 @@ const HomeScreen = () => {
       <SafeAreaView style={styles.container} edges={['top']}>
         {/* @ts-ignore */}
         <LinearGradient
-          colors={['#FFF8E1', '#FFE0F0']}
+          colors={['#FFF8F0', '#FFE5E5']}
           style={styles.gradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -84,7 +83,7 @@ const HomeScreen = () => {
       
       {/* @ts-ignore */}
       <LinearGradient
-        colors={['#FFF8E1', '#FFE0F0']}
+        colors={['#FFF8F0', '#FFE5E5']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -104,27 +103,14 @@ const HomeScreen = () => {
         >
           {/* Welcome Header */}
           <WelcomeHeader user={user} />
-          
-          {/* Action Cards */}
-          <ActionCard
-            title="Créer une histoire"
-            description="Invente une nouvelle aventure magique"
-            icon="✨"
-            iconGradient={['#FF6B9D', '#FFB74D']}
-            onPress={handleCreateStory}
-            testID="create-story-card"
+
+          {/* Quick Actions */}
+          <QuickActionsSection
+            onCreateStory={handleCreateStory}
+            onReadStories={handleReadStories}
           />
-          
-          <ActionCard
-            title="Lire une histoire"
-            description="Découvre tes histoires préférées"
-            icon="📖"
-            iconGradient={['#2196F3', '#03DAC6']}
-            onPress={handleReadStories}
-            testID="read-stories-card"
-          />
-          
-          {/* Recent Stories - now receiving domain entities */}
+
+          {/* Recent Stories */}
           <RecentStoriesSection
             stories={stories}
             onStoryPress={handleStoryPress}
@@ -139,7 +125,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8E1',
+    backgroundColor: '#FFF8F0',
   },
   gradient: {
     flex: 1,

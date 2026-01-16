@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import { GlassCard } from '@/components/molecules/glass/GlassCard';
 import { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
 import { StoryCard } from '@/components/molecules/story/StoryCard';
 import Text from '@/components/ui/Text';
@@ -28,20 +27,14 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
         <View style={styles.header}>
           <Text style={styles.title}>✨ Histoires récentes</Text>
         </View>
-        <GlassCard
-          glassStyle="regular"
-          tintColor="rgba(107, 70, 193, 0.05)"
-          borderRadius={spacing.lg}
-          padding={spacing.xl * 2}
-          style={styles.emptyContainer}
-        >
+        <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>
             Aucune histoire pour le moment
           </Text>
           <Text style={styles.emptySubtext}>
             Crée ta première histoire magique !
           </Text>
-        </GlassCard>
+        </View>
       </View>
     );
   }
@@ -52,13 +45,7 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
         <Text style={styles.title}>✨ Histoires récentes</Text>
       </View>
 
-      <GlassCard
-        glassStyle="regular"
-        tintColor="rgba(107, 70, 193, 0.05)"
-        borderRadius={spacing.lg}
-        padding={spacing.base}
-        style={styles.listContainer}
-      >
+      <View style={styles.listContainer}>
         <FlashList
           data={stories}
           keyExtractor={(item) => item.id.getValue()}
@@ -73,7 +60,7 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
           scrollEnabled={false}
           showsVerticalScrollIndicator={false}
         />
-      </GlassCard>
+      </View>
     </View>
   );
 };
@@ -93,7 +80,14 @@ const styles = StyleSheet.create({
     color: colors.safetyGreen,
   },
   listContainer: {
-    // Background, padding, borderRadius, shadows handled by GlassCard
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: spacing.base,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   separator: {
     height: spacing.sm,
@@ -102,7 +96,14 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     alignItems: 'center',
-    // Background, padding, borderRadius, shadows handled by GlassCard
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: spacing.xl * 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   emptyText: {
     fontSize: typography.fontSize.base,
