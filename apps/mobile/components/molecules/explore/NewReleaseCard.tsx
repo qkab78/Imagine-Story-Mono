@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StoryBadge, StarRating } from '@/components/atoms/explore';
 import {
@@ -17,22 +17,34 @@ export const NewReleaseCard: React.FC<NewReleaseCardProps> = ({
   story,
   onPress,
 }) => {
+  const hasCoverImage = !!story.coverImageUrl;
+
   return (
     <Pressable onPress={onPress} style={styles.card}>
-      {/* Top section with gradient and emoji */}
-      <LinearGradient
-        colors={story.gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.imageSection}
-      >
-        <Text style={styles.emoji}>{story.emoji}</Text>
+      {/* Top section with cover image or gradient + emoji */}
+      <View style={styles.imageSection}>
+        {hasCoverImage ? (
+          <Image
+            source={{ uri: story.coverImageUrl }}
+            style={styles.coverImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <LinearGradient
+            colors={story.gradientColors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradientFallback}
+          >
+            <Text style={styles.emoji}>{story.emoji}</Text>
+          </LinearGradient>
+        )}
         {story.isNew && (
           <View style={styles.badgeContainer}>
             <StoryBadge type="new" />
           </View>
         )}
-      </LinearGradient>
+      </View>
 
       {/* Bottom section with info */}
       <View style={styles.infoSection}>
@@ -66,9 +78,17 @@ const styles = StyleSheet.create({
   },
   imageSection: {
     height: 90,
+    position: 'relative',
+  },
+  coverImage: {
+    width: '100%',
+    height: '100%',
+  },
+  gradientFallback: {
+    width: '100%',
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
   },
   emoji: {
     fontSize: 40,

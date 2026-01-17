@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StarRating } from '@/components/atoms/explore';
 import {
@@ -19,15 +19,23 @@ export const RecommendedCard: React.FC<RecommendedCardProps> = ({
 }) => {
   return (
     <Pressable onPress={onPress} style={styles.card}>
-      {/* Top colored section */}
-      <LinearGradient
-        colors={story.gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.topSection}
-      >
-        <Text style={styles.emoji}>{story.emoji}</Text>
-      </LinearGradient>
+      {/* Top section with cover image or gradient + emoji */}
+      {story.coverImageUrl ? (
+        <Image
+          source={{ uri: story.coverImageUrl }}
+          style={styles.topSection}
+          resizeMode="cover"
+        />
+      ) : (
+        <LinearGradient
+          colors={story.gradientColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.topSection}
+        >
+          <Text style={styles.emoji}>{story.emoji}</Text>
+        </LinearGradient>
+      )}
 
       {/* Content section */}
       <View style={styles.content}>

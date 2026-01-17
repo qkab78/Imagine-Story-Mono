@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { DualIcon } from '@/components/ui/DualIcon';
 import { StarRating } from '@/components/atoms/explore';
@@ -24,14 +24,22 @@ export const TopStoryItem: React.FC<TopStoryItemProps> = ({ story, onPress }) =>
       </View>
 
       {/* Cover */}
-      <LinearGradient
-        colors={story.gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.cover}
-      >
-        <Text style={styles.emoji}>{story.emoji}</Text>
-      </LinearGradient>
+      {story.coverImageUrl ? (
+        <Image
+          source={{ uri: story.coverImageUrl }}
+          style={styles.cover}
+          resizeMode="cover"
+        />
+      ) : (
+        <LinearGradient
+          colors={story.gradientColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.cover}
+        >
+          <Text style={styles.emoji}>{story.emoji}</Text>
+        </LinearGradient>
+      )}
 
       {/* Info */}
       <View style={styles.info}>

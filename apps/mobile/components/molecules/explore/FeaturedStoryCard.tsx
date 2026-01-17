@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, ImageBackground, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { DualIcon } from '@/components/ui/DualIcon';
 import { StoryBadge, StarRating } from '@/components/atoms/explore';
@@ -19,60 +19,84 @@ export const FeaturedStoryCard: React.FC<FeaturedStoryCardProps> = ({
   story,
   onPress,
 }) => {
+  const hasCoverImage = !!story.coverImageUrl;
+
+  const renderContent = () => (
+    <>
+      {/* Decorative emoji */}
+      <Text style={styles.decorativeEmoji}>{story.emoji}</Text>
+
+      {/* Badge */}
+      <View style={styles.badgeContainer}>
+        <StoryBadge type="featured" />
+      </View>
+
+      {/* Content */}
+      <View style={styles.content}>
+        <Text style={styles.title} numberOfLines={2}>
+          {story.title}
+        </Text>
+        <Text style={styles.description} numberOfLines={2}>
+          {story.description}
+        </Text>
+
+        {/* Metadata */}
+        <View style={styles.metadata}>
+          <View style={styles.metaItem}>
+            <Text style={styles.metaText}>{story.ageRange}</Text>
+          </View>
+          <View style={styles.metaDivider} />
+          <View style={styles.metaItem}>
+            <DualIcon
+              icon={EXPLORE_ICONS.bookOpen}
+              size={14}
+              color={EXPLORE_COLORS.textLight}
+            />
+            <Text style={styles.metaText}>{story.chapters} chapitres</Text>
+          </View>
+          <View style={styles.metaDivider} />
+          <StarRating rating={story.rating} size={14} />
+        </View>
+
+        {/* CTA Button */}
+        <View style={styles.ctaButton}>
+          <DualIcon
+            icon={EXPLORE_ICONS.play}
+            size={16}
+            color={EXPLORE_COLORS.primary}
+          />
+          <Text style={styles.ctaText}>Commencer à lire</Text>
+        </View>
+      </View>
+    </>
+  );
+
   return (
     <Pressable onPress={onPress} style={styles.container}>
-      <LinearGradient
-        colors={story.gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.card}
-      >
-        {/* Decorative emoji */}
-        <Text style={styles.decorativeEmoji}>{story.emoji}</Text>
-
-        {/* Badge */}
-        <View style={styles.badgeContainer}>
-          <StoryBadge type="featured" />
-        </View>
-
-        {/* Content */}
-        <View style={styles.content}>
-          <Text style={styles.title} numberOfLines={2}>
-            {story.title}
-          </Text>
-          <Text style={styles.description} numberOfLines={2}>
-            {story.description}
-          </Text>
-
-          {/* Metadata */}
-          <View style={styles.metadata}>
-            <View style={styles.metaItem}>
-              <Text style={styles.metaText}>{story.ageRange}</Text>
-            </View>
-            <View style={styles.metaDivider} />
-            <View style={styles.metaItem}>
-              <DualIcon
-                icon={EXPLORE_ICONS.bookOpen}
-                size={14}
-                color={EXPLORE_COLORS.textLight}
-              />
-              <Text style={styles.metaText}>{story.chapters} chapitres</Text>
-            </View>
-            <View style={styles.metaDivider} />
-            <StarRating rating={story.rating} size={14} />
-          </View>
-
-          {/* CTA Button */}
-          <View style={styles.ctaButton}>
-            <DualIcon
-              icon={EXPLORE_ICONS.play}
-              size={16}
-              color={EXPLORE_COLORS.primary}
-            />
-            <Text style={styles.ctaText}>Commencer à lire</Text>
-          </View>
-        </View>
-      </LinearGradient>
+      {hasCoverImage ? (
+        <ImageBackground
+          source={{ uri: story.coverImageUrl }}
+          style={styles.card}
+          imageStyle={styles.cardImage}
+          resizeMode="cover"
+        >
+          <LinearGradient
+            colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.7)']}
+            style={styles.imageOverlay}
+          >
+            {renderContent()}
+          </LinearGradient>
+        </ImageBackground>
+      ) : (
+        <LinearGradient
+          colors={story.gradientColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.card}
+        >
+          {renderContent()}
+        </LinearGradient>
+      )}
     </Pressable>
   );
 };
@@ -88,6 +112,14 @@ const styles = StyleSheet.create({
     padding: EXPLORE_SPACING.xl,
     overflow: 'hidden',
     position: 'relative',
+  },
+  cardImage: {
+    borderRadius: EXPLORE_DIMENSIONS.featuredCardBorderRadius,
+  },
+  imageOverlay: {
+    flex: 1,
+    padding: EXPLORE_SPACING.xl,
+    margin: -EXPLORE_SPACING.xl,
   },
   decorativeEmoji: {
     position: 'absolute',

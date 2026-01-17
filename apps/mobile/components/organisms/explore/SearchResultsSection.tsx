@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { DualIcon } from '@/components/ui/DualIcon';
 import useExploreStore from '@/store/explore/exploreStore';
@@ -91,12 +91,20 @@ export const SearchResultsSection: React.FC<SearchResultsSectionProps> = ({
               style={styles.resultItem}
               onPress={() => onStoryPress(result.id)}
             >
-              <LinearGradient
-                colors={[EXPLORE_COLORS.primary, EXPLORE_COLORS.secondary]}
-                style={styles.resultCover}
-              >
-                <Text style={styles.resultEmoji}>{result.emoji}</Text>
-              </LinearGradient>
+              {result.coverImageUrl ? (
+                <Image
+                  source={{ uri: result.coverImageUrl }}
+                  style={styles.resultCover}
+                  resizeMode="cover"
+                />
+              ) : (
+                <LinearGradient
+                  colors={[EXPLORE_COLORS.primary, EXPLORE_COLORS.secondary]}
+                  style={styles.resultCover}
+                >
+                  <Text style={styles.resultEmoji}>{result.emoji}</Text>
+                </LinearGradient>
+              )}
               <View style={styles.resultInfo}>
                 <Text style={styles.resultTitle} numberOfLines={1}>
                   {result.title}
