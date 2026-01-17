@@ -40,6 +40,11 @@ import {
   X,
   MoreVertical,
   List,
+  // Explore icons
+  Play,
+  Palette,
+  GraduationCap,
+  Clock,
 } from 'lucide-react-native';
 import { useLiquidGlass } from '@/hooks/useLiquidGlass';
 
@@ -85,6 +90,11 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<{ size: number; color: st
   X,
   MoreVertical,
   List,
+  // Explore icons
+  Play,
+  Palette,
+  GraduationCap,
+  Clock,
 };
 
 export interface IconConfig {

@@ -8,6 +8,7 @@ export type AuthUser = {
   email: string;
   firstname: string;
   lastname: string;
+  role: number;
 };
 
 export type AuthStore = {
