@@ -1,5 +1,6 @@
-import { Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { DualIcon } from '@/components/ui/DualIcon';
 import { EXPLORE_COLORS, EXPLORE_SPACING, EXPLORE_DIMENSIONS } from '@/constants/explore';
 import type { PopularTheme } from '@/types/explore';
 
@@ -17,7 +18,13 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({ theme, onPress }) => {
         end={{ x: 1, y: 1 }}
         style={styles.card}
       >
-        <Text style={styles.emoji}>{theme.emoji}</Text>
+        <View style={styles.iconContainer}>
+          <DualIcon
+            icon={{ sfSymbol: theme.icon.sfSymbol, lucide: theme.icon.lucide }}
+            size={28}
+            color={EXPLORE_COLORS.textLight}
+          />
+        </View>
         <Text style={styles.name}>{theme.name}</Text>
         <Text style={styles.count}>{theme.storyCount} histoires</Text>
       </LinearGradient>
@@ -34,8 +41,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  emoji: {
-    fontSize: 28,
+  iconContainer: {
     marginBottom: EXPLORE_SPACING.xs,
   },
   name: {

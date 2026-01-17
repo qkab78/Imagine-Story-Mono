@@ -12,6 +12,7 @@ import {
   DEFAULT_STORY_GRADIENTS,
   THEME_COLORS,
 } from '@/constants/explore';
+import { getThemeIcons } from '@/types/library';
 import type { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
 
 // Helper to get emoji by index
@@ -96,7 +97,7 @@ const transformToTopStory = (story: StoryListItem, index: number): TopStory => (
 const extractPopularThemes = (stories: StoryListItem[] | undefined): PopularTheme[] => {
   if (!stories) return [];
 
-  const themeCounts: Record<string, { name: string; count: number; emoji: string }> = {};
+  const themeCounts: Record<string, { name: string; count: number }> = {};
 
   stories.forEach((story) => {
     if (story.theme.id.getValue().toString()) {
@@ -105,7 +106,6 @@ const extractPopularThemes = (stories: StoryListItem[] | undefined): PopularThem
         themeCounts[themeId] = {
           name: story.theme.name,
           count: 0,
-          emoji: story.theme.name.charAt(0) || '📖',
         };
       }
       themeCounts[themeId].count++;
@@ -119,7 +119,7 @@ const extractPopularThemes = (stories: StoryListItem[] | undefined): PopularThem
       id,
       name: data.name,
       storyCount: data.count,
-      emoji: data.emoji,
+      icon: getThemeIcons(data.name),
       gradientColors: THEME_COLORS[id] || getGradient(index),
     }));
 };

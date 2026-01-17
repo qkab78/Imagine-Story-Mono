@@ -11,6 +11,14 @@ export interface ExploreCategory {
 }
 
 /**
+ * Icon configuration for themes
+ */
+export interface ThemeIconConfig {
+  sfSymbol: string;
+  lucide: string;
+}
+
+/**
  * Featured story displayed prominently on the explore screen
  */
 export interface FeaturedStory {
@@ -52,7 +60,7 @@ export interface PopularTheme {
   id: string;
   name: string;
   storyCount: number;
-  emoji: string;
+  icon: ThemeIconConfig;
   gradientColors: [string, string];
 }
 
