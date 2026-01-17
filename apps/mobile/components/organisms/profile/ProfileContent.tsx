@@ -60,13 +60,12 @@ export const ProfileContent: React.FC = () => {
   };
 
   const handleSaveProfile = (data: {
-    email: string;
     currentPassword?: string;
     newPassword?: string;
   }) => {
-    // TODO: Call API to update profile
-    console.log('Save profile:', data);
-    Alert.alert('Succès', 'Vos informations ont été mises à jour.');
+    // TODO: Call API to update password
+    console.log('Save password:', data);
+    Alert.alert('Succès', 'Votre mot de passe a été mis à jour.');
     setShowEditProfile(false);
   };
 

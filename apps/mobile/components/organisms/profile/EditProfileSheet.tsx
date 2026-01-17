@@ -19,7 +19,7 @@ interface EditProfileSheetProps {
   visible: boolean;
   onClose: () => void;
   initialEmail: string;
-  onSave: (data: { email: string; currentPassword?: string; newPassword?: string }) => void;
+  onSave: (data: { currentPassword?: string; newPassword?: string }) => void;
 }
 
 export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
@@ -29,31 +29,29 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
   onSave,
 }) => {
   const insets = useSafeAreaInsets();
-  const [email, setEmail] = useState(initialEmail);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSave = () => {
-    if (!email.trim() || !email.includes('@')) {
-      Alert.alert('Erreur', 'Email invalide');
+    if (!newPassword) {
+      Alert.alert('Erreur', 'Veuillez entrer un nouveau mot de passe');
       return;
     }
 
-    if (newPassword && newPassword !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
       return;
     }
 
-    if (newPassword && !currentPassword) {
+    if (!currentPassword) {
       Alert.alert('Erreur', 'Veuillez entrer votre mot de passe actuel');
       return;
     }
 
     onSave({
-      email: email.trim(),
-      currentPassword: currentPassword || undefined,
-      newPassword: newPassword || undefined,
+      currentPassword,
+      newPassword,
     });
   };
 
@@ -69,7 +67,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
         style={styles.container}
       >
         <View style={{ paddingTop: insets.top }}>
-          <SheetHeader title="Modifier mes informations" onBack={onClose} />
+          <SheetHeader title="Modifier mon mot de passe" onBack={onClose} />
         </View>
 
         <KeyboardAvoidingView
@@ -85,21 +83,6 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Email Section */}
-            <View style={styles.section}>
-              <SectionTitle>Email</SectionTitle>
-              <View style={styles.card}>
-                <FormInput
-                  label="Adresse email"
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="votre@email.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-              </View>
-            </View>
-
             {/* Password Section */}
             <View style={styles.section}>
               <SectionTitle>Mot de passe</SectionTitle>
@@ -130,7 +113,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
 
             {/* Save Button */}
             <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>Enregistrer les modifications</Text>
+              <Text style={styles.saveButtonText}>Modifier le mot de passe</Text>
             </Pressable>
           </ScrollView>
         </KeyboardAvoidingView>

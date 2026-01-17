@@ -9,13 +9,15 @@ export type AuthUser = {
   firstname: string;
   lastname: string;
   role: number;
+  avatar: string;
+  createdAt: string;
 };
 
 export type AuthStore = {
   token: string | undefined;
   user: AuthUser | undefined;
   setToken: (token: string) => void;
-  setUser: (user: AuthUser) => void;
+  setUser: (user: AuthUser | undefined) => void;
   clearAuth: () => void;
   getFirstname: () => string;
   getInitials: () => string;
@@ -28,7 +30,7 @@ const useAuthStore = create<AuthStore>((set, get) => ({
     set({ token });
     storage.set('user.token', token);
   },
-  setUser: (user: AuthUser) => set({ user }),
+  setUser: (user: AuthUser | undefined) => set({ user }),
   clearAuth: () => {
     set({ token: undefined, user: undefined });
     storage.delete('user.token');
