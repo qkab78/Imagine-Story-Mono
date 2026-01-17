@@ -3,7 +3,7 @@ import { Role } from "@imagine-story/api/users/models/role";
 import { Tabs } from "expo-router";
 import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { HouseIcon, SquarePenIcon, CircleUserRoundIcon, CogIcon, SearchIcon, LibraryIcon } from "lucide-react-native";
+import { HouseIcon, SquarePenIcon, CircleUserRoundIcon, CogIcon, Compass, LibraryIcon } from "lucide-react-native";
 import { Platform } from "react-native";
 import { useNativeTabsSupport } from "@/hooks/useNativeTabsSupport";
 
@@ -65,9 +65,9 @@ function LegacyJavaScriptTabs() {
         name="search/index"
         options={{
           ...defaultScreenOptions,
-          title: 'Recherche',
+          title: 'Explorer',
           headerShown: false,
-          tabBarIcon: ({ color }) => <SearchIcon color={color} />,
+          tabBarIcon: ({ color }) => <Compass color={color} />,
         }}
       />
       <Tabs.Screen
@@ -132,13 +132,13 @@ export default function TabLayout() {
             </NativeTabs.Trigger>
           )}
 
-          {/* Search Tab with role="search" for iOS 26+ */}
+          {/* Explore Tab with role="search" for iOS 26+ */}
           <NativeTabs.Trigger
             name="search/index"
             role={hasAdvancedFeatures ? "search" : undefined}
           >
-            <Icon sf="magnifyingglass" />
-            <Label>Recherche</Label>
+            <Icon sf="safari.fill" />
+            <Label>Explorer</Label>
           </NativeTabs.Trigger>
 
           {/* Profile Tab - Hidden for guests */}
