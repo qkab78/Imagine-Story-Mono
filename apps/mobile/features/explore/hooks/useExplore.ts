@@ -12,9 +12,7 @@ import {
   DEFAULT_STORY_GRADIENTS,
   THEME_COLORS,
 } from '@/constants/explore';
-import type { Story } from '@/domain/stories/entities/Story';
-import { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
-
+import type { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
 
 // Helper to get emoji by index
 const getEmoji = (index: number): string => {
@@ -26,34 +24,56 @@ const getGradient = (index: number): [string, string] => {
   return DEFAULT_STORY_GRADIENTS[index % DEFAULT_STORY_GRADIENTS.length];
 };
 
+// Helper to format age range display string
+const formatAgeRange = (childAge: number): string => {
+  return `${childAge}-${childAge + 2} ans`;
+};
+
+// Helper to check if a childAge falls within an age group range
+// ageGroupId format: "3-5", "5-7", "6-8"
+const isInAgeGroup = (childAge: number, ageGroupId: string): boolean => {
+  const [minStr, maxStr] = ageGroupId.split('-');
+  const min = parseInt(minStr, 10);
+  const max = parseInt(maxStr, 10);
+  return childAge >= min && childAge <= max;
+};
+
 // Transform story to FeaturedStory
-const transformToFeaturedStory = (story: StoryListItem, index: number = 0): FeaturedStory => ({
-  id: story.id.getValue().toString(),
-  title: story.title,
-  description: story.synopsis,
-  ageRange: story.childAge.getValue().toString(),
-  chapters: story.numberOfChapters,
-  rating: 4 + Math.random(), // Placeholder rating
-  gradientColors: getGradient(index),
-  emoji: getEmoji(index),
-  coverImageUrl: story.coverImageUrl?.getValue(),
-});
+const transformToFeaturedStory = (story: StoryListItem, index: number = 0): FeaturedStory => {
+  const childAge = story.childAge.getValue();
+  return {
+    id: story.id.getValue().toString(),
+    title: story.title,
+    description: story.synopsis,
+    ageRange: formatAgeRange(childAge),
+    childAge,
+    chapters: story.numberOfChapters,
+    rating: 4 + Math.random(), // Placeholder rating
+    gradientColors: getGradient(index),
+    emoji: getEmoji(index),
+    coverImageUrl: story.coverImageUrl?.getValue(),
+  };
+};
 
 // Transform story to ExploreStory
-const transformToExploreStory = (story: StoryListItem, index: number): ExploreStory => ({
-  id: story.id.getValue().toString(),
-  title: story.title,
-  hero: story.protagonist,
-  ageRange: story.childAge.getValue().toString(),
-  chapters: story.numberOfChapters,
-  rating: 4 + Math.random(), // Placeholder rating
-  emoji: getEmoji(index),
-  gradientColors: getGradient(index),
-  coverImageUrl: story.coverImageUrl?.getValue(),
-  isNew: index < 3, // First 3 are "new"
-  isPopular: false,
-  theme: story.theme.id.getValue().toString(),
-});
+const transformToExploreStory = (story: StoryListItem, index: number): ExploreStory => {
+  const childAge = story.childAge.getValue();
+  return {
+    id: story.id.getValue().toString(),
+    title: story.title,
+    hero: story.protagonist,
+    ageRange: formatAgeRange(childAge),
+    childAge,
+    chapters: story.numberOfChapters,
+    rating: 4 + Math.random(), // Placeholder rating
+    emoji: getEmoji(index),
+    gradientColors: getGradient(index),
+    coverImageUrl: story.coverImageUrl?.getValue(),
+    isNew: index < 3, // First 3 are "new"
+    isPopular: false,
+    theme: story.theme.id.getValue().toString(),
+  };
+};
 
 // Rank colors for top stories
 const RANK_COLORS = [
@@ -122,12 +142,12 @@ export const useExplore = () => {
 
     // Filter by category
     if (activeCategory !== 'all') {
-      stories = stories.filter((s) => s.theme === activeCategory);
+      stories = stories.filter((story) => story.theme === activeCategory);
     }
 
-    // Filter by age group
+    // Filter by age group using childAge
     if (selectedAgeGroup) {
-      stories = stories.filter((s) => s.ageRange.includes(selectedAgeGroup));
+      stories = stories.filter((s) => isInAgeGroup(s.childAge, selectedAgeGroup));
     }
 
     return stories;
@@ -138,17 +158,17 @@ export const useExplore = () => {
 
     // Filter by category
     if (activeCategory !== 'all') {
-      stories = stories.filter((s) => s.theme === activeCategory);
+      stories = stories.filter((story) => story.theme === activeCategory);
     }
 
-    // Filter by age group
+    // Filter by age group using childAge
     if (selectedAgeGroup) {
-      stories = stories.filter((s) => s.ageRange.includes(selectedAgeGroup));
+      stories = stories.filter((story) => isInAgeGroup(story.childAge, selectedAgeGroup));
     }
 
     // Re-rank after filtering
-    return stories.map((s, index) => ({
-      ...s,
+    return stories.map((story, index) => ({
+      ...story,
       rank: index + 1,
       accentColor: RANK_COLORS[index] || RANK_COLORS[3],
     }));
@@ -157,9 +177,9 @@ export const useExplore = () => {
   const recommendedStories = useMemo(() => {
     let stories = allStories?.slice(0, 4).map(transformToExploreStory) || [];
 
-    // Filter by age group for recommendations
+    // Filter by age group using childAge
     if (selectedAgeGroup) {
-      stories = stories.filter((s) => s.ageRange.includes(selectedAgeGroup));
+      stories = stories.filter((story) => isInAgeGroup(story.childAge, selectedAgeGroup));
     }
 
     return stories;

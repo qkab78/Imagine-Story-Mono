@@ -71,21 +71,11 @@ function LegacyJavaScriptTabs() {
         }}
       />
       <Tabs.Screen
-        name="profile/index"
-        redirect={user?.role === Role.GUEST}
-        options={{
-          ...defaultScreenOptions,
-          title: 'Profil',
-          headerShown: false,
-          tabBarIcon: ({ color }) => <CircleUserRoundIcon color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="settings"
         options={{
           ...defaultScreenOptions,
-          title: 'Réglages',
-          tabBarIcon: ({ color }) => <CogIcon color={color} />,
+          title: 'Profil',
+          tabBarIcon: ({ color }) => <CircleUserRoundIcon color={color} />,
         }}
       />
     </Tabs>
@@ -142,17 +132,9 @@ export default function TabLayout() {
           </NativeTabs.Trigger>
 
           {/* Profile Tab - Hidden for guests */}
-          {user?.role !== Role.GUEST && (
-            <NativeTabs.Trigger name="profile/index">
-              <Icon sf="person.circle.fill" />
-              <Label>Profil</Label>
-            </NativeTabs.Trigger>
-          )}
-
-          {/* Settings Tab */}
           <NativeTabs.Trigger name="settings">
-            <Icon sf="gearshape.fill" />
-            <Label>Réglages</Label>
+              <Icon sf="person.circle.fill" />
+            <Label>Profil</Label>
           </NativeTabs.Trigger>
         </NativeTabs>
       </GestureHandlerRootView>

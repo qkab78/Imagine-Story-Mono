@@ -18,6 +18,7 @@ export interface FeaturedStory {
   title: string;
   description: string;
   ageRange: string;
+  childAge: number;
   chapters: number;
   rating: number;
   gradientColors: [string, string];
@@ -33,6 +34,7 @@ export interface ExploreStory {
   title: string;
   hero: string;
   ageRange: string;
+  childAge: number;
   chapters: number;
   rating: number;
   emoji: string;
