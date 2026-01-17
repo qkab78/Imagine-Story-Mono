@@ -3,7 +3,17 @@ import { Users } from '@imagine-story/api/types/db';
 export interface LoginFormData { email: string, password: string }
 export interface RegisterFormData { email: string, password: string, firstname: string, lastname: string }
 
-type UserInfo = { id: string, email: string, firstname: string, lastname: string, fullname: string, role: number, avatar: string }
+type UserInfo = { 
+  id: string, 
+  email: string, 
+  firstname: string, 
+  lastname: string, 
+  fullname: string, 
+  role: number, 
+  avatar: string,
+  createdAt: string 
+}
+
 type RegisterResponse = { token: string, user: UserInfo }
 type LoginResponse = { token: string, user: UserInfo }
 

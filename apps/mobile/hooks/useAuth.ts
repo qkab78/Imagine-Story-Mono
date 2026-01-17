@@ -16,7 +16,15 @@ export const useLogin = () => {
         throw new Error('Identifiants invalides');
       }
       setToken(data.token);
-      setUser(data.user);
+      setUser({
+        fullname: data.user.firstname,
+        email: data.user.email,
+        firstname: data.user.firstname,
+        lastname: data.user.lastname,
+        role: data.user.role,
+        avatar: data.user.avatar,
+        createdAt: data.user.createdAt,
+      });
       router.replace('/(tabs)');
     },
     onError: (error: any) => {
