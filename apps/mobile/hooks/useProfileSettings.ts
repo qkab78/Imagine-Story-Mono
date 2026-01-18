@@ -3,8 +3,11 @@ import { Alert, Linking, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Application from 'expo-application';
 import { MMKV } from 'react-native-mmkv';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '@/store/auth/authStore';
+import useSubscriptionStore from '@/store/subscription/subscriptionStore';
+import useQuotaStore from '@/store/quota/quotaStore';
+import { subscriptionService } from '@/services/subscription';
 import { logout } from '@/api/auth';
 import { PROFILE_EXTERNAL_URLS } from '@/constants/profile';
 import { router } from 'expo-router';
@@ -13,21 +16,38 @@ const storage = new MMKV({ id: 'profile-settings' });
 
 export const useProfileSettings = () => {
   const { token, user, setToken, setUser } = useAuthStore();
+  const resetSubscription = useSubscriptionStore((state) => state.reset);
+  const resetQuota = useQuotaStore((state) => state.reset);
+  const queryClient = useQueryClient();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [appVersion, setAppVersion] = useState('1.0.0');
 
+  const clearAllUserData = useCallback(async () => {
+    // Reset all stores
+    resetSubscription();
+    resetQuota();
+
+    // Clear React Query cache
+    queryClient.clear();
+
+    // Logout from RevenueCat
+    await subscriptionService.logout();
+
+    // Clear auth state
+    setToken('');
+    setUser(undefined);
+  }, [resetSubscription, resetQuota, queryClient, setToken, setUser]);
+
   const logoutMutation = useMutation({
     mutationFn: (authToken: string) => logout(authToken),
-    onSuccess: () => {
-      setToken('');
-      setUser(undefined);
+    onSuccess: async () => {
+      await clearAllUserData();
       router.push('/login');
     },
-    onError: (error) => {
+    onError: async (error) => {
       console.error('Logout error:', error);
       // Clear state even on error
-      setToken('');
-      setUser(undefined);
+      await clearAllUserData();
       router.push('/login');
     },
   });
@@ -100,11 +120,11 @@ export const useProfileSettings = () => {
                 {
                   text: 'Confirmer',
                   style: 'destructive',
-                  onPress: (text: string | undefined) => {
+                  onPress: async (text: string | undefined) => {
                     if (text === 'SUPPRIMER') {
                       // TODO: Call API to delete account
-                      setToken('');
-                      setUser(undefined);
+                      await clearAllUserData();
+                      router.push('/login');
                     } else {
                       Alert.alert('Erreur', 'Le texte de confirmation ne correspond pas.');
                     }
@@ -117,7 +137,7 @@ export const useProfileSettings = () => {
         },
       ]
     );
-  }, []);
+  }, [clearAllUserData]);
 
   const openHelp = useCallback(() => {
     Linking.openURL(PROFILE_EXTERNAL_URLS.help);
