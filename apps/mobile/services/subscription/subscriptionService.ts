@@ -112,7 +112,7 @@ class SubscriptionService {
     }
   }
 
-  async getOfferings(): Promise<PurchasesOffering | null> {
+  async getOfferings(offeringIdentifier?: string): Promise<PurchasesOffering | null> {
     if (!this.isConfigured) {
       throw new Error(SUBSCRIPTION_ERRORS.NOT_CONFIGURED);
     }
@@ -120,6 +120,13 @@ class SubscriptionService {
     try {
       const { Purchases } = await getPurchases();
       const offerings = await Purchases.getOfferings();
+
+      // Si un identifiant est fourni, chercher cet offering spécifique
+      if (offeringIdentifier && offerings.all[offeringIdentifier]) {
+        return offerings.all[offeringIdentifier];
+      }
+
+      // Sinon retourner l'offering par défaut
       return offerings.current;
     } catch (error) {
       console.error('[SubscriptionService] Failed to get offerings:', error);

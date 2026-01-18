@@ -23,6 +23,7 @@ export interface SubscriptionStore extends SubscriptionState {
 }
 
 export const ENTITLEMENT_ID = 'Mon Petit Conteur Premium';
+export const OFFERING_ID = 'MPC Premium';
 
 export const SUBSCRIPTION_ERRORS = {
   PURCHASE_CANCELLED: 'Achat annulé',

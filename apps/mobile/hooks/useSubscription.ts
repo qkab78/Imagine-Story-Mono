@@ -4,6 +4,7 @@ import useSubscriptionStore from '@/store/subscription/subscriptionStore';
 import useAuthStore from '@/store/auth/authStore';
 import { subscriptionService } from '@/services/subscription';
 import { syncSubscriptionToBackend } from '@/api/subscription';
+import { OFFERING_ID } from '@/types/subscription';
 
 export const useSubscription = () => {
   const { token, user, setUser } = useAuthStore();
@@ -45,7 +46,7 @@ export const useSubscription = () => {
     try {
       const [customerInfoResult, offeringsResult] = await Promise.all([
         subscriptionService.getCustomerInfo(),
-        subscriptionService.getOfferings(),
+        subscriptionService.getOfferings(OFFERING_ID),
       ]);
 
       setCustomerInfo(customerInfoResult);
