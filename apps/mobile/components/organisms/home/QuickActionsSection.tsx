@@ -1,10 +1,11 @@
 import { useState, useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { StyleSheet, View, Alert } from 'react-native';
 import ActionCard from '@/components/home/ActionCard';
 import { QuotaExceededModal } from '@/components/organisms/creation/QuotaExceededModal';
 import { QuotaBadge } from '@/components/molecules/creation/QuotaBadge';
+import { SubscriptionSheet } from '@/components/organisms/profile/SubscriptionSheet';
 import { useStoryQuota } from '@/hooks/useStoryQuota';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface QuickActionsSectionProps {
   onCreateStory: () => void;
@@ -15,9 +16,21 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
   onCreateStory,
   onReadStories,
 }) => {
-  const router = useRouter();
   const { canCreateStory, storiesCreatedThisMonth, limit, remaining, isUnlimited, resetDate } = useStoryQuota();
+  const {
+    isSubscribed,
+    isLoading: isSubscriptionLoading,
+    error: subscriptionError,
+    willRenew,
+    getFormattedPrice,
+    getFormattedExpirationDate,
+    purchase,
+    restore,
+    openManageSubscription,
+  } = useSubscription();
+
   const [showQuotaModal, setShowQuotaModal] = useState(false);
+  const [showSubscriptionSheet, setShowSubscriptionSheet] = useState(false);
 
   const handleCreateStory = useCallback(() => {
     if (!canCreateStory) {
@@ -29,12 +42,48 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
 
   const handleUpgrade = useCallback(() => {
     setShowQuotaModal(false);
-    router.push('/(tabs)/settings');
-  }, [router]);
+    setShowSubscriptionSheet(true);
+  }, []);
 
   const handleCloseModal = useCallback(() => {
     setShowQuotaModal(false);
   }, []);
+
+  const handlePurchase = useCallback(async () => {
+    const success = await purchase();
+    if (success) {
+      Alert.alert('Succès', 'Bienvenue dans la famille Premium ! Profitez de toutes les fonctionnalités.');
+      setShowSubscriptionSheet(false);
+    } else if (subscriptionError) {
+      Alert.alert('Erreur', subscriptionError);
+    }
+  }, [purchase, subscriptionError]);
+
+  const handleRestore = useCallback(async () => {
+    const success = await restore();
+    if (success) {
+      Alert.alert('Succès', 'Vos achats ont été restaurés.');
+      setShowSubscriptionSheet(false);
+    } else {
+      Alert.alert('Information', 'Aucun achat précédent trouvé.');
+    }
+  }, [restore]);
+
+  const handleCancelSubscription = useCallback(() => {
+    Alert.alert(
+      'Gérer l\'abonnement',
+      'Vous allez être redirigé vers les paramètres de votre store pour gérer ou résilier votre abonnement.',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Continuer',
+          onPress: async () => {
+            await openManageSubscription();
+          },
+        },
+      ]
+    );
+  }, [openManageSubscription]);
 
   return (
     <View style={styles.container}>
@@ -74,6 +123,19 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
         onUpgrade={handleUpgrade}
         resetDate={resetDate}
         limit={limit}
+      />
+
+      <SubscriptionSheet
+        visible={showSubscriptionSheet}
+        onClose={() => setShowSubscriptionSheet(false)}
+        isPremium={isSubscribed}
+        price={getFormattedPrice()}
+        nextPaymentDate={getFormattedExpirationDate() || undefined}
+        willRenew={willRenew}
+        isLoading={isSubscriptionLoading}
+        onPurchase={handlePurchase}
+        onRestore={handleRestore}
+        onCancel={handleCancelSubscription}
       />
     </View>
   );
