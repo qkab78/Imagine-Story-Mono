@@ -29,7 +29,7 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
 
   const handleUpgrade = useCallback(() => {
     setShowQuotaModal(false);
-    router.push('/(tabs)/profile');
+    router.push('/(tabs)/settings');
   }, [router]);
 
   const handleCloseModal = useCallback(() => {
