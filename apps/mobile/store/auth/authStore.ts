@@ -13,6 +13,8 @@ export type AuthUser = {
   createdAt: string;
 };
 
+const ROLE_PREMIUM = 3;
+
 export type AuthStore = {
   token: string | undefined;
   user: AuthUser | undefined;
@@ -21,6 +23,7 @@ export type AuthStore = {
   clearAuth: () => void;
   getFirstname: () => string;
   getInitials: () => string;
+  isPremium: () => boolean;
 };
 
 const useAuthStore = create<AuthStore>((set, get) => ({
@@ -42,6 +45,9 @@ const useAuthStore = create<AuthStore>((set, get) => ({
     const [firstname, ...lastnameParts] = get().user?.fullname.split(' ') || [];
     const lastname = lastnameParts.join(' ');
     return firstname.charAt(0).toUpperCase() + lastname.charAt(0).toUpperCase();
+  },
+  isPremium: () => {
+    return get().user?.role === ROLE_PREMIUM;
   },
 }));
 

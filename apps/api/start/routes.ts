@@ -22,6 +22,7 @@ const StoriesController = () => import('#stories/controllers/stories_controllers
 const AuthController = () => import('#auth/controllers/auth_controllers')
 const RegisterController = () => import('#auth/controllers/register/register_controller')
 const PaymentsController = () => import('#payments/controllers/payments_controllers')
+const SubscriptionController = () => import('#subscription/controllers/subscription_controller')
 
 const StoriesControllerPresenter = () => import('#stories/presenters/stories.controller')
 
@@ -147,3 +148,11 @@ router
   })
   .middleware(middleware.auth())
   .prefix('/payments')
+
+// Subscription
+router
+  .group(() => {
+    router.post('/sync', [SubscriptionController, 'syncSubscription'])
+  })
+  .middleware(middleware.auth())
+  .prefix('/subscription')

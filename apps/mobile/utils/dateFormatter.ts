@@ -1,4 +1,26 @@
 /**
+ * Formate une date en format long (ex: "14 février 2026")
+ * @param date - Date à formater (objet Date ou string ISO)
+ * @returns Chaîne formatée en français ou 'N/A' si invalide
+ */
+export const formatLongDate = (date: Date | string | undefined): string => {
+  if (!date) return 'N/A';
+
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) return 'N/A';
+
+    return dateObj.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  } catch {
+    return 'N/A';
+  }
+};
+
+/**
  * Formate une date en format relatif (ex: "Hier", "Il y a 2j")
  * @param date - Date à formater (objet Date ou string ISO)
  * @returns Chaîne formatée en français

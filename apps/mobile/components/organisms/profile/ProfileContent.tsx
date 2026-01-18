@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { VersionBadge } from '@/components/atoms/profile';
@@ -15,13 +15,14 @@ import { PersonalInfoSheet } from './PersonalInfoSheet';
 import { EditProfileSheet } from './EditProfileSheet';
 import { SubscriptionSheet } from './SubscriptionSheet';
 import { useProfileSettings } from '@/hooks/useProfileSettings';
+import { useSubscription } from '@/hooks/useSubscription';
+import { formatLongDate } from '@/utils/dateFormatter';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_ICONS } from '@/constants/profile';
 
 export const ProfileContent: React.FC = () => {
   const insets = useSafeAreaInsets();
   const {
     user,
-    isPremium,
     notificationsEnabled,
     appVersion,
     toggleNotifications,
@@ -32,6 +33,18 @@ export const ProfileContent: React.FC = () => {
     openTerms,
     openPrivacy,
   } = useProfileSettings();
+
+  const {
+    isSubscribed,
+    isLoading: isSubscriptionLoading,
+    error: subscriptionError,
+    willRenew,
+    getFormattedPrice,
+    getFormattedExpirationDate,
+    purchase,
+    restore,
+    refresh,
+  } = useSubscription();
 
   // Sheet visibility states
   const [showPersonalInfo, setShowPersonalInfo] = useState(false);
@@ -50,12 +63,12 @@ export const ProfileContent: React.FC = () => {
     setShowPersonalInfo(true);
   };
 
-  const handleSubscription = () => {
+  const handleSubscription = useCallback(async () => {
+    await refresh();
     setShowSubscription(true);
-  };
+  }, [refresh]);
 
   const handleLanguage = () => {
-    // TODO: Navigate to language selection
     Alert.alert('Bientôt disponible', 'La sélection de langue sera disponible prochainement.');
   };
 
@@ -63,43 +76,43 @@ export const ProfileContent: React.FC = () => {
     currentPassword?: string;
     newPassword?: string;
   }) => {
-    // TODO: Call API to update password
     console.log('Save password:', data);
     Alert.alert('Succès', 'Votre mot de passe a été mis à jour.');
     setShowEditProfile(false);
   };
 
-  const handleUpgrade = (plan: 'monthly' | 'yearly') => {
-    // TODO: Implement in-app purchase
-    console.log('Upgrade to:', plan);
-    Alert.alert('Bientôt disponible', "L'achat in-app sera disponible prochainement.");
-  };
+  const handleUpgrade = useCallback(async () => {
+    const success = await purchase();
+    if (success) {
+      Alert.alert('Succès', 'Bienvenue dans la famille Premium ! Profitez de toutes les fonctionnalités.');
+      setShowSubscription(false);
+    } else if (subscriptionError) {
+      Alert.alert('Erreur', subscriptionError);
+    }
+  }, [purchase, subscriptionError]);
 
-  const handleChangePlan = () => {
-    // TODO: Navigate to plan change screen
-    Alert.alert('Bientôt disponible', 'Le changement de formule sera disponible prochainement.');
-  };
+  const handleRestore = useCallback(async () => {
+    const success = await restore();
+    if (success) {
+      Alert.alert('Succès', 'Vos achats ont été restaurés.');
+      setShowSubscription(false);
+    } else {
+      Alert.alert('Information', 'Aucun achat précédent trouvé.');
+    }
+  }, [restore]);
 
   const handleCancelSubscription = () => {
-    // TODO: Call API to cancel subscription
-    console.log('Cancel subscription');
-    Alert.alert('Abonnement résilié', 'Votre abonnement a été résilié.');
-    setShowSubscription(false);
+    Alert.alert(
+      'Résilier l\'abonnement',
+      'Pour résilier votre abonnement, veuillez vous rendre dans les paramètres de votre compte App Store ou Google Play.',
+      [{ text: 'Compris', style: 'default' }]
+    );
   };
 
-  // Format registration date
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'N/A';
-    try {
-      return new Date(dateString).toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      });
-    } catch {
-      return 'N/A';
-    }
-  };
+  // Refresh subscription status on mount
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   return (
     <>
@@ -119,7 +132,7 @@ export const ProfileContent: React.FC = () => {
         />
 
         {/* Premium Card (non-premium users only) */}
-        {!isPremium && (
+        {!isSubscribed && (
           <View style={styles.premiumContainer}>
             <PremiumPromptCard onPress={handlePremiumPress} />
           </View>
@@ -137,7 +150,7 @@ export const ProfileContent: React.FC = () => {
           <SettingsItem
             icon={PROFILE_ICONS.subscription}
             label="Abonnement"
-            value={isPremium ? 'Premium' : 'Gratuit'}
+            value={isSubscribed ? 'Premium' : 'Gratuit'}
             onPress={handleSubscription}
           />
         </SettingsSection>
@@ -202,7 +215,7 @@ export const ProfileContent: React.FC = () => {
         onClose={() => setShowPersonalInfo(false)}
         name={user?.fullname || 'Utilisateur'}
         email={user?.email || 'N/A'}
-        registrationDate={formatDate(user?.createdAt)}
+        registrationDate={formatLongDate(user?.createdAt)}
         storiesCount={12}
       />
 
@@ -216,9 +229,13 @@ export const ProfileContent: React.FC = () => {
       <SubscriptionSheet
         visible={showSubscription}
         onClose={() => setShowSubscription(false)}
-        isPremium={isPremium}
-        onUpgrade={handleUpgrade}
-        onChangePlan={handleChangePlan}
+        isPremium={isSubscribed}
+        price={getFormattedPrice()}
+        nextPaymentDate={getFormattedExpirationDate() || undefined}
+        willRenew={willRenew}
+        isLoading={isSubscriptionLoading}
+        onPurchase={handleUpgrade}
+        onRestore={handleRestore}
         onCancel={handleCancelSubscription}
       />
     </>
