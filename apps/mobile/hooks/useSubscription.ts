@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import { Linking, Platform } from 'react-native';
 import useSubscriptionStore from '@/store/subscription/subscriptionStore';
 import useAuthStore from '@/store/auth/authStore';
 import { subscriptionService } from '@/services/subscription';
@@ -138,6 +139,33 @@ export const useSubscription = () => {
     });
   }, [expirationDate]);
 
+  /**
+   * Ouvre la page de gestion d'abonnement (App Store ou Google Play)
+   * pour permettre à l'utilisateur de résilier son abonnement
+   */
+  const openManageSubscription = useCallback(async (): Promise<void> => {
+    const managementURL = customerInfo
+      ? subscriptionService.getManagementURL(customerInfo)
+      : null;
+
+    const url = managementURL
+      ?? (Platform.OS === 'ios'
+        ? process.env.EXPO_PUBLIC_IAP_IOS_FALLBACK_URL
+        : process.env.EXPO_PUBLIC_IAP_ANDROID_FALLBACK_URL);
+
+    if (!url) {
+      setError('Impossible d\'ouvrir la page de gestion');
+      return;
+    }
+
+    try {
+      await Linking.openURL(url);
+    } catch (err) {
+      console.error('[useSubscription] Failed to open management URL:', err);
+      setError('Impossible d\'ouvrir la page de gestion');
+    }
+  }, [customerInfo, setError]);
+
   // Initialize on mount if user is logged in
   useEffect(() => {
     if (user?.email) {
@@ -162,6 +190,7 @@ export const useSubscription = () => {
     purchase,
     restore,
     reset,
+    openManageSubscription,
     // Helpers
     getFormattedPrice,
     getFormattedExpirationDate,

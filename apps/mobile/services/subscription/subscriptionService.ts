@@ -144,6 +144,14 @@ class SubscriptionService {
     return entitlement?.willRenew ?? false;
   }
 
+  /**
+   * Retourne l'URL de gestion d'abonnement (App Store ou Google Play)
+   * Permet à l'utilisateur de résilier son abonnement via la plateforme appropriée
+   */
+  getManagementURL(customerInfo: CustomerInfo): string | null {
+    return customerInfo.managementURL;
+  }
+
   getMonthlyPackage(offering: PurchasesOffering | null): PurchasesPackage | null {
     if (!offering) return null;
     return offering.monthly || offering.availablePackages[0] || null;

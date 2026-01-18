@@ -44,6 +44,7 @@ export const ProfileContent: React.FC = () => {
     purchase,
     restore,
     refresh,
+    openManageSubscription,
   } = useSubscription();
 
   // Sheet visibility states
@@ -101,13 +102,21 @@ export const ProfileContent: React.FC = () => {
     }
   }, [restore]);
 
-  const handleCancelSubscription = () => {
+  const handleCancelSubscription = useCallback(() => {
     Alert.alert(
-      'Résilier l\'abonnement',
-      'Pour résilier votre abonnement, veuillez vous rendre dans les paramètres de votre compte App Store ou Google Play.',
-      [{ text: 'Compris', style: 'default' }]
+      'Gérer l\'abonnement',
+      'Vous allez être redirigé vers les paramètres de votre store pour gérer ou résilier votre abonnement.',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Continuer',
+          onPress: async () => {
+            await openManageSubscription();
+          },
+        },
+      ]
     );
-  };
+  }, [openManageSubscription]);
 
   // Refresh subscription status on mount
   useEffect(() => {
