@@ -45,7 +45,8 @@
     "#stories/*": "./app/stories/*.js",
     "#payments/*": "./app/payments/*.js",
     "#jobs/*": "./app/jobs/*.js",
-    "#views/*": "./resources/views/*.js"
+    "#views/*": "./resources/views/*.js",
+    "#subscription/*": "./app/subscription/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",

@@ -1,27 +1,24 @@
-import { useState } from 'react';
-import { View, ScrollView, Modal, Pressable, Text, StyleSheet, Alert } from 'react-native';
+import { View, ScrollView, Modal, Pressable, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SheetHeader, SectionTitle, InfoRow } from '@/components/atoms/profile';
 import {
   SubscriptionCard,
   FeatureItem,
-  PlanOption,
   AlertBox,
 } from '@/components/molecules/profile';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_DIMENSIONS } from '@/constants/profile';
-
-type PlanType = 'monthly' | 'yearly';
 
 interface SubscriptionSheetProps {
   visible: boolean;
   onClose: () => void;
   isPremium: boolean;
-  currentPlan?: string;
-  nextPaymentDate?: string;
   price?: string;
-  onUpgrade: (plan: PlanType) => void;
-  onChangePlan: () => void;
+  nextPaymentDate?: string;
+  willRenew?: boolean;
+  isLoading?: boolean;
+  onPurchase: () => void;
+  onRestore: () => void;
   onCancel: () => void;
 }
 
@@ -43,19 +40,15 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
   visible,
   onClose,
   isPremium,
-  currentPlan = 'Premium Mensuel',
-  nextPaymentDate = '14 février 2026',
   price = '9,99€ / mois',
-  onUpgrade,
-  onChangePlan,
+  nextPaymentDate,
+  willRenew = true,
+  isLoading = false,
+  onPurchase,
+  onRestore,
   onCancel,
 }) => {
   const insets = useSafeAreaInsets();
-  const [selectedPlan, setSelectedPlan] = useState<PlanType>('monthly');
-
-  const handleUpgrade = () => {
-    onUpgrade(selectedPlan);
-  };
 
   const handleCancel = () => {
     Alert.alert(
@@ -94,7 +87,7 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
           {/* Subscription Card */}
           <SubscriptionCard
             isPremium={isPremium}
-            planName={isPremium ? currentPlan : 'Compte Gratuit'}
+            planName={isPremium ? 'Premium Mensuel' : 'Compte Gratuit'}
             description={
               isPremium
                 ? 'Histoires illimitées et fonctionnalités exclusives'
@@ -103,10 +96,10 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
           />
 
           {/* Premium: Renewal Alert */}
-          {isPremium && (
+          {isPremium && nextPaymentDate && willRenew && (
             <AlertBox
               title="Renouvellement automatique"
-              text={`Votre abonnement se renouvellera le ${nextPaymentDate} pour ${price?.split(' /')[0]}`}
+              text={`Votre abonnement se renouvellera le ${nextPaymentDate} pour ${price?.split(' /')[0] || '9,99€'}`}
             />
           )}
 
@@ -142,26 +135,22 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
             </View>
           )}
 
-          {/* Free User: Plan Options */}
+          {/* Free User: Monthly Plan */}
           {!isPremium && (
             <View style={styles.section}>
               <SectionTitle>Passer à Premium</SectionTitle>
-              <PlanOption
-                name="Premium Mensuel"
-                price="9,99€"
-                period="par mois"
-                description="Histoires illimitées, langues multiples et fonctionnalités exclusives"
-                isSelected={selectedPlan === 'monthly'}
-                onPress={() => setSelectedPlan('monthly')}
-              />
-              <PlanOption
-                name="Premium Annuel"
-                price="99,99€"
-                period="par an"
-                description="Économisez 17% • 2 mois offerts"
-                isSelected={selectedPlan === 'yearly'}
-                onPress={() => setSelectedPlan('yearly')}
-              />
+              <View style={styles.planCard}>
+                <View style={styles.planHeader}>
+                  <Text style={styles.planName}>Premium Mensuel</Text>
+                  <View style={styles.priceContainer}>
+                    <Text style={styles.planPrice}>{price || '9,99€'}</Text>
+                    <Text style={styles.planPeriod}>/ mois</Text>
+                  </View>
+                </View>
+                <Text style={styles.planDescription}>
+                  Histoires illimitées, langues multiples et fonctionnalités exclusives
+                </Text>
+              </View>
             </View>
           )}
 
@@ -170,27 +159,39 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
             <View style={styles.section}>
               <SectionTitle>Gestion de l'abonnement</SectionTitle>
               <View style={styles.card}>
-                <InfoRow label="Plan actuel" value={currentPlan} isFirst />
-                <InfoRow label="Prix" value={price} />
-                <InfoRow label="Prochain paiement" value={nextPaymentDate} isLast />
+                <InfoRow label="Plan actuel" value="Premium Mensuel" isFirst />
+                <InfoRow label="Prix" value={price || '9,99€ / mois'} />
+                <InfoRow label="Prochain paiement" value={nextPaymentDate || 'N/A'} isLast />
               </View>
             </View>
           )}
 
           {/* Actions */}
           {!isPremium ? (
-            <Pressable style={styles.primaryButton} onPress={handleUpgrade}>
-              <Text style={styles.primaryButtonText}>Passer à Premium</Text>
-            </Pressable>
+            <View style={styles.actionsContainer}>
+              <Pressable
+                style={[styles.primaryButton, isLoading && styles.buttonDisabled]}
+                onPress={onPurchase}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text style={styles.primaryButtonText}>Passer à Premium</Text>
+                )}
+              </Pressable>
+              <Pressable
+                style={styles.restoreButton}
+                onPress={onRestore}
+                disabled={isLoading}
+              >
+                <Text style={styles.restoreButtonText}>Restaurer mes achats</Text>
+              </Pressable>
+            </View>
           ) : (
-            <>
-              <Pressable style={styles.secondaryButton} onPress={onChangePlan}>
-                <Text style={styles.secondaryButtonText}>Changer de formule</Text>
-              </Pressable>
-              <Pressable style={styles.dangerButton} onPress={handleCancel}>
-                <Text style={styles.dangerButtonText}>Résilier mon abonnement</Text>
-              </Pressable>
-            </>
+            <Pressable style={styles.dangerButton} onPress={handleCancel}>
+              <Text style={styles.dangerButtonText}>Résilier mon abonnement</Text>
+            </Pressable>
           )}
         </ScrollView>
       </LinearGradient>
@@ -221,6 +222,57 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
+  planCard: {
+    backgroundColor: PROFILE_COLORS.surface,
+    borderRadius: PROFILE_DIMENSIONS.cardBorderRadius,
+    padding: PROFILE_SPACING.xl,
+    borderWidth: 2,
+    borderColor: PROFILE_COLORS.primary,
+    shadowColor: PROFILE_COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  planHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: PROFILE_SPACING.sm,
+  },
+  planName: {
+    fontSize: 18,
+    fontWeight: '700',
+    fontFamily: 'Nunito',
+    color: PROFILE_COLORS.textPrimary,
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  planPrice: {
+    fontSize: 24,
+    fontWeight: '800',
+    fontFamily: 'Nunito',
+    color: PROFILE_COLORS.primary,
+  },
+  planPeriod: {
+    fontSize: 14,
+    fontWeight: '500',
+    fontFamily: 'Nunito',
+    color: PROFILE_COLORS.textSecondary,
+    marginLeft: 4,
+  },
+  planDescription: {
+    fontSize: 14,
+    fontWeight: '500',
+    fontFamily: 'Nunito',
+    color: PROFILE_COLORS.textSecondary,
+    lineHeight: 20,
+  },
+  actionsContainer: {
+    gap: PROFILE_SPACING.md,
+  },
   primaryButton: {
     backgroundColor: PROFILE_COLORS.primary,
     borderRadius: 12,
@@ -232,26 +284,26 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
   },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
   primaryButtonText: {
     fontSize: 16,
     fontWeight: '700',
     fontFamily: 'Nunito',
     color: 'white',
   },
-  secondaryButton: {
+  restoreButton: {
     backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: PROFILE_COLORS.inputBorder,
-    borderRadius: 12,
-    paddingVertical: PROFILE_SPACING.lg,
+    paddingVertical: PROFILE_SPACING.md,
     alignItems: 'center',
-    marginBottom: PROFILE_SPACING.md,
   },
-  secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
+  restoreButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
     fontFamily: 'Nunito',
     color: PROFILE_COLORS.textSecondary,
+    textDecorationLine: 'underline',
   },
   dangerButton: {
     backgroundColor: 'transparent',

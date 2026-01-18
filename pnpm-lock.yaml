@@ -186,6 +186,9 @@ importers:
       expo:
         specifier: ~54.0.31
         version: 54.0.31(@babel/core@7.28.5)(@expo/metro-runtime@6.1.2)(expo-router@6.0.21)(react-native-webview@13.15.0(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+      expo-application:
+        specifier: ~7.0.8
+        version: 7.0.8(expo@54.0.31)
       expo-blur:
         specifier: ~15.0.8
         version: 15.0.8(expo@54.0.31)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -258,6 +261,9 @@ importers:
       react-native-mmkv:
         specifier: ^3.3.0
         version: 3.3.3(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+      react-native-purchases:
+        specifier: ^9.7.1
+        version: 9.7.1(react-native-web@0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       react-native-reanimated:
         specifier: ~4.1.6
         version: 4.1.6(@babel/core@7.28.5)(react-native-worklets@0.7.1(@babel/core@7.28.5)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -2273,6 +2279,15 @@ packages:
 
   '@react-navigation/routers@7.5.3':
     resolution: {integrity: sha512-1tJHg4KKRJuQ1/EvJxatrMef3NZXEPzwUIUZ3n1yJ2t7Q97siwRtbynRpQG9/69ebbtiZ8W3ScOZF/OmhvM4Rg==}
+
+  '@revenuecat/purchases-js-hybrid-mappings@17.28.0':
+    resolution: {integrity: sha512-xOHeEEt7Qe/pf1oLbYodfie7Fa46SNFPbwgy4ZjyAypXNXt+3sXXpBcim+pm7l9VefcuFmGuHGIKfSipXXXkWw==}
+
+  '@revenuecat/purchases-js@1.24.1':
+    resolution: {integrity: sha512-MmnuBw72+G4yLwE/GD6tzui/JWeEwDZrTMEh98+47WoVJ5+wu4wdQtxB/UuYQlKTpZKx271NwgP6RpCQ5A9k9A==}
+
+  '@revenuecat/purchases-typescript-internal@17.28.0':
+    resolution: {integrity: sha512-p4yIbK4zn5/7viHuYcbrwdxgv0LCNZGW4sCm0fHc2YLzFG1rff5yb5er9nyYxlpTmRz7hlIwv7PXHJi+FkyEhg==}
 
   '@rlanz/bull-queue@3.1.0':
     resolution: {integrity: sha512-dBJAswJVW0VX/lXwvHKoQQs1eKLN+Ifp4kTCdssuAsfJxEV28iPV1yJC8Cmbm3iZlp25GZFdN+rm8gvnGdwozw==}
@@ -7122,6 +7137,16 @@ packages:
       react: '*'
       react-native: '*'
 
+  react-native-purchases@9.7.1:
+    resolution: {integrity: sha512-1uvdDiu3WNDfo97sc56YfVYxqeTq1bIGAw5aKEKhc8kmWwSOh6FYm5d6gbuxJvR/LUERf0GitlQ1KIKrYLtnSQ==}
+    peerDependencies:
+      react: '>= 16.6.3'
+      react-native: '>= 0.73.0'
+      react-native-web: '*'
+    peerDependenciesMeta:
+      react-native-web:
+        optional: true
+
   react-native-reanimated@4.1.6:
     resolution: {integrity: sha512-F+ZJBYiok/6Jzp1re75F/9aLzkgoQCOh4yxrnwATa8392RvM3kx+fiXXFvwcgE59v48lMwd9q0nzF1oJLXpfxQ==}
     peerDependencies:
@@ -11399,6 +11424,14 @@ snapshots:
   '@react-navigation/routers@7.5.3':
     dependencies:
       nanoid: 3.3.11
+
+  '@revenuecat/purchases-js-hybrid-mappings@17.28.0':
+    dependencies:
+      '@revenuecat/purchases-js': 1.24.1
+
+  '@revenuecat/purchases-js@1.24.1': {}
+
+  '@revenuecat/purchases-typescript-internal@17.28.0': {}
 
   '@rlanz/bull-queue@3.1.0(@adonisjs/core@6.19.2(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@3.0.1)(edge.js@6.4.0))':
     dependencies:
@@ -17560,6 +17593,15 @@ snapshots:
     dependencies:
       react: 19.1.0
       react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
+
+  react-native-purchases@9.7.1(react-native-web@0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
+    dependencies:
+      '@revenuecat/purchases-js-hybrid-mappings': 17.28.0
+      '@revenuecat/purchases-typescript-internal': 17.28.0
+      react: 19.1.0
+      react-native: 0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0)
+    optionalDependencies:
+      react-native-web: 0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
   react-native-reanimated@4.1.6(@babel/core@7.28.5)(react-native-worklets@0.7.1(@babel/core@7.28.5)(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.28.5)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
     dependencies:

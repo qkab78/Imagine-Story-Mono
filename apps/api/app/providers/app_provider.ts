@@ -13,6 +13,8 @@ import { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublis
 import { IStorageService } from '#stories/domain/services/IStorageService'
 import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositories/KyselyToneRepository'
 import { IUserRepository } from '#users/domain/repositories/UserRepository'
+import { ISubscriptionRepository } from '#subscription/domain/repositories/ISubscriptionRepository'
+import { KyselySubscriptionRepository } from '#subscription/infrastructure/repositories/KyselySubscriptionRepository'
 import storageConfig from '#config/storage'
 import env from '#start/env'
 
@@ -123,6 +125,10 @@ export default class AppProvider {
     })
     this.app.container.singleton(IUserRepository, () => {
       return this.app.container.make(KyselyUserRepository)
+    })
+
+    this.app.container.singleton(ISubscriptionRepository, () => {
+      return this.app.container.make(KyselySubscriptionRepository)
     })
   }
 
