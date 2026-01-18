@@ -4,6 +4,7 @@ import { MMKV } from 'react-native-mmkv';
 const storage = new MMKV();
 
 export type AuthUser = {
+  id: string;
   fullname: string;
   email: string;
   firstname: string;

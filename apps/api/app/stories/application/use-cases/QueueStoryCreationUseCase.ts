@@ -12,6 +12,8 @@ import GenerateStoryJob from '#jobs/story/generate_story_job'
 import { ThemeId } from '#stories/domain/value-objects/ids/ThemeId.vo'
 import { LanguageId } from '#stories/domain/value-objects/ids/LanguageId.vo'
 import { ToneId } from '#stories/domain/value-objects/ids/ToneId.vo'
+import { GetStoryQuotaUseCase } from './GetStoryQuotaUseCase.js'
+import { StoryQuotaExceededException } from '#stories/application/exceptions/index'
 
 export interface QueueStoryCreationPayload {
   synopsis: string
@@ -19,6 +21,7 @@ export interface QueueStoryCreationPayload {
   childAge: number
   species: string
   ownerId: string
+  userRole: number
   isPublic: boolean
   themeId: string
   languageId: string
@@ -34,10 +37,29 @@ export class QueueStoryCreationUseCase {
     private readonly languageRepository: ILanguageRepository,
     private readonly toneRepository: IToneRepository,
     private readonly dateService: IDateService,
-    private readonly randomService: IRandomService
+    private readonly randomService: IRandomService,
+    private readonly getStoryQuotaUseCase: GetStoryQuotaUseCase
   ) {}
 
   async execute(payload: QueueStoryCreationPayload) {
+    logger.info('📝 Checking story quota...')
+
+    // Check quota before creating story
+    const quota = await this.getStoryQuotaUseCase.execute({
+      userId: payload.ownerId,
+      userRole: payload.userRole,
+    })
+
+    if (!quota.canCreate) {
+      logger.warn(`❌ Story quota exceeded for user: ${payload.ownerId}`)
+      throw new StoryQuotaExceededException(
+        payload.ownerId,
+        quota.storiesCreatedThisMonth,
+        quota.limit!,
+        quota.resetDate!
+      )
+    }
+
     logger.info('📝 Queuing story creation...')
 
     // 1. Récupérer les entités de configuration

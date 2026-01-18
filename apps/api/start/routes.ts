@@ -120,6 +120,7 @@ router
     router
       .group(() => {
         router.get('/users/me', [StoriesControllerPresenter, 'getUserStories'])
+        router.get('/quota', [StoriesControllerPresenter, 'getStoryQuota'])
         router.post('/', [StoriesControllerPresenter, 'createStory'])
       })
       .middleware(middleware.auth())

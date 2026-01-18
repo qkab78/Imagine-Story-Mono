@@ -1,6 +1,7 @@
 import type { StoryDetailDTO, StoryListItemDTO, StoryCreatedResponse, ApiErrorResponse } from './storyTypes'
 import type { ThemeDTO, LanguageDTO, ToneDTO } from './storyTypes'
 import type { CreateStoryPayload } from './storyTypes'
+import type { StoryQuotaDTO, QuotaApiResponse } from './quotaTypes'
 import { STORY_ENDPOINTS } from './storyEndpoints'
 
 /**
@@ -224,4 +225,27 @@ export const getLanguages = async (): Promise<LanguageDTO[]> => {
   }
 
   return response.json()
+}
+
+/**
+ * Get user's story creation quota
+ */
+export const getStoryQuota = async (token: string): Promise<StoryQuotaDTO> => {
+  if (!token) {
+    throw new Error('No token provided')
+  }
+
+  const response = await fetch(STORY_ENDPOINTS.STORIES_QUOTA, {
+    headers: {
+      Authorization: token,
+    },
+  })
+
+  if (!response.ok) {
+    const error: ApiErrorResponse = await response.json().catch(() => ({}))
+    throw new Error(error.message || `Failed to fetch quota: ${response.statusText}`)
+  }
+
+  const data: QuotaApiResponse = await response.json()
+  return data.data
 }

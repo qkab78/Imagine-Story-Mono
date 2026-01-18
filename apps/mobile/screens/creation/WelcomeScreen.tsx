@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { WelcomeHero } from '@/components/organisms/creation/WelcomeHero';
 import { PrimaryButton } from '@/components/molecules/creation/PrimaryButton';
+import { QuotaBadge } from '@/components/molecules/creation/QuotaBadge';
+import { QuotaExceededModal } from '@/components/organisms/creation/QuotaExceededModal';
+import { useStoryQuota } from '@/hooks/useStoryQuota';
 import { colors } from '@/theme/colors';
 
 /**
@@ -17,14 +20,29 @@ import { colors } from '@/theme/colors';
  */
 export const WelcomeScreen: React.FC = () => {
   const router = useRouter();
+  const { canCreateStory, storiesCreatedThisMonth, limit, remaining, isUnlimited, resetDate } = useStoryQuota();
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
 
-  const handleStart = () => {
+  const handleStart = useCallback(() => {
+    if (!canCreateStory) {
+      setShowQuotaModal(true);
+      return;
+    }
     router.push('/stories/creation/hero-selection');
-  };
+  }, [canCreateStory, router]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     router.back();
-  };
+  }, [router]);
+
+  const handleUpgrade = useCallback(() => {
+    setShowQuotaModal(false);
+    router.push('/(tabs)/profile');
+  }, [router]);
+
+  const handleCloseModal = useCallback(() => {
+    setShowQuotaModal(false);
+  }, []);
 
   return (
     <LinearGradient
@@ -44,6 +62,16 @@ export const WelcomeScreen: React.FC = () => {
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
 
+        {/* Quota Badge */}
+        <View style={styles.quotaBadgeContainer}>
+          <QuotaBadge
+            storiesCreatedThisMonth={storiesCreatedThisMonth}
+            limit={limit}
+            remaining={remaining}
+            isUnlimited={isUnlimited}
+          />
+        </View>
+
         <WelcomeHero
           icon="✨"
           title="Créons une histoire magique"
@@ -59,6 +87,14 @@ export const WelcomeScreen: React.FC = () => {
           />
         </View>
       </View>
+
+      <QuotaExceededModal
+        visible={showQuotaModal}
+        onClose={handleCloseModal}
+        onUpgrade={handleUpgrade}
+        resetDate={resetDate}
+        limit={limit}
+      />
     </LinearGradient>
   );
 };
@@ -98,6 +134,11 @@ const styles = StyleSheet.create({
     color: colors.forestGreen,
     fontWeight: '600',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+  },
+  quotaBadgeContainer: {
+    alignSelf: 'flex-end',
+    marginTop: 8,
+    marginRight: 8,
   },
   footer: {
     marginTop: 'auto',

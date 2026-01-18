@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,6 +11,9 @@ import { createStory } from '@/api/stories/storyApi';
 import { StoryFormMapper } from '@/features/stories/mappers/StoryFormMapper';
 import useAuthStore from '@/store/auth/authStore';
 import { addPendingGeneration, setLastCreatedStoryId } from '@/store/library/libraryStorage';
+import { QuotaBadge } from '@/components/molecules/creation/QuotaBadge';
+import { QuotaExceededModal } from '@/components/organisms/creation/QuotaExceededModal';
+import { useStoryQuota } from '@/hooks/useStoryQuota';
 
 // Configure notification handler
 Notifications.setNotificationHandler({
@@ -35,8 +38,10 @@ export const SummaryScreenNew: React.FC = () => {
   const router = useRouter();
   const { token, user } = useAuthStore();
   const { createStoryPayload, resetCreateStoryPayload } = useStoryStore();
+  const { canCreateStory, storiesCreatedThisMonth, limit, remaining, isUnlimited, resetDate, onStoryCreated } = useStoryQuota();
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
 
   // Request notification permissions on mount
   useEffect(() => {
@@ -68,9 +73,24 @@ export const SummaryScreenNew: React.FC = () => {
     }
   };
 
+  const handleUpgrade = useCallback(() => {
+    setShowQuotaModal(false);
+    router.push('/(tabs)/profile');
+  }, [router]);
+
+  const handleCloseModal = useCallback(() => {
+    setShowQuotaModal(false);
+  }, []);
+
   const handleGenerateStory = async () => {
     if (!createStoryPayload || !token) {
       setError('Données incomplètes pour générer l\'histoire');
+      return;
+    }
+
+    // Check quota before generating
+    if (!canCreateStory) {
+      setShowQuotaModal(true);
       return;
     }
 
@@ -102,6 +122,9 @@ export const SummaryScreenNew: React.FC = () => {
         setLastCreatedStoryId(response.data.id);
       }
 
+      // Decrement remaining quota locally
+      onStoryCreated();
+
       // Send success notification with backend message
       await sendSuccessNotification(
         response.message || 'Votre histoire est en cours de génération !'
@@ -114,7 +137,12 @@ export const SummaryScreenNew: React.FC = () => {
       router.push('/library');
     } catch (err: any) {
       console.error('Error generating story:', err);
-      setError(err.message || 'Une erreur est survenue lors de la génération de l\'histoire');
+      // Check if it's a quota exceeded error from backend
+      if (err.message?.includes('STORY_QUOTA_EXCEEDED') || err.message?.includes('monthly story limit')) {
+        setShowQuotaModal(true);
+      } else {
+        setError(err.message || 'Une erreur est survenue lors de la génération de l\'histoire');
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -164,6 +192,16 @@ export const SummaryScreenNew: React.FC = () => {
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
           <StepIndicator currentStep={4} totalSteps={4} />
+        </View>
+
+        {/* Quota Badge */}
+        <View style={styles.quotaBadgeContainer}>
+          <QuotaBadge
+            storiesCreatedThisMonth={storiesCreatedThisMonth}
+            limit={limit}
+            remaining={remaining}
+            isUnlimited={isUnlimited}
+          />
         </View>
 
         {/* Summary Container */}
@@ -306,6 +344,14 @@ export const SummaryScreenNew: React.FC = () => {
           </View>
         )}
       </ScrollView>
+
+      <QuotaExceededModal
+        visible={showQuotaModal}
+        onClose={handleCloseModal}
+        onUpgrade={handleUpgrade}
+        resetDate={resetDate}
+        limit={limit}
+      />
     </LinearGradient>
   );
 };
@@ -350,7 +396,11 @@ const styles = StyleSheet.create({
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
   },
   progressContainer: {
-    marginBottom: 32,
+    marginBottom: 16,
+  },
+  quotaBadgeContainer: {
+    alignSelf: 'flex-end',
+    marginBottom: 16,
   },
   summaryContainer: {
     flex: 1,

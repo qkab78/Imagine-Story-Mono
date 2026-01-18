@@ -1,6 +1,7 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import PaymentErrors from './payment_errors.js'
+import { ApplicationException } from '#stories/application/exceptions/index'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -18,7 +19,17 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     if (error instanceof Error) {
       console.error('[ExceptionHandler] Error stack:', error.stack)
     }
-    
+
+    // Handle ApplicationException (story quota exceeded, not found, etc.)
+    if (error instanceof ApplicationException) {
+      return ctx.response.status(error.statusCode).json({
+        error: {
+          code: error.code,
+          message: error.message,
+        },
+      })
+    }
+
     if (error instanceof PaymentErrors) {
       return ctx.response.badRequest(error.errors)
     }

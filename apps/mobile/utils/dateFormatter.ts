@@ -21,6 +21,27 @@ export const formatLongDate = (date: Date | string | undefined): string => {
 };
 
 /**
+ * Formate une date en format court sans année (ex: "14 février")
+ * @param date - Date à formater (objet Date ou string ISO)
+ * @returns Chaîne formatée en français ou chaîne vide si invalide
+ */
+export const formatShortDate = (date: Date | string | null | undefined): string => {
+  if (!date) return '';
+
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) return '';
+
+    return dateObj.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+    });
+  } catch {
+    return '';
+  }
+};
+
+/**
  * Formate une date en format relatif (ex: "Hier", "Il y a 2j")
  * @param date - Date à formater (objet Date ou string ISO)
  * @returns Chaîne formatée en français
