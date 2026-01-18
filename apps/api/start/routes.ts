@@ -106,8 +106,6 @@ router
     // Clean architecture endpoints (using use cases)
     router.get('/', [StoriesControllerPresenter, 'getPublicStories'])
     router.get('/all/latest', [StoriesControllerPresenter, 'getLatestPublicStories'])
-    router.get('/:id', [StoriesControllerPresenter, 'getStoryById'])
-    router.get('/:id/status', [StoriesControllerPresenter, 'getGenerationStatus'])
 
     // Legacy endpoints (to be refactored)
     router.get('/slug/:slug', [StoriesController, 'getStoryBySlug'])
@@ -120,9 +118,14 @@ router
     router
       .group(() => {
         router.get('/users/me', [StoriesControllerPresenter, 'getUserStories'])
+        router.get('/quota', [StoriesControllerPresenter, 'getStoryQuota'])
         router.post('/', [StoriesControllerPresenter, 'createStory'])
       })
       .middleware(middleware.auth())
+
+    // Dynamic ID routes (must be last to avoid matching static routes)
+    router.get('/:id', [StoriesControllerPresenter, 'getStoryById'])
+    router.get('/:id/status', [StoriesControllerPresenter, 'getGenerationStatus'])
   })
   .prefix('/stories')
 

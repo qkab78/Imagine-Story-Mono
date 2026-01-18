@@ -11,6 +11,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import type { WelcomeHeaderProps } from '@/types/home';
 import useAuthStore from '@/store/auth/authStore';
+import { QuotaBadge } from '@/components/molecules/creation/QuotaBadge';
+import { useStoryQuota } from '@/hooks/useStoryQuota';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -18,6 +20,7 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ user }) => {
   const firstname = useAuthStore(state => state.getFirstname());
   const initials = useAuthStore(state => state.getInitials());
   const bounceAnimation = useSharedValue(0);
+  const { storiesCreatedThisMonth, limit, remaining, isUnlimited } = useStoryQuota();
 
   useEffect(() => {
     bounceAnimation.value = withRepeat(
@@ -43,6 +46,15 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ user }) => {
         <Text style={styles.subtitle}>
           Prête pour une nouvelle aventure ?
         </Text>
+        <View style={styles.quotaBadgeContainer}>
+          <QuotaBadge
+            storiesCreatedThisMonth={storiesCreatedThisMonth}
+            limit={limit}
+            remaining={remaining}
+            isUnlimited={isUnlimited}
+            variant="compact"
+          />
+        </View>
       </View>
 
       <AnimatedLinearGradient
@@ -88,6 +100,9 @@ const styles = StyleSheet.create({
     color: '#4A6B5A',
     fontFamily: 'Nunito',
     lineHeight: 22,
+  },
+  quotaBadgeContainer: {
+    marginTop: 12,
   },
   avatar: {
     width: 56,

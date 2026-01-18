@@ -28,12 +28,12 @@ export const useSubscription = () => {
   const initialize = useCallback(async () => {
     if (!subscriptionService.isInitialized()) {
       try {
-        await subscriptionService.initialize(user?.email);
+        await subscriptionService.initialize(user?.id);
       } catch (err) {
         console.error('[useSubscription] Failed to initialize:', err);
       }
     }
-  }, [user?.email]);
+  }, [user?.id]);
 
   const refresh = useCallback(async () => {
     if (!subscriptionService.isInitialized()) {
@@ -169,10 +169,10 @@ export const useSubscription = () => {
 
   // Initialize on mount if user is logged in
   useEffect(() => {
-    if (user?.email) {
+    if (user?.id) {
       initialize();
     }
-  }, [user?.email, initialize]);
+  }, [user?.id, initialize]);
 
   return {
     // State

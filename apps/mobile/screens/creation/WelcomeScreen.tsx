@@ -1,10 +1,15 @@
-import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, View, TouchableOpacity, Platform, Alert } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { WelcomeHero } from '@/components/organisms/creation/WelcomeHero';
 import { PrimaryButton } from '@/components/molecules/creation/PrimaryButton';
+import { QuotaBadge } from '@/components/molecules/creation/QuotaBadge';
+import { QuotaExceededModal } from '@/components/organisms/creation/QuotaExceededModal';
+import { SubscriptionSheet } from '@/components/organisms/profile/SubscriptionSheet';
+import { useStoryQuota } from '@/hooks/useStoryQuota';
+import { useSubscription } from '@/hooks/useSubscription';
 import { colors } from '@/theme/colors';
 
 /**
@@ -17,14 +22,80 @@ import { colors } from '@/theme/colors';
  */
 export const WelcomeScreen: React.FC = () => {
   const router = useRouter();
+  const { canCreateStory, storiesCreatedThisMonth, limit, remaining, isUnlimited, resetDate, refreshQuota } = useStoryQuota();
+  const {
+    isSubscribed,
+    isLoading: isSubscriptionLoading,
+    error: subscriptionError,
+    willRenew,
+    getFormattedPrice,
+    getFormattedExpirationDate,
+    purchase,
+    restore,
+    openManageSubscription,
+  } = useSubscription();
 
-  const handleStart = () => {
+  const [showQuotaModal, setShowQuotaModal] = useState(false);
+  const [showSubscriptionSheet, setShowSubscriptionSheet] = useState(false);
+
+  const handleStart = useCallback(() => {
+    if (!canCreateStory) {
+      setShowQuotaModal(true);
+      return;
+    }
     router.push('/stories/creation/hero-selection');
-  };
+  }, [canCreateStory, router]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     router.back();
-  };
+  }, [router]);
+
+  const handleUpgrade = useCallback(() => {
+    setShowQuotaModal(false);
+    setShowSubscriptionSheet(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setShowQuotaModal(false);
+  }, []);
+
+  const handlePurchase = useCallback(async () => {
+    const success = await purchase();
+    if (success) {
+      await refreshQuota();
+      Alert.alert('Succès', 'Bienvenue dans la famille Premium ! Profitez de toutes les fonctionnalités.');
+      setShowSubscriptionSheet(false);
+    } else if (subscriptionError) {
+      Alert.alert('Erreur', subscriptionError);
+    }
+  }, [purchase, subscriptionError, refreshQuota]);
+
+  const handleRestore = useCallback(async () => {
+    const success = await restore();
+    if (success) {
+      await refreshQuota();
+      Alert.alert('Succès', 'Vos achats ont été restaurés.');
+      setShowSubscriptionSheet(false);
+    } else {
+      Alert.alert('Information', 'Aucun achat précédent trouvé.');
+    }
+  }, [restore, refreshQuota]);
+
+  const handleCancelSubscription = useCallback(() => {
+    Alert.alert(
+      'Gérer l\'abonnement',
+      'Vous allez être redirigé vers les paramètres de votre store pour gérer ou résilier votre abonnement.',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Continuer',
+          onPress: async () => {
+            await openManageSubscription();
+          },
+        },
+      ]
+    );
+  }, [openManageSubscription]);
 
   return (
     <LinearGradient
@@ -44,6 +115,16 @@ export const WelcomeScreen: React.FC = () => {
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
 
+        {/* Quota Badge */}
+        <View style={styles.quotaBadgeContainer}>
+          <QuotaBadge
+            storiesCreatedThisMonth={storiesCreatedThisMonth}
+            limit={limit}
+            remaining={remaining}
+            isUnlimited={isUnlimited}
+          />
+        </View>
+
         <WelcomeHero
           icon="✨"
           title="Créons une histoire magique"
@@ -59,6 +140,27 @@ export const WelcomeScreen: React.FC = () => {
           />
         </View>
       </View>
+
+      <QuotaExceededModal
+        visible={showQuotaModal}
+        onClose={handleCloseModal}
+        onUpgrade={handleUpgrade}
+        resetDate={resetDate}
+        limit={limit}
+      />
+
+      <SubscriptionSheet
+        visible={showSubscriptionSheet}
+        onClose={() => setShowSubscriptionSheet(false)}
+        isPremium={isSubscribed}
+        price={getFormattedPrice()}
+        nextPaymentDate={getFormattedExpirationDate() || undefined}
+        willRenew={willRenew}
+        isLoading={isSubscriptionLoading}
+        onPurchase={handlePurchase}
+        onRestore={handleRestore}
+        onCancel={handleCancelSubscription}
+      />
     </LinearGradient>
   );
 };
@@ -98,6 +200,11 @@ const styles = StyleSheet.create({
     color: colors.forestGreen,
     fontWeight: '600',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
+  },
+  quotaBadgeContainer: {
+    alignSelf: 'flex-end',
+    marginTop: 8,
+    marginRight: 8,
   },
   footer: {
     marginTop: 'auto',

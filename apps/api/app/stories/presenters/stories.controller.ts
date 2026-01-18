@@ -1,6 +1,7 @@
 import { GetStoryByIdUseCase } from "#stories/application/use-cases/GetStoryByIdUseCase"
 import { QueueStoryCreationUseCase } from "#stories/application/use-cases/QueueStoryCreationUseCase"
 import { GetStoryGenerationStatusUseCase } from "#stories/application/use-cases/GetStoryGenerationStatusUseCase"
+import { GetStoryQuotaUseCase } from "#stories/application/use-cases/GetStoryQuotaUseCase"
 import { ListPublicStoriesUseCase } from "#stories/application/use-cases/story/ListPublicStoriesUseCase"
 import { GetLatestPublicStoriesUseCase } from "#stories/application/use-cases/story/GetLatestPublicStoriesUseCase"
 import { ListUserStoriesUseCase } from "#stories/application/use-cases/story/ListUserStoriesUseCase"
@@ -17,6 +18,7 @@ export default class StoriesController {
         private readonly getStoryByIdUseCase: GetStoryByIdUseCase,
         private readonly queueStoryCreationUseCase: QueueStoryCreationUseCase,
         private readonly getStoryGenerationStatusUseCase: GetStoryGenerationStatusUseCase,
+        private readonly getStoryQuotaUseCase: GetStoryQuotaUseCase,
         private readonly listPublicStoriesUseCase: ListPublicStoriesUseCase,
         private readonly getLatestPublicStoriesUseCase: GetLatestPublicStoriesUseCase,
         private readonly listUserStoriesUseCase: ListUserStoriesUseCase,
@@ -43,6 +45,7 @@ export default class StoriesController {
             childAge: payload.childAge || 5,
             species: payload.species || '',
             ownerId: String(user.id),
+            userRole: Number(user.role),
             isPublic: !payload.isPrivate,
             themeId: payload.theme || '',
             languageId: payload.language || '',
@@ -122,6 +125,19 @@ export default class StoriesController {
             page: result.page,
             limit: result.limit,
             totalPages: result.totalPages,
+        })
+    }
+
+    async getStoryQuota({ response, auth }: HttpContext) {
+        const user = auth.getUserOrFail()
+
+        const quota = await this.getStoryQuotaUseCase.execute({
+            userId: String(user.id),
+            userRole: Number(user.role),
+        })
+
+        return response.ok({
+            data: quota,
         })
     }
 }

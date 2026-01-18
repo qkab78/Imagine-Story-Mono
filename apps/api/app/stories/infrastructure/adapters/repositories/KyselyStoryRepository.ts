@@ -265,6 +265,26 @@ export class KyselyStoryRepository implements IStoryRepository {
   }
 
   /**
+   * Count stories created by a user within a date range
+   * Used for quota tracking
+   */
+  async countByOwnerIdAndDateRange(
+    ownerId: OwnerId,
+    startDate: Date,
+    endDate: Date
+  ): Promise<number> {
+    const result = await db
+      .selectFrom('stories')
+      .where('user_id', '=', ownerId.getValue())
+      .where('created_at', '>=', startDate)
+      .where('created_at', '<', endDate)
+      .select(db.fn.count<number>('id').as('count'))
+      .executeTakeFirst()
+
+    return Number(result?.count || 0)
+  }
+
+  /**
    * Helper: Map database row to Story entity
    */
   private async mapRowToStory(storyRow: any): Promise<Story> {

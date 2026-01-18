@@ -57,6 +57,13 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Variables for configuring story quotas
+  |----------------------------------------------------------
+  */
+  FREE_USER_MONTHLY_STORY_LIMIT: Env.schema.number(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring storage
   |----------------------------------------------------------
   */

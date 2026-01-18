@@ -29,6 +29,13 @@ export abstract class IStoryRepository {
   abstract findPendingStories(): Promise<Story[]>
   abstract findByGenerationStatus(status: GenerationStatus): Promise<Story[]>
 
+  // Quota-related queries
+  abstract countByOwnerIdAndDateRange(
+    ownerId: OwnerId,
+    startDate: Date,
+    endDate: Date
+  ): Promise<number>
+
   // Commands
   abstract create(story: Story): Promise<Story>
   abstract save(story: Story): Promise<void>
