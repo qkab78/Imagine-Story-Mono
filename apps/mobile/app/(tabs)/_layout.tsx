@@ -6,6 +6,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HouseIcon, SquarePenIcon, CircleUserRoundIcon, CogIcon, Compass, LibraryIcon } from "lucide-react-native";
 import { Platform } from "react-native";
 import { useNativeTabsSupport } from "@/hooks/useNativeTabsSupport";
+import { useTabHaptics } from "@/hooks/useTabHaptics";
+import { HapticTab } from "@/components/atoms/navigation";
 
 /**
  * Legacy JavaScript Tabs Component (Fallback for Android)
@@ -13,6 +15,7 @@ import { useNativeTabsSupport } from "@/hooks/useNativeTabsSupport";
 function LegacyJavaScriptTabs() {
   const user = useAuthStore(state => state.user);
   const defaultScreenOptions = {
+    tabBarButton: HapticTab,
     tabBarActiveBackgroundColor: 'transparent',
     tabBarActiveTintColor: '#2F6B4F', // Forêt Magique - vert forêt
     tabBarInactiveTintColor: '#7FB8A0', // Forêt Magique - vert menthe
@@ -91,6 +94,7 @@ function LegacyJavaScriptTabs() {
 export default function TabLayout() {
   const user = useAuthStore(state => state.user);
   const { shouldUseNativeTabs, hasAdvancedFeatures } = useNativeTabsSupport();
+  useTabHaptics();
 
   // iOS: Use NativeTabs for native performance and liquid glass support
   if (shouldUseNativeTabs && Platform.OS === 'ios') {
