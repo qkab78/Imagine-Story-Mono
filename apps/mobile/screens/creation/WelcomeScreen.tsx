@@ -22,7 +22,7 @@ import { colors } from '@/theme/colors';
  */
 export const WelcomeScreen: React.FC = () => {
   const router = useRouter();
-  const { canCreateStory, storiesCreatedThisMonth, limit, remaining, isUnlimited, resetDate } = useStoryQuota();
+  const { canCreateStory, storiesCreatedThisMonth, limit, remaining, isUnlimited, resetDate, refreshQuota } = useStoryQuota();
   const {
     isSubscribed,
     isLoading: isSubscriptionLoading,
@@ -62,22 +62,24 @@ export const WelcomeScreen: React.FC = () => {
   const handlePurchase = useCallback(async () => {
     const success = await purchase();
     if (success) {
+      await refreshQuota();
       Alert.alert('Succès', 'Bienvenue dans la famille Premium ! Profitez de toutes les fonctionnalités.');
       setShowSubscriptionSheet(false);
     } else if (subscriptionError) {
       Alert.alert('Erreur', subscriptionError);
     }
-  }, [purchase, subscriptionError]);
+  }, [purchase, subscriptionError, refreshQuota]);
 
   const handleRestore = useCallback(async () => {
     const success = await restore();
     if (success) {
+      await refreshQuota();
       Alert.alert('Succès', 'Vos achats ont été restaurés.');
       setShowSubscriptionSheet(false);
     } else {
       Alert.alert('Information', 'Aucun achat précédent trouvé.');
     }
-  }, [restore]);
+  }, [restore, refreshQuota]);
 
   const handleCancelSubscription = useCallback(() => {
     Alert.alert(

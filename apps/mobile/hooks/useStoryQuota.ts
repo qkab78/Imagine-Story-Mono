@@ -44,9 +44,11 @@ export const useStoryQuota = () => {
   }, [data, setQuota])
 
   const refreshQuota = useCallback(async () => {
+    // Invalidate cache first to ensure fresh data
+    await queryClient.invalidateQueries({ queryKey: QUOTA_QUERY_KEY })
     const result = await refetch()
     return result.data
-  }, [refetch])
+  }, [refetch, queryClient])
 
   const onStoryCreated = useCallback(() => {
     decrementRemaining()
