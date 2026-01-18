@@ -4,15 +4,15 @@ import { useTheme } from '@shopify/restyle';
 import { Theme } from '@/config/theme';
 import Box from '@/components/ui/Box';
 import Text from '@/components/ui/Text';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
   withSpring,
   withRepeat,
   withTiming,
   interpolate
 } from 'react-native-reanimated';
-import { spacing } from '@/theme/spacing';
+import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 
 interface MagicalButtonProps extends TouchableOpacityProps {
   title: string;
@@ -35,6 +35,7 @@ const MagicalButton: React.FC<MagicalButtonProps> = ({
   const theme = useTheme<Theme>();
   const scale = useSharedValue(1);
   const glowAnimation = useSharedValue(0);
+  const { trigger: triggerHaptic } = useHapticFeedback();
 
   useEffect(() => {
     glowAnimation.value = withRepeat(
@@ -46,6 +47,7 @@ const MagicalButton: React.FC<MagicalButtonProps> = ({
 
   const handlePressIn = () => {
     scale.value = withSpring(0.95);
+    triggerHaptic('medium');
   };
 
   const handlePressOut = () => {

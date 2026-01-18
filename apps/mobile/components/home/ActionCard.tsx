@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { HomeIcon } from '@/components/atoms/home';
 import type { ActionCardProps } from '@/types/home';
+import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -21,11 +22,13 @@ const ActionCard: React.FC<ActionCardProps> = ({
 }) => {
   const scaleAnimation = useSharedValue(1);
   const opacityAnimation = useSharedValue(1);
+  const { trigger: triggerHaptic } = useHapticFeedback();
 
   const handlePressIn = useCallback(() => {
     scaleAnimation.value = withTiming(0.98, { duration: 100 });
     opacityAnimation.value = withTiming(0.8, { duration: 100 });
-  }, []);
+    triggerHaptic('light');
+  }, [triggerHaptic]);
 
   const handlePressOut = useCallback(() => {
     scaleAnimation.value = withTiming(1, { duration: 100 });

@@ -11,6 +11,7 @@ import { StoryTitle } from '@/components/atoms/story/StoryTitle';
 import { StoryMeta } from './StoryMeta';
 import { StoryFormatterService } from '@/domain/stories/services/StoryFormatterService';
 import { GlassCard } from '@/components/molecules/glass/GlassCard';
+import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 
 interface StoryCardProps {
   story: StoryListItem;
@@ -20,10 +21,12 @@ interface StoryCardProps {
 
 export const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, onLongPress }) => {
   const scaleAnimation = useSharedValue(1);
+  const { trigger: triggerHaptic } = useHapticFeedback();
 
   const handlePressIn = useCallback(() => {
     scaleAnimation.value = withTiming(0.98, { duration: 100 });
-  }, []);
+    triggerHaptic('light');
+  }, [triggerHaptic]);
 
   const handlePressOut = useCallback(() => {
     scaleAnimation.value = withTiming(1, { duration: 100 });
