@@ -1,21 +1,47 @@
-import Purchases, {
-  PurchasesError,
+import type {
   CustomerInfo,
   PurchasesOffering,
   PurchasesPackage,
-  LOG_LEVEL,
-  PURCHASES_ERROR_CODE,
 } from 'react-native-purchases';
-import { Platform } from 'react-native';
+import { Platform, NativeModules } from 'react-native';
 import { ENTITLEMENT_ID, SUBSCRIPTION_ERRORS } from '@/types/subscription';
 
 const IOS_API_KEY = process.env.EXPO_PUBLIC_IAP_IOS_KEY || '';
 const ANDROID_API_KEY = process.env.EXPO_PUBLIC_IAP_ANDROID_KEY || '';
 
+/**
+ * Vérifie si le module natif RevenueCat est disponible
+ * (non disponible dans Expo Go, uniquement dans les dev builds ou production)
+ */
+const isNativeModuleAvailable = (): boolean => {
+  return !!NativeModules.RNPurchases;
+};
+
+/**
+ * Lazy import de RevenueCat pour éviter l'erreur NativeEventEmitter
+ * lors du chargement initial de l'app
+ */
+const getPurchases = async () => {
+  if (!isNativeModuleAvailable()) {
+    throw new Error('RevenueCat native module is not available. Use a development build instead of Expo Go.');
+  }
+  const { default: Purchases, LOG_LEVEL, PURCHASES_ERROR_CODE } = await import('react-native-purchases');
+  return { Purchases, LOG_LEVEL, PURCHASES_ERROR_CODE };
+};
+
 class SubscriptionService {
   private isConfigured = false;
+  private isNativeAvailable = false;
 
   async initialize(userId?: string): Promise<void> {
+    // Vérifier si le module natif est disponible
+    if (!isNativeModuleAvailable()) {
+      console.warn('[SubscriptionService] Native module not available (Expo Go?). Subscription features disabled.');
+      return;
+    }
+
+    this.isNativeAvailable = true;
+
     if (this.isConfigured) {
       if (userId) {
         await this.login(userId);
@@ -31,6 +57,7 @@ class SubscriptionService {
     }
 
     try {
+      const { Purchases, LOG_LEVEL } = await getPurchases();
       Purchases.setLogLevel(LOG_LEVEL.DEBUG);
       Purchases.configure({ apiKey });
       this.isConfigured = true;
@@ -50,6 +77,7 @@ class SubscriptionService {
     }
 
     try {
+      const { Purchases } = await getPurchases();
       const { customerInfo } = await Purchases.logIn(userId);
       return customerInfo;
     } catch (error) {
@@ -62,6 +90,7 @@ class SubscriptionService {
     if (!this.isConfigured) return;
 
     try {
+      const { Purchases } = await getPurchases();
       await Purchases.logOut();
     } catch (error) {
       console.error('[SubscriptionService] Failed to logout:', error);
@@ -74,6 +103,7 @@ class SubscriptionService {
     }
 
     try {
+      const { Purchases } = await getPurchases();
       const customerInfo = await Purchases.getCustomerInfo();
       return customerInfo;
     } catch (error) {
@@ -88,6 +118,7 @@ class SubscriptionService {
     }
 
     try {
+      const { Purchases } = await getPurchases();
       const offerings = await Purchases.getOfferings();
       return offerings.current;
     } catch (error) {
@@ -102,10 +133,12 @@ class SubscriptionService {
     }
 
     try {
+      const { Purchases } = await getPurchases();
       const { customerInfo } = await Purchases.purchasePackage(packageToPurchase);
       return customerInfo;
     } catch (error) {
-      const purchaseError = error as PurchasesError;
+      const { PURCHASES_ERROR_CODE } = await getPurchases();
+      const purchaseError = error as { code?: typeof PURCHASES_ERROR_CODE[keyof typeof PURCHASES_ERROR_CODE] };
 
       if (purchaseError.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
         throw new Error(SUBSCRIPTION_ERRORS.PURCHASE_CANCELLED);
@@ -122,6 +155,7 @@ class SubscriptionService {
     }
 
     try {
+      const { Purchases } = await getPurchases();
       const customerInfo = await Purchases.restorePurchases();
       return customerInfo;
     } catch (error) {
@@ -159,6 +193,10 @@ class SubscriptionService {
 
   isInitialized(): boolean {
     return this.isConfigured;
+  }
+
+  isAvailable(): boolean {
+    return this.isNativeAvailable;
   }
 }
 
