@@ -14,7 +14,7 @@ import { IDateService } from '#stories/domain/services/IDateService'
 import { IRandomService } from '#stories/domain/services/IRandomService'
 import type { StoryFilters, PaginationParams, PaginatedResult } from './ListPublicStoriesUseCase.js'
 
-test.group('ListUserStoriesUseCase', () => {
+test.group(ListUserStoriesUseCase.name, () => {
   class TestDateService implements IDateService {
     now(): string {
       return '2025-01-01T00:00:00.000Z'
