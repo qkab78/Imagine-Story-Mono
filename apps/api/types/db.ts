@@ -59,6 +59,21 @@ export interface Languages {
   updated_at: Generated<Timestamp>;
 }
 
+export interface SocialAccounts {
+  access_token: string;
+  avatar_url: string | null;
+  created_at: Generated<Timestamp>;
+  email: string;
+  id: string;
+  name: string | null;
+  provider: string;
+  provider_user_id: string;
+  refresh_token: string | null;
+  token_expires_at: Timestamp | null;
+  updated_at: Generated<Timestamp>;
+  user_id: string;
+}
+
 export interface Stories {
   chapter_images: Generated<Json | null>;
   chapters: number;
@@ -100,21 +115,6 @@ export interface Tones {
   description: string | null;
   id: Generated<string>;
   name: string;
-  updated_at: Generated<Timestamp>;
-}
-
-export interface SocialAccounts {
-  id: string;
-  user_id: string;
-  provider: string;
-  provider_user_id: string;
-  email: string;
-  name: string | null;
-  avatar_url: string | null;
-  access_token: string;
-  refresh_token: string | null;
-  token_expires_at: Timestamp | null;
-  created_at: Generated<Timestamp>;
   updated_at: Generated<Timestamp>;
 }
 
