@@ -6,6 +6,7 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  withDelay,
   Easing,
 } from 'react-native-reanimated';
 
@@ -30,30 +31,54 @@ export const SparkleIcon: React.FC<SparkleIconProps> = ({
 }) => {
   const translateY = useSharedValue(0);
   const rotate = useSharedValue(0);
+  const scale = useSharedValue(1);
 
   useEffect(() => {
-    // Float animation
-    translateY.value = withRepeat(
-      withSequence(
-        withTiming(-15, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 1500, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
+    // Float animation with delay - smooth up and down
+    translateY.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(-12, { duration: 1800, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0, { duration: 1800, easing: Easing.inOut(Easing.sin) })
+        ),
+        -1,
+        true // reverse for smooth loop
+      )
     );
 
-    // Rotate animation
-    rotate.value = withRepeat(
-      withTiming(180, { duration: 3000, easing: Easing.linear }),
-      -1,
-      false
+    // Rotate animation - smooth back and forth instead of full rotation reset
+    rotate.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(15, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+          withTiming(-15, { duration: 2000, easing: Easing.inOut(Easing.sin) })
+        ),
+        -1,
+        true // reverse for smooth loop
+      )
     );
-  }, []);
+
+    // Subtle scale pulse for extra life
+    scale.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(1.1, { duration: 1500, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0.95, { duration: 1500, easing: Easing.inOut(Easing.sin) })
+        ),
+        -1,
+        true
+      )
+    );
+  }, [delay]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
       { translateY: translateY.value },
       { rotate: `${rotate.value}deg` },
+      { scale: scale.value },
     ],
   }));
 

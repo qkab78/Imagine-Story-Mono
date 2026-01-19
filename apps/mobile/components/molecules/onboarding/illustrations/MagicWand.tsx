@@ -18,46 +18,52 @@ export const MagicWand: React.FC = () => {
   const circle2Opacity = useSharedValue(0.3);
 
   useEffect(() => {
-    // Pulse animation for wand
+    // Pulse animation for wand - smooth breathing effect
     scale.value = withRepeat(
       withSequence(
-        withTiming(1.05, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+        withTiming(1.05, { duration: 1200, easing: Easing.inOut(Easing.sin) }),
+        withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.sin) })
       ),
       -1,
-      false
+      true // reverse for smooth loop
     );
 
-    // Expand animation for circles
+    // Expand animation for circles - smooth pulse outward and back
     circle1Scale.value = withRepeat(
-      withTiming(1.2, { duration: 2000, easing: Easing.out(Easing.ease) }),
+      withSequence(
+        withTiming(1.15, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.sin) })
+      ),
       -1,
-      false
+      true
     );
     circle1Opacity.value = withRepeat(
       withSequence(
-        withTiming(0.3, { duration: 0 }),
-        withTiming(0, { duration: 2000, easing: Easing.out(Easing.ease) })
+        withTiming(0.4, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0.15, { duration: 2000, easing: Easing.inOut(Easing.sin) })
       ),
       -1,
-      false
+      true
     );
 
+    // Second circle with offset timing for layered effect
     circle2Scale.value = withRepeat(
       withSequence(
-        withTiming(1, { duration: 500 }),
-        withTiming(1.2, { duration: 2000, easing: Easing.out(Easing.ease) })
+        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(1.2, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.sin) })
       ),
       -1,
-      false
+      true
     );
     circle2Opacity.value = withRepeat(
       withSequence(
-        withTiming(0.3, { duration: 500 }),
-        withTiming(0, { duration: 2000, easing: Easing.out(Easing.ease) })
+        withTiming(0.2, { duration: 1000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0.35, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0.1, { duration: 1000, easing: Easing.inOut(Easing.sin) })
       ),
       -1,
-      false
+      true
     );
   }, []);
 
