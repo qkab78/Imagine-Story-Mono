@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
+import { useIsFocused } from '@react-navigation/native';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
 /**
@@ -11,10 +12,14 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
  */
 export default function CreateTab() {
   const router = useRouter();
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    router.push('/stories/creation/welcome');
-  }, [router]);
+    // Only navigate when the tab is actually focused (user clicked on it)
+    if (isFocused) {
+      router.push('/stories/creation/welcome');
+    }
+  }, [isFocused, router]);
 
   return (
     <View style={styles.container}>

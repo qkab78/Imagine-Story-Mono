@@ -64,7 +64,7 @@ export const LibraryScreen = () => {
   }, []);
 
   const handleCreateStoryPress = useCallback(() => {
-    router.push('/create');
+    router.push('/stories/creation/welcome');
   }, [router]);
 
   return (
