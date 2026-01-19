@@ -68,6 +68,11 @@ export default defineConfig({
         timeout: 2000,
       },
       {
+        files: ['app/**/auth/**/*.spec(.ts|.js)'],
+        name: 'auth',
+        timeout: 2000,
+      },
+      {
         files: ['tests/unit/**/*.spec(.ts|.js)'],
         name: 'unit',
         timeout: 2000,
