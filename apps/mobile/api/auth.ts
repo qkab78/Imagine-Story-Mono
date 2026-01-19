@@ -16,6 +16,8 @@ type UserInfo = {
 
 type RegisterResponse = { token: string, user: UserInfo }
 type LoginResponse = { token: string, user: UserInfo }
+type GoogleRedirectResponse = { redirectUrl: string }
+type GoogleAuthResponse = { token: string, user: UserInfo, isNewUser: boolean }
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const loginUrl = `${apiUrl}/auth/login`;
@@ -72,3 +74,27 @@ export const authenticate = async (token: string) => {
 
   return result;
 };
+
+// Google OAuth
+const googleRedirectUrl = `${apiUrl}/auth/google/redirect`;
+const googleCallbackUrl = `${apiUrl}/auth/google/callback`;
+
+export const getGoogleRedirectUrl = async (): Promise<GoogleRedirectResponse> => {
+  const response = await fetch(googleRedirectUrl, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || 'Impossible de récupérer l\'URL de redirection Google');
+  }
+
+  return response.json();
+};
+
+export const getGoogleCallbackUrl = () => googleCallbackUrl;
+
+export type { GoogleAuthResponse };

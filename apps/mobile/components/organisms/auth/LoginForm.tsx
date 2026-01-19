@@ -25,6 +25,7 @@ interface LoginFormProps {
   onGoogleSignIn: () => void;
   onForgotPassword: () => void;
   loading?: boolean;
+  googleLoading?: boolean;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -32,6 +33,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onGoogleSignIn,
   onForgotPassword,
   loading = false,
+  googleLoading = false,
 }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
@@ -106,6 +108,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         title="Continuer avec Google"
         onPress={onGoogleSignIn}
         variant="google"
+        loading={googleLoading}
       />
     </View>
   );

@@ -10,11 +10,12 @@ import { useRouter } from 'expo-router';
 import { AgeBadge } from '@/components/atoms/auth';
 import { AuthHeader, AuthFooter } from '@/components/molecules/auth';
 import { SignupForm, type SignupData } from '@/components/organisms/auth';
-import { useRegister } from '@/hooks/useAuth';
+import { useRegister, useGoogleSignIn } from '@/hooks/useAuth';
 
 const SignupScreen = () => {
   const router = useRouter();
   const registerMutation = useRegister();
+  const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleSignIn();
 
   const handleSignup = (data: SignupData) => {
     registerMutation.mutate({
@@ -54,7 +55,12 @@ const SignupScreen = () => {
               compact
             />
 
-            <SignupForm onSubmit={handleSignup} loading={registerMutation.isPending} />
+            <SignupForm
+              onSubmit={handleSignup}
+              onGoogleSignIn={signInWithGoogle}
+              loading={registerMutation.isPending}
+              googleLoading={isGoogleLoading}
+            />
 
             <AuthFooter
               question="Déjà un compte ?"
