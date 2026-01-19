@@ -103,6 +103,21 @@ export interface Tones {
   updated_at: Generated<Timestamp>;
 }
 
+export interface SocialAccounts {
+  id: string;
+  user_id: string;
+  provider: string;
+  provider_user_id: string;
+  email: string;
+  name: string | null;
+  avatar_url: string | null;
+  access_token: string;
+  refresh_token: string | null;
+  token_expires_at: Timestamp | null;
+  created_at: Generated<Timestamp>;
+  updated_at: Generated<Timestamp>;
+}
+
 export interface Users {
   created_at: Timestamp;
   customer_id: string | null;
@@ -119,6 +134,7 @@ export interface DB {
   access_tokens: AccessTokens;
   characters: Characters;
   languages: Languages;
+  social_accounts: SocialAccounts;
   stories: Stories;
   themes: Themes;
   tones: Tones;
