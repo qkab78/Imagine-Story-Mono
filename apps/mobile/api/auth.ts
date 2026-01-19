@@ -77,14 +77,14 @@ export const authenticate = async (token: string) => {
 
 // Google OAuth
 const googleRedirectUrl = `${apiUrl}/auth/google/redirect`;
-const googleCallbackUrl = `${apiUrl}/auth/google/callback`;
 
-export const getGoogleRedirectUrl = async (): Promise<GoogleRedirectResponse> => {
+export const getGoogleRedirectUrl = async (mobileCallbackUrl: string): Promise<GoogleRedirectResponse> => {
   const response = await fetch(googleRedirectUrl, {
-    method: 'GET',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify({ callbackUrl: mobileCallbackUrl }),
   });
 
   if (!response.ok) {
@@ -94,7 +94,5 @@ export const getGoogleRedirectUrl = async (): Promise<GoogleRedirectResponse> =>
 
   return response.json();
 };
-
-export const getGoogleCallbackUrl = () => googleCallbackUrl;
 
 export type { GoogleAuthResponse };

@@ -33,8 +33,8 @@ export class GoogleAuthUseCase {
     private readonly dateService: IDateService
   ) {}
 
-  async getRedirectUrl(ctx: SocialAuthContext): Promise<string> {
-    return this.socialAuthService.getRedirectUrl('google', ctx)
+  async getRedirectUrl(ctx: SocialAuthContext, mobileCallbackUrl?: string): Promise<string> {
+    return this.socialAuthService.getRedirectUrl('google', ctx, mobileCallbackUrl)
   }
 
   async handleCallback(ctx: SocialAuthContext): Promise<SocialUserInfo> {

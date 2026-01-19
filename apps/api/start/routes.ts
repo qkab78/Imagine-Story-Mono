@@ -133,7 +133,7 @@ router
     router.post('/register', [RegisterController, 'register'])
 
     // Google OAuth
-    router.get('/google/redirect', [GoogleAuthController, 'redirect'])
+    router.post('/google/redirect', [GoogleAuthController, 'redirect'])
     router.get('/google/callback', [GoogleAuthController, 'callback'])
 
     router

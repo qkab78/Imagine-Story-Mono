@@ -8,18 +8,40 @@ export default class GoogleAuthController {
 
   /**
    * Get the Google OAuth redirect URL
-   * GET /auth/google/redirect
+   * POST /auth/google/redirect
+   * Body: { callbackUrl: string } - The mobile deep link to redirect to after auth
    */
   async redirect(ctx: HttpContext) {
-    const redirectUrl = await this.googleAuthUseCase.getRedirectUrl(ctx)
+    const { callbackUrl } = ctx.request.body()
+
+    if (!callbackUrl) {
+      return ctx.response.badRequest({ error: 'callbackUrl is required' })
+    }
+
+    const redirectUrl = await this.googleAuthUseCase.getRedirectUrl(ctx, callbackUrl)
     return ctx.response.ok({ redirectUrl })
   }
 
   /**
    * Handle Google OAuth callback
    * GET /auth/google/callback
+   * Redirects to mobile deep link with auth data
    */
   async callback(ctx: HttpContext) {
+    // Get the mobile callback URL from the state parameter
+    const state = ctx.request.input('state')
+    let mobileCallbackUrl: string | null = null
+
+    if (state) {
+      try {
+        const stateData = JSON.parse(state)
+        mobileCallbackUrl = stateData.callbackUrl
+      } catch {
+        // State is not JSON, ignore
+        console.error('State is not JSON, ignoring')
+      }
+    }
+
     // Get user info from Google via Ally
     const socialUser = await this.googleAuthUseCase.handleCallback(ctx)
 
@@ -31,7 +53,7 @@ export default class GoogleAuthController {
       id: result.user.id,
     })
 
-    return ctx.response.ok({
+    const responseData = {
       token: tokenResult.headers?.authorization,
       user: {
         id: result.user.id,
@@ -44,6 +66,15 @@ export default class GoogleAuthController {
         createdAt: result.user.createdAt,
       },
       isNewUser: result.isNewUser,
-    })
+    }
+
+    // If we have a mobile callback URL, redirect to it with the data
+    if (mobileCallbackUrl) {
+      const encodedData = encodeURIComponent(JSON.stringify(responseData))
+      return ctx.response.redirect(`${mobileCallbackUrl}?data=${encodedData}`)
+    }
+
+    // Fallback to JSON response for web clients
+    return ctx.response.ok(responseData)
   }
 }

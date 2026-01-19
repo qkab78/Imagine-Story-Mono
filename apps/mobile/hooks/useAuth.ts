@@ -3,7 +3,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
-import { login as apiLogin, register as apiRegister, getGoogleRedirectUrl, getGoogleCallbackUrl, type GoogleAuthResponse } from '@/api/auth';
+import * as Linking from 'expo-linking';
+import { login as apiLogin, register as apiRegister, getGoogleRedirectUrl } from '@/api/auth';
 import useAuthStore from '@/store/auth/authStore';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -75,53 +76,22 @@ export const useRegister = () => {
 };
 
 export const useGoogleSignIn = () => {
-  const { setToken, setUser } = useAuthStore();
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const signInWithGoogle = useCallback(async () => {
     try {
       setIsLoading(true);
 
-      // 1. Get redirect URL from backend
-      const { redirectUrl } = await getGoogleRedirectUrl();
+      // 1. Create the mobile callback URL (deep link)
+      const mobileCallbackUrl = Linking.createURL('auth/google/callback');
 
-      // 2. Open browser for Google consent
-      const result = await WebBrowser.openAuthSessionAsync(
-        redirectUrl,
-        getGoogleCallbackUrl()
-      );
+      // 2. Get redirect URL from backend, passing our callback URL
+      const { redirectUrl } = await getGoogleRedirectUrl(mobileCallbackUrl);
 
-      if (result.type === 'success' && result.url) {
-        // 3. Parse the response from the callback URL
-        // The backend returns the auth data as JSON in the response
-        const url = new URL(result.url);
-        const responseData = url.searchParams.get('data');
-
-        if (responseData) {
-          const data: GoogleAuthResponse = JSON.parse(decodeURIComponent(responseData));
-
-          setToken(data.token);
-          setUser({
-            id: data.user.id,
-            fullname: `${data.user.firstname} ${data.user.lastname}`,
-            email: data.user.email,
-            firstname: data.user.firstname,
-            lastname: data.user.lastname,
-            role: data.user.role,
-            avatar: data.user.avatar,
-            createdAt: data.user.createdAt,
-          });
-
-          if (data.isNewUser) {
-            Alert.alert('Bienvenue !', 'Votre compte a été créé avec succès.');
-          }
-
-          router.replace('/(tabs)');
-        }
-      } else if (result.type === 'cancel') {
-        // User cancelled - do nothing
-      }
+      // 3. Open browser for Google consent
+      // The backend will redirect to mobileCallbackUrl with auth data
+      // The callback screen (app/auth/google/callback.tsx) handles saving to store and redirecting
+      await WebBrowser.openAuthSessionAsync(redirectUrl, mobileCallbackUrl);
     } catch (error) {
       Alert.alert(
         'Erreur de connexion',
@@ -130,7 +100,7 @@ export const useGoogleSignIn = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [setToken, setUser, router]);
+  }, []);
 
   return {
     signInWithGoogle,

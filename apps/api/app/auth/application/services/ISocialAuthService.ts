@@ -17,6 +17,10 @@ export interface SocialUserInfo {
 export type SocialAuthContext = unknown
 
 export abstract class ISocialAuthService {
-  abstract getRedirectUrl(provider: string, ctx: SocialAuthContext): Promise<string>
+  abstract getRedirectUrl(
+    provider: string,
+    ctx: SocialAuthContext,
+    mobileCallbackUrl?: string
+  ): Promise<string>
   abstract handleCallback(provider: string, ctx: SocialAuthContext): Promise<SocialUserInfo>
 }

@@ -33,7 +33,11 @@ test.group(GoogleAuthUseCase.name, () => {
   class TestSocialAuthService implements ISocialAuthService {
     private redirectUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
 
-    getRedirectUrl(_provider: string, _ctx: SocialAuthContext): Promise<string> {
+    getRedirectUrl(
+      _provider: string,
+      _ctx: SocialAuthContext,
+      _mobileCallbackUrl?: string
+    ): Promise<string> {
       return Promise.resolve(this.redirectUrl)
     }
 
