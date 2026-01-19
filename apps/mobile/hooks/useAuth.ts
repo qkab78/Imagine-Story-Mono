@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
-import { login as apiLogin, register as apiRegister, getGoogleRedirectUrl } from '@/api/auth';
+import { login as apiLogin, register as apiRegister, getGoogleRedirectUrl, type GoogleAuthResponse } from '@/api/auth';
 import useAuthStore from '@/store/auth/authStore';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -76,6 +76,8 @@ export const useRegister = () => {
 };
 
 export const useGoogleSignIn = () => {
+  const { setToken, setUser } = useAuthStore();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const signInWithGoogle = useCallback(async () => {
@@ -89,9 +91,35 @@ export const useGoogleSignIn = () => {
       const { redirectUrl } = await getGoogleRedirectUrl(mobileCallbackUrl);
 
       // 3. Open browser for Google consent
-      // The backend will redirect to mobileCallbackUrl with auth data
-      // The callback screen (app/auth/google/callback.tsx) handles saving to store and redirecting
-      await WebBrowser.openAuthSessionAsync(redirectUrl, mobileCallbackUrl);
+      const result = await WebBrowser.openAuthSessionAsync(redirectUrl, mobileCallbackUrl);
+
+      // 4. Handle the result
+      if (result.type === 'success' && result.url) {
+        const url = new URL(result.url);
+        const encodedData = url.searchParams.get('data');
+
+        if (encodedData) {
+          const authData: GoogleAuthResponse = JSON.parse(decodeURIComponent(encodedData));
+
+          setToken(authData.token);
+          setUser({
+            id: authData.user.id,
+            fullname: `${authData.user.firstname} ${authData.user.lastname}`,
+            email: authData.user.email,
+            firstname: authData.user.firstname,
+            lastname: authData.user.lastname,
+            role: authData.user.role,
+            avatar: authData.user.avatar,
+            createdAt: authData.user.createdAt,
+          });
+
+          if (authData.isNewUser) {
+            Alert.alert('Bienvenue !', 'Votre compte a été créé avec succès.');
+          }
+
+          router.replace('/(tabs)');
+        }
+      }
     } catch (error) {
       Alert.alert(
         'Erreur de connexion',
@@ -100,7 +128,7 @@ export const useGoogleSignIn = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setToken, setUser, router]);
 
   return {
     signInWithGoogle,
