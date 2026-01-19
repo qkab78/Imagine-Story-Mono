@@ -1,5 +1,3 @@
-import { Users } from '@imagine-story/api/types/db';
-
 export interface LoginFormData { email: string, password: string }
 export interface RegisterFormData { email: string, password: string, firstname: string, lastname: string }
 
@@ -11,7 +9,8 @@ type UserInfo = {
   fullname: string, 
   role: number, 
   avatar: string,
-  createdAt: string 
+  createdAt: string,
+  currentAccessToken: { token: string }
 }
 
 type RegisterResponse = { token: string, user: UserInfo }
@@ -70,7 +69,7 @@ export const authenticate = async (token: string) => {
     },
   });
 
-  const result: { user: Users & { currentAccessToken: { token: string } } } = await response.json();
+  const result: { user: UserInfo } = await response.json();
 
   return result;
 };

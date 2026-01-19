@@ -25,9 +25,12 @@ const Onboarding = () => {
       setUser({
         id: String(data.user.id),
         email: data.user.email,
-        fullname: data.user.firstname,
+        fullname: `${data.user.firstname} ${data.user.lastname}`.trim(),
+        firstname: data.user.firstname,
+        lastname: data.user.lastname,
         role: Number(data.user.role),
         avatar: '',
+        createdAt: data.user.createdAt,
       });
       router.push("/(tabs)");
     }
