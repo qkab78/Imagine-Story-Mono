@@ -5,8 +5,15 @@ import { IStoryRepository } from "#stories/domain/repositories/StoryRepository";
 import { Story } from "#stories/domain/entities/story.entity";
 import { IRandomService } from "#stories/domain/services/IRandomService";
 import { IDateService } from "#stories/domain/services/IDateService";
-import { IStoryGenerationService, StoryChapterImagesPayload, StoryCharacterPayload, StoryCharacterProfilesPayload, StoryCharacterReferencePayload, StoryGenerationPayload, StoryImagePayload } from "#stories/domain/services/IStoryGeneration";
-
+import {
+    IStoryGenerationService,
+    StoryChapterImagesPayload,
+    StoryCharacterPayload,
+    StoryCharacterProfilesPayload,
+    StoryCharacterReferencePayload,
+    StoryGenerationPayload,
+    StoryImagePayload
+} from "#stories/domain/services/IStoryGeneration";
 import { StoryGenerated } from "#stories/domain/services/types/StoryGenerated";
 import string from "@adonisjs/core/helpers/string";
 import { IToneRepository } from "#stories/domain/repositories/ToneRepository";
@@ -70,6 +77,21 @@ test.group(CreateStoryUseCase.name, () => {
         findAll(_limit?: number, _offset?: number): Promise<{ stories: Story[]; total: number }> {
             throw new Error("Method not implemented.")
         }
+        findByJobId(_jobId: string): Promise<Story | null> {
+            throw new Error("Method not implemented.")
+        }
+        findPendingStories(): Promise<Story[]> {
+            throw new Error("Method not implemented.")
+        }
+        findByGenerationStatus(_status: any): Promise<Story[]> {
+            throw new Error("Method not implemented.")
+        }
+        countByOwnerIdAndDateRange(_ownerId: OwnerId, _startDate: Date, _endDate: Date): Promise<number> {
+            throw new Error("Method not implemented.")
+        }
+        searchByTitle(_query: string, _limit?: number): Promise<Story[]> {
+            throw new Error("Method not implemented.")
+        }
     }
     class TestStoryGenerationService implements IStoryGenerationService {
         generateStory(payload: StoryGenerationPayload): Promise<StoryGenerated> {
@@ -106,22 +128,22 @@ test.group(CreateStoryUseCase.name, () => {
             }
             return Promise.resolve(storyGenerated)
         }
-        generateImage(payload: StoryImagePayload): Promise<ImageUrl> {
+        generateImage(_payload: StoryImagePayload): Promise<ImageUrl> {
             return Promise.resolve(ImageUrl.create('https://example.com/image.jpg'))
         }
-        generateCharacter(payload: StoryCharacterPayload): Promise<string> {
+        generateCharacter(_payload: StoryCharacterPayload): Promise<string> {
             throw new Error("Method not implemented.")
         }
-        generateChapterImages(payload: StoryChapterImagesPayload): Promise<ImageUrl[]> {
+        generateChapterImages(_payload: StoryChapterImagesPayload): Promise<ImageUrl[]> {
             return Promise.resolve([
                 ImageUrl.create('https://example.com/image.jpg'),
                 ImageUrl.create('https://example.com/image.jpg'),
             ])
         }
-        generateCharacterReference(payload: StoryCharacterReferencePayload): Promise<string> {
+        generateCharacterReference(_payload: StoryCharacterReferencePayload): Promise<string> {
             throw new Error("Method not implemented.")
         }
-        generateCharacterProfiles(payload: StoryCharacterProfilesPayload): Promise<Record<string, any>[]> {
+        generateCharacterProfiles(_payload: StoryCharacterProfilesPayload): Promise<Record<string, any>[]> {
             throw new Error("Method not implemented.")
         }
     }
@@ -140,7 +162,7 @@ test.group(CreateStoryUseCase.name, () => {
         findAll(): Promise<Language[]> {
             return Promise.resolve([Language.create('1720955b-4474-4a1d-bf99-3907a000ba65', 'The name of the language', 'The code of the language', true)])
         }
-        
+
     }
     class TestToneRepository implements IToneRepository {
         findById(id: ToneId): Promise<Tone> {

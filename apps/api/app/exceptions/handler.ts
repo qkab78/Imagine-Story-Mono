@@ -2,6 +2,9 @@ import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import PaymentErrors from './payment_errors.js'
 import { ApplicationException } from '#stories/application/exceptions/index'
+import { DomainException } from '#stories/domain/exceptions/DomainException'
+import { InvalidValueObjectException } from '#stories/domain/exceptions/InvalidValueObjectException'
+import { InvariantViolationException } from '#stories/domain/exceptions/InvariantViolationException'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -23,6 +26,36 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     // Handle ApplicationException (story quota exceeded, not found, etc.)
     if (error instanceof ApplicationException) {
       return ctx.response.status(error.statusCode).json({
+        error: {
+          code: error.code,
+          message: error.message,
+        },
+      })
+    }
+
+    // Handle InvalidValueObjectException (invalid input data)
+    if (error instanceof InvalidValueObjectException) {
+      return ctx.response.status(400).json({
+        error: {
+          code: 'INVALID_VALUE',
+          message: error.message,
+        },
+      })
+    }
+
+    // Handle InvariantViolationException (business rule violation)
+    if (error instanceof InvariantViolationException) {
+      return ctx.response.status(422).json({
+        error: {
+          code: error.code,
+          message: error.message,
+        },
+      })
+    }
+
+    // Handle DomainException (generic domain errors)
+    if (error instanceof DomainException) {
+      return ctx.response.status(400).json({
         error: {
           code: error.code,
           message: error.message,

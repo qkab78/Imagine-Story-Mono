@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import { GetStoryBySlugUseCase } from './GetStoryBySlugUseCase.js'
+import { GetStoryGenerationStatusUseCase } from './GetStoryGenerationStatusUseCase.js'
 import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
 import { Story } from '#stories/domain/entities/story.entity'
 import { StoryId } from '#stories/domain/value-objects/ids/StoryId.vo'
@@ -11,10 +11,10 @@ import { Theme } from '#stories/domain/value-objects/settings/Theme.vo'
 import { Language } from '#stories/domain/value-objects/settings/Language.vo'
 import { Tone } from '#stories/domain/value-objects/settings/Tone.vo'
 import { IDateService } from '#stories/domain/services/IDateService'
-import { IRandomService } from '#stories/domain/services/IRandomService'  
-import type { StoryFilters, PaginationParams, PaginatedResult } from './ListPublicStoriesUseCase.js'
+import { IRandomService } from '#stories/domain/services/IRandomService'
+import type { StoryFilters, PaginationParams, PaginatedResult } from './story/ListPublicStoriesUseCase.js'
 
-test.group(GetStoryBySlugUseCase.name, () => {
+test.group('GetStoryGenerationStatusUseCase', () => {
   class TestDateService implements IDateService {
     now(): string {
       return '2025-01-01T00:00:00.000Z'
@@ -35,11 +35,8 @@ test.group(GetStoryBySlugUseCase.name, () => {
       return Promise.resolve(this.stories.get(idValue) || null)
     }
 
-    findBySlug(slug: Slug): Promise<Story | null> {
-      const story = Array.from(this.stories.values()).find(
-        (s) => s.slug.getValue() === slug.getValue()
-      )
-      return Promise.resolve(story || null)
+    findBySlug(_slug: Slug): Promise<Story | null> {
+      throw new Error('Method not implemented.')
     }
 
     findByOwnerId(
@@ -99,20 +96,15 @@ test.group(GetStoryBySlugUseCase.name, () => {
     }
   }
 
-  test('should get a story by slug', async ({ assert }) => {
-    const storyRepository = new TestStoryRepository()
-    const dateService = new TestDateService()
-    const randomService = new TestRandomService()
-
-    // Create a story
+  const createTestStory = (dateService: IDateService, randomService: IRandomService) => {
     const chapter = ChapterFactory.create({
       position: 1,
       title: 'Chapter 1',
       content: 'Content of chapter 1',
     })
 
-    const story = StoryFactory.create(dateService, randomService, {
-      title: 'My Amazing Story',
+    return StoryFactory.create(dateService, randomService, {
+      title: 'Test Story',
       synopsis: 'A synopsis',
       protagonist: 'Hero',
       childAge: 8,
@@ -120,49 +112,58 @@ test.group(GetStoryBySlugUseCase.name, () => {
       conclusion: 'The end',
       coverImageUrl: 'https://example.com/cover.jpg',
       ownerId: '223e4567-e89b-12d3-a456-426614174000',
-      theme: Theme.create(
-        '123e4567-e89b-12d3-a456-426614174000',
-        'Adventure',
-        'An adventure theme'
-      ),
-      language: Language.create(
-        '123e4567-e89b-12d3-a456-426614174000',
-        'English',
-        'en',
-        true
-      ),
+      theme: Theme.create('123e4567-e89b-12d3-a456-426614174000', 'Adventure', 'An adventure theme'),
+      language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
       tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
       isPublic: true,
       chapters: [chapter],
     })
+  }
 
+  test('should return generation status for existing story', async ({ assert }) => {
+    const storyRepository = new TestStoryRepository()
+    const dateService = new TestDateService()
+    const randomService = new TestRandomService()
+
+    const story = createTestStory(dateService, randomService)
     await storyRepository.create(story)
 
-    // Execute use case
-    const useCase = new GetStoryBySlugUseCase(storyRepository)
-    const result = await useCase.execute('my-amazing-story')
+    const useCase = new GetStoryGenerationStatusUseCase(storyRepository)
+    const result = await useCase.execute(story.id.getValue())
 
-    // Assertions
-    assert.isDefined(result)
-    assert.equal(result?.title, 'My Amazing Story')
-    assert.equal(result?.slug.getValue(), 'my-amazing-story')
+    assert.equal(result.id, story.id.getValue())
+    assert.isDefined(result.status)
+    assert.isDefined(result.isCompleted)
+    assert.isDefined(result.isFailed)
+    assert.isDefined(result.isPending)
+    assert.isDefined(result.isProcessing)
   })
 
-  test('should return null if story not found by slug', async ({ assert }) => {
+  test('should throw error when story not found', async ({ assert }) => {
     const storyRepository = new TestStoryRepository()
+    const useCase = new GetStoryGenerationStatusUseCase(storyRepository)
 
-    const useCase = new GetStoryBySlugUseCase(storyRepository)
-    const result = await useCase.execute('non-existent-slug')
-
-    assert.isNull(result)
+    await assert.rejects(
+      () => useCase.execute('nonexistent-id'),
+      'Story not found'
+    )
   })
 
-  test('should validate slug format', async ({ assert }) => {
+  test('should return completed status for completed story', async ({ assert }) => {
     const storyRepository = new TestStoryRepository()
+    const dateService = new TestDateService()
+    const randomService = new TestRandomService()
 
-    const useCase = new GetStoryBySlugUseCase(storyRepository)
+    const story = createTestStory(dateService, randomService)
+    await storyRepository.create(story)
 
-    // Invalid slug format should throw error during Slug.create()
-    await assert.rejects(async () => await useCase.execute('Invalid Slug With Spaces!'))
+    const useCase = new GetStoryGenerationStatusUseCase(storyRepository)
+    const result = await useCase.execute(story.id.getValue())
+
+    assert.equal(result.status, 'completed')
+    assert.isTrue(result.isCompleted)
+    assert.isFalse(result.isFailed)
+    assert.isFalse(result.isPending)
+    assert.isFalse(result.isProcessing)
   })
 })

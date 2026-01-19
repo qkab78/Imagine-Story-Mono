@@ -285,6 +285,21 @@ export class KyselyStoryRepository implements IStoryRepository {
   }
 
   /**
+   * Search stories by title using partial match
+   */
+  async searchByTitle(query: string, limit: number = 50): Promise<Story[]> {
+    const storyRows = await db
+      .selectFrom('stories')
+      .where('title', 'ilike', `%${query}%`)
+      .selectAll()
+      .orderBy('created_at', 'desc')
+      .limit(limit)
+      .execute()
+
+    return Promise.all(storyRows.map((row) => this.mapRowToStory(row)))
+  }
+
+  /**
    * Helper: Map database row to Story entity
    */
   private async mapRowToStory(storyRow: any): Promise<Story> {

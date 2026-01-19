@@ -9,19 +9,20 @@ import type { IStorageService } from '#stories/domain/services/IStorageService'
  */
 export class ChapterPresenter {
   /**
-   * Transform a single chapter to DTO
+   * Transform a chapter to DTO
    */
   public static async toDTO(
     chapter: Chapter,
     storageService: IStorageService
   ): Promise<ChapterDTO> {
-    let imageUrl: string | null = null
+    let image: { url: string } | null = null
 
     if (chapter.image) {
-      imageUrl = await this.resolveImageUrl(
+      const imageUrl = await this.resolveImageUrl(
         chapter.image.imageUrl.getValue(),
         storageService
       )
+      image = { url: imageUrl }
     }
 
     return {
@@ -29,11 +30,7 @@ export class ChapterPresenter {
       position: chapter.getPosition(),
       title: chapter.title,
       content: chapter.content,
-      image: imageUrl
-        ? {
-            url: imageUrl,
-          }
-        : null,
+      image,
     }
   }
 
@@ -49,34 +46,31 @@ export class ChapterPresenter {
 
   /**
    * Resolve image URL from path
-   * If path is already a full URL (http/https), return as-is
-   * Otherwise, generate URL using storage service
    */
   private static async resolveImageUrl(
     pathOrUrl: string,
     storageService: IStorageService
   ): Promise<string> {
-    // If already a full URL, return as-is (backward compatibility)
+    // If already a full URL, return as-is
     if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
       return pathOrUrl
     }
 
     // If it's an absolute filesystem path (legacy format), extract the relative path
-    // Example: /Volumes/.../uploads/stories/chapters/file.png -> chapters/file.png
     if (pathOrUrl.includes('/uploads/stories/')) {
       const match = pathOrUrl.match(/\/uploads\/stories\/(.+)$/)
       if (match) {
-        const relativePath = match[1] // e.g., "chapters/file.png"
+        const relativePath = match[1]
         return storageService.getUrl(relativePath)
       }
     }
 
-    // If it's a local path like /images/chapters/file.png, return as-is for local storage
+    // If it's a local path like /images/chapters/file.webp, return as-is
     if (pathOrUrl.startsWith('/images/')) {
       return pathOrUrl
     }
 
-    // Otherwise, it's a storage path (e.g., chapters/file.png) - generate URL
+    // Otherwise, it's a storage path - generate URL
     return storageService.getUrl(pathOrUrl)
   }
 }

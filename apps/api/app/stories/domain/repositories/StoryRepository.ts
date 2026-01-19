@@ -36,6 +36,9 @@ export abstract class IStoryRepository {
     endDate: Date
   ): Promise<number>
 
+  // Search queries
+  abstract searchByTitle(query: string, limit?: number): Promise<Story[]>
+
   // Commands
   abstract create(story: Story): Promise<Story>
   abstract save(story: Story): Promise<void>

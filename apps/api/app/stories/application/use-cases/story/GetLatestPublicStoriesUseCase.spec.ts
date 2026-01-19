@@ -1,9 +1,7 @@
 import { test } from '@japa/runner'
-import { PublishStoryUseCase } from './PublishStoryUseCase.js'
+import { GetLatestPublicStoriesUseCase } from './GetLatestPublicStoriesUseCase.js'
 import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
 import { Story } from '#stories/domain/entities/story.entity'
-import type { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublisher'
-import type { DomainEvent } from '#stories/domain/events/DomainEvent'
 import { StoryId } from '#stories/domain/value-objects/ids/StoryId.vo'
 import { Slug } from '#stories/domain/value-objects/metadata/Slug.vo'
 import { OwnerId } from '#stories/domain/value-objects/ids/OwnerId.vo'
@@ -16,7 +14,7 @@ import { IDateService } from '#stories/domain/services/IDateService'
 import { IRandomService } from '#stories/domain/services/IRandomService'
 import type { StoryFilters, PaginationParams, PaginatedResult } from './ListPublicStoriesUseCase.js'
 
-test.group(PublishStoryUseCase.name, () => {
+test.group(GetLatestPublicStoriesUseCase.name, () => {
   class TestDateService implements IDateService {
     now(): string {
       return '2025-01-01T00:00:00.000Z'
@@ -24,8 +22,11 @@ test.group(PublishStoryUseCase.name, () => {
   }
 
   class TestRandomService implements IRandomService {
+    private counter = 0
+
     generateRandomUuid(): string {
-      return '1720955b-4474-4a1d-bf99-3907a000ba65'
+      this.counter++
+      return `1720955b-4474-4a1d-bf99-3907a000ba${this.counter.toString().padStart(2, '0')}`
     }
   }
 
@@ -50,9 +51,19 @@ test.group(PublishStoryUseCase.name, () => {
 
     findPublicStories(
       _filters: StoryFilters,
-      _pagination: PaginationParams
+      pagination: PaginationParams
     ): Promise<PaginatedResult<Story>> {
-      throw new Error('Method not implemented.')
+      const publicStories = Array.from(this.stories.values()).filter((s) => s.isPublic())
+      const start = (pagination.page - 1) * pagination.limit
+      const end = start + pagination.limit
+      const paginatedStories = publicStories.slice(start, end)
+
+      return Promise.resolve({
+        data: paginatedStories,
+        total: publicStories.length,
+        page: pagination.page,
+        limit: pagination.limit,
+      })
     }
 
     existsBySlug(_slug: Slug, _excludeId?: StoryId): Promise<boolean> {
@@ -98,125 +109,99 @@ test.group(PublishStoryUseCase.name, () => {
     }
   }
 
-  class TestEventPublisher implements IDomainEventPublisher {
-    public readonly events: DomainEvent[] = []
+  const createTestStory = (
+    dateService: IDateService,
+    randomService: IRandomService,
+    title: string,
+    isPublic: boolean = true
+  ) => {
+    const chapter = ChapterFactory.create({
+      position: 1,
+      title: 'Chapter 1',
+      content: 'Content of chapter 1',
+    })
 
-    async publish(event: DomainEvent): Promise<void> {
-      this.events.push(event)
-    }
-
-    async publishMany(events: DomainEvent[]): Promise<void> {
-      this.events.push(...events)
-    }
+    return StoryFactory.create(dateService, randomService, {
+      title,
+      synopsis: 'A synopsis',
+      protagonist: 'Hero',
+      childAge: 8,
+      species: 'Human',
+      conclusion: 'The end',
+      coverImageUrl: 'https://example.com/cover.jpg',
+      ownerId: '223e4567-e89b-12d3-a456-426614174000',
+      theme: Theme.create('123e4567-e89b-12d3-a456-426614174000', 'Adventure', 'An adventure theme'),
+      language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
+      tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
+      isPublic,
+      chapters: [chapter],
+    })
   }
 
-  test('should publish a private story', async ({ assert }) => {
+  test('should return latest public stories with default limit of 5', async ({ assert }) => {
     const storyRepository = new TestStoryRepository()
-    const eventPublisher = new TestEventPublisher()
+    const dateService = new TestDateService()
+    const randomService = new TestRandomService()
+    const numberOfStoriesCreated = 7
+
+    // Create 7 public stories
+    for (let i = 1; i <= numberOfStoriesCreated; i++) {
+      await storyRepository.create(createTestStory(dateService, randomService, `Story ${i}`))
+    }
+
+    const useCase = new GetLatestPublicStoriesUseCase(storyRepository)
+    const result = await useCase.execute({})
+
+    assert.lengthOf(result.stories, 5)
+  })
+
+  test('should respect custom limit parameter', async ({ assert }) => {
+    const storyRepository = new TestStoryRepository()
+    const dateService = new TestDateService()
+    const randomService = new TestRandomService()
+    const numberOfStoriesCreated = 10
+    // Create 10 public stories
+    for (let i = 1; i <= numberOfStoriesCreated; i++) {
+      await storyRepository.create(createTestStory(dateService, randomService, `Story ${i}`))
+    }
+
+    const useCase = new GetLatestPublicStoriesUseCase(storyRepository)
+    const result = await useCase.execute({ limit: 3 })
+
+    assert.lengthOf(result.stories, 3)
+  })
+
+  test('should only return public stories', async ({ assert }) => {
+    const storyRepository = new TestStoryRepository()
     const dateService = new TestDateService()
     const randomService = new TestRandomService()
 
-    // Create a private story
-    const chapter = ChapterFactory.create({
-      position: 1,
-      title: 'Chapter 1',
-      content: 'Content of chapter 1',
+    // Create mix of public and private stories
+    await storyRepository.create(createTestStory(dateService, randomService, 'Public Story 1', true))
+    await storyRepository.create(createTestStory(dateService, randomService, 'Private Story 1', false))
+    await storyRepository.create(createTestStory(dateService, randomService, 'Public Story 2', true))
+    await storyRepository.create(createTestStory(dateService, randomService, 'Private Story 2', false))
+
+    const useCase = new GetLatestPublicStoriesUseCase(storyRepository)
+    const result = await useCase.execute({ limit: 10 })
+
+    assert.lengthOf(result.stories, 2)
+    result.stories.forEach((story) => {
+      assert.isTrue(story.isPublic())
     })
-
-    const privateStory = StoryFactory.create(dateService, randomService, {
-      title: 'My Private Story',
-      synopsis: 'A synopsis',
-      protagonist: 'Hero',
-      childAge: 8,
-      species: 'Human',
-      conclusion: 'The end',
-      coverImageUrl: 'https://example.com/cover.jpg',
-      ownerId: '223e4567-e89b-12d3-a456-426614174000',
-      theme: Theme.create(
-        '123e4567-e89b-12d3-a456-426614174000',
-        'Adventure',
-        'An adventure theme'
-      ),
-      language: Language.create(
-        '123e4567-e89b-12d3-a456-426614174000',
-        'English',
-        'en',
-        true
-      ),
-      tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
-      isPublic: false, // Private story
-      chapters: [chapter],
-    })
-
-    await storyRepository.create(privateStory)
-
-    // Execute use case
-    const useCase = new PublishStoryUseCase(storyRepository, eventPublisher)
-    await useCase.execute(privateStory.id.getValue())
-
-    // Assertions
-    const updatedStory = await storyRepository.findById(privateStory.id)
-    assert.isTrue(updatedStory?.isPublic())
-    assert.equal(eventPublisher.events.length, 1)
-    assert.equal(eventPublisher.events[0].eventName, 'story.published')
   })
 
-  test('should do nothing if story is already public', async ({ assert }) => {
+  test('should return empty array when no public stories exist', async ({ assert }) => {
     const storyRepository = new TestStoryRepository()
-    const eventPublisher = new TestEventPublisher()
     const dateService = new TestDateService()
     const randomService = new TestRandomService()
 
-    // Create a public story
-    const chapter = ChapterFactory.create({
-      position: 1,
-      title: 'Chapter 1',
-      content: 'Content of chapter 1',
-    })
+    // Create only private stories
+    await storyRepository.create(createTestStory(dateService, randomService, 'Private Story', false))
 
-    const publicStory = StoryFactory.create(dateService, randomService, {
-      title: 'My Public Story',
-      synopsis: 'A synopsis',
-      protagonist: 'Hero',
-      childAge: 8,
-      species: 'Human',
-      conclusion: 'The end',
-      coverImageUrl: 'https://example.com/cover.jpg',
-      ownerId: '223e4567-e89b-12d3-a456-426614174000',
-      theme: Theme.create(
-        '123e4567-e89b-12d3-a456-426614174000',
-        'Adventure',
-        'An adventure theme'
-      ),
-      language: Language.create(
-        '123e4567-e89b-12d3-a456-426614174000',
-        'English',
-        'en',
-        true
-      ),
-      tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
-      isPublic: true, // Already public
-      chapters: [chapter],
-    })
+    const useCase = new GetLatestPublicStoriesUseCase(storyRepository)
+    const result = await useCase.execute({})
 
-    await storyRepository.create(publicStory)
-
-    // Execute use case
-    const useCase = new PublishStoryUseCase(storyRepository, eventPublisher)
-    await useCase.execute(publicStory.id.getValue())
-
-    // Assertions - no event should be published
-    assert.equal(eventPublisher.events.length, 0)
-  })
-
-  test('should throw error if story not found', async ({ assert }) => {
-    const storyRepository = new TestStoryRepository()
-    const eventPublisher = new TestEventPublisher()
-
-    const useCase = new PublishStoryUseCase(storyRepository, eventPublisher)
-
-    await assert.rejects(
-      async () => await useCase.execute('non-existent-id')
-    )
+    assert.lengthOf(result.stories, 0)
   })
 })

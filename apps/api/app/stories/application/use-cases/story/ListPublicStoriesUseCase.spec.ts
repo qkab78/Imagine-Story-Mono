@@ -14,7 +14,7 @@ import { IDateService } from '#stories/domain/services/IDateService'
 import { IRandomService } from '#stories/domain/services/IRandomService'
 import type { StoryFilters, PaginationParams, PaginatedResult } from './ListPublicStoriesUseCase.js'
 
-test.group('ListPublicStoriesUseCase', () => {
+test.group(ListPublicStoriesUseCase.name, () => {
   class TestDateService implements IDateService {
     now(): string {
       return '2025-01-01T00:00:00.000Z'
@@ -114,6 +114,26 @@ test.group('ListPublicStoriesUseCase', () => {
     findAll(_limit?: number, _offset?: number): Promise<{ stories: Story[]; total: number }> {
       throw new Error('Method not implemented.')
     }
+
+    findByJobId(_jobId: string): Promise<Story | null> {
+      throw new Error('Method not implemented.')
+    }
+
+    findPendingStories(): Promise<Story[]> {
+      throw new Error('Method not implemented.')
+    }
+
+    findByGenerationStatus(_status: any): Promise<Story[]> {
+      throw new Error('Method not implemented.')
+    }
+
+    countByOwnerIdAndDateRange(_ownerId: OwnerId, _startDate: Date, _endDate: Date): Promise<number> {
+      throw new Error('Method not implemented.')
+    }
+
+    searchByTitle(_query: string, _limit?: number): Promise<Story[]> {
+      throw new Error('Method not implemented.')
+    }
   }
 
   test('should list all public stories without filters', async ({ assert }) => {
@@ -121,8 +141,8 @@ test.group('ListPublicStoriesUseCase', () => {
     const dateService = new TestDateService()
     const randomService = new TestRandomService()
 
-    // Create 5 public stories and 2 private stories
-    for (let i = 1; i <= 7; i++) {
+    const numberOfStoriesCreated = 7
+    for (let i = 1; i <= numberOfStoriesCreated; i++) {
       const chapter = ChapterFactory.create({
         position: 1,
         title: `Chapter ${i}`,
@@ -178,8 +198,8 @@ test.group('ListPublicStoriesUseCase', () => {
     const adventureThemeId = '123e4567-e89b-12d3-a456-426614174001'
     const fantasyThemeId = '123e4567-e89b-12d3-a456-426614174002'
 
-    // Create 3 adventure stories and 2 fantasy stories
-    for (let i = 1; i <= 3; i++) {
+    const numberOfStoriesCreated = 3
+    for (let i = 1; i <= numberOfStoriesCreated; i++) {
       const chapter = ChapterFactory.create({
         position: 1,
         title: `Chapter ${i}`,
@@ -210,7 +230,8 @@ test.group('ListPublicStoriesUseCase', () => {
       await storyRepository.create(story)
     }
 
-    for (let i = 1; i <= 2; i++) {
+    const numberOfFantasyStoriesCreated = 2
+    for (let i = 1; i <= numberOfFantasyStoriesCreated; i++) {
       const chapter = ChapterFactory.create({
         position: 1,
         title: `Chapter ${i}`,

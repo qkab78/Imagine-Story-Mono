@@ -16,7 +16,7 @@ import { IDateService } from '#stories/domain/services/IDateService'
 import { IRandomService } from '#stories/domain/services/IRandomService'
 import type { StoryFilters, PaginationParams, PaginatedResult } from './ListPublicStoriesUseCase.js'
 
-test.group('DeleteStoryUseCase', () => {
+test.group(DeleteStoryUseCase.name, () => {
   class TestDateService implements IDateService {
     now(): string {
       return '2025-01-01T00:00:00.000Z'
@@ -77,6 +77,26 @@ test.group('DeleteStoryUseCase', () => {
     }
 
     findAll(_limit?: number, _offset?: number): Promise<{ stories: Story[]; total: number }> {
+      throw new Error('Method not implemented.')
+    }
+
+    findByJobId(_jobId: string): Promise<Story | null> {
+      throw new Error('Method not implemented.')
+    }
+
+    findPendingStories(): Promise<Story[]> {
+      throw new Error('Method not implemented.')
+    }
+
+    findByGenerationStatus(_status: any): Promise<Story[]> {
+      throw new Error('Method not implemented.')
+    }
+
+    countByOwnerIdAndDateRange(_ownerId: OwnerId, _startDate: Date, _endDate: Date): Promise<number> {
+      throw new Error('Method not implemented.')
+    }
+
+    searchByTitle(_query: string, _limit?: number): Promise<Story[]> {
       throw new Error('Method not implemented.')
     }
   }

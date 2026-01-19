@@ -75,22 +75,22 @@ test.group(GetStoryByIdUseCase.name, () => {
             .withChapters(chapters)
             .build()
     class TestStoryRepository implements IStoryRepository {
-        findBySlug(slug: Slug): Promise<Story | null> {
+        findBySlug(_slug: Slug): Promise<Story | null> {
             throw new Error("Method not implemented.");
         }
-        findByOwnerId(ownerId: OwnerId, pagination: PaginationParams): Promise<PaginatedResult<Story>> {
+        findByOwnerId(_ownerId: OwnerId, _pagination: PaginationParams): Promise<PaginatedResult<Story>> {
             throw new Error("Method not implemented.");
         }
-        findPublicStories(filters: StoryFilters, pagination: PaginationParams): Promise<PaginatedResult<Story>> {
+        findPublicStories(_filters: StoryFilters, _pagination: PaginationParams): Promise<PaginatedResult<Story>> {
             throw new Error("Method not implemented.");
         }
-        existsBySlug(slug: Slug, excludeId?: StoryId): Promise<boolean> {
+        existsBySlug(_slug: Slug, _excludeId?: StoryId): Promise<boolean> {
             throw new Error("Method not implemented.");
         }
-        save(story: Story): Promise<void> {
+        save(_story: Story): Promise<void> {
             throw new Error("Method not implemented.");
         }
-        delete(id: StoryId): Promise<void> {
+        delete(_id: StoryId): Promise<void> {
             throw new Error("Method not implemented.");
         }
         private readonly stories: Story[] = [story]
@@ -105,6 +105,21 @@ test.group(GetStoryByIdUseCase.name, () => {
             throw new Error("Method not implemented.")
         }
         create(_story: Story): Promise<Story> {
+            throw new Error("Method not implemented.")
+        }
+        findByJobId(_jobId: string): Promise<Story | null> {
+            throw new Error("Method not implemented.")
+        }
+        findPendingStories(): Promise<Story[]> {
+            throw new Error("Method not implemented.")
+        }
+        findByGenerationStatus(_status: any): Promise<Story[]> {
+            throw new Error("Method not implemented.")
+        }
+        countByOwnerIdAndDateRange(_ownerId: OwnerId, _startDate: Date, _endDate: Date): Promise<number> {
+            throw new Error("Method not implemented.")
+        }
+        searchByTitle(_query: string, _limit?: number): Promise<Story[]> {
             throw new Error("Method not implemented.")
         }
     }

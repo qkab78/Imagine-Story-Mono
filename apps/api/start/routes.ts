@@ -17,8 +17,6 @@ import { existsSync, readFileSync } from 'node:fs'
 
 const LoginController = () => import('#auth/controllers/login/login_controller')
 const LogoutController = () => import('#auth/controllers/logout/logout_controller')
-const StoriesController = () => import('#stories/controllers/stories_controllers')
-// const CharactersController = () => import('#stories/controllers/characters_controllers')
 const AuthController = () => import('#auth/controllers/auth_controllers')
 const RegisterController = () => import('#auth/controllers/register/register_controller')
 const PaymentsController = () => import('#payments/controllers/payments_controllers')
@@ -103,16 +101,13 @@ router.get('/images/chapters/:fileName', async ({ request, response }: HttpConte
 // Stories
 router
   .group(() => {
-    // Clean architecture endpoints (using use cases)
+    // Public endpoints
     router.get('/', [StoriesControllerPresenter, 'getPublicStories'])
     router.get('/all/latest', [StoriesControllerPresenter, 'getLatestPublicStories'])
-
-    // Legacy endpoints (to be refactored)
-    router.get('/slug/:slug', [StoriesController, 'getStoryBySlug'])
-    router.get('/search/suggestions', [StoriesController, 'getSuggestedStories'])
-    router.get('/all/themes', [StoriesController, 'getThemes'])
-    router.get('/all/tones', [StoriesController, 'getTones'])
-    router.get('/all/languages', [StoriesController, 'getLanguages'])
+    router.get('/slug/:slug', [StoriesControllerPresenter, 'getStoryBySlug'])
+    router.get('/all/themes', [StoriesControllerPresenter, 'getThemes'])
+    router.get('/all/tones', [StoriesControllerPresenter, 'getTones'])
+    router.get('/all/languages', [StoriesControllerPresenter, 'getLanguages'])
 
     // Authenticated endpoints
     router
@@ -120,6 +115,7 @@ router
         router.get('/users/me', [StoriesControllerPresenter, 'getUserStories'])
         router.get('/quota', [StoriesControllerPresenter, 'getStoryQuota'])
         router.post('/', [StoriesControllerPresenter, 'createStory'])
+        router.get('/search/suggestions', [StoriesControllerPresenter, 'searchStories'])
       })
       .middleware(middleware.auth())
 

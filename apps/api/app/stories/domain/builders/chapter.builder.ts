@@ -1,7 +1,8 @@
 import { Chapter, ChapterImage } from "../entities/chapter.entity.js"
+import { ChapterId } from "../value-objects/ids/ChapterId.vo.js"
 
 export class ChapterBuilder {
-    private id: number | undefined
+    private id: ChapterId | undefined
     private title: string | undefined
     private content: string | undefined
     private image: ChapterImage | null = null
@@ -13,7 +14,7 @@ export class ChapterBuilder {
     }
 
     withId(id: number): ChapterBuilder {
-        this.id = id
+        this.id = ChapterId.create(id)
         return this
     }
 
@@ -43,6 +44,6 @@ export class ChapterBuilder {
             throw new Error('Content is required')
         }
 
-        return new Chapter(this.id, this.title, this.content, this.image)
+        return Chapter.create(this.id, this.title, this.content, this.image)
     }
 }

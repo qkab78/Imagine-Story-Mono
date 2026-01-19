@@ -3,10 +3,6 @@ import { InvalidValueObjectException } from '#stories/domain/exceptions/InvalidV
 
 type GenerationStatusValue = 'pending' | 'processing' | 'completed' | 'failed'
 
-interface GenerationStatusProps {
-  value: GenerationStatusValue
-}
-
 /**
  * Generation Status Value Object
  *
