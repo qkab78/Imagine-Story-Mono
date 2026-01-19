@@ -55,7 +55,7 @@ QUEUE_REDIS_PASSWORD=<votre-redis-password>
 #### API Keys
 ```
 OPENAI_API_KEY=<votre-openai-key>
-LEONARDO_AI_API_KEY=<votre-leonardo-key>
+LEONARDO_API_KEY=<votre-leonardo-key>
 STORY_MAX_CHAPTERS=10
 ```
 

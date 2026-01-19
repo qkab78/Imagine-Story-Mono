@@ -39,7 +39,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
   constructor(private readonly storageService: IStorageService) {
     super()
     this.leonardo = new Leonardo({
-      bearerAuth: env.get('LEONARDO_AI_API_KEY'),
+      bearerAuth: env.get('LEONARDO_API_KEY'),
     })
   }
 
