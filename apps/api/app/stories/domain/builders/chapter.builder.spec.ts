@@ -60,15 +60,10 @@ test.group(ChapterBuilder.name, () => {
         assert.throws(() => chapterBuilder.build(), 'Content is required')
     })
 
-    test('should accept id of 0', async ({ assert }) => {
-        const chapter = ChapterBuilder.create()
-            .withId(0)
-            .withTitle('Chapter 0')
-            .withContent('Content of chapter 0')
-            .withImage(null)
-            .build()
-
-        assert.isDefined(chapter)
-        assert.equal(chapter.id, 0)
+    test('should reject id of 0 (chapters start at 1)', async ({ assert }) => {
+        assert.throws(
+            () => ChapterBuilder.create().withId(0),
+            'Invalid Chapter ID: 0. Must be a positive integer (>= 1).'
+        )
     })
 })

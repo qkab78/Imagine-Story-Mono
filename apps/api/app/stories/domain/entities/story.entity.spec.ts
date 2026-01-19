@@ -82,24 +82,24 @@ test.group('Story Entity', () => {
     )
   })
 
-  test('should throw error if story has no chapters', ({ assert }) => {
-    assert.throws(() =>
-      StoryFactory.create(new TestDateService(), new TestRandomService(), {
-        title: 'My Story',
-        synopsis: 'A great story',
-        protagonist: 'Hero',
-        childAge: 7,
-        species: 'Human',
-        conclusion: 'The end',
-        coverImageUrl: 'https://example.com/cover.jpg',
-        ownerId: '423e4567-e89b-12d3-a456-426614174000',
-        isPublic: false,
-        theme: createValidTheme(),
-        language: createValidLanguage(),
-        tone: createValidTone(),
-        chapters: [],
-      })
-    )
+  test('should allow creating story without chapters', ({ assert }) => {
+    const story = StoryFactory.create(new TestDateService(), new TestRandomService(), {
+      title: 'My Story',
+      synopsis: 'A great story',
+      protagonist: 'Hero',
+      childAge: 7,
+      species: 'Human',
+      conclusion: 'The end',
+      coverImageUrl: 'https://example.com/cover.jpg',
+      ownerId: '423e4567-e89b-12d3-a456-426614174000',
+      isPublic: false,
+      theme: createValidTheme(),
+      language: createValidLanguage(),
+      tone: createValidTone(),
+      chapters: [],
+    })
+
+    assert.equal(story.numberOfChapters, 0)
   })
 
   test('should publish a story', ({ assert }) => {
