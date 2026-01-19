@@ -5,6 +5,7 @@ import { ApplicationException } from '#stories/application/exceptions/index'
 import { DomainException } from '#stories/domain/exceptions/DomainException'
 import { InvalidValueObjectException } from '#stories/domain/exceptions/InvalidValueObjectException'
 import { InvariantViolationException } from '#stories/domain/exceptions/InvariantViolationException'
+import { OAuthException } from '#auth/domain/exceptions/OAuthException'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -59,6 +60,17 @@ export default class HttpExceptionHandler extends ExceptionHandler {
         error: {
           code: error.code,
           message: error.message,
+        },
+      })
+    }
+
+    // Handle OAuthException (OAuth errors)
+    if (error instanceof OAuthException) {
+      return ctx.response.status(401).json({
+        error: {
+          code: error.code,
+          message: error.message,
+          provider: error.provider,
         },
       })
     }

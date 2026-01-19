@@ -23,6 +23,7 @@ const PaymentsController = () => import('#payments/controllers/payments_controll
 const SubscriptionController = () => import('#subscription/controllers/subscription_controller')
 
 const StoriesControllerPresenter = () => import('#stories/presenters/stories.controller')
+const GoogleAuthController = () => import('#auth/controllers/social/google_auth_controller')
 
 router.get('/', async ({ response }: HttpContext) => {
   console.log('[Route] GET / called')
@@ -119,7 +120,7 @@ router
       })
       .middleware(middleware.auth())
 
-    // Dynamic ID routes (must be last to avoid matching static routes)
+
     router.get('/:id', [StoriesControllerPresenter, 'getStoryById'])
     router.get('/:id/status', [StoriesControllerPresenter, 'getGenerationStatus'])
   })
@@ -130,6 +131,11 @@ router
   .group(() => {
     router.post('/login', [LoginController, 'login'])
     router.post('/register', [RegisterController, 'register'])
+
+    // Google OAuth
+    router.get('/google/redirect', [GoogleAuthController, 'redirect'])
+    router.get('/google/callback', [GoogleAuthController, 'callback'])
+
     router
       .group(() => {
         router.post('/logout', [LogoutController, 'logout'])
