@@ -1,19 +1,19 @@
 import { BaseCommand } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { fakerFR as faker } from '@faker-js/faker'
-import { StoryContentPayload, StoryGenerated } from '#stories/types/stories_type'
-import { ALLOWED_LANGUAGES } from '#stories/constants/allowed_languages'
-import { ALLOWED_TONES } from '#stories/constants/allowed_tones'
-import { SPECIES } from '#stories/constants/species'
-import { ALLOWED_THEMES } from '#stories/constants/themes'
-import { generateImage, generateStory } from '#stories/helpers/stories_helper'
-import string from '@adonisjs/core/helpers/string'
 import { db } from '#services/db'
 import env from '#start/env'
+import app from '@adonisjs/core/services/app'
+import { QueueStoryCreationUseCase } from '#stories/application/use-cases/QueueStoryCreationUseCase'
+import { GetAllThemesUseCase } from '#stories/application/use-cases/metadata/GetAllThemesUseCase'
+import { GetAllLanguagesUseCase } from '#stories/application/use-cases/metadata/GetAllLanguagesUseCase'
+import { GetAllTonesUseCase } from '#stories/application/use-cases/metadata/GetAllTonesUseCase'
+
+const SPECIES = ['girl', 'boy', 'robot', 'superhero', 'superheroine', 'animal'] as const
 
 export default class SeedStories extends BaseCommand {
   static commandName = 'seed:stories'
-  static description = 'Commande pour générer des histoires de test'
+  static description = 'Commande pour générer des histoires de test via la queue'
 
   static options: CommandOptions = {
     startApp: true,
@@ -24,94 +24,96 @@ export default class SeedStories extends BaseCommand {
   }
 
   async run() {
-    this.logger.info('Generating stories...')
-    const index = faker.number.int({ min: 0, max: ALLOWED_THEMES.length - 1 })
-    const storiesToSeed: StoryContentPayload[] = [
+    this.logger.info('🌱 Seeding stories via queue...')
+
+    // Récupérer les use cases via le container IoC
+    const queueStoryCreationUseCase = await app.container.make(QueueStoryCreationUseCase)
+    const getAllThemesUseCase = await app.container.make(GetAllThemesUseCase)
+    const getAllLanguagesUseCase = await app.container.make(GetAllLanguagesUseCase)
+    const getAllTonesUseCase = await app.container.make(GetAllTonesUseCase)
+
+    // Récupérer les métadonnées depuis la base de données
+    const [themes, languages, tones] = await Promise.all([
+      getAllThemesUseCase.execute(),
+      getAllLanguagesUseCase.execute(),
+      getAllTonesUseCase.execute(),
+    ])
+
+    if (themes.length === 0 || languages.length === 0 || tones.length === 0) {
+      this.logger.error('❌ No themes, languages or tones found in database. Run migrations first.')
+      return
+    }
+
+    const seedUserId = env.get('SEED_USER_ID')
+    if (!seedUserId) {
+      this.logger.error('❌ SEED_USER_ID not set in environment variables')
+      return
+    }
+
+    // Filtrer les langues gratuites pour le seed
+    const freeLanguages = languages.filter((lang) => lang.isFree)
+
+    // Créer 3 histoires de test
+    const storiesToSeed = [
       {
-        theme: ALLOWED_THEMES[index].name,
+        synopsis: 'Une aventure magique dans un monde enchanté',
         protagonist: faker.person.firstName(),
         childAge: faker.number.int({ min: 3, max: 10 }),
+        species: SPECIES[faker.number.int({ min: 0, max: SPECIES.length - 1 })],
         numberOfChapters: faker.number.int({ min: 3, max: 5 }),
-        language: ALLOWED_LANGUAGES.LI,
-        tone: ALLOWED_TONES.HAPPY,
-        species: SPECIES.ROBOT,
+        themeId: themes[faker.number.int({ min: 0, max: themes.length - 1 })].id.getValue(),
+        languageId: freeLanguages[faker.number.int({ min: 0, max: freeLanguages.length - 1 })].id.getValue(),
+        toneId: tones[faker.number.int({ min: 0, max: tones.length - 1 })].id.getValue(),
       },
       {
-        theme: ALLOWED_THEMES[index].name,
+        synopsis: 'Un voyage extraordinaire à travers les étoiles',
         protagonist: faker.person.firstName(),
         childAge: faker.number.int({ min: 3, max: 10 }),
+        species: SPECIES[faker.number.int({ min: 0, max: SPECIES.length - 1 })],
         numberOfChapters: faker.number.int({ min: 3, max: 5 }),
-        language: ALLOWED_LANGUAGES.FR,
-        tone: ALLOWED_TONES.MYSTERIOUS,
-        species: SPECIES.ANIMAL,
+        themeId: themes[faker.number.int({ min: 0, max: themes.length - 1 })].id.getValue(),
+        languageId: freeLanguages[faker.number.int({ min: 0, max: freeLanguages.length - 1 })].id.getValue(),
+        toneId: tones[faker.number.int({ min: 0, max: tones.length - 1 })].id.getValue(),
       },
       {
-        theme: ALLOWED_THEMES[index].name,
+        synopsis: 'Une histoire d\'amitié et de courage',
         protagonist: faker.person.firstName(),
         childAge: faker.number.int({ min: 3, max: 10 }),
+        species: SPECIES[faker.number.int({ min: 0, max: SPECIES.length - 1 })],
         numberOfChapters: faker.number.int({ min: 3, max: 5 }),
-        language: ALLOWED_LANGUAGES.EN,
-        tone: ALLOWED_TONES.CALM,
-        species: SPECIES.SUPERHERO,
+        themeId: themes[faker.number.int({ min: 0, max: themes.length - 1 })].id.getValue(),
+        languageId: freeLanguages[faker.number.int({ min: 0, max: freeLanguages.length - 1 })].id.getValue(),
+        toneId: tones[faker.number.int({ min: 0, max: tones.length - 1 })].id.getValue(),
       },
     ]
 
-    const generatedStories = []
-    for (const story of storiesToSeed) {
-      const storyContent = await generateStory(story)
-      const storyTextJson = JSON.parse(storyContent) as StoryGenerated
-      const slug = string.slug(storyTextJson.slug, { lower: true, trim: true })
+    const queuedStories = []
 
-      // Générer une image avec DALL-E
-      const imageUrl = await generateImage({
-        title: storyTextJson.title || '',
-        synopsis: storyTextJson.synopsis || '',
-        theme: storyTextJson.theme || '',
-        childAge: Number(story.childAge),
-        protagonist: storyTextJson.protagonist || '',
-        species: storyTextJson.species || '',
-        slug,
-      })
-      console.log(storyTextJson)
-      console.log(imageUrl)
-      console.log(slug)
-      generatedStories.push({
-        ...storyTextJson,
-        coverImage: imageUrl,
-      })
-    }
-
-    console.log(generatedStories)
-    for (const story of generatedStories) {
-      await db
-        .insertInto('stories')
-        .values({
-          title: story.title,
-          synopsis: story.synopsis,
-          theme: story.theme,
-          protagonist: story.protagonist,
-          child_age: story.childAge,
-          cover_image: story.coverImage,
-          slug: story.slug,
-          chapters: story.chapters.length,
-          content: '',
-          created_at: new Date(),
-          updated_at: new Date(),
-          user_id: env.get('SEED_USER_ID') as string,
-          story_chapters: JSON.stringify(
-            story.chapters.map((chapter) => ({
-              title: chapter.title,
-              content: chapter.content,
-            }))
-          ),
-          conclusion: story.conclusion,
-          public: true,
-          language: story.language,
-          tone: story.tone,
-          species: story.species,
+    for (const storyData of storiesToSeed) {
+      try {
+        const result = await queueStoryCreationUseCase.execute({
+          synopsis: storyData.synopsis,
+          protagonist: storyData.protagonist,
+          childAge: storyData.childAge,
+          species: storyData.species,
+          ownerId: seedUserId,
+          userRole: 2, // Premium role to bypass quota
+          isPublic: true,
+          themeId: storyData.themeId,
+          languageId: storyData.languageId,
+          toneId: storyData.toneId,
+          numberOfChapters: storyData.numberOfChapters,
         })
-        .execute()
+
+        queuedStories.push(result)
+        this.logger.info(`✅ Story queued: ${result.id} (Job: ${result.jobId})`)
+      } catch (error: any) {
+        this.logger.error(`❌ Failed to queue story: ${error.message}`)
+      }
     }
-    this.logger.info('Stories generated and saved to database')
+
+    this.logger.info(`\n📊 Summary: ${queuedStories.length}/${storiesToSeed.length} stories queued`)
+    this.logger.info('💡 Stories will be generated asynchronously by the queue worker')
+    this.logger.info('💡 Run "node ace queue:listen" to process the queue')
   }
 }
