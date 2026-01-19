@@ -4,16 +4,88 @@ import { fakerFR as faker } from '@faker-js/faker'
 import { db } from '#services/db'
 import env from '#start/env'
 import app from '@adonisjs/core/services/app'
-import { QueueStoryCreationUseCase } from '#stories/application/use-cases/QueueStoryCreationUseCase'
-import { GetAllThemesUseCase } from '#stories/application/use-cases/metadata/GetAllThemesUseCase'
-import { GetAllLanguagesUseCase } from '#stories/application/use-cases/metadata/GetAllLanguagesUseCase'
-import { GetAllTonesUseCase } from '#stories/application/use-cases/metadata/GetAllTonesUseCase'
+import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
+import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
+import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
+import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
+import { IDateService } from '#stories/domain/services/IDateService'
+import { IRandomService } from '#stories/domain/services/IRandomService'
+import { StoryFactory } from '#stories/domain/factories/StoryFactory'
+import { ChapterFactory } from '#stories/domain/factories/ChapterFactory'
 
-const SPECIES = ['girl', 'boy', 'robot', 'superhero', 'superheroine', 'animal'] as const
+const MOCK_STORIES = [
+  {
+    title: 'Le Voyage de Luna dans les Étoiles',
+    synopsis: "Luna découvre un portail magique qui l'emmène dans un voyage extraordinaire à travers les étoiles.",
+    protagonist: 'Luna',
+    species: 'girl',
+    conclusion: "Luna rentre chez elle avec des souvenirs merveilleux et la certitude que l'univers est plein de magie.",
+    chapters: [
+      {
+        title: 'Le Portail Mystérieux',
+        content: "C'était une nuit d'été comme les autres, mais Luna ne pouvait pas dormir. Elle regardait les étoiles par sa fenêtre quand soudain, une lumière brillante apparut dans son jardin. Elle descendit doucement les escaliers et découvrit un portail scintillant entre les rosiers de sa maman.",
+      },
+      {
+        title: 'La Planète des Cristaux',
+        content: "De l'autre côté du portail, Luna découvrit une planète entièrement faite de cristaux colorés. Chaque pas faisait tinter une mélodie différente. Un petit être lumineux nommé Éclat lui servit de guide.",
+      },
+      {
+        title: 'Le Retour à la Maison',
+        content: "Après avoir visité trois planètes merveilleuses, Luna savait qu'il était temps de rentrer. Éclat lui offrit un petit cristal qui brillerait toujours pour lui rappeler son aventure. Elle traversa le portail et retrouva son lit douillet.",
+      },
+    ],
+  },
+  {
+    title: "L'Aventure de Max le Robot",
+    synopsis: 'Max est un petit robot qui rêve de découvrir le monde au-delà de son laboratoire.',
+    protagonist: 'Max',
+    species: 'robot',
+    conclusion: 'Max comprit que la vraie aventure était de partager ses découvertes avec ceux qui nous aiment.',
+    chapters: [
+      {
+        title: 'Le Rêve de Max',
+        content: "Dans un laboratoire rempli d'inventions incroyables, vivait Max, un petit robot curieux. Chaque jour, il regardait par la fenêtre et se demandait ce qu'il y avait dehors. Un jour, il décida de partir à l'aventure.",
+      },
+      {
+        title: 'La Forêt Enchantée',
+        content: "Max découvrit une forêt où les arbres parlaient et les fleurs chantaient. Il se fit un ami, un écureuil nommé Noisette, qui lui montra les merveilles de la nature.",
+      },
+      {
+        title: 'La Grande Découverte',
+        content: "À la fin de son voyage, Max réalisa que le monde était encore plus beau qu'il ne l'avait imaginé. Il rentra au laboratoire pour raconter ses aventures au Professeur qui l'avait créé.",
+      },
+    ],
+  },
+  {
+    title: 'Super Emma et le Mystère du Parc',
+    synopsis: "Emma découvre qu'elle a des super-pouvoirs et doit résoudre un mystère dans son parc préféré.",
+    protagonist: 'Emma',
+    species: 'superheroine',
+    conclusion: "Emma apprit que les vrais super-pouvoirs sont la gentillesse et l'entraide.",
+    chapters: [
+      {
+        title: 'Les Pouvoirs Secrets',
+        content: "Emma était une petite fille ordinaire, jusqu'au jour où elle découvrit qu'elle pouvait faire voler les objets rien qu'en y pensant ! Au début, elle avait peur, mais elle comprit vite que ses pouvoirs pouvaient aider les autres.",
+      },
+      {
+        title: "L'Énigme des Fleurs Disparues",
+        content: "Toutes les fleurs du parc disparaissaient mystérieusement. Emma utilisa ses pouvoirs pour suivre les indices et découvrit qu'un petit hérisson les collectionnait pour décorer son terrier.",
+      },
+      {
+        title: 'Une Solution pour Tous',
+        content: "Au lieu de gronder le hérisson, Emma eut une idée brillante. Avec l'aide des jardiniers, ils créèrent un jardin spécial juste pour lui. Tout le monde était content !",
+      },
+      {
+        title: 'La Fête du Parc',
+        content: "Pour célébrer, les habitants organisèrent une grande fête. Emma était heureuse car elle avait compris que le plus important n'était pas d'avoir des pouvoirs, mais de savoir comment les utiliser pour faire le bien.",
+      },
+    ],
+  },
+]
 
 export default class SeedStories extends BaseCommand {
   static commandName = 'seed:stories'
-  static description = 'Commande pour générer des histoires de test via la queue'
+  static description = 'Commande pour générer des histoires de test avec des données mock'
 
   static options: CommandOptions = {
     startApp: true,
@@ -24,19 +96,21 @@ export default class SeedStories extends BaseCommand {
   }
 
   async run() {
-    this.logger.info('🌱 Seeding stories via queue...')
+    this.logger.info('🌱 Seeding stories with mock data...')
 
-    // Récupérer les use cases via le container IoC
-    const queueStoryCreationUseCase = await app.container.make(QueueStoryCreationUseCase)
-    const getAllThemesUseCase = await app.container.make(GetAllThemesUseCase)
-    const getAllLanguagesUseCase = await app.container.make(GetAllLanguagesUseCase)
-    const getAllTonesUseCase = await app.container.make(GetAllTonesUseCase)
+    // Récupérer les services via le container IoC
+    const storyRepository = await app.container.make(IStoryRepository)
+    const themeRepository = await app.container.make(IThemeRepository)
+    const languageRepository = await app.container.make(ILanguageRepository)
+    const toneRepository = await app.container.make(IToneRepository)
+    const dateService = await app.container.make(IDateService)
+    const randomService = await app.container.make(IRandomService)
 
     // Récupérer les métadonnées depuis la base de données
     const [themes, languages, tones] = await Promise.all([
-      getAllThemesUseCase.execute(),
-      getAllLanguagesUseCase.execute(),
-      getAllTonesUseCase.execute(),
+      themeRepository.findAll(),
+      languageRepository.findAll(),
+      toneRepository.findAll(),
     ])
 
     if (themes.length === 0 || languages.length === 0 || tones.length === 0) {
@@ -53,67 +127,53 @@ export default class SeedStories extends BaseCommand {
     // Filtrer les langues gratuites pour le seed
     const freeLanguages = languages.filter((lang) => lang.isFree)
 
-    // Créer 3 histoires de test
-    const storiesToSeed = [
-      {
-        synopsis: 'Une aventure magique dans un monde enchanté',
-        protagonist: faker.person.firstName(),
-        childAge: faker.number.int({ min: 3, max: 10 }),
-        species: SPECIES[faker.number.int({ min: 0, max: SPECIES.length - 1 })],
-        numberOfChapters: faker.number.int({ min: 3, max: 5 }),
-        themeId: themes[faker.number.int({ min: 0, max: themes.length - 1 })].id.getValue(),
-        languageId: freeLanguages[faker.number.int({ min: 0, max: freeLanguages.length - 1 })].id.getValue(),
-        toneId: tones[faker.number.int({ min: 0, max: tones.length - 1 })].id.getValue(),
-      },
-      {
-        synopsis: 'Un voyage extraordinaire à travers les étoiles',
-        protagonist: faker.person.firstName(),
-        childAge: faker.number.int({ min: 3, max: 10 }),
-        species: SPECIES[faker.number.int({ min: 0, max: SPECIES.length - 1 })],
-        numberOfChapters: faker.number.int({ min: 3, max: 5 }),
-        themeId: themes[faker.number.int({ min: 0, max: themes.length - 1 })].id.getValue(),
-        languageId: freeLanguages[faker.number.int({ min: 0, max: freeLanguages.length - 1 })].id.getValue(),
-        toneId: tones[faker.number.int({ min: 0, max: tones.length - 1 })].id.getValue(),
-      },
-      {
-        synopsis: 'Une histoire d\'amitié et de courage',
-        protagonist: faker.person.firstName(),
-        childAge: faker.number.int({ min: 3, max: 10 }),
-        species: SPECIES[faker.number.int({ min: 0, max: SPECIES.length - 1 })],
-        numberOfChapters: faker.number.int({ min: 3, max: 5 }),
-        themeId: themes[faker.number.int({ min: 0, max: themes.length - 1 })].id.getValue(),
-        languageId: freeLanguages[faker.number.int({ min: 0, max: freeLanguages.length - 1 })].id.getValue(),
-        toneId: tones[faker.number.int({ min: 0, max: tones.length - 1 })].id.getValue(),
-      },
-    ]
+    const createdStories = []
 
-    const queuedStories = []
-
-    for (const storyData of storiesToSeed) {
+    for (const mockStory of MOCK_STORIES) {
       try {
-        const result = await queueStoryCreationUseCase.execute({
-          synopsis: storyData.synopsis,
-          protagonist: storyData.protagonist,
-          childAge: storyData.childAge,
-          species: storyData.species,
+        // Sélectionner aléatoirement theme, language et tone
+        const theme = themes[faker.number.int({ min: 0, max: themes.length - 1 })]
+        const language = freeLanguages[faker.number.int({ min: 0, max: freeLanguages.length - 1 })]
+        const tone = tones[faker.number.int({ min: 0, max: tones.length - 1 })]
+        const childAge = faker.number.int({ min: 3, max: 10 })
+
+        // Créer les chapitres
+        const chapters = mockStory.chapters.map((chapterData, index) =>
+          ChapterFactory.createWithoutImage({
+            position: index + 1,
+            title: chapterData.title,
+            content: chapterData.content,
+          })
+        )
+
+        // Créer l'histoire avec StoryFactory
+        const story = StoryFactory.create(dateService, randomService, {
+          title: mockStory.title,
+          synopsis: mockStory.synopsis,
+          protagonist: mockStory.protagonist,
+          childAge,
+          species: mockStory.species,
+          conclusion: mockStory.conclusion,
+          coverImageUrl: `https://picsum.photos/seed/${faker.string.alphanumeric(10)}/800/600`,
           ownerId: seedUserId,
-          userRole: 2, // Premium role to bypass quota
           isPublic: true,
-          themeId: storyData.themeId,
-          languageId: storyData.languageId,
-          toneId: storyData.toneId,
-          numberOfChapters: storyData.numberOfChapters,
+          theme,
+          language,
+          tone,
+          chapters,
         })
 
-        queuedStories.push(result)
-        this.logger.info(`✅ Story queued: ${result.id} (Job: ${result.jobId})`)
+        // Persister l'histoire
+        await storyRepository.create(story)
+
+        createdStories.push(story)
+        this.logger.info(`✅ Story created: "${story.title}" (${story.id.getValue()})`)
       } catch (error: any) {
-        this.logger.error(`❌ Failed to queue story: ${error.message}`)
+        this.logger.error(`❌ Failed to create story "${mockStory.title}": ${error.message}`)
       }
     }
 
-    this.logger.info(`\n📊 Summary: ${queuedStories.length}/${storiesToSeed.length} stories queued`)
-    this.logger.info('💡 Stories will be generated asynchronously by the queue worker')
-    this.logger.info('💡 Run "node ace queue:listen" to process the queue')
+    this.logger.info(`\n📊 Summary: ${createdStories.length}/${MOCK_STORIES.length} stories created`)
+    this.logger.info('💡 Stories have been inserted directly into the database with mock data')
   }
 }
