@@ -1,18 +1,18 @@
 import { HttpContext } from '@adonisjs/core/http'
 import type { GoogleDriver } from '@adonisjs/ally/drivers/google'
-import { ISocialAuthService, SocialUserInfo } from '../../application/services/ISocialAuthService.js'
+import { ISocialAuthService, SocialUserInfo, SocialAuthContext } from '../../application/services/ISocialAuthService.js'
 import { OAuthException } from '../../domain/exceptions/OAuthException.js'
 
 export class AllySocialAuthService implements ISocialAuthService {
-  async getRedirectUrl(provider: string): Promise<string> {
-    const ctx = HttpContext.getOrFail()
-    const ally = this.getAllyDriver(ctx, provider)
+  async getRedirectUrl(provider: string, ctx: SocialAuthContext): Promise<string> {
+    const httpCtx = ctx as HttpContext
+    const ally = this.getAllyDriver(httpCtx, provider)
     return ally.redirectUrl()
   }
 
-  async handleCallback(provider: string): Promise<SocialUserInfo> {
-    const ctx = HttpContext.getOrFail()
-    const ally = this.getAllyDriver(ctx, provider)
+  async handleCallback(provider: string, ctx: SocialAuthContext): Promise<SocialUserInfo> {
+    const httpCtx = ctx as HttpContext
+    const ally = this.getAllyDriver(httpCtx, provider)
 
     if (ally.accessDenied()) {
       throw OAuthException.accessDenied(provider)

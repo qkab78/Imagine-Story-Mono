@@ -1,5 +1,5 @@
 import { inject } from '@adonisjs/core'
-import { ISocialAuthService, SocialUserInfo } from '../services/ISocialAuthService.js'
+import { ISocialAuthService, SocialUserInfo, SocialAuthContext } from '../services/ISocialAuthService.js'
 import { ISocialAccountRepository } from '../../domain/repositories/ISocialAccountRepository.js'
 import { IAuthUserRepository } from '../../domain/repositories/IAuthUserRepository.js'
 import { IRandomService } from '#stories/domain/services/IRandomService'
@@ -33,8 +33,12 @@ export class GoogleAuthUseCase {
     private readonly dateService: IDateService
   ) {}
 
-  async getRedirectUrl(): Promise<string> {
-    return this.socialAuthService.getRedirectUrl('google')
+  async getRedirectUrl(ctx: SocialAuthContext): Promise<string> {
+    return this.socialAuthService.getRedirectUrl('google', ctx)
+  }
+
+  async handleCallback(ctx: SocialAuthContext): Promise<SocialUserInfo> {
+    return this.socialAuthService.handleCallback('google', ctx)
   }
 
   async execute(socialUser: SocialUserInfo): Promise<GoogleAuthResult> {

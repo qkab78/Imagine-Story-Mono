@@ -11,7 +11,12 @@ export interface SocialUserInfo {
   tokenExpiresAt: Date | null
 }
 
+/**
+ * Abstract context type to avoid coupling with framework-specific HttpContext
+ */
+export type SocialAuthContext = unknown
+
 export abstract class ISocialAuthService {
-  abstract getRedirectUrl(provider: string): Promise<string>
-  abstract handleCallback(provider: string): Promise<SocialUserInfo>
+  abstract getRedirectUrl(provider: string, ctx: SocialAuthContext): Promise<string>
+  abstract handleCallback(provider: string, ctx: SocialAuthContext): Promise<SocialUserInfo>
 }

@@ -1,6 +1,6 @@
 import { test } from '@japa/runner'
 import { GoogleAuthUseCase } from './GoogleAuthUseCase.js'
-import { ISocialAuthService, SocialUserInfo } from '../services/ISocialAuthService.js'
+import { ISocialAuthService, SocialUserInfo, SocialAuthContext } from '../services/ISocialAuthService.js'
 import { ISocialAccountRepository } from '../../domain/repositories/ISocialAccountRepository.js'
 import { IAuthUserRepository } from '../../domain/repositories/IAuthUserRepository.js'
 import { IRandomService } from '#stories/domain/services/IRandomService'
@@ -33,14 +33,17 @@ test.group(GoogleAuthUseCase.name, () => {
   class TestSocialAuthService implements ISocialAuthService {
     private redirectUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
 
-    getRedirectUrl(_provider: string): Promise<string> {
+    getRedirectUrl(_provider: string, _ctx: SocialAuthContext): Promise<string> {
       return Promise.resolve(this.redirectUrl)
     }
 
-    handleCallback(_provider: string): Promise<SocialUserInfo> {
+    handleCallback(_provider: string, _ctx: SocialAuthContext): Promise<SocialUserInfo> {
       throw new Error('Method not implemented.')
     }
   }
+
+  // Mock context for tests
+  const mockContext = {} as SocialAuthContext
 
   class TestSocialAccountRepository implements ISocialAccountRepository {
     public readonly accounts: Map<string, SocialAccount> = new Map()
@@ -130,7 +133,7 @@ test.group(GoogleAuthUseCase.name, () => {
       dateService
     )
 
-    const redirectUrl = await useCase.getRedirectUrl()
+    const redirectUrl = await useCase.getRedirectUrl(mockContext)
 
     assert.equal(redirectUrl, 'https://accounts.google.com/o/oauth2/v2/auth')
   })
