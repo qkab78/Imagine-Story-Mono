@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { Slot, useRouter, useSegments, } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import useAuthStore from '@/store/auth/authStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui'
@@ -46,10 +46,15 @@ export default function RootLayout() {
 
   useEffect(() => {
     const isAuthGroup = segments[0] === '(protected)' || segments[0] === '(tabs)';
-    if (!token && isAuthGroup) {
+    const isStoriesGroup = segments[0] === 'stories';
+    const isAlreadyInAuthenticatedArea = isAuthGroup || isStoriesGroup;
+
+    if (!token && isAlreadyInAuthenticatedArea) {
       console.log('No token found, redirecting to login');
       router.replace('/');
-    } else if (token) {
+    } else if (token && !isAlreadyInAuthenticatedArea) {
+      // Only redirect to tabs if the user is not already in an authenticated area
+      // This prevents resetting the navigation stack when navigating within the app
       console.log('Token found, redirecting to home');
       router.replace('/(tabs)');
     }
@@ -70,7 +75,16 @@ export default function RootLayout() {
     <ThemeProvider theme={theme}>
       <TamaguiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <Slot />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="stories" />
+            <Stack.Screen name="login" />
+            <Stack.Screen name="register" />
+            <Stack.Screen name="signup" />
+            <Stack.Screen name="(protected)" />
+            <Stack.Screen name="notification-permission" />
+          </Stack>
           <StatusBar style="dark" backgroundColor="#F0E6FF" />
         </QueryClientProvider>
       </TamaguiProvider>
