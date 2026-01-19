@@ -1,5 +1,4 @@
-import { StoryLanguage, StoryTone } from "#stories/presenters/get_stories_presenter";
-import { Themes } from "#types/db";
+import type { LanguageDTO, ToneDTO, ThemeDTO } from "#stories/application/dtos/StoryDTO";
 
 export interface StoryChapter {
   title: string
@@ -17,14 +16,14 @@ export interface Story {
   id: string;
   title: string;
   synopsis: string;
-  theme: Themes;
+  theme: ThemeDTO;
   themeName: string;
   themeDescription: string;
   protagonist: string;
   childAge: number;
   numberOfChapters: number;
-  language: StoryLanguage;
-  tone: StoryTone;
+  language: LanguageDTO;
+  tone: ToneDTO;
   species: string;
   chapters: StoryChapter[];
   conclusion: string;

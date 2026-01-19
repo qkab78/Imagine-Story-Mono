@@ -5,10 +5,21 @@ import { GetStoryQuotaUseCase } from "#stories/application/use-cases/GetStoryQuo
 import { ListPublicStoriesUseCase } from "#stories/application/use-cases/story/ListPublicStoriesUseCase"
 import { GetLatestPublicStoriesUseCase } from "#stories/application/use-cases/story/GetLatestPublicStoriesUseCase"
 import { ListUserStoriesUseCase } from "#stories/application/use-cases/story/ListUserStoriesUseCase"
+import { GetStoryBySlugUseCase } from "#stories/application/use-cases/story/GetStoryBySlugUseCase"
+import { SearchStoriesUseCase } from "#stories/application/use-cases/story/SearchStoriesUseCase"
+import { GetAllThemesUseCase } from "#stories/application/use-cases/metadata/GetAllThemesUseCase"
+import { GetAllTonesUseCase } from "#stories/application/use-cases/metadata/GetAllTonesUseCase"
+import { GetAllLanguagesUseCase } from "#stories/application/use-cases/metadata/GetAllLanguagesUseCase"
 import { StoryListItemPresenter } from "#stories/application/presenters/StoryListItemPresenter"
+import { StoryDetailPresenter } from "#stories/application/presenters/StoryDetailPresenter"
+import { ThemePresenter } from "#stories/application/presenters/ThemePresenter"
+import { TonePresenter } from "#stories/application/presenters/TonePresenter"
+import { LanguagePresenter } from "#stories/application/presenters/LanguagePresenter"
 import { IStorageService } from "#stories/domain/services/IStorageService"
 import { getStoryByIdValidator } from "#stories/controllers/validators/get_story_by_id_validator"
 import { createStoryValidator } from "#stories/controllers/validators/create_story_validator"
+import { getStoryBySlugValidator } from "#stories/application/validators/get_story_by_slug_validator"
+import { searchStoriesValidator } from "#stories/application/validators/search_stories_validator"
 import { inject } from "@adonisjs/core"
 import { HttpContext } from "@adonisjs/core/http"
 
@@ -22,6 +33,11 @@ export default class StoriesController {
         private readonly listPublicStoriesUseCase: ListPublicStoriesUseCase,
         private readonly getLatestPublicStoriesUseCase: GetLatestPublicStoriesUseCase,
         private readonly listUserStoriesUseCase: ListUserStoriesUseCase,
+        private readonly getStoryBySlugUseCase: GetStoryBySlugUseCase,
+        private readonly searchStoriesUseCase: SearchStoriesUseCase,
+        private readonly getAllThemesUseCase: GetAllThemesUseCase,
+        private readonly getAllTonesUseCase: GetAllTonesUseCase,
+        private readonly getAllLanguagesUseCase: GetAllLanguagesUseCase,
         private readonly storageService: IStorageService
     ) {}
 
@@ -139,5 +155,42 @@ export default class StoriesController {
         return response.ok({
             data: quota,
         })
+    }
+
+    async getThemes({ response }: HttpContext) {
+        const themes = await this.getAllThemesUseCase.execute()
+        return response.ok(ThemePresenter.toDTOs(themes))
+    }
+
+    async getTones({ response }: HttpContext) {
+        const tones = await this.getAllTonesUseCase.execute()
+        return response.ok(TonePresenter.toDTOs(tones))
+    }
+
+    async getLanguages({ response }: HttpContext) {
+        const languages = await this.getAllLanguagesUseCase.execute()
+        return response.ok(LanguagePresenter.toDTOs(languages))
+    }
+
+    async getStoryBySlug({ request, response }: HttpContext) {
+        const payload = await getStoryBySlugValidator.validate(request.params())
+        const story = await this.getStoryBySlugUseCase.execute(payload.slug)
+
+        if (!story) {
+            return response.notFound({ error: 'Story not found' })
+        }
+
+        const storyDTO = await StoryDetailPresenter.toDTO(story, this.storageService)
+        return response.ok(storyDTO)
+    }
+
+    async searchStories({ request, response }: HttpContext) {
+        const payload = await searchStoriesValidator.validate(request.qs())
+        const stories = await this.searchStoriesUseCase.execute({
+            query: payload.query,
+            limit: payload.limit,
+        })
+        const storiesDTO = await StoryListItemPresenter.toDTOs(stories, this.storageService)
+        return response.ok({ stories: storiesDTO })
     }
 }
