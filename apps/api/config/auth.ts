@@ -8,9 +8,8 @@ const authConfig = defineConfig({
   guards: {
     api: tokensGuard({
       provider: configProvider.create(async () => {
-        const { AccessTokenUserProvider } = await import(
-          '#providers/auth_providers/access_token_user_provider'
-        )
+        const { AccessTokenUserProvider } =
+          await import('#providers/auth_providers/access_token_user_provider')
         return new AccessTokenUserProvider()
       }),
     }),

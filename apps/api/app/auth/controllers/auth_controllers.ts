@@ -17,7 +17,7 @@ export default class LoginController {
         avatar: '',
         createdAt: user.created_at,
         currentAccessToken: user.currentAccessToken,
-      }
+      },
     })
   }
 }

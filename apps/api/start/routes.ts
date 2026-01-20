@@ -44,12 +44,12 @@ router.get('/health', async ({ response }: HttpContext) => {
   try {
     const data = { status: 'ok', timestamp: new Date().toISOString() }
     console.log('[Route] GET /health preparing response:', JSON.stringify(data))
-    
+
     // Utiliser response.send avec Content-Type explicite
     response.status(200)
     response.header('Content-Type', 'application/json')
     const result = response.send(JSON.stringify(data))
-    
+
     console.log('[Route] GET /health response sent, status:', response.response.statusCode)
     return result
   } catch (error) {
@@ -119,7 +119,6 @@ router
         router.get('/search/suggestions', [StoriesControllerPresenter, 'searchStories'])
       })
       .middleware(middleware.auth())
-
 
     router.get('/:id', [StoriesControllerPresenter, 'getStoryById'])
     router.get('/:id/status', [StoriesControllerPresenter, 'getGenerationStatus'])

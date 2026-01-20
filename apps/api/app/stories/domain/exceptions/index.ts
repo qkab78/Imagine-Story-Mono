@@ -4,6 +4,6 @@
  * Central export for all domain exceptions
  */
 
-export { DomainException } from './DomainException.js'
-export { InvalidValueObjectException } from './InvalidValueObjectException.js'
-export { InvariantViolationException } from './InvariantViolationException.js'
+export { DomainException } from './domain_exception.js'
+export { InvalidValueObjectException } from './invalid_value_object_exception.js'
+export { InvariantViolationException } from './invariant_violation_exception.js'

@@ -2,10 +2,10 @@ import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import PaymentErrors from './payment_errors.js'
 import { ApplicationException } from '#stories/application/exceptions/index'
-import { DomainException } from '#stories/domain/exceptions/DomainException'
-import { InvalidValueObjectException } from '#stories/domain/exceptions/InvalidValueObjectException'
-import { InvariantViolationException } from '#stories/domain/exceptions/InvariantViolationException'
-import { OAuthException } from '#auth/domain/exceptions/OAuthException'
+import { DomainException } from '#stories/domain/exceptions/domain_exception'
+import { InvalidValueObjectException } from '#stories/domain/exceptions/invalid_value_object_exception'
+import { InvariantViolationException } from '#stories/domain/exceptions/invariant_violation_exception'
+import { OAuthException } from '#auth/domain/exceptions/o_auth_exception'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**

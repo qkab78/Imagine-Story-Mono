@@ -11,12 +11,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute()
 
   // Créer un index unique sur le nom pour éviter les doublons
-  await db.schema
-    .createIndex('themes_name_unique')
-    .on('themes')
-    .column('name')
-    .unique()
-    .execute()
+  await db.schema.createIndex('themes_name_unique').on('themes').column('name').unique().execute()
 
   // Insérer les thèmes populaires pour enfants de 3 à 10 ans
   await db
@@ -24,36 +19,38 @@ export async function up(db: Kysely<any>): Promise<void> {
     .values([
       {
         name: 'Aventure et exploration',
-        description: 'Histoires d\'aventuriers courageux qui partent à la découverte de nouveaux mondes'
+        description:
+          "Histoires d'aventuriers courageux qui partent à la découverte de nouveaux mondes",
       },
       {
         name: 'Amitié et solidarité',
-        description: 'Récits sur l\'importance de l\'amitié et de l\'entraide entre personnages'
+        description: "Récits sur l'importance de l'amitié et de l'entraide entre personnages",
       },
       {
         name: 'Magie et fantastique',
-        description: 'Contes merveilleux avec des créatures magiques et des pouvoirs extraordinaires'
+        description:
+          'Contes merveilleux avec des créatures magiques et des pouvoirs extraordinaires',
       },
       {
         name: 'Animaux et nature',
-        description: 'Histoires mettant en scène des animaux et la découverte du monde naturel'
+        description: 'Histoires mettant en scène des animaux et la découverte du monde naturel',
       },
       {
         name: 'Famille et foyer',
-        description: 'Récits chaleureux sur la vie de famille et les relations familiales'
+        description: 'Récits chaleureux sur la vie de famille et les relations familiales',
       },
       {
         name: 'Apprentissage et école',
-        description: 'Histoires éducatives sur les découvertes et l\'apprentissage scolaire'
+        description: "Histoires éducatives sur les découvertes et l'apprentissage scolaire",
       },
       {
         name: 'Courage et dépassement',
-        description: 'Contes inspirants sur le courage face aux défis et la confiance en soi'
+        description: 'Contes inspirants sur le courage face aux défis et la confiance en soi',
       },
       {
         name: 'Mystère et enquête',
-        description: 'Histoires d\'investigation adaptées aux enfants avec des énigmes à résoudre'
-      }
+        description: "Histoires d'investigation adaptées aux enfants avec des énigmes à résoudre",
+      },
     ])
     .execute()
 }

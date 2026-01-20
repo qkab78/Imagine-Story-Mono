@@ -84,7 +84,6 @@ export default await Env.create(new URL('../', import.meta.url), {
   */
   FRONTEND_URL: Env.schema.string.optional(),
 
-
   /*
   |----------------------------------------------------------
   | Variables for configuring image provider

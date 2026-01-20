@@ -1,17 +1,17 @@
 import type { Chapter } from './chapter.entity.js'
-import type { Theme } from '../value-objects/settings/Theme.vo.js'
-import type { Language } from '../value-objects/settings/Language.vo.js'
-import type { Tone } from '../value-objects/settings/Tone.vo.js'
-import type { StoryId } from '../value-objects/ids/StoryId.vo.js'
-import type { OwnerId } from '../value-objects/ids/OwnerId.vo.js'
-import type { Slug } from '../value-objects/metadata/Slug.vo.js'
-import type { ChildAge } from '../value-objects/metadata/ChildAge.vo.js'
-import type { ImageUrl } from '../value-objects/media/ImageUrl.vo.js'
-import type { PublicationDate } from '../value-objects/metadata/PublicationDate.vo.js'
-import { PublicationStatus } from '../value-objects/metadata/PublicationStatus.vo.js'
-import { GenerationStatus } from '../value-objects/metadata/GenerationStatus.vo.js'
-import { DomainException } from '../exceptions/DomainException.js'
-import { InvariantViolationException } from '../exceptions/InvariantViolationException.js'
+import type { Theme } from '../value-objects/settings/theme.vo.js'
+import type { Language } from '../value-objects/settings/language.vo.js'
+import type { Tone } from '../value-objects/settings/tone.vo.js'
+import type { StoryId } from '../value-objects/ids/story_id.vo.js'
+import type { OwnerId } from '../value-objects/ids/owner_id.vo.js'
+import type { Slug } from '../value-objects/metadata/slug.vo.js'
+import type { ChildAge } from '../value-objects/metadata/child_age.vo.js'
+import type { ImageUrl } from '../value-objects/media/image_url.vo.js'
+import type { PublicationDate } from '../value-objects/metadata/publication_date.vo.js'
+import { PublicationStatus } from '../value-objects/metadata/publication_status.vo.js'
+import { GenerationStatus } from '../value-objects/metadata/generation_status.vo.js'
+import { DomainException } from '../exceptions/domain_exception.js'
+import { InvariantViolationException } from '../exceptions/invariant_violation_exception.js'
 
 /**
  * Story Entity - Aggregate Root
@@ -382,9 +382,7 @@ export class Story {
    */
   public startGeneration(jobId: string): void {
     if (!this._generationStatus.isPending()) {
-      throw new InvariantViolationException(
-        'Can only start generation when status is pending'
-      )
+      throw new InvariantViolationException('Can only start generation when status is pending')
     }
     this._generationStatus = GenerationStatus.processing()
     this._jobId = jobId
@@ -441,9 +439,7 @@ export class Story {
    */
   public failGeneration(error: string): void {
     if (!this._generationStatus.isProcessing()) {
-      throw new InvariantViolationException(
-        'Can only fail generation when status is processing'
-      )
+      throw new InvariantViolationException('Can only fail generation when status is processing')
     }
     this._generationStatus = GenerationStatus.failed()
     this._generationCompletedAt = new Date()

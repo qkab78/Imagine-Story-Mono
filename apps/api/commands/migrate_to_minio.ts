@@ -22,9 +22,7 @@ export default class MigrateToMinio extends BaseCommand {
 
     // Verify MinIO is configured
     if (storageConfig.default !== 'minio') {
-      this.logger.error(
-        'STORAGE_PROVIDER must be set to "minio" in .env before running migration'
-      )
+      this.logger.error('STORAGE_PROVIDER must be set to "minio" in .env before running migration')
       this.logger.info('Current provider: ' + storageConfig.default)
       return
     }

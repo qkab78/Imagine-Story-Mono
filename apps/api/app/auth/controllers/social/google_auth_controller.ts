@@ -1,6 +1,6 @@
 import { inject } from '@adonisjs/core'
 import { HttpContext } from '@adonisjs/core/http'
-import { GoogleAuthUseCase } from '../../application/use-cases/GoogleAuthUseCase.js'
+import { GoogleAuthUseCase } from '../../application/use-cases/google_auth_use_case.js'
 
 @inject()
 export default class GoogleAuthController {

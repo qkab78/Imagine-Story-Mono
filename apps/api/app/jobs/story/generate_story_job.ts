@@ -1,12 +1,12 @@
 import { Job } from '@rlanz/bull-queue'
 import app from '@adonisjs/core/services/app'
-import { GenerateStoryContentUseCase } from '#stories/application/use-cases/GenerateStoryContentUseCase'
-import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
-import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
-import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
-import { ThemeId } from '#stories/domain/value-objects/ids/ThemeId.vo'
-import { LanguageId } from '#stories/domain/value-objects/ids/LanguageId.vo'
-import { ToneId } from '#stories/domain/value-objects/ids/ToneId.vo'
+import { GenerateStoryContentUseCase } from '#stories/application/use-cases/generate_story_content_use_case'
+import { IThemeRepository } from '#stories/domain/repositories/theme_repository'
+import { ILanguageRepository } from '#stories/domain/repositories/language_repository'
+import { IToneRepository } from '#stories/domain/repositories/tone_repository'
+import { ThemeId } from '#stories/domain/value-objects/ids/theme_id.vo'
+import { LanguageId } from '#stories/domain/value-objects/ids/language_id.vo'
+import { ToneId } from '#stories/domain/value-objects/ids/tone_id.vo'
 
 export interface GenerateStoryJobPayload {
   storyId: string
@@ -84,9 +84,7 @@ export default class GenerateStoryJob extends Job {
       const endTime = Date.now()
       const duration = ((endTime - startTime) / 1000).toFixed(2)
 
-      console.log(
-        `✅ Story generation completed in ${duration}s for story: ${payload.storyId}`
-      )
+      console.log(`✅ Story generation completed in ${duration}s for story: ${payload.storyId}`)
     } catch (error: any) {
       console.error(`❌ Story generation failed for story ${payload.storyId}:`, error.message)
       throw error // Will trigger rescue() after retries exhausted
