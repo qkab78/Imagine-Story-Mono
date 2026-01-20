@@ -63,10 +63,10 @@ export default class AppProvider {
     const provider = storageConfig.default
 
     if (provider === 'minio') {
-      const { MinIOStorageService } =
-        await import('#stories/infrastructure/adapters/services/min_i_o_storage_service')
+      const { MinioStorageService } =
+        await import('#stories/infrastructure/adapters/services/minio_storage_service')
       this.app.container.singleton(IStorageService, async () => {
-        const service = new MinIOStorageService()
+        const service = new MinioStorageService()
         await service.ensureBucketExists()
         return service
       })

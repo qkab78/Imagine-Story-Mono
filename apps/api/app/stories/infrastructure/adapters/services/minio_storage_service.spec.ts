@@ -1,14 +1,14 @@
 import { test } from '@japa/runner'
-import { MinIOStorageService } from './min_i_o_storage_service.js'
+import { MinioStorageService } from './minio_storage_service.js'
 
-test.group('MinIOStorageService', (group) => {
-  let storageService: MinIOStorageService
+test.group(MinioStorageService.name, (group) => {
+  let storageService: MinioStorageService
   let minioAvailable = false
 
   group.setup(async () => {
     // This test requires MinIO running locally
     // Skip if MinIO not available
-    storageService = new MinIOStorageService()
+    storageService = new MinioStorageService()
 
     try {
       await storageService.ensureBucketExists()

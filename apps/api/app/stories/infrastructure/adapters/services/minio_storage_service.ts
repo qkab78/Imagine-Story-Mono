@@ -16,7 +16,7 @@ import env from '#start/env'
  * Implementation of IStorageService using MinIO object storage.
  * Provides pre-signed URLs for secure, temporary access to files.
  */
-export class MinIOStorageService extends IStorageService {
+export class MinioStorageService extends IStorageService {
   private client: Minio.Client
   private bucket: string
   private defaultExpirySeconds: number
