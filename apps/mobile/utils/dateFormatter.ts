@@ -8,7 +8,7 @@ export const formatLongDate = (date: Date | string | undefined): string => {
 
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) return 'N/A';
+    if (Number.isNaN(dateObj.getTime())) return 'N/A';
 
     return dateObj.toLocaleDateString('fr-FR', {
       day: 'numeric',
@@ -30,7 +30,7 @@ export const formatShortDate = (date: Date | string | null | undefined): string 
 
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) return '';
+    if (Number.isNaN(dateObj.getTime())) return '';
 
     return dateObj.toLocaleDateString('fr-FR', {
       day: 'numeric',
@@ -56,7 +56,7 @@ export const formatRelativeDate = (date: Date | string | undefined): string => {
   const storyDate = typeof date === 'string' ? new Date(date) : date;
 
   // Vérifier que la date est valide
-  if (isNaN(storyDate.getTime())) {
+  if (Number.isNaN(storyDate.getTime())) {
     return 'Récemment';
   }
 

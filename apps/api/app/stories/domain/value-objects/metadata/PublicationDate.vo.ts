@@ -112,7 +112,7 @@ export class PublicationDate extends ValueObject<Date> {
       throw new InvalidValueObjectException('PublicationDate must be a Date object')
     }
 
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       throw new InvalidValueObjectException('Invalid date')
     }
 

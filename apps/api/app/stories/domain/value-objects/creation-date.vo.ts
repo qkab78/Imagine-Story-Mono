@@ -8,7 +8,7 @@ export class CreationDate {
       this.value = date
     }
 
-    if (isNaN(this.value.getTime())) {
+    if (Number.isNaN(this.value.getTime())) {
       throw new Error('Invalid creation date')
     }
   }
