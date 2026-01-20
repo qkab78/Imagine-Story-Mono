@@ -3,7 +3,11 @@ import { StoryId } from '#stories/domain/value-objects/ids/StoryId.vo'
 import { Slug } from '#stories/domain/value-objects/metadata/Slug.vo'
 import { OwnerId } from '#stories/domain/value-objects/ids/OwnerId.vo'
 import { GenerationStatus } from '#stories/domain/value-objects/metadata/GenerationStatus.vo'
-import type { StoryFilters, PaginationParams, PaginatedResult } from '#stories/application/use-cases/story/ListPublicStoriesUseCase'
+import type {
+  StoryFilters,
+  PaginationParams,
+  PaginatedResult,
+} from '#stories/application/use-cases/story/ListPublicStoriesUseCase'
 
 /**
  * Story Repository Interface

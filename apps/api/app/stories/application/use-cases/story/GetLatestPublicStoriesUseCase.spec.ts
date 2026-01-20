@@ -100,7 +100,11 @@ test.group(GetLatestPublicStoriesUseCase.name, () => {
       throw new Error('Method not implemented.')
     }
 
-    countByOwnerIdAndDateRange(_ownerId: OwnerId, _startDate: Date, _endDate: Date): Promise<number> {
+    countByOwnerIdAndDateRange(
+      _ownerId: OwnerId,
+      _startDate: Date,
+      _endDate: Date
+    ): Promise<number> {
       throw new Error('Method not implemented.')
     }
 
@@ -130,7 +134,11 @@ test.group(GetLatestPublicStoriesUseCase.name, () => {
       conclusion: 'The end',
       coverImageUrl: 'https://example.com/cover.jpg',
       ownerId: '223e4567-e89b-12d3-a456-426614174000',
-      theme: Theme.create('123e4567-e89b-12d3-a456-426614174000', 'Adventure', 'An adventure theme'),
+      theme: Theme.create(
+        '123e4567-e89b-12d3-a456-426614174000',
+        'Adventure',
+        'An adventure theme'
+      ),
       language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
       tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
       isPublic,
@@ -177,10 +185,18 @@ test.group(GetLatestPublicStoriesUseCase.name, () => {
     const randomService = new TestRandomService()
 
     // Create mix of public and private stories
-    await storyRepository.create(createTestStory(dateService, randomService, 'Public Story 1', true))
-    await storyRepository.create(createTestStory(dateService, randomService, 'Private Story 1', false))
-    await storyRepository.create(createTestStory(dateService, randomService, 'Public Story 2', true))
-    await storyRepository.create(createTestStory(dateService, randomService, 'Private Story 2', false))
+    await storyRepository.create(
+      createTestStory(dateService, randomService, 'Public Story 1', true)
+    )
+    await storyRepository.create(
+      createTestStory(dateService, randomService, 'Private Story 1', false)
+    )
+    await storyRepository.create(
+      createTestStory(dateService, randomService, 'Public Story 2', true)
+    )
+    await storyRepository.create(
+      createTestStory(dateService, randomService, 'Private Story 2', false)
+    )
 
     const useCase = new GetLatestPublicStoriesUseCase(storyRepository)
     const result = await useCase.execute({ limit: 10 })
@@ -197,7 +213,9 @@ test.group(GetLatestPublicStoriesUseCase.name, () => {
     const randomService = new TestRandomService()
 
     // Create only private stories
-    await storyRepository.create(createTestStory(dateService, randomService, 'Private Story', false))
+    await storyRepository.create(
+      createTestStory(dateService, randomService, 'Private Story', false)
+    )
 
     const useCase = new GetLatestPublicStoriesUseCase(storyRepository)
     const result = await useCase.execute({})

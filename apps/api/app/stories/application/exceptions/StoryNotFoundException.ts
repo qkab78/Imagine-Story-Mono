@@ -7,9 +7,10 @@ import { ApplicationException } from './ApplicationException.js'
  */
 export class StoryNotFoundException extends ApplicationException {
   constructor(identifier: string, identifierType: 'id' | 'slug' = 'id') {
-    const message = identifierType === 'id'
-      ? `Story with ID "${identifier}" not found`
-      : `Story with slug "${identifier}" not found`
+    const message =
+      identifierType === 'id'
+        ? `Story with ID "${identifier}" not found`
+        : `Story with slug "${identifier}" not found`
 
     super(message, 'STORY_NOT_FOUND', 404)
     this.name = 'StoryNotFoundException'

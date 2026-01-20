@@ -1,6 +1,6 @@
 import { ValueObject } from '../base/ValueObject.js'
 import { InvalidValueObjectException } from '#stories/domain/exceptions/InvalidValueObjectException'
-import { IRandomService } from "#stories/domain/services/IRandomService";
+import { IRandomService } from '#stories/domain/services/IRandomService'
 
 /**
  * Story unique identifier value object

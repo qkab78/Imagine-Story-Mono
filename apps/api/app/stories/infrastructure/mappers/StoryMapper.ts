@@ -123,7 +123,9 @@ export class StoryMapper {
       StoryId.create(storyRow.id),
       Slug.create(storyRow.slug),
       ChildAge.create(storyRow.child_age),
-      storyRow.generation_status === GenerationStatus.completed().getValue() ? ImageUrl.create(storyRow.cover_image) : null,
+      storyRow.generation_status === GenerationStatus.completed().getValue()
+        ? ImageUrl.create(storyRow.cover_image)
+        : null,
       OwnerId.create(storyRow.user_id),
       PublicationDate.create(storyRow.created_at),
       storyRow.public ? PublicationStatus.public() : PublicationStatus.private(),

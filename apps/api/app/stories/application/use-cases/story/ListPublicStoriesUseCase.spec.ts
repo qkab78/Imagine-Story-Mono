@@ -127,7 +127,11 @@ test.group(ListPublicStoriesUseCase.name, () => {
       throw new Error('Method not implemented.')
     }
 
-    countByOwnerIdAndDateRange(_ownerId: OwnerId, _startDate: Date, _endDate: Date): Promise<number> {
+    countByOwnerIdAndDateRange(
+      _ownerId: OwnerId,
+      _startDate: Date,
+      _endDate: Date
+    ): Promise<number> {
       throw new Error('Method not implemented.')
     }
 
@@ -163,12 +167,7 @@ test.group(ListPublicStoriesUseCase.name, () => {
           'Adventure',
           'An adventure theme'
         ),
-        language: Language.create(
-          '123e4567-e89b-12d3-a456-426614174000',
-          'English',
-          'en',
-          true
-        ),
+        language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
         tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
         isPublic: i <= 5, // First 5 are public, last 2 are private
         chapters: [chapter],
@@ -216,12 +215,7 @@ test.group(ListPublicStoriesUseCase.name, () => {
         coverImageUrl: 'https://example.com/cover.jpg',
         ownerId: '223e4567-e89b-12d3-a456-426614174000',
         theme: Theme.create(adventureThemeId, 'Adventure', 'An adventure theme'),
-        language: Language.create(
-          '123e4567-e89b-12d3-a456-426614174000',
-          'English',
-          'en',
-          true
-        ),
+        language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
         tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
         isPublic: true,
         chapters: [chapter],
@@ -248,12 +242,7 @@ test.group(ListPublicStoriesUseCase.name, () => {
         coverImageUrl: 'https://example.com/cover.jpg',
         ownerId: '223e4567-e89b-12d3-a456-426614174000',
         theme: Theme.create(fantasyThemeId, 'Fantasy', 'A fantasy theme'),
-        language: Language.create(
-          '123e4567-e89b-12d3-a456-426614174000',
-          'English',
-          'en',
-          true
-        ),
+        language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
         tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
         isPublic: true,
         chapters: [chapter],
@@ -369,12 +358,7 @@ test.group(ListPublicStoriesUseCase.name, () => {
           'Adventure',
           'An adventure theme'
         ),
-        language: Language.create(
-          '123e4567-e89b-12d3-a456-426614174000',
-          'English',
-          'en',
-          true
-        ),
+        language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
         tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
         isPublic: true,
         chapters: [chapter],

@@ -89,7 +89,11 @@ test.group(UnpublishStoryUseCase.name, () => {
       throw new Error('Method not implemented.')
     }
 
-    countByOwnerIdAndDateRange(_ownerId: OwnerId, _startDate: Date, _endDate: Date): Promise<number> {
+    countByOwnerIdAndDateRange(
+      _ownerId: OwnerId,
+      _startDate: Date,
+      _endDate: Date
+    ): Promise<number> {
       throw new Error('Method not implemented.')
     }
 
@@ -137,12 +141,7 @@ test.group(UnpublishStoryUseCase.name, () => {
         'Adventure',
         'An adventure theme'
       ),
-      language: Language.create(
-        '123e4567-e89b-12d3-a456-426614174000',
-        'English',
-        'en',
-        true
-      ),
+      language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
       tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
       isPublic: true, // Public story
       chapters: [chapter],
@@ -188,12 +187,7 @@ test.group(UnpublishStoryUseCase.name, () => {
         'Adventure',
         'An adventure theme'
       ),
-      language: Language.create(
-        '123e4567-e89b-12d3-a456-426614174000',
-        'English',
-        'en',
-        true
-      ),
+      language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
       tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
       isPublic: false, // Already private
       chapters: [chapter],
@@ -215,8 +209,6 @@ test.group(UnpublishStoryUseCase.name, () => {
 
     const useCase = new UnpublishStoryUseCase(storyRepository, eventPublisher)
 
-    await assert.rejects(
-      async () => await useCase.execute('non-existent-id')
-    )
+    await assert.rejects(async () => await useCase.execute('non-existent-id'))
   })
 })

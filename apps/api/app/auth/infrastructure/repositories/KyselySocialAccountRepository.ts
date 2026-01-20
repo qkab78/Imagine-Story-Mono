@@ -20,10 +20,7 @@ export class KyselySocialAccountRepository implements ISocialAccountRepository {
     return this.toDomain(row)
   }
 
-  async findByUserIdAndProvider(
-    userId: string,
-    provider: Provider
-  ): Promise<SocialAccount | null> {
+  async findByUserIdAndProvider(userId: string, provider: Provider): Promise<SocialAccount | null> {
     const row = await db
       .selectFrom('social_accounts')
       .selectAll()

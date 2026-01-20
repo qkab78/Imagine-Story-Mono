@@ -17,10 +17,15 @@ export default class ContainerBindingsMiddleware {
 
     try {
       const result = await next()
-      console.log(`[Middleware] Request processed: ${ctx.request.method()} ${ctx.request.url()}, response status: ${ctx.response.response.statusCode || 'pending'}`)
+      console.log(
+        `[Middleware] Request processed: ${ctx.request.method()} ${ctx.request.url()}, response status: ${ctx.response.response.statusCode || 'pending'}`
+      )
       return result
     } catch (error) {
-      console.error(`[Middleware] Error in request ${ctx.request.method()} ${ctx.request.url()}:`, error)
+      console.error(
+        `[Middleware] Error in request ${ctx.request.method()} ${ctx.request.url()}:`,
+        error
+      )
       throw error
     }
   }

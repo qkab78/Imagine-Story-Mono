@@ -382,9 +382,7 @@ export class Story {
    */
   public startGeneration(jobId: string): void {
     if (!this._generationStatus.isPending()) {
-      throw new InvariantViolationException(
-        'Can only start generation when status is pending'
-      )
+      throw new InvariantViolationException('Can only start generation when status is pending')
     }
     this._generationStatus = GenerationStatus.processing()
     this._jobId = jobId
@@ -441,9 +439,7 @@ export class Story {
    */
   public failGeneration(error: string): void {
     if (!this._generationStatus.isProcessing()) {
-      throw new InvariantViolationException(
-        'Can only fail generation when status is processing'
-      )
+      throw new InvariantViolationException('Can only fail generation when status is processing')
     }
     this._generationStatus = GenerationStatus.failed()
     this._generationCompletedAt = new Date()

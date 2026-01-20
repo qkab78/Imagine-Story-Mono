@@ -4,9 +4,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable('social_accounts')
     .addColumn('id', 'uuid', (col) => col.primaryKey())
-    .addColumn('user_id', 'uuid', (col) =>
-      col.references('users.id').onDelete('cascade').notNull()
-    )
+    .addColumn('user_id', 'uuid', (col) => col.references('users.id').onDelete('cascade').notNull())
     .addColumn('provider', 'varchar(50)', (col) => col.notNull())
     .addColumn('provider_user_id', 'varchar(255)', (col) => col.notNull())
     .addColumn('email', 'varchar(255)', (col) => col.notNull())

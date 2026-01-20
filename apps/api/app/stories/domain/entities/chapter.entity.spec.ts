@@ -74,7 +74,12 @@ test.group('Chapter Entity', () => {
     const chapters = ChapterFactory.createMany([
       { position: 1, title: 'Chapter 1', content: 'Content 1' },
       { position: 2, title: 'Chapter 2', content: 'Content 2' },
-      { position: 3, title: 'Chapter 3', content: 'Content 3', imageUrl: 'https://example.com/ch3.jpg' },
+      {
+        position: 3,
+        title: 'Chapter 3',
+        content: 'Content 3',
+        imageUrl: 'https://example.com/ch3.jpg',
+      },
     ])
 
     assert.equal(chapters.length, 3)

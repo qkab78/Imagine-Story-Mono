@@ -23,32 +23,16 @@ test.group('Tone Value Object', () => {
   })
 
   test('should check equality based on ID', ({ assert }) => {
-    const tone1 = Tone.create(
-      '123e4567-e89b-12d3-a456-426614174000',
-      'Happy',
-      'Description 1'
-    )
-    const tone2 = Tone.create(
-      '123e4567-e89b-12d3-a456-426614174000',
-      'Sad',
-      'Description 2'
-    )
-    const tone3 = Tone.create(
-      '223e4567-e89b-12d3-a456-426614174000',
-      'Happy',
-      'Description 1'
-    )
+    const tone1 = Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'Description 1')
+    const tone2 = Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Sad', 'Description 2')
+    const tone3 = Tone.create('223e4567-e89b-12d3-a456-426614174000', 'Happy', 'Description 1')
 
     assert.isTrue(tone1.equals(tone2))
     assert.isFalse(tone1.equals(tone3))
   })
 
   test('should return false when comparing with null or undefined', ({ assert }) => {
-    const tone = Tone.create(
-      '123e4567-e89b-12d3-a456-426614174000',
-      'Happy',
-      'Description'
-    )
+    const tone = Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'Description')
 
     assert.isFalse(tone.equals(null as any))
     assert.isFalse(tone.equals(undefined as any))

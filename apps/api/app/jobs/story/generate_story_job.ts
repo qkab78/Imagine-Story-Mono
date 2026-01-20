@@ -84,9 +84,7 @@ export default class GenerateStoryJob extends Job {
       const endTime = Date.now()
       const duration = ((endTime - startTime) / 1000).toFixed(2)
 
-      console.log(
-        `✅ Story generation completed in ${duration}s for story: ${payload.storyId}`
-      )
+      console.log(`✅ Story generation completed in ${duration}s for story: ${payload.storyId}`)
     } catch (error: any) {
       console.error(`❌ Story generation failed for story ${payload.storyId}:`, error.message)
       throw error // Will trigger rescue() after retries exhausted

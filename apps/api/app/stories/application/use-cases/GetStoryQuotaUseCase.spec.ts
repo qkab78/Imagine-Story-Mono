@@ -5,7 +5,11 @@ import { Story } from '#stories/domain/entities/story.entity'
 import { StoryId } from '#stories/domain/value-objects/ids/StoryId.vo'
 import { Slug } from '#stories/domain/value-objects/metadata/Slug.vo'
 import { OwnerId } from '#stories/domain/value-objects/ids/OwnerId.vo'
-import type { StoryFilters, PaginationParams, PaginatedResult } from './story/ListPublicStoriesUseCase.js'
+import type {
+  StoryFilters,
+  PaginationParams,
+  PaginatedResult,
+} from './story/ListPublicStoriesUseCase.js'
 import { Role } from '#users/models/role'
 
 test.group(GetStoryQuotaUseCase.name, () => {

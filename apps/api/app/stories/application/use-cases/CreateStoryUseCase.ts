@@ -64,7 +64,7 @@ export class CreateStoryUseCase {
     private readonly languageRepository: ILanguageRepository,
     private readonly toneRepository: IToneRepository,
     private readonly eventPublisher: IDomainEventPublisher
-  ) { }
+  ) {}
 
   async execute(payload: CreateStoryPayload): Promise<CreateStoryDTO> {
     // 1. Fetch settings (theme, language, tone)

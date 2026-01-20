@@ -483,7 +483,8 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
     const sanitizedTheme = this.sanitizeContent(context.theme)
     const sanitizedSynopsis = this.sanitizeContent(context.synopsis)
 
-    return this.sanitizeContent(`
+    return this.sanitizeContent(
+      `
 Book cover illustration for children's story: "${sanitizedTitle}"
 
 ${characterDescription} as the main character, prominently featured in the center of the composition.
@@ -496,7 +497,8 @@ Age-appropriate for ${context.childAge} years old, inviting and warm feeling.
 Art style: Modern children's book illustration, detailed but clean, professional cover quality.
 
 No text or titles in the image, just the visual cover scene.
-    `.trim())
+    `.trim()
+    )
   }
 
   /**
@@ -508,7 +510,8 @@ No text or titles in the image, just the visual cover scene.
     const sanitizedChapterTitle = this.sanitizeContent(chapter.title)
     const sanitizedContent = this.sanitizeContent(chapter.content.substring(0, 500))
 
-    return this.sanitizeContent(`
+    return this.sanitizeContent(
+      `
 Illustration for children's story chapter: "${sanitizedChapterTitle}"
 
 ${characterDescription} in this scene.
@@ -519,7 +522,8 @@ Age-appropriate for ${context.childAge} years old.
 Art style: Modern children's book illustration, detailed but clean.
 
 No text in the image, just the visual scene from the chapter.
-    `.trim())
+    `.trim()
+    )
   }
 
   /**
@@ -529,14 +533,16 @@ No text in the image, just the visual scene from the chapter.
   private buildCharacterReferencePrompt(context: ImageGenerationContext): string {
     const characterDescription = this.getCharacterDescription(context)
 
-    return this.sanitizeContent(`
+    return this.sanitizeContent(
+      `
 Character reference sheet: ${characterDescription}
 
 Full body character design, front view, clean white background, children's book illustration style.
 Standing pose, friendly expression, detailed character design for consistency across multiple illustrations.
 Bright colors, professional quality, detailed but clean art style.
 Reference sheet for maintaining visual consistency.
-    `.trim())
+    `.trim()
+    )
   }
 
   /**

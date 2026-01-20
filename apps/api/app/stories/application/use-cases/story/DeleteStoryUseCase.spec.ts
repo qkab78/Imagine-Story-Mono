@@ -92,7 +92,11 @@ test.group(DeleteStoryUseCase.name, () => {
       throw new Error('Method not implemented.')
     }
 
-    countByOwnerIdAndDateRange(_ownerId: OwnerId, _startDate: Date, _endDate: Date): Promise<number> {
+    countByOwnerIdAndDateRange(
+      _ownerId: OwnerId,
+      _startDate: Date,
+      _endDate: Date
+    ): Promise<number> {
       throw new Error('Method not implemented.')
     }
 
@@ -140,12 +144,7 @@ test.group(DeleteStoryUseCase.name, () => {
         'Adventure',
         'An adventure theme'
       ),
-      language: Language.create(
-        '123e4567-e89b-12d3-a456-426614174000',
-        'English',
-        'en',
-        true
-      ),
+      language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
       tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
       isPublic: true,
       chapters: [chapter],
@@ -171,9 +170,7 @@ test.group(DeleteStoryUseCase.name, () => {
 
     const useCase = new DeleteStoryUseCase(storyRepository, eventPublisher)
 
-    await assert.rejects(
-      async () => await useCase.execute('non-existent-id')
-    )
+    await assert.rejects(async () => await useCase.execute('non-existent-id'))
 
     // No deletion should have occurred
     assert.equal(storyRepository.deletedIds.length, 0)

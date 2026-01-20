@@ -13,7 +13,9 @@ export class ChapterId extends ValueObject<number> {
   private constructor(id: number) {
     super()
     if (!Number.isInteger(id) || id < 1) {
-      throw new InvalidValueObjectException(`Invalid Chapter ID: ${id}. Must be a positive integer (>= 1).`)
+      throw new InvalidValueObjectException(
+        `Invalid Chapter ID: ${id}. Must be a positive integer (>= 1).`
+      )
     }
     this.value = id
   }

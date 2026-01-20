@@ -12,7 +12,11 @@ import { Language } from '#stories/domain/value-objects/settings/Language.vo'
 import { Tone } from '#stories/domain/value-objects/settings/Tone.vo'
 import { IDateService } from '#stories/domain/services/IDateService'
 import { IRandomService } from '#stories/domain/services/IRandomService'
-import type { StoryFilters, PaginationParams, PaginatedResult } from './story/ListPublicStoriesUseCase.js'
+import type {
+  StoryFilters,
+  PaginationParams,
+  PaginatedResult,
+} from './story/ListPublicStoriesUseCase.js'
 
 test.group('GetStoryGenerationStatusUseCase', () => {
   class TestDateService implements IDateService {
@@ -87,7 +91,11 @@ test.group('GetStoryGenerationStatusUseCase', () => {
       throw new Error('Method not implemented.')
     }
 
-    countByOwnerIdAndDateRange(_ownerId: OwnerId, _startDate: Date, _endDate: Date): Promise<number> {
+    countByOwnerIdAndDateRange(
+      _ownerId: OwnerId,
+      _startDate: Date,
+      _endDate: Date
+    ): Promise<number> {
       throw new Error('Method not implemented.')
     }
 
@@ -112,7 +120,11 @@ test.group('GetStoryGenerationStatusUseCase', () => {
       conclusion: 'The end',
       coverImageUrl: 'https://example.com/cover.jpg',
       ownerId: '223e4567-e89b-12d3-a456-426614174000',
-      theme: Theme.create('123e4567-e89b-12d3-a456-426614174000', 'Adventure', 'An adventure theme'),
+      theme: Theme.create(
+        '123e4567-e89b-12d3-a456-426614174000',
+        'Adventure',
+        'An adventure theme'
+      ),
       language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
       tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
       isPublic: true,
@@ -143,10 +155,7 @@ test.group('GetStoryGenerationStatusUseCase', () => {
     const storyRepository = new TestStoryRepository()
     const useCase = new GetStoryGenerationStatusUseCase(storyRepository)
 
-    await assert.rejects(
-      () => useCase.execute('nonexistent-id'),
-      'Story not found'
-    )
+    await assert.rejects(() => useCase.execute('nonexistent-id'), 'Story not found')
   })
 
   test('should return completed status for completed story', async ({ assert }) => {

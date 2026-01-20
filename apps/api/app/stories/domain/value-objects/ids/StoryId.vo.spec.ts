@@ -1,17 +1,17 @@
 import { test } from '@japa/runner'
 import { StoryId } from './StoryId.vo.js'
 import { InvalidValueObjectException } from '#stories/domain/exceptions/InvalidValueObjectException'
-import { IRandomService } from "#stories/domain/services/IRandomService";
+import { IRandomService } from '#stories/domain/services/IRandomService'
 
 class TestRandomService implements IRandomService {
-    public generateRandomUuid(): string {
-        return '1ed3df18-0bc3-4a08-aa6b-d5eb20e0dbc0'
-    }
+  public generateRandomUuid(): string {
+    return '1ed3df18-0bc3-4a08-aa6b-d5eb20e0dbc0'
+  }
 }
 class OtherTestRandomService implements IRandomService {
-    public generateRandomUuid(): string {
-        return '123e4567-e89b-12d3-a456-426614174000'
-    }
+  public generateRandomUuid(): string {
+    return '123e4567-e89b-12d3-a456-426614174000'
+  }
 }
 
 test.group('StoryId Value Object', () => {
@@ -27,7 +27,10 @@ test.group('StoryId Value Object', () => {
     const storyId = StoryId.generate(new TestRandomService())
 
     assert.isDefined(storyId)
-    assert.match(storyId.getValue(), /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+    assert.match(
+      storyId.getValue(),
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    )
   })
 
   test('should generate different UUIDs on each generate call', ({ assert }) => {
@@ -46,11 +49,7 @@ test.group('StoryId Value Object', () => {
   })
 
   test('should throw error for empty string', ({ assert }) => {
-    assert.throws(
-      () => StoryId.create(''),
-      InvalidValueObjectException,
-      'Invalid Story ID format'
-    )
+    assert.throws(() => StoryId.create(''), InvalidValueObjectException, 'Invalid Story ID format')
   })
 
   test('should check equality between two StoryIds', ({ assert }) => {

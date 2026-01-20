@@ -44,11 +44,7 @@ test.group('Theme Value Object', () => {
   })
 
   test('should return false when comparing with null or undefined', ({ assert }) => {
-    const theme = Theme.create(
-      '123e4567-e89b-12d3-a456-426614174000',
-      'Adventure',
-      'Description'
-    )
+    const theme = Theme.create('123e4567-e89b-12d3-a456-426614174000', 'Adventure', 'Description')
 
     assert.isFalse(theme.equals(null as any))
     assert.isFalse(theme.equals(undefined as any))

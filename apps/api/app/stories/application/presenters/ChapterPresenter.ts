@@ -18,10 +18,7 @@ export class ChapterPresenter {
     let image: { url: string } | null = null
 
     if (chapter.image) {
-      const imageUrl = await this.resolveImageUrl(
-        chapter.image.imageUrl.getValue(),
-        storageService
-      )
+      const imageUrl = await this.resolveImageUrl(chapter.image.imageUrl.getValue(), storageService)
       image = { url: imageUrl }
     }
 

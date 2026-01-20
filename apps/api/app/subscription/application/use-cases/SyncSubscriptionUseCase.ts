@@ -1,6 +1,9 @@
 import { inject } from '@adonisjs/core'
 
-import type { SyncSubscriptionInputDTO, SyncSubscriptionOutputDTO } from '../dtos/SyncSubscriptionDTO.js'
+import type {
+  SyncSubscriptionInputDTO,
+  SyncSubscriptionOutputDTO,
+} from '../dtos/SyncSubscriptionDTO.js'
 import { Role } from '#users/models/role'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/ISubscriptionRepository'
 

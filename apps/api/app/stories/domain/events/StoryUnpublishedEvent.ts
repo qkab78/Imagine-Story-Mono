@@ -26,11 +26,7 @@ export class StoryUnpublishedEvent implements DomainEvent {
   /**
    * Create a StoryUnpublishedEvent
    */
-  public static create(
-    storyId: StoryId,
-    ownerId: OwnerId,
-    title: string
-  ): StoryUnpublishedEvent {
+  public static create(storyId: StoryId, ownerId: OwnerId, title: string): StoryUnpublishedEvent {
     return new StoryUnpublishedEvent(storyId.getValue(), new Date(), storyId, ownerId, title)
   }
 }

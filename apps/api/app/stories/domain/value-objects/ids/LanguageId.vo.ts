@@ -10,7 +10,9 @@ export class LanguageId extends ValueObject<string> {
   private constructor(id: string) {
     super()
     if (!this.isValidUUID(id)) {
-      throw new InvalidValueObjectException(`Invalid Language ID format: ${id}. Must be a valid UUID.`)
+      throw new InvalidValueObjectException(
+        `Invalid Language ID format: ${id}. Must be a valid UUID.`
+      )
     }
     this.value = id
   }

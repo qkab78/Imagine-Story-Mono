@@ -17,12 +17,7 @@ export class User {
     public readonly lastname: string
   ) {}
 
-  public static create(
-    id: UserId,
-    email: Email,
-    firstname: string,
-    lastname: string
-  ): User {
+  public static create(id: UserId, email: Email, firstname: string, lastname: string): User {
     return new User(id, email, firstname, lastname)
   }
 

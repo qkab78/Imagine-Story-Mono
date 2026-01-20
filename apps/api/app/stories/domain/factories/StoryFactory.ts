@@ -24,21 +24,25 @@ export class StoryFactory {
   /**
    * Create a new Story with generated ID and current date
    */
-  public static create(dateService: IDateService, randomService: IRandomService, params: {
-    title: string
-    synopsis: string
-    protagonist: string
-    childAge: number
-    species: string
-    conclusion: string
-    coverImageUrl: string
-    ownerId: string
-    isPublic: boolean
-    theme: Theme
-    language: Language
-    tone: Tone
-    chapters: Chapter[]
-  }): Story {
+  public static create(
+    dateService: IDateService,
+    randomService: IRandomService,
+    params: {
+      title: string
+      synopsis: string
+      protagonist: string
+      childAge: number
+      species: string
+      conclusion: string
+      coverImageUrl: string
+      ownerId: string
+      isPublic: boolean
+      theme: Theme
+      language: Language
+      tone: Tone
+      chapters: Chapter[]
+    }
+  ): Story {
     return Story.create(
       StoryId.generate(randomService),
       Slug.fromTitle(params.title),
@@ -75,7 +79,7 @@ export class StoryFactory {
       isPublic: boolean
       theme: Theme
       language: Language
-      tone: Tone,
+      tone: Tone
       isGenerated: boolean
     }
   ): Story {

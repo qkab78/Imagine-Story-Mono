@@ -27,89 +27,82 @@ export async function up(db: Kysely<any>): Promise<void> {
       {
         code: 'FR',
         name: 'French',
-        is_free: true
+        is_free: true,
       },
       {
         code: 'EN',
         name: 'English',
-        is_free: true
+        is_free: true,
       },
       {
         code: 'LI',
         name: 'Lingala',
-        is_free: false
+        is_free: false,
       },
       {
         code: 'ES',
         name: 'Spanish',
-        is_free: false
+        is_free: false,
       },
       {
         code: 'PT',
         name: 'Portuguese',
-        is_free: false
+        is_free: false,
       },
       {
         code: 'DE',
         name: 'Deutsch',
-        is_free: false
+        is_free: false,
       },
       {
         code: 'IT',
         name: 'Italiano',
-        is_free: false
+        is_free: false,
       },
       {
         code: 'NL',
         name: 'Nederlands',
-        is_free: false
+        is_free: false,
       },
       {
         code: 'PL',
         name: 'Polski',
-        is_free: false
+        is_free: false,
       },
       {
         code: 'RU',
         name: 'Russian',
-        is_free: false
+        is_free: false,
       },
       {
         code: 'TR',
         name: 'Turkish',
-        is_free: false
+        is_free: false,
       },
       {
         code: 'AR',
         name: 'Arabic',
-        is_free: false
+        is_free: false,
       },
       {
         code: 'JA',
         name: 'Japanese',
-        is_free: false
-      }
+        is_free: false,
+      },
     ])
     .execute()
 
   // Ajouter la colonne language_id à la table stories
   await db.schema
     .alterTable('stories')
-    .addColumn('language_id', 'uuid', (col) => col
-      .references('languages.id')
-      .onDelete('set null')
-    )
+    .addColumn('language_id', 'uuid', (col) => col.references('languages.id').onDelete('set null'))
     .execute()
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
   // Supprimer la colonne language_id de la table stories
-  await db.schema
-    .alterTable('stories')
-    .dropColumn('language_id')
-    .execute()
+  await db.schema.alterTable('stories').dropColumn('language_id').execute()
 
   // Supprimer la table languages
   await db.schema.dropTable('languages').execute()
 }
-

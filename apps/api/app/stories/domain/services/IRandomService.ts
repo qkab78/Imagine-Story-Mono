@@ -1,3 +1,3 @@
 export abstract class IRandomService {
-    abstract generateRandomUuid(): string
+  abstract generateRandomUuid(): string
 }

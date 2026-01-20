@@ -1,7 +1,7 @@
 export class Tone {
-    constructor(
-        public readonly id: string,
-        public readonly name: string,
-        public readonly description: string,
-    ) {}
+  constructor(
+    public readonly id: string,
+    public readonly name: string,
+    public readonly description: string
+  ) {}
 }

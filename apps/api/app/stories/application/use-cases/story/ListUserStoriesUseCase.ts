@@ -13,11 +13,7 @@ import type { Story } from '#stories/domain/entities/story.entity'
 export class ListUserStoriesUseCase {
   constructor(private readonly storyRepository: IStoryRepository) {}
 
-  async execute(params: {
-    ownerId: string
-    page?: number
-    limit?: number
-  }): Promise<{
+  async execute(params: { ownerId: string; page?: number; limit?: number }): Promise<{
     stories: Story[]
     total: number
     page: number

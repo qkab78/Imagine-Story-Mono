@@ -12,9 +12,7 @@ import type { Story } from '#stories/domain/entities/story.entity'
 export class GetLatestPublicStoriesUseCase {
   constructor(private readonly storyRepository: IStoryRepository) {}
 
-  async execute(params: {
-    limit?: number
-  }): Promise<{
+  async execute(params: { limit?: number }): Promise<{
     stories: Story[]
   }> {
     // 1. Setup limit (default to 5 latest stories)

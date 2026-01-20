@@ -121,9 +121,7 @@ export class KyselyStoryRepository implements IStoryRepository {
     }
 
     // Get total count
-    const countResult = await query
-      .select(db.fn.count<number>('id').as('count'))
-      .executeTakeFirst()
+    const countResult = await query.select(db.fn.count<number>('id').as('count')).executeTakeFirst()
 
     const total = Number(countResult?.count || 0)
 

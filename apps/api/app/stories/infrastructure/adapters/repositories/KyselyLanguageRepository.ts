@@ -20,19 +20,12 @@ export class KyselyLanguageRepository implements ILanguageRepository {
       return null
     }
 
-    return Language.create(
-      languageRow.id,
-      languageRow.name,
-      languageRow.code,
-      languageRow.is_free
-    )
+    return Language.create(languageRow.id, languageRow.name, languageRow.code, languageRow.is_free)
   }
 
   async findAll(): Promise<Language[]> {
     const languageRows = await db.selectFrom('languages').selectAll().execute()
 
-    return languageRows.map((row) =>
-      Language.create(row.id, row.name, row.code, row.is_free)
-    )
+    return languageRows.map((row) => Language.create(row.id, row.name, row.code, row.is_free))
   }
 }

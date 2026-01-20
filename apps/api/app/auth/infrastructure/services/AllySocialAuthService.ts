@@ -1,6 +1,10 @@
 import { HttpContext } from '@adonisjs/core/http'
 import type { GoogleDriver } from '@adonisjs/ally/drivers/google'
-import { ISocialAuthService, SocialUserInfo, SocialAuthContext } from '../../application/services/ISocialAuthService.js'
+import {
+  ISocialAuthService,
+  SocialUserInfo,
+  SocialAuthContext,
+} from '../../application/services/ISocialAuthService.js'
 import { OAuthException } from '../../domain/exceptions/OAuthException.js'
 
 export class AllySocialAuthService implements ISocialAuthService {
@@ -85,7 +89,11 @@ export class AllySocialAuthService implements ISocialAuthService {
   private getAllyDriver(ctx: HttpContext, provider: string): GoogleDriver {
     // Currently only Google is supported
     if (provider !== 'google') {
-      throw new OAuthException(`Provider non supporté: ${provider}`, provider, 'OAUTH_UNSUPPORTED_PROVIDER')
+      throw new OAuthException(
+        `Provider non supporté: ${provider}`,
+        provider,
+        'OAUTH_UNSUPPORTED_PROVIDER'
+      )
     }
     return (ctx.ally as any).use('google') as GoogleDriver
   }

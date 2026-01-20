@@ -15,7 +15,12 @@ export class InvariantViolationException extends DomainException {
   /**
    * Create exception for minimum requirement not met
    */
-  public static minimumNotMet(entityName: string, field: string, minimum: number, actual: number): InvariantViolationException {
+  public static minimumNotMet(
+    entityName: string,
+    field: string,
+    minimum: number,
+    actual: number
+  ): InvariantViolationException {
     return new InvariantViolationException(
       `${entityName} must have at least ${minimum} ${field}, but has ${actual}`
     )
@@ -24,7 +29,12 @@ export class InvariantViolationException extends DomainException {
   /**
    * Create exception for maximum exceeded
    */
-  public static maximumExceeded(entityName: string, field: string, maximum: number, actual: number): InvariantViolationException {
+  public static maximumExceeded(
+    entityName: string,
+    field: string,
+    maximum: number,
+    actual: number
+  ): InvariantViolationException {
     return new InvariantViolationException(
       `${entityName} cannot have more than ${maximum} ${field}, but has ${actual}`
     )
@@ -34,15 +44,18 @@ export class InvariantViolationException extends DomainException {
    * Create exception for required field
    */
   public static requiredField(entityName: string, field: string): InvariantViolationException {
-    return new InvariantViolationException(
-      `${entityName} requires ${field}`
-    )
+    return new InvariantViolationException(`${entityName} requires ${field}`)
   }
 
   /**
    * Create exception for invalid state transition
    */
-  public static invalidStateTransition(entityName: string, fromState: string, toState: string, reason: string): InvariantViolationException {
+  public static invalidStateTransition(
+    entityName: string,
+    fromState: string,
+    toState: string,
+    reason: string
+  ): InvariantViolationException {
     return new InvariantViolationException(
       `Cannot transition ${entityName} from ${fromState} to ${toState}: ${reason}`
     )

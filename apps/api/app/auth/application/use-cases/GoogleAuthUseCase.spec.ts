@@ -1,6 +1,10 @@
 import { test } from '@japa/runner'
 import { GoogleAuthUseCase } from './GoogleAuthUseCase.js'
-import { ISocialAuthService, SocialUserInfo, SocialAuthContext } from '../services/ISocialAuthService.js'
+import {
+  ISocialAuthService,
+  SocialUserInfo,
+  SocialAuthContext,
+} from '../services/ISocialAuthService.js'
 import { ISocialAccountRepository } from '../../domain/repositories/ISocialAccountRepository.js'
 import { IAuthUserRepository } from '../../domain/repositories/IAuthUserRepository.js'
 import { IRandomService } from '#stories/domain/services/IRandomService'
@@ -20,10 +24,7 @@ test.group(GoogleAuthUseCase.name, () => {
 
   class TestRandomService implements IRandomService {
     private callCount = 0
-    private uuids = [
-      'user-uuid-1234',
-      'social-account-uuid-5678',
-    ]
+    private uuids = ['user-uuid-1234', 'social-account-uuid-5678']
 
     generateRandomUuid(): string {
       return this.uuids[this.callCount++ % this.uuids.length]
@@ -64,10 +65,7 @@ test.group(GoogleAuthUseCase.name, () => {
       return Promise.resolve(account || null)
     }
 
-    findByUserIdAndProvider(
-      userId: string,
-      provider: Provider
-    ): Promise<SocialAccount | null> {
+    findByUserIdAndProvider(userId: string, provider: Provider): Promise<SocialAccount | null> {
       const account = Array.from(this.accounts.values()).find(
         (a) => a.userId === userId && a.provider.getValue() === provider.getValue()
       )

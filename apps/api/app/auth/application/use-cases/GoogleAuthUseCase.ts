@@ -1,5 +1,9 @@
 import { inject } from '@adonisjs/core'
-import { ISocialAuthService, SocialUserInfo, SocialAuthContext } from '../services/ISocialAuthService.js'
+import {
+  ISocialAuthService,
+  SocialUserInfo,
+  SocialAuthContext,
+} from '../services/ISocialAuthService.js'
 import { ISocialAccountRepository } from '../../domain/repositories/ISocialAccountRepository.js'
 import { IAuthUserRepository } from '../../domain/repositories/IAuthUserRepository.js'
 import { IRandomService } from '#stories/domain/services/IRandomService'

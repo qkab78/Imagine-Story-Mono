@@ -18,7 +18,7 @@ test.group(SearchStoriesUseCase.name, () => {
   class TestDateService implements IDateService {
     now(): string {
       return '2025-01-01T00:00:00.000Z'
-    } 
+    }
   }
 
   class TestRandomService implements IRandomService {
@@ -90,7 +90,11 @@ test.group(SearchStoriesUseCase.name, () => {
       throw new Error('Method not implemented.')
     }
 
-    countByOwnerIdAndDateRange(_ownerId: OwnerId, _startDate: Date, _endDate: Date): Promise<number> {
+    countByOwnerIdAndDateRange(
+      _ownerId: OwnerId,
+      _startDate: Date,
+      _endDate: Date
+    ): Promise<number> {
       throw new Error('Method not implemented.')
     }
 
@@ -122,7 +126,11 @@ test.group(SearchStoriesUseCase.name, () => {
       conclusion: 'The end',
       coverImageUrl: 'https://example.com/cover.jpg',
       ownerId: '223e4567-e89b-12d3-a456-426614174000',
-      theme: Theme.create('123e4567-e89b-12d3-a456-426614174000', 'Adventure', 'An adventure theme'),
+      theme: Theme.create(
+        '123e4567-e89b-12d3-a456-426614174000',
+        'Adventure',
+        'An adventure theme'
+      ),
       language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
       tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),
       isPublic: true,
@@ -166,7 +174,7 @@ test.group(SearchStoriesUseCase.name, () => {
     const randomService = new TestRandomService()
 
     const numberOfStoriesCreated = 5
-    
+
     for (let i = 1; i <= numberOfStoriesCreated; i++) {
       await storyRepository.create(createTestStory(dateService, randomService, `Story ${i}`))
     }

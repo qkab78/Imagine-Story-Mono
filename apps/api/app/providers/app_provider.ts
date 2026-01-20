@@ -22,71 +22,57 @@ import storageConfig from '#config/storage'
 import env from '#start/env'
 
 export default class AppProvider {
-  constructor(protected app: ApplicationService) { }
+  constructor(protected app: ApplicationService) {}
 
   /**
    * Register bindings to the container
    */
-  register() { }
+  register() {}
 
   /**
    * The container bindings have booted
    */
   async boot() {
     const { DateService } = await import('#stories/infrastructure/adapters/services/date.service')
-    const { RandomService } = await import(
-      '#stories/infrastructure/adapters/services/random.service'
-    )
-    const { KyselyStoryRepository } = await import(
-      '#stories/infrastructure/adapters/repositories/KyselyStoryRepository'
-    )
-    const { OpenAiStoryGenerationService } = await import(
-      '#stories/infrastructure/adapters/services/OpenAiStoryGeneration.service'
-    )
-    const { LeonardoAiImageGenerationService } = await import(
-      '#stories/infrastructure/adapters/services/LeonardoAiImageGenerationService'
-    )
-    const { GeminiImageGenerationService } = await import(
-      '#stories/infrastructure/adapters/services/GeminiImageGenerationService'
-    )
-    const { KyselyThemeRepository } = await import(
-      '#stories/infrastructure/adapters/repositories/KyselyThemeRepository'
-    )
-    const { KyselyLanguageRepository } = await import(
-      '#stories/infrastructure/adapters/repositories/KyselyLanguageRepository'
-    )
-    const { InMemoryEventPublisher } = await import(
-      '#stories/infrastructure/adapters/events/InMemoryEventPublisher'
-    )
-    const { KyselyUserRepository } = await import(
-      '#users/infrastructure/repositories/KyselyUserRepository'
-    )
-    const { KyselySocialAccountRepository } = await import(
-      '#auth/infrastructure/repositories/KyselySocialAccountRepository'
-    )
-    const { KyselyAuthUserRepository } = await import(
-      '#auth/infrastructure/repositories/KyselyAuthUserRepository'
-    )
-    const { AllySocialAuthService } = await import(
-      '#auth/infrastructure/services/AllySocialAuthService'
-    )
+    const { RandomService } =
+      await import('#stories/infrastructure/adapters/services/random.service')
+    const { KyselyStoryRepository } =
+      await import('#stories/infrastructure/adapters/repositories/KyselyStoryRepository')
+    const { OpenAiStoryGenerationService } =
+      await import('#stories/infrastructure/adapters/services/OpenAiStoryGeneration.service')
+    const { LeonardoAiImageGenerationService } =
+      await import('#stories/infrastructure/adapters/services/LeonardoAiImageGenerationService')
+    const { GeminiImageGenerationService } =
+      await import('#stories/infrastructure/adapters/services/GeminiImageGenerationService')
+    const { KyselyThemeRepository } =
+      await import('#stories/infrastructure/adapters/repositories/KyselyThemeRepository')
+    const { KyselyLanguageRepository } =
+      await import('#stories/infrastructure/adapters/repositories/KyselyLanguageRepository')
+    const { InMemoryEventPublisher } =
+      await import('#stories/infrastructure/adapters/events/InMemoryEventPublisher')
+    const { KyselyUserRepository } =
+      await import('#users/infrastructure/repositories/KyselyUserRepository')
+    const { KyselySocialAccountRepository } =
+      await import('#auth/infrastructure/repositories/KyselySocialAccountRepository')
+    const { KyselyAuthUserRepository } =
+      await import('#auth/infrastructure/repositories/KyselyAuthUserRepository')
+    const { AllySocialAuthService } =
+      await import('#auth/infrastructure/services/AllySocialAuthService')
 
     // Storage service binding (conditional based on config)
     const provider = storageConfig.default
 
     if (provider === 'minio') {
-      const { MinIOStorageService } = await import(
-        '#stories/infrastructure/adapters/services/MinIOStorageService'
-      )
+      const { MinIOStorageService } =
+        await import('#stories/infrastructure/adapters/services/MinIOStorageService')
       this.app.container.singleton(IStorageService, async () => {
         const service = new MinIOStorageService()
         await service.ensureBucketExists()
         return service
       })
     } else {
-      const { LocalStorageService } = await import(
-        '#stories/infrastructure/adapters/services/LocalStorageService'
-      )
+      const { LocalStorageService } =
+        await import('#stories/infrastructure/adapters/services/LocalStorageService')
       this.app.container.singleton(IStorageService, () => {
         return new LocalStorageService()
       })
@@ -157,15 +143,15 @@ export default class AppProvider {
   /**
    * The application has been booted
    */
-  async start() { }
+  async start() {}
 
   /**
    * The process has been started
    */
-  async ready() { }
+  async ready() {}
 
   /**
    * Preparing to shutdown the app
    */
-  async shutdown() { }
+  async shutdown() {}
 }

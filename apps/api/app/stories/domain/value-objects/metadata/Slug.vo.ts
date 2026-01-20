@@ -60,9 +60,7 @@ export class Slug extends ValueObject<string> {
     }
 
     if (slug.length > Slug.MAX_LENGTH) {
-      throw new InvalidValueObjectException(
-        `Slug cannot exceed ${Slug.MAX_LENGTH} characters`
-      )
+      throw new InvalidValueObjectException(`Slug cannot exceed ${Slug.MAX_LENGTH} characters`)
     }
 
     if (!Slug.SLUG_REGEX.test(slug)) {

@@ -4,11 +4,7 @@ import { db } from '#services/db'
 
 export class KyselyAuthUserRepository implements IAuthUserRepository {
   async findById(id: string): Promise<AuthUser | null> {
-    const row = await db
-      .selectFrom('users')
-      .selectAll()
-      .where('id', '=', id)
-      .executeTakeFirst()
+    const row = await db.selectFrom('users').selectAll().where('id', '=', id).executeTakeFirst()
 
     if (!row) return null
     return this.toDomain(row)

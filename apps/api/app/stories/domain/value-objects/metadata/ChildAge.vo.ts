@@ -48,15 +48,11 @@ export class ChildAge extends ValueObject<number> {
     }
 
     if (age < ChildAge.MIN_AGE) {
-      throw new InvalidValueObjectException(
-        `Age must be at least ${ChildAge.MIN_AGE} years old`
-      )
+      throw new InvalidValueObjectException(`Age must be at least ${ChildAge.MIN_AGE} years old`)
     }
 
     if (age > ChildAge.MAX_AGE) {
-      throw new InvalidValueObjectException(
-        `Age cannot exceed ${ChildAge.MAX_AGE} years old`
-      )
+      throw new InvalidValueObjectException(`Age cannot exceed ${ChildAge.MAX_AGE} years old`)
     }
   }
 }

@@ -1,56 +1,56 @@
 export class CreationDate {
-    private readonly value: Date
+  private readonly value: Date
 
-    constructor(date: Date | string) {
-        if (typeof date === 'string') {
-            this.value = new Date(date)
-        } else {
-            this.value = date
-        }
-
-        if (isNaN(this.value.getTime())) {
-            throw new Error('Invalid creation date')
-        }
+  constructor(date: Date | string) {
+    if (typeof date === 'string') {
+      this.value = new Date(date)
+    } else {
+      this.value = date
     }
 
-    static now(): CreationDate {
-        return new CreationDate(new Date())
+    if (isNaN(this.value.getTime())) {
+      throw new Error('Invalid creation date')
     }
+  }
 
-    static fromString(dateString: string): CreationDate {
-        return new CreationDate(dateString)
-    }
+  static now(): CreationDate {
+    return new CreationDate(new Date())
+  }
 
-    toISOString(): string {
-        return this.value.toISOString()
-    }
+  static fromString(dateString: string): CreationDate {
+    return new CreationDate(dateString)
+  }
 
-    toDate(): Date {
-        return new Date(this.value)
-    }
+  toISOString(): string {
+    return this.value.toISOString()
+  }
 
-    isRecent(days: number = 7): boolean {
-        const now = new Date()
-        const diffInMs = now.getTime() - this.value.getTime()
-        const diffInDays = diffInMs / (1000 * 60 * 60 * 24)
-        return diffInDays <= days
-    }
+  toDate(): Date {
+    return new Date(this.value)
+  }
 
-    daysSinceCreation(): number {
-        const now = new Date()
-        const diffInMs = now.getTime() - this.value.getTime()
-        return Math.floor(diffInMs / (1000 * 60 * 60 * 24))
-    }
+  isRecent(days: number = 7): boolean {
+    const now = new Date()
+    const diffInMs = now.getTime() - this.value.getTime()
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24)
+    return diffInDays <= days
+  }
 
-    isBefore(other: CreationDate): boolean {
-        return this.value < other.value
-    }
+  daysSinceCreation(): number {
+    const now = new Date()
+    const diffInMs = now.getTime() - this.value.getTime()
+    return Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+  }
 
-    isAfter(other: CreationDate): boolean {
-        return this.value > other.value
-    }
+  isBefore(other: CreationDate): boolean {
+    return this.value < other.value
+  }
 
-    equals(other: CreationDate): boolean {
-        return this.value.getTime() === other.value.getTime()
-    }
+  isAfter(other: CreationDate): boolean {
+    return this.value > other.value
+  }
+
+  equals(other: CreationDate): boolean {
+    return this.value.getTime() === other.value.getTime()
+  }
 }

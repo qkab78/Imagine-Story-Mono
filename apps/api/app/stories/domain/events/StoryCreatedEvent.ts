@@ -34,13 +34,6 @@ export class StoryCreatedEvent implements DomainEvent {
     slug: Slug,
     title: string
   ): StoryCreatedEvent {
-    return new StoryCreatedEvent(
-      storyId.getValue(),
-      new Date(),
-      storyId,
-      ownerId,
-      slug,
-      title
-    )
+    return new StoryCreatedEvent(storyId.getValue(), new Date(), storyId, ownerId, slug, title)
   }
 }
