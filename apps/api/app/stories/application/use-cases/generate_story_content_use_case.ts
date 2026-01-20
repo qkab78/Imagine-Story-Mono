@@ -2,6 +2,7 @@ import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
 import { IStoryRepository } from '#stories/domain/repositories/story_repository'
 import { IStoryGenerationService } from '#stories/domain/services/i_story_generation'
+import { ITranslationService } from '#stories/domain/services/i_translation_service'
 import { ChapterFactory } from '#stories/domain/factories/chapter_factory'
 import { ImageUrl } from '#stories/domain/value-objects/media/image_url.vo'
 import { Slug } from '#stories/domain/value-objects/metadata/slug.vo'
@@ -10,6 +11,7 @@ import queue from '@rlanz/bull-queue/services/main'
 import SendStoryGeneratedSuccessEmailJob from '#jobs/story/send_story_generated_success_email_job'
 import SendStoryGenerationFailedEmailJob from '#jobs/story/send_story_generation_failed_email_job'
 import type { Story } from '#stories/domain/entities/story.entity'
+import type { StoryGenerated } from '#stories/domain/services/types/story_generated'
 
 export interface GenerateStoryContentPayload {
   storyId: string
@@ -19,15 +21,20 @@ export interface GenerateStoryContentPayload {
   childAge: number
   numberOfChapters: number
   language: string
+  languageCode: string
   tone: string
   species: string
 }
 
 @inject()
 export class GenerateStoryContentUseCase {
+  private readonly SOURCE_LANGUAGE = 'French'
+  private readonly SOURCE_LANGUAGE_CODE = 'FR'
+
   constructor(
     private readonly storyRepository: IStoryRepository,
     private readonly storyGenerationService: IStoryGenerationService,
+    private readonly translationService: ITranslationService,
     private readonly userRepository: IUserRepository
   ) {}
 
@@ -39,15 +46,25 @@ export class GenerateStoryContentUseCase {
     if (!story) throw new Error('Story not found')
 
     try {
-      // 2. Générer le contenu avec AI
-      const storyGenerated = await this.storyGenerationService.generateStory({
+      // 2. Déterminer si la traduction est nécessaire
+      const needsTranslation = this.translationService.needsTranslation(payload.languageCode)
+      const generationLanguage = needsTranslation ? this.SOURCE_LANGUAGE : payload.language
+
+      if (needsTranslation) {
+        logger.info(
+          `🌐 Translation needed: generating in ${this.SOURCE_LANGUAGE}, will translate to ${payload.language} (${payload.languageCode})`
+        )
+      }
+
+      // 3. Générer le contenu avec AI (en français si traduction nécessaire)
+      let storyGenerated = await this.storyGenerationService.generateStory({
         title: story.title,
         synopsis: payload.synopsis,
         theme: payload.theme,
         protagonist: payload.protagonist,
         childAge: payload.childAge,
         numberOfChapters: payload.numberOfChapters,
-        language: payload.language,
+        language: generationLanguage,
         tone: payload.tone,
         species: payload.species,
         isPublic: story.isPublic(),
@@ -55,7 +72,14 @@ export class GenerateStoryContentUseCase {
         status: story.generationStatus,
       })
 
-      // 3. Créer les entités Chapter
+      // 4. Traduire si nécessaire
+      if (needsTranslation) {
+        logger.info(`🔄 Translating story to ${payload.language}...`)
+        storyGenerated = await this.translateStory(storyGenerated, payload.languageCode)
+        logger.info(`✅ Translation completed`)
+      }
+
+      // 5. Créer les entités Chapter
       const chapters = storyGenerated.chapters.map((chapterData) => {
         const position = chapterData.id.getValue()
 
@@ -75,7 +99,7 @@ export class GenerateStoryContentUseCase {
         })
       })
 
-      // 4. Mettre à jour la story avec le contenu généré
+      // 6. Mettre à jour la story avec le contenu généré
       // IMPORTANT: Utiliser le slug déjà généré et vérifié comme unique par le service de génération
       const updatedStory = story.completeGeneration(
         chapters,
@@ -195,5 +219,66 @@ export class GenerateStoryContentUseCase {
     }
 
     return 'Une erreur technique est survenue. Notre équipe a été notifiée.'
+  }
+
+  /**
+   * Translate a generated story to the target language
+   */
+  private async translateStory(
+    story: StoryGenerated,
+    targetLanguageCode: string
+  ): Promise<StoryGenerated> {
+    // Translate title, synopsis, and conclusion in parallel
+    const [titleResult, synopsisResult, conclusionResult] = await Promise.all([
+      this.translationService.translate({
+        text: story.title,
+        sourceLanguage: this.SOURCE_LANGUAGE_CODE,
+        targetLanguage: targetLanguageCode,
+      }),
+      this.translationService.translate({
+        text: story.synopsis,
+        sourceLanguage: this.SOURCE_LANGUAGE_CODE,
+        targetLanguage: targetLanguageCode,
+      }),
+      this.translationService.translate({
+        text: story.conclusion,
+        sourceLanguage: this.SOURCE_LANGUAGE_CODE,
+        targetLanguage: targetLanguageCode,
+      }),
+    ])
+
+    // Translate chapters in parallel
+    const translatedChapters = await Promise.all(
+      story.chapters.map(async (chapter) => {
+        const [chapterTitleResult, contentResult] = await Promise.all([
+          this.translationService.translate({
+            text: chapter.title,
+            sourceLanguage: this.SOURCE_LANGUAGE_CODE,
+            targetLanguage: targetLanguageCode,
+          }),
+          this.translationService.translate({
+            text: chapter.content,
+            sourceLanguage: this.SOURCE_LANGUAGE_CODE,
+            targetLanguage: targetLanguageCode,
+          }),
+        ])
+
+        return {
+          ...chapter,
+          title: chapterTitleResult.translatedText,
+          content: contentResult.translatedText,
+        }
+      })
+    )
+
+    logger.info(`📊 Translation provider used: ${titleResult.provider}`)
+
+    return {
+      ...story,
+      title: titleResult.translatedText,
+      synopsis: synopsisResult.translatedText,
+      conclusion: conclusionResult.translatedText,
+      chapters: translatedChapters as StoryGenerated['chapters'],
+    }
   }
 }

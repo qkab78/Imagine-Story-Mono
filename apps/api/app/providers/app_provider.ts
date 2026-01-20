@@ -6,6 +6,7 @@ import { IRandomService } from '#stories/domain/services/i_random_service'
 import { IStoryRepository } from '#stories/domain/repositories/story_repository'
 import { IStoryGenerationService } from '#stories/domain/services/i_story_generation'
 import { IStoryImageGenerationService } from '#stories/domain/services/i_story_image_generation_service'
+import { ITranslationService } from '#stories/domain/services/i_translation_service'
 import { IThemeRepository } from '#stories/domain/repositories/theme_repository'
 import { ILanguageRepository } from '#stories/domain/repositories/language_repository'
 import { IToneRepository } from '#stories/domain/repositories/tone_repository'
@@ -58,6 +59,12 @@ export default class AppProvider {
       await import('#auth/infrastructure/repositories/kysely_auth_user_repository')
     const { AllySocialAuthService } =
       await import('#auth/infrastructure/services/ally_social_auth_service')
+    const { DeepLTranslationService } =
+      await import('#stories/infrastructure/adapters/services/deepl_translation_service')
+    const { GoogleTranslationService } =
+      await import('#stories/infrastructure/adapters/services/google_translation_service')
+    const { CompositeTranslationService } =
+      await import('#stories/infrastructure/adapters/services/composite_translation_service')
 
     // Storage service binding (conditional based on config)
     const provider = storageConfig.default
@@ -137,6 +144,13 @@ export default class AppProvider {
     })
     this.app.container.singleton(ISocialAuthService, () => {
       return this.app.container.make(AllySocialAuthService)
+    })
+
+    // Translation service binding
+    this.app.container.singleton(ITranslationService, async () => {
+      const deeplService = await this.app.container.make(DeepLTranslationService)
+      const googleService = await this.app.container.make(GoogleTranslationService)
+      return new CompositeTranslationService(deeplService, googleService)
     })
   }
 

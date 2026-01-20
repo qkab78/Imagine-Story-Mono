@@ -100,4 +100,13 @@ export default await Env.create(new URL('../', import.meta.url), {
   GOOGLE_CLIENT_ID: Env.schema.string(),
   GOOGLE_CLIENT_SECRET: Env.schema.string(),
   GOOGLE_CALLBACK_URL: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring translation services
+  |----------------------------------------------------------
+  */
+  DEEPL_API_KEY: Env.schema.string.optional(),
+  GOOGLE_PROJECT_ID: Env.schema.string.optional(),
+  GOOGLE_TRANSLATE_API_KEY: Env.schema.string.optional(),
 })
