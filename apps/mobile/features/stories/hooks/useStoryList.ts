@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { GetStoriesUseCase } from '../use-cases/GetStoriesUseCase'
-import { Story } from '@/domain/stories/entities/Story'
 import useAuthStore from '@/store/auth/authStore'
 
 /**

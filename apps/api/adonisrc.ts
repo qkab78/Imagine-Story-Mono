@@ -38,6 +38,7 @@ export default defineConfig({
     () => import('#providers/app_provider'),
     () => import('@rlanz/bull-queue/queue_provider'),
     () => import('@adonisjs/mail/mail_provider'),
+    () => import('@adonisjs/ally/ally_provider'),
   ],
 
   /*
@@ -64,6 +65,11 @@ export default defineConfig({
       {
         files: ['app/**/stories/**/*.spec(.ts|.js)'],
         name: 'stories',
+        timeout: 2000,
+      },
+      {
+        files: ['app/**/auth/**/*.spec(.ts|.js)'],
+        name: 'auth',
         timeout: 2000,
       },
       {

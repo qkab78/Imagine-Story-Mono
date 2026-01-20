@@ -15,16 +15,19 @@ import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositor
 import { IUserRepository } from '#users/domain/repositories/UserRepository'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/ISubscriptionRepository'
 import { KyselySubscriptionRepository } from '#subscription/infrastructure/repositories/KyselySubscriptionRepository'
+import { ISocialAccountRepository } from '#auth/domain/repositories/ISocialAccountRepository'
+import { IAuthUserRepository } from '#auth/domain/repositories/IAuthUserRepository'
+import { ISocialAuthService } from '#auth/application/services/ISocialAuthService'
 import storageConfig from '#config/storage'
 import env from '#start/env'
 
 export default class AppProvider {
-  constructor(protected app: ApplicationService) {}
+  constructor(protected app: ApplicationService) { }
 
   /**
    * Register bindings to the container
    */
-  register() {}
+  register() { }
 
   /**
    * The container bindings have booted
@@ -58,6 +61,15 @@ export default class AppProvider {
     const { KyselyUserRepository } = await import(
       '#users/infrastructure/repositories/KyselyUserRepository'
     )
+    const { KyselySocialAccountRepository } = await import(
+      '#auth/infrastructure/repositories/KyselySocialAccountRepository'
+    )
+    const { KyselyAuthUserRepository } = await import(
+      '#auth/infrastructure/repositories/KyselyAuthUserRepository'
+    )
+    const { AllySocialAuthService } = await import(
+      '#auth/infrastructure/services/AllySocialAuthService'
+    )
 
     // Storage service binding (conditional based on config)
     const provider = storageConfig.default
@@ -85,12 +97,12 @@ export default class AppProvider {
     const imageProvider = env.get('IMAGE_PROVIDER', 'gemini') // 'gemini' ou 'leonardo'
 
     if (imageProvider === 'leonardo') {
-      console.log('🎨 Using Leonardo AI for image generation')
+      console.log('Using Leonardo AI for image generation')
       this.app.container.singleton(IStoryImageGenerationService, () => {
         return this.app.container.make(LeonardoAiImageGenerationService)
       })
     } else {
-      console.log('🎨 Using Gemini Imagen 3 (Nano Banana) for image generation')
+      console.log('Using Gemini Imagen 3 (Nano Banana) for image generation')
       this.app.container.singleton(IStoryImageGenerationService, () => {
         return this.app.container.make(GeminiImageGenerationService)
       })
@@ -130,20 +142,30 @@ export default class AppProvider {
     this.app.container.singleton(ISubscriptionRepository, () => {
       return this.app.container.make(KyselySubscriptionRepository)
     })
+
+    this.app.container.singleton(ISocialAccountRepository, () => {
+      return this.app.container.make(KyselySocialAccountRepository)
+    })
+    this.app.container.singleton(IAuthUserRepository, () => {
+      return this.app.container.make(KyselyAuthUserRepository)
+    })
+    this.app.container.singleton(ISocialAuthService, () => {
+      return this.app.container.make(AllySocialAuthService)
+    })
   }
 
   /**
    * The application has been booted
    */
-  async start() {}
+  async start() { }
 
   /**
    * The process has been started
    */
-  async ready() {}
+  async ready() { }
 
   /**
    * Preparing to shutdown the app
    */
-  async shutdown() {}
+  async shutdown() { }
 }

@@ -16,6 +16,7 @@ import { EditProfileSheet } from './EditProfileSheet';
 import { SubscriptionSheet } from './SubscriptionSheet';
 import { useProfileSettings } from '@/hooks/useProfileSettings';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useUserStories } from '@/features/stories/hooks/useStoryList';
 import { formatLongDate } from '@/utils/dateFormatter';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_ICONS } from '@/constants/profile';
 
@@ -46,6 +47,8 @@ export const ProfileContent: React.FC = () => {
     refresh,
     openManageSubscription,
   } = useSubscription();
+
+  const { data: userStories = [] } = useUserStories();
 
   // Sheet visibility states
   const [showPersonalInfo, setShowPersonalInfo] = useState(false);
@@ -225,7 +228,7 @@ export const ProfileContent: React.FC = () => {
         name={user?.fullname || 'Utilisateur'}
         email={user?.email || 'N/A'}
         registrationDate={formatLongDate(user?.createdAt)}
-        storiesCount={12}
+        storiesCount={userStories.length}
       />
 
       <EditProfileSheet

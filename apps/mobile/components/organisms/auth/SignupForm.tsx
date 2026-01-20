@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { TextInput, AuthButton } from '@/components/molecules/auth';
+import { TextInput, AuthButton, FormDivider } from '@/components/molecules/auth';
 
 const signupSchema = z.object({
   firstName: z.string()
@@ -31,12 +31,16 @@ export type SignupData = z.infer<typeof signupSchema>;
 
 interface SignupFormProps {
   onSubmit: (data: SignupData) => void;
+  onGoogleSignIn?: () => void;
   loading?: boolean;
+  googleLoading?: boolean;
 }
 
 export const SignupForm: React.FC<SignupFormProps> = ({
   onSubmit,
+  onGoogleSignIn,
   loading = false,
+  googleLoading = false,
 }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
@@ -164,6 +168,18 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         loading={loading}
         compact
       />
+
+      {onGoogleSignIn && (
+        <>
+          <FormDivider />
+          <AuthButton
+            title="Continuer avec Google"
+            onPress={onGoogleSignIn}
+            variant="google"
+            loading={googleLoading}
+          />
+        </>
+      )}
     </View>
   );
 };

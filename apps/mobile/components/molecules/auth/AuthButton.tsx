@@ -30,8 +30,14 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
         disabled={disabled || loading}
         activeOpacity={0.8}
       >
-        <Text style={styles.googleIcon}>G</Text>
-        <Text style={styles.googleText}>{title}</Text>
+        {loading ? (
+          <ActivityIndicator color="#4285F4" />
+        ) : (
+          <>
+            <Text style={styles.googleIcon}>G</Text>
+            <Text style={styles.googleText}>{title}</Text>
+          </>
+        )}
       </TouchableOpacity>
     );
   }

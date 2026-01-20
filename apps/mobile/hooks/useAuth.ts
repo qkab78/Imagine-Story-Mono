@@ -1,8 +1,13 @@
+import { useState, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
-import { login as apiLogin, register as apiRegister } from '@/api/auth';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
+import { login as apiLogin, register as apiRegister, getGoogleRedirectUrl, type GoogleAuthResponse } from '@/api/auth';
 import useAuthStore from '@/store/auth/authStore';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export const useLogin = () => {
   const { setToken, setUser } = useAuthStore();
@@ -17,7 +22,8 @@ export const useLogin = () => {
       }
       setToken(data.token);
       setUser({
-        fullname: data.user.firstname,
+        id: data.user.id,
+        fullname: `${data.user.firstname} ${data.user.lastname}`,
         email: data.user.email,
         firstname: data.user.firstname,
         lastname: data.user.lastname,
@@ -72,32 +78,60 @@ export const useRegister = () => {
 export const useGoogleSignIn = () => {
   const { setToken, setUser } = useAuthStore();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
-  return useMutation({
-    mutationFn: async () => {
-      // TODO: Implement Google Sign-In which will be handled by the backend
-      // For now, we just show an alert
-      throw new Error('NOT_IMPLEMENTED');
-    },
-    onSuccess: (data: any) => {
-      if (data?.token) {
-        setToken(data.token);
-        setUser(data.user);
-        router.replace('/(tabs)');
+  const signInWithGoogle = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      // 1. Create the mobile callback URL (deep link)
+      const mobileCallbackUrl = Linking.createURL('auth/google/callback');
+
+      // 2. Get redirect URL from backend, passing our callback URL
+      const { redirectUrl } = await getGoogleRedirectUrl(mobileCallbackUrl);
+
+      // 3. Open browser for Google consent
+      const result = await WebBrowser.openAuthSessionAsync(redirectUrl, mobileCallbackUrl);
+
+      // 4. Handle the result
+      if (result.type === 'success' && result.url) {
+        const url = new URL(result.url);
+        const encodedData = url.searchParams.get('data');
+
+        if (encodedData) {
+          const authData: GoogleAuthResponse = JSON.parse(decodeURIComponent(encodedData));
+
+          setToken(authData.token);
+          setUser({
+            id: authData.user.id,
+            fullname: `${authData.user.firstname} ${authData.user.lastname}`,
+            email: authData.user.email,
+            firstname: authData.user.firstname,
+            lastname: authData.user.lastname,
+            role: authData.user.role,
+            avatar: authData.user.avatar,
+            createdAt: authData.user.createdAt,
+          });
+
+          if (authData.isNewUser) {
+            Alert.alert('Bienvenue !', 'Votre compte a été créé avec succès.');
+          }
+
+          router.replace('/(tabs)');
+        }
       }
-    },
-    onError: (error: any) => {
-      if (error.message === 'NOT_IMPLEMENTED') {
-        Alert.alert(
-          'Bientôt disponible',
-          'La connexion avec Google sera bientôt disponible ! 🚀'
-        );
-      } else {
-        Alert.alert(
-          'Erreur de connexion',
-          error.message || 'Une erreur est survenue lors de la connexion avec Google'
-        );
-      }
-    },
-  });
+    } catch (error) {
+      Alert.alert(
+        'Erreur de connexion',
+        error instanceof Error ? error.message : 'Une erreur est survenue lors de la connexion avec Google'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setToken, setUser, router]);
+
+  return {
+    signInWithGoogle,
+    isLoading,
+  };
 };

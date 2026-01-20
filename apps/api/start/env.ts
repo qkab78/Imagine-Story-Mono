@@ -52,7 +52,6 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   OPENAI_API_KEY: Env.schema.string(),
-  LEONARDO_AI_API_KEY: Env.schema.string(),
   STORIES_QUERY_LIMIT: Env.schema.number(),
 
   /*
@@ -84,4 +83,22 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   FRONTEND_URL: Env.schema.string.optional(),
+
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring image provider
+  |----------------------------------------------------------
+  */
+  IMAGE_PROVIDER: Env.schema.enum(['gemini', 'leonardo'] as const),
+  GEMINI_API_KEY: Env.schema.string.optional(),
+  LEONARDO_API_KEY: Env.schema.string.optional(),
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring Google authentication
+  |----------------------------------------------------------
+  */
+  GOOGLE_CLIENT_ID: Env.schema.string(),
+  GOOGLE_CLIENT_SECRET: Env.schema.string(),
+  GOOGLE_CALLBACK_URL: Env.schema.string(),
 })

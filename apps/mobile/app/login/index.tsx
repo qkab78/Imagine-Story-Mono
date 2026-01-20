@@ -16,14 +16,14 @@ import { useLogin, useGoogleSignIn } from '@/hooks/useAuth';
 const LoginScreen = () => {
   const router = useRouter();
   const loginMutation = useLogin();
-  const googleSignInMutation = useGoogleSignIn();
+  const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleSignIn();
 
   const handleLogin = (email: string, password: string) => {
     loginMutation.mutate({ email, password });
   };
 
   const handleGoogleSignIn = () => {
-    googleSignInMutation.mutate();
+    signInWithGoogle();
   };
 
   const handleForgotPassword = () => {
@@ -67,6 +67,7 @@ const LoginScreen = () => {
               onGoogleSignIn={handleGoogleSignIn}
               onForgotPassword={handleForgotPassword}
               loading={loginMutation.isPending}
+              googleLoading={isGoogleLoading}
             />
 
             <AuthFooter
