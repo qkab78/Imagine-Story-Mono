@@ -1,8 +1,8 @@
 import { test } from '@japa/runner'
 import { ChapterBuilder } from './chapter.builder.js'
 import { ChapterImage } from '../entities/chapter.entity.js'
-import { ChapterId } from '../value-objects/ids/ChapterId.vo.js'
-import { ImageUrl } from '../value-objects/media/ImageUrl.vo.js'
+import { ChapterId } from '../value-objects/ids/chapter_id.vo.js'
+import { ImageUrl } from '../value-objects/media/image_url.vo.js'
 
 test.group(ChapterBuilder.name, () => {
   test('should create a chapter builder', async ({ assert }) => {

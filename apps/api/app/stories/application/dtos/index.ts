@@ -4,7 +4,7 @@
  * Central export file for all DTOs
  */
 
-export type { PaginationDTO, PaginatedResponseDTO } from './PaginationDTO.js'
+export type { PaginationDTO, PaginatedResponseDTO } from './pagination_d_t_o.js'
 export type {
   StoryCreatedDTO,
   StoryListItemDTO,
@@ -13,4 +13,4 @@ export type {
   ThemeDTO,
   LanguageDTO,
   ToneDTO,
-} from './StoryDTO.js'
+} from './story_d_t_o.js'

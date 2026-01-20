@@ -1,4 +1,4 @@
-import { IDateService } from '#stories/domain/services/IDateService'
+import { IDateService } from '#stories/domain/services/i_date_service'
 
 export class DateService implements IDateService {
   public now(): string {

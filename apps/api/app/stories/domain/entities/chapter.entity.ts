@@ -1,6 +1,6 @@
-import type { ChapterId } from '../value-objects/ids/ChapterId.vo.js'
-import type { ImageUrl } from '../value-objects/media/ImageUrl.vo.js'
-import { DomainException } from '../exceptions/DomainException.js'
+import type { ChapterId } from '../value-objects/ids/chapter_id.vo.js'
+import type { ImageUrl } from '../value-objects/media/image_url.vo.js'
+import { DomainException } from '../exceptions/domain_exception.js'
 
 /**
  * Chapter Entity

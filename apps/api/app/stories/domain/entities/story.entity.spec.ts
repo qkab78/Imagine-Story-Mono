@@ -1,11 +1,11 @@
 import { test } from '@japa/runner'
-import { StoryFactory } from '../factories/StoryFactory.js'
-import { ChapterFactory } from '../factories/ChapterFactory.js'
-import { Theme } from '../value-objects/settings/Theme.vo.js'
-import { Language } from '../value-objects/settings/Language.vo.js'
-import { Tone } from '../value-objects/settings/Tone.vo.js'
-import { IDateService } from '../services/IDateService.js'
-import { IRandomService } from '../services/IRandomService.js'
+import { StoryFactory } from '../factories/story_factory.js'
+import { ChapterFactory } from '../factories/chapter_factory.js'
+import { Theme } from '../value-objects/settings/theme.vo.js'
+import { Language } from '../value-objects/settings/language.vo.js'
+import { Tone } from '../value-objects/settings/tone.vo.js'
+import { IDateService } from '../services/i_date_service.js'
+import { IRandomService } from '../services/i_random_service.js'
 
 class TestDateService implements IDateService {
   public now(): string {

@@ -1,12 +1,12 @@
 import { Job } from '@rlanz/bull-queue'
 import app from '@adonisjs/core/services/app'
-import { GenerateStoryContentUseCase } from '#stories/application/use-cases/GenerateStoryContentUseCase'
-import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
-import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
-import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
-import { ThemeId } from '#stories/domain/value-objects/ids/ThemeId.vo'
-import { LanguageId } from '#stories/domain/value-objects/ids/LanguageId.vo'
-import { ToneId } from '#stories/domain/value-objects/ids/ToneId.vo'
+import { GenerateStoryContentUseCase } from '#stories/application/use-cases/generate_story_content_use_case'
+import { IThemeRepository } from '#stories/domain/repositories/theme_repository'
+import { ILanguageRepository } from '#stories/domain/repositories/language_repository'
+import { IToneRepository } from '#stories/domain/repositories/tone_repository'
+import { ThemeId } from '#stories/domain/value-objects/ids/theme_id.vo'
+import { LanguageId } from '#stories/domain/value-objects/ids/language_id.vo'
+import { ToneId } from '#stories/domain/value-objects/ids/tone_id.vo'
 
 export interface GenerateStoryJobPayload {
   storyId: string

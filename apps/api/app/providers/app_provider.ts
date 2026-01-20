@@ -1,23 +1,23 @@
 import type { ApplicationService } from '@adonisjs/core/types'
 import LemonSqueezyPaymentService from '#payments/services/lemonsqueezy/lemon_squeezy_payment_service'
 import PaymentService from '#payments/services/payment_service'
-import { IDateService } from '#stories/domain/services/IDateService'
-import { IRandomService } from '#stories/domain/services/IRandomService'
-import { IStoryRepository } from '#stories/domain/repositories/StoryRepository'
-import { IStoryGenerationService } from '#stories/domain/services/IStoryGeneration'
-import { IStoryImageGenerationService } from '#stories/domain/services/IStoryImageGenerationService'
-import { IThemeRepository } from '#stories/domain/repositories/ThemeRepository'
-import { ILanguageRepository } from '#stories/domain/repositories/LanguageRepository'
-import { IToneRepository } from '#stories/domain/repositories/ToneRepository'
-import { IDomainEventPublisher } from '#stories/domain/events/IDomainEventPublisher'
-import { IStorageService } from '#stories/domain/services/IStorageService'
-import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositories/KyselyToneRepository'
-import { IUserRepository } from '#users/domain/repositories/UserRepository'
-import { ISubscriptionRepository } from '#subscription/domain/repositories/ISubscriptionRepository'
-import { KyselySubscriptionRepository } from '#subscription/infrastructure/repositories/KyselySubscriptionRepository'
-import { ISocialAccountRepository } from '#auth/domain/repositories/ISocialAccountRepository'
-import { IAuthUserRepository } from '#auth/domain/repositories/IAuthUserRepository'
-import { ISocialAuthService } from '#auth/application/services/ISocialAuthService'
+import { IDateService } from '#stories/domain/services/i_date_service'
+import { IRandomService } from '#stories/domain/services/i_random_service'
+import { IStoryRepository } from '#stories/domain/repositories/story_repository'
+import { IStoryGenerationService } from '#stories/domain/services/i_story_generation'
+import { IStoryImageGenerationService } from '#stories/domain/services/i_story_image_generation_service'
+import { IThemeRepository } from '#stories/domain/repositories/theme_repository'
+import { ILanguageRepository } from '#stories/domain/repositories/language_repository'
+import { IToneRepository } from '#stories/domain/repositories/tone_repository'
+import { IDomainEventPublisher } from '#stories/domain/events/i_domain_event_publisher'
+import { IStorageService } from '#stories/domain/services/i_storage_service'
+import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositories/kysely_tone_repository'
+import { IUserRepository } from '#users/domain/repositories/user_repository'
+import { ISubscriptionRepository } from '#subscription/domain/repositories/i_subscription_repository'
+import { KyselySubscriptionRepository } from '#subscription/infrastructure/repositories/kysely_subscription_repository'
+import { ISocialAccountRepository } from '#auth/domain/repositories/i_social_account_repository'
+import { IAuthUserRepository } from '#auth/domain/repositories/i_auth_user_repository'
+import { ISocialAuthService } from '#auth/application/services/i_social_auth_service'
 import storageConfig from '#config/storage'
 import env from '#start/env'
 
@@ -37,34 +37,34 @@ export default class AppProvider {
     const { RandomService } =
       await import('#stories/infrastructure/adapters/services/random.service')
     const { KyselyStoryRepository } =
-      await import('#stories/infrastructure/adapters/repositories/KyselyStoryRepository')
+      await import('#stories/infrastructure/adapters/repositories/kysely_story_repository')
     const { OpenAiStoryGenerationService } =
-      await import('#stories/infrastructure/adapters/services/OpenAiStoryGeneration.service')
+      await import('#stories/infrastructure/adapters/services/open_ai_story_generation.service')
     const { LeonardoAiImageGenerationService } =
-      await import('#stories/infrastructure/adapters/services/LeonardoAiImageGenerationService')
+      await import('#stories/infrastructure/adapters/services/leonardo_ai_image_generation_service')
     const { GeminiImageGenerationService } =
-      await import('#stories/infrastructure/adapters/services/GeminiImageGenerationService')
+      await import('#stories/infrastructure/adapters/services/gemini_image_generation_service')
     const { KyselyThemeRepository } =
-      await import('#stories/infrastructure/adapters/repositories/KyselyThemeRepository')
+      await import('#stories/infrastructure/adapters/repositories/kysely_theme_repository')
     const { KyselyLanguageRepository } =
-      await import('#stories/infrastructure/adapters/repositories/KyselyLanguageRepository')
+      await import('#stories/infrastructure/adapters/repositories/kysely_language_repository')
     const { InMemoryEventPublisher } =
-      await import('#stories/infrastructure/adapters/events/InMemoryEventPublisher')
+      await import('#stories/infrastructure/adapters/events/in_memory_event_publisher')
     const { KyselyUserRepository } =
-      await import('#users/infrastructure/repositories/KyselyUserRepository')
+      await import('#users/infrastructure/repositories/kysely_user_repository')
     const { KyselySocialAccountRepository } =
-      await import('#auth/infrastructure/repositories/KyselySocialAccountRepository')
+      await import('#auth/infrastructure/repositories/kysely_social_account_repository')
     const { KyselyAuthUserRepository } =
-      await import('#auth/infrastructure/repositories/KyselyAuthUserRepository')
+      await import('#auth/infrastructure/repositories/kysely_auth_user_repository')
     const { AllySocialAuthService } =
-      await import('#auth/infrastructure/services/AllySocialAuthService')
+      await import('#auth/infrastructure/services/ally_social_auth_service')
 
     // Storage service binding (conditional based on config)
     const provider = storageConfig.default
 
     if (provider === 'minio') {
       const { MinIOStorageService } =
-        await import('#stories/infrastructure/adapters/services/MinIOStorageService')
+        await import('#stories/infrastructure/adapters/services/min_i_o_storage_service')
       this.app.container.singleton(IStorageService, async () => {
         const service = new MinIOStorageService()
         await service.ensureBucketExists()
@@ -72,7 +72,7 @@ export default class AppProvider {
       })
     } else {
       const { LocalStorageService } =
-        await import('#stories/infrastructure/adapters/services/LocalStorageService')
+        await import('#stories/infrastructure/adapters/services/local_storage_service')
       this.app.container.singleton(IStorageService, () => {
         return new LocalStorageService()
       })

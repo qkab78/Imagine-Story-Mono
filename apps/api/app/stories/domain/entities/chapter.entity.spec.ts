@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import { ChapterFactory } from '../factories/ChapterFactory.js'
+import { ChapterFactory } from '../factories/chapter_factory.js'
 
 test.group('Chapter Entity', () => {
   test('should create a valid Chapter without image', ({ assert }) => {

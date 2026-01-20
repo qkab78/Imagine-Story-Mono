@@ -1,6 +1,6 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import { SyncSubscriptionUseCase } from '#subscription/application/use-cases/SyncSubscriptionUseCase'
+import { SyncSubscriptionUseCase } from '#subscription/application/use-cases/sync_subscription_use_case'
 import { syncSubscriptionValidator } from './validators/sync_subscription_validator.js'
 
 @inject()

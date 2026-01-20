@@ -1,5 +1,5 @@
 import { Chapter, ChapterImage } from '../entities/chapter.entity.js'
-import { ChapterId } from '../value-objects/ids/ChapterId.vo.js'
+import { ChapterId } from '../value-objects/ids/chapter_id.vo.js'
 
 export class ChapterBuilder {
   private id: ChapterId | undefined
