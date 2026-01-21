@@ -16,9 +16,10 @@ const Onboarding = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['authenticate', userToken],
     queryFn: ({ queryKey }) => authenticate(queryKey[1]!),
-    enabled: userToken !== undefined,
+    enabled: !!userToken && userToken.length > 0,
+    retry: false,
   })
-
+  
   useEffect(() => {
     if (data?.user) {
       setToken(`Bearer ${data.user.currentAccessToken.token}`);

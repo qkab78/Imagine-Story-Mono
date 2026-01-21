@@ -69,6 +69,10 @@ export const authenticate = async (token: string) => {
     },
   });
 
+  if (!response.ok) {
+    throw new Error('Authentication failed');
+  }
+
   const result: { user: UserInfo } = await response.json();
 
   return result;

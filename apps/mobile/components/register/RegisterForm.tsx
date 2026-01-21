@@ -12,6 +12,7 @@ import { Link, useRouter } from "expo-router";
 import { TouchableOpacity, Animated } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from "react";
+import { useMMKVString } from "react-native-mmkv";
 
 
 const schema = z.object({
@@ -25,6 +26,7 @@ export const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { setToken, setUser } = useAuthStore((state) => state);
+  const [, setUserToken] = useMMKVString('user.token');
   const router = useRouter();
   const shakeAnimation = useRef(new Animated.Value(0)).current;
 
@@ -36,6 +38,7 @@ export const RegisterForm = () => {
       }
       setToken(data.token);
       setUser(data.user);
+      setUserToken(data.token);
       router.push("/");
     },
     onError: (error) => {
