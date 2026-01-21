@@ -77,6 +77,7 @@ export default class GenerateStoryJob extends Job {
         childAge: payload.childAge,
         numberOfChapters: payload.numberOfChapters,
         language: language.name,
+        languageCode: language.code,
         tone: tone.name,
         species: payload.species,
       })
