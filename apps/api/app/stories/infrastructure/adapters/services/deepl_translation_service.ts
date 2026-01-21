@@ -2,38 +2,15 @@ import * as deepl from 'deepl-node'
 import env from '#start/env'
 import { ITranslationService } from '#stories/domain/services/i_translation_service'
 import { TranslationRequest, TranslationResult } from '#stories/domain/services/types/translation_types'
+import {
+  DEEPL_SUPPORTED_LANGUAGES,
+  DIRECT_GENERATION_LANGUAGES,
+  DEEPL_LANGUAGE_CODE_MAP,
+} from '#stories/domain/services/types/translation_constants'
+import { TranslationException } from '#stories/application/exceptions/index'
 
 export class DeepLTranslationService implements ITranslationService {
   private readonly client: deepl.Translator
-
-  private readonly SUPPORTED_LANGUAGES = [
-    'JA',
-    'AR',
-    'TR',
-    'NL',
-    'PL',
-    'RU',
-    'ZH',
-    'KO',
-    'UK',
-    'ID',
-    'CS',
-    'RO',
-    'HU',
-    'EL',
-    'DA',
-    'FI',
-    'SV',
-    'NO',
-    'SK',
-    'SL',
-    'LT',
-    'LV',
-    'ET',
-    'BG',
-  ]
-
-  private readonly DIRECT_GENERATION_LANGUAGES = ['FR', 'EN', 'ES', 'PT', 'DE', 'IT']
 
   constructor() {
     const apiKey = env.get('DEEPL_API_KEY')
@@ -46,40 +23,62 @@ export class DeepLTranslationService implements ITranslationService {
   async translate(request: TranslationRequest): Promise<TranslationResult> {
     const targetLang = this.mapToDeepLLanguage(request.targetLanguage)
 
-    const result = await this.client.translateText(
-      request.text,
-      request.sourceLanguage.toLowerCase() as deepl.SourceLanguageCode,
-      targetLang as deepl.TargetLanguageCode
-    )
+    try {
+      const result = await this.client.translateText(
+        request.text,
+        request.sourceLanguage.toLowerCase() as deepl.SourceLanguageCode,
+        targetLang as deepl.TargetLanguageCode
+      )
 
-    const translatedText = Array.isArray(result) ? result[0].text : result.text
+      const translatedText = Array.isArray(result) ? result[0].text : result.text
 
-    return {
-      translatedText,
-      provider: 'deepl',
-      sourceLanguage: request.sourceLanguage,
-      targetLanguage: request.targetLanguage,
+      return {
+        translatedText,
+        provider: 'deepl',
+        sourceLanguage: request.sourceLanguage,
+        targetLanguage: request.targetLanguage,
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error during DeepL translation'
+      throw TranslationException.deeplError(
+        errorMessage,
+        request.sourceLanguage,
+        request.targetLanguage
+      )
     }
   }
 
   async translateBatch(requests: TranslationRequest[]): Promise<TranslationResult[]> {
-    return Promise.all(requests.map((request) => this.translate(request)))
+    if (requests.length === 0) {
+      return []
+    }
+
+    try {
+      return await Promise.all(requests.map((request) => this.translate(request)))
+    } catch (error) {
+      if (error instanceof TranslationException) {
+        throw error
+      }
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error during DeepL batch translation'
+      throw TranslationException.deeplError(errorMessage, '', '')
+    }
   }
 
   supportsLanguage(languageCode: string): boolean {
-    return this.SUPPORTED_LANGUAGES.includes(languageCode.toUpperCase())
+    return DEEPL_SUPPORTED_LANGUAGES.includes(
+      languageCode.toUpperCase() as (typeof DEEPL_SUPPORTED_LANGUAGES)[number]
+    )
   }
 
   needsTranslation(targetLanguageCode: string): boolean {
-    return !this.DIRECT_GENERATION_LANGUAGES.includes(targetLanguageCode.toUpperCase())
+    return !DIRECT_GENERATION_LANGUAGES.includes(
+      targetLanguageCode.toUpperCase() as (typeof DIRECT_GENERATION_LANGUAGES)[number]
+    )
   }
 
   private mapToDeepLLanguage(code: string): string {
-    const mappings: Record<string, string> = {
-      EN: 'EN-US',
-      PT: 'PT-BR',
-      ZH: 'ZH-HANS',
-    }
-    return mappings[code.toUpperCase()] || code.toUpperCase()
+    return DEEPL_LANGUAGE_CODE_MAP[code.toUpperCase()] || code.toUpperCase()
   }
 }

@@ -1,7 +1,7 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import PaymentErrors from './payment_errors.js'
-import { ApplicationException } from '#stories/application/exceptions/index'
+import { ApplicationException, TranslationException } from '#stories/application/exceptions/index'
 import { DomainException } from '#stories/domain/exceptions/domain_exception'
 import { InvalidValueObjectException } from '#stories/domain/exceptions/invalid_value_object_exception'
 import { InvariantViolationException } from '#stories/domain/exceptions/invariant_violation_exception'
@@ -22,6 +22,19 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     console.error('[ExceptionHandler] Error caught:', error)
     if (error instanceof Error) {
       console.error('[ExceptionHandler] Error stack:', error.stack)
+    }
+
+    // Handle TranslationException (translation service errors)
+    if (error instanceof TranslationException) {
+      return ctx.response.status(error.statusCode).json({
+        error: {
+          code: error.code,
+          message: error.message,
+          provider: error.provider,
+          sourceLanguage: error.sourceLanguage,
+          targetLanguage: error.targetLanguage,
+        },
+      })
     }
 
     // Handle ApplicationException (story quota exceeded, not found, etc.)

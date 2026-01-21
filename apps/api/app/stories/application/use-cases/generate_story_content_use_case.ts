@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
+import env from '#start/env'
 import { IStoryRepository } from '#stories/domain/repositories/story_repository'
 import { IStoryGenerationService } from '#stories/domain/services/i_story_generation'
 import { ITranslationService } from '#stories/domain/services/i_translation_service'
@@ -28,8 +29,8 @@ export interface GenerateStoryContentPayload {
 
 @inject()
 export class GenerateStoryContentUseCase {
-  private readonly SOURCE_LANGUAGE = 'French'
-  private readonly SOURCE_LANGUAGE_CODE = 'FR'
+  private readonly SOURCE_LANGUAGE = env.get('STORY_SOURCE_LANGUAGE', 'French')
+  private readonly SOURCE_LANGUAGE_CODE = env.get('STORY_SOURCE_LANGUAGE_CODE', 'FR')
 
   constructor(
     private readonly storyRepository: IStoryRepository,

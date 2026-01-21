@@ -106,7 +106,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   | Variables for configuring translation services
   |----------------------------------------------------------
   */
-  DEEPL_API_KEY: Env.schema.string.optional(),
-  GOOGLE_PROJECT_ID: Env.schema.string.optional(),
-  GOOGLE_TRANSLATE_API_KEY: Env.schema.string.optional(),
+  DEEPL_API_KEY: Env.schema.string(),
+  GOOGLE_TRANSLATE_API_KEY: Env.schema.string(),
+  STORY_SOURCE_LANGUAGE: Env.schema.string(),
+  STORY_SOURCE_LANGUAGE_CODE: Env.schema.string(),
 })
