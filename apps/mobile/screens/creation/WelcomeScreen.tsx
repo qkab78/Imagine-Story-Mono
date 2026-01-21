@@ -47,7 +47,8 @@ export const WelcomeScreen: React.FC = () => {
   }, [canCreateStory, router]);
 
   const handleBack = useCallback(() => {
-    router.back();
+    // Navigate to home tab instead of back() to avoid Create tab loop
+    router.replace('/(tabs)');
   }, [router]);
 
   const handleUpgrade = useCallback(() => {

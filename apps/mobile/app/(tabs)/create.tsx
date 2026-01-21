@@ -15,7 +15,6 @@ export default function CreateTab() {
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    // Only navigate when the tab is actually focused (user clicked on it)
     if (isFocused) {
       router.push('/stories/creation/welcome');
     }
