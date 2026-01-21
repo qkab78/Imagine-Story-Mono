@@ -1,7 +1,10 @@
 import * as deepl from 'deepl-node'
 import env from '#start/env'
 import { ITranslationService } from '#stories/domain/services/i_translation_service'
-import { TranslationRequest, TranslationResult } from '#stories/domain/services/types/translation_types'
+import {
+  TranslationRequest,
+  TranslationResult,
+} from '#stories/domain/services/types/translation_types'
 import {
   DEEPL_SUPPORTED_LANGUAGES,
   DIRECT_GENERATION_LANGUAGES,

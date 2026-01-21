@@ -3,7 +3,7 @@ import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { readdir, readFile, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import app from '@adonisjs/core/services/app'
-import { IStorageService } from '#stories/domain/services/IStorageService'
+import { IStorageService } from '#stories/domain/services/i_storage_service'
 import storageConfig from '#config/storage'
 
 export default class MigrateToMinio extends BaseCommand {

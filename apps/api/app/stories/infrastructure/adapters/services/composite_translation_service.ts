@@ -138,8 +138,7 @@ export class CompositeTranslationService implements ITranslationService {
     return originalRequests.map((request) => {
       const matchingResult = results.find(
         (r) =>
-          r.sourceLanguage === request.sourceLanguage &&
-          r.targetLanguage === request.targetLanguage
+          r.sourceLanguage === request.sourceLanguage && r.targetLanguage === request.targetLanguage
       )
       return matchingResult!
     })

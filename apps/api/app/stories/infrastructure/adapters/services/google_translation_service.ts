@@ -1,7 +1,10 @@
 import { Translate } from '@google-cloud/translate/build/src/v2/index.js'
 import env from '#start/env'
 import { ITranslationService } from '#stories/domain/services/i_translation_service'
-import { TranslationRequest, TranslationResult } from '#stories/domain/services/types/translation_types'
+import {
+  TranslationRequest,
+  TranslationResult,
+} from '#stories/domain/services/types/translation_types'
 import {
   DIRECT_GENERATION_LANGUAGES,
   GOOGLE_LANGUAGE_CODE_MAP,
