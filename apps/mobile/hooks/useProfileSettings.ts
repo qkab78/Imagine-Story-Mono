@@ -15,7 +15,7 @@ import { router } from 'expo-router';
 const storage = new MMKV({ id: 'profile-settings' });
 
 export const useProfileSettings = () => {
-  const { token, user, setToken, setUser } = useAuthStore();
+  const { token, user, clearAuth } = useAuthStore();
   const resetSubscription = useSubscriptionStore((state) => state.reset);
   const resetQuota = useQuotaStore((state) => state.reset);
   const queryClient = useQueryClient();
@@ -23,20 +23,22 @@ export const useProfileSettings = () => {
   const [appVersion, setAppVersion] = useState('1.0.0');
 
   const clearAllUserData = useCallback(async () => {
-    // Reset all stores
+    // 1. Cancel all in-flight queries FIRST to prevent requests with stale token
+    await queryClient.cancelQueries();
+
+    // 2. Clear auth state BEFORE clearing cache to prevent refetches
+    clearAuth();
+
+    // 3. Clear React Query cache
+    queryClient.clear();
+
+    // 4. Reset all stores
     resetSubscription();
     resetQuota();
 
-    // Clear React Query cache
-    queryClient.clear();
-
-    // Logout from RevenueCat
+    // 5. Logout from RevenueCat
     await subscriptionService.logout();
-
-    // Clear auth state
-    setToken('');
-    setUser(undefined);
-  }, [resetSubscription, resetQuota, queryClient, setToken, setUser]);
+  }, [resetSubscription, resetQuota, queryClient, clearAuth]);
 
   const logoutMutation = useMutation({
     mutationFn: (authToken: string) => logout(authToken),
