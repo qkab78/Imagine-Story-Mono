@@ -10,5 +10,9 @@
         "name": "@kitajs/ts-html-plugin"
       }
     ]
-  }
+  },
+  "exclude": [
+    "**/*.spec.ts",
+    "tests/**/*"
+  ]
 }

@@ -15,8 +15,8 @@ RUN pnpm install
 # Copy application code
 COPY . .
 
-# Build the application (ignore TypeScript errors in test files)
-RUN node ace build --ignore-ts-errors
+# Build the application
+RUN node ace build
 
 # Create uploads directory with proper permissions
 RUN mkdir -p uploads && chown -R node:node /app/uploads
