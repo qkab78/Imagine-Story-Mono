@@ -12,13 +12,20 @@ import KidOnboardingContainer from '@/components/Onboarding/KidOnboardingContain
 
 const Onboarding = () => {
   const { setToken, setUser } = useAuthStore((state) => state);
-  const [userToken] = useMMKVString('user.token');
-  const { data, isLoading } = useQuery({
+  const [userToken, setUserToken] = useMMKVString('user.token');
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['authenticate', userToken],
     queryFn: ({ queryKey }) => authenticate(queryKey[1]!),
     enabled: !!userToken && userToken.length > 0,
     retry: false,
   })
+
+  // Nettoyer le token MMKV invalide en cas d'échec d'authentification
+  useEffect(() => {
+    if (isError && userToken) {
+      setUserToken(undefined);
+    }
+  }, [isError, userToken, setUserToken])
   
   useEffect(() => {
     if (data?.user) {
