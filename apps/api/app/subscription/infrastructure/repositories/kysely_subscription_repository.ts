@@ -5,13 +5,19 @@ export class KyselySubscriptionRepository extends ISubscriptionRepository {
   async updateUserRole(userEmail: string, role: number): Promise<void> {
     console.log(`[KyselySubscriptionRepository] Updating user ${userEmail} role to ${role}`)
 
+    // Optimized: only update if role is actually different
     const result = await db
       .updateTable('users')
       .set({ role })
       .where('email', '=', userEmail)
+      .where('role', '!=', role)  // Only update if role is different
       .executeTakeFirst()
 
-    console.log(`[KyselySubscriptionRepository] Update result:`, result)
+    if (result.numUpdatedRows === 0n) {
+      console.log(`[KyselySubscriptionRepository] No update needed - user ${userEmail} already has role ${role}`)
+    } else {
+      console.log(`[KyselySubscriptionRepository] Successfully updated user ${userEmail} to role ${role}`)
+    }
   }
 
   async trackWebhookEvent(eventId: string, eventType: string, appUserId: string, processed: boolean): Promise<void> {

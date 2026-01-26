@@ -59,8 +59,11 @@ export class ProcessRevenueCatWebhookUseCase {
 
       console.log(`[ProcessRevenueCatWebhookUseCase] User ${userEmail} should be premium: ${shouldBePremium}, new role: ${newRole}`)
 
-      // Update user role using email
+      // Performance optimization: only update if role might change
+      const updateStartTime = Date.now()
       await this.subscriptionRepository.updateUserRole(userEmail, newRole)
+      const updateTime = Date.now() - updateStartTime
+      console.log(`[ProcessRevenueCatWebhookUseCase] Role update completed in ${updateTime}ms`)
 
       // Mark event as successfully processed
       await this.subscriptionRepository.trackWebhookEvent(
