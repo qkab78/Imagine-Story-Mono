@@ -41,6 +41,7 @@ const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
   willRenew: false,
   isLoading: false,
   error: null,
+  expiredModalDismissed: false,
 
   setCustomerInfo: (customerInfo: CustomerInfo | null) => {
     const status = getStatusFromCustomerInfo(customerInfo);
@@ -72,6 +73,8 @@ const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
 
   setError: (error: string | null) => set({ error }),
 
+  setExpiredModalDismissed: (dismissed: boolean) => set({ expiredModalDismissed: dismissed }),
+
   reset: () => {
     storage.delete('isSubscribed');
     storage.delete('status');
@@ -87,6 +90,7 @@ const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
       willRenew: false,
       isLoading: false,
       error: null,
+      expiredModalDismissed: false,
     });
   },
 }));

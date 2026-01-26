@@ -1,0 +1,65 @@
+import { useState, useEffect, useCallback } from 'react'
+import useSubscriptionStore from '@/store/subscription/subscriptionStore'
+import type { SubscriptionStatus } from '@/types/subscription'
+
+interface UseSubscriptionExpiredModalReturn {
+  showModal: boolean
+  showSubscriptionSheet: boolean
+  dismissModal: () => void
+  handleRenew: () => void
+  closeSubscriptionSheet: () => void
+  expirationDate: string | null
+  status: SubscriptionStatus
+}
+
+const MODAL_DELAY_MS = 500
+
+export const useSubscriptionExpiredModal = (): UseSubscriptionExpiredModalReturn => {
+  const status = useSubscriptionStore((state) => state.status)
+  const expirationDate = useSubscriptionStore((state) => state.expirationDate)
+  const expiredModalDismissed = useSubscriptionStore((state) => state.expiredModalDismissed)
+  const setExpiredModalDismissed = useSubscriptionStore((state) => state.setExpiredModalDismissed)
+
+  const [isReady, setIsReady] = useState(false)
+  const [showSubscriptionSheet, setShowSubscriptionSheet] = useState(false)
+
+  // Delay modal appearance to avoid flash on app start
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true)
+    }, MODAL_DELAY_MS)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  const shouldShowModal =
+    isReady &&
+    (status === 'expired' || status === 'cancelled') &&
+    expirationDate !== null &&
+    !expiredModalDismissed
+
+  const dismissModal = useCallback(() => {
+    setExpiredModalDismissed(true)
+  }, [setExpiredModalDismissed])
+
+  const handleRenew = useCallback(() => {
+    setExpiredModalDismissed(true)
+    setShowSubscriptionSheet(true)
+  }, [setExpiredModalDismissed])
+
+  const closeSubscriptionSheet = useCallback(() => {
+    setShowSubscriptionSheet(false)
+  }, [])
+
+  return {
+    showModal: shouldShowModal,
+    showSubscriptionSheet,
+    dismissModal,
+    handleRenew,
+    closeSubscriptionSheet,
+    expirationDate,
+    status,
+  }
+}
+
+export default useSubscriptionExpiredModal

@@ -20,6 +20,9 @@ export interface SubscriptionStore extends SubscriptionState {
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   reset: () => void;
+  // Expired modal state (session only, not persisted)
+  expiredModalDismissed: boolean;
+  setExpiredModalDismissed: (dismissed: boolean) => void;
 }
 
 export const ENTITLEMENT_ID = 'Mon Petit Conteur Premium';
