@@ -70,7 +70,8 @@ export class ProcessRevenueCatWebhookUseCase {
         event.id,
         event.type,
         event.app_user_id,
-        true
+        true,
+        payload
       )
 
       const message = this.getEventMessage(event.type, shouldBePremium)
@@ -89,13 +90,15 @@ export class ProcessRevenueCatWebhookUseCase {
     } catch (error) {
       console.error(`[ProcessRevenueCatWebhookUseCase] Error processing event ${event.id}:`, error)
       
-      // Try to track the failed event
+      // Track failed event
       try {
         await this.subscriptionRepository.trackWebhookEvent(
           event.id,
           event.type,
           event.app_user_id,
-          false
+          false,
+          payload,
+          error instanceof Error ? error.message : 'Unknown error occurred'
         )
       } catch (trackingError) {
         console.error(`[ProcessRevenueCatWebhookUseCase] Failed to track error for event ${event.id}:`, trackingError)

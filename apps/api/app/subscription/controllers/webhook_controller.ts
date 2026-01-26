@@ -69,15 +69,11 @@ export default class WebhookController {
       })
 
     } catch (error) {
-      const processingTime = Date.now() - startTime
       console.error('[WebhookController] Error processing RevenueCat webhook:', error)
-
-      // Return 500 so RevenueCat will retry the webhook
-      return response.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
-        processing_time_ms: processingTime,
-      })
+      
+      // Let the global exception handler deal with the error
+      // It will return appropriate HTTP status codes
+      throw error
     }
   }
 }

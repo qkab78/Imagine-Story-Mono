@@ -20,21 +20,47 @@ export class KyselySubscriptionRepository extends ISubscriptionRepository {
     }
   }
 
-  async trackWebhookEvent(eventId: string, eventType: string, appUserId: string, processed: boolean): Promise<void> {
+  async trackWebhookEvent(eventId: string, eventType: string, appUserId: string, processed: boolean, payload?: any, errorMessage?: string): Promise<void> {
     console.log(`[KyselySubscriptionRepository] Tracking webhook event ${eventId} for user ${appUserId}`)
 
-    // For now, we'll use a simple approach - just track in logs
-    // In production, you might want to create a webhook_events table
-    const timestamp = new Date().toISOString()
-    console.log(`[WebhookEvent] ${timestamp} - EventID: ${eventId}, Type: ${eventType}, User: ${appUserId}, Processed: ${processed}`)
+    const status = processed ? 'processed' : 'failed'
+    const processedAt = processed ? new Date() : null
+
+    await db
+      .insertInto('webhook_events')
+      .values({
+        event_id: eventId,
+        event_type: eventType,
+        app_user_id: appUserId,
+        status,
+        payload: JSON.stringify(payload || {}),
+        error_message: errorMessage || null,
+        retry_count: 0,
+        processed_at: processedAt,
+      })
+      .onConflict((oc) => oc.column('event_id').doUpdateSet({
+        status,
+        error_message: errorMessage || null,
+        processed_at: processedAt,
+        updated_at: new Date(),
+      }))
+      .execute()
+
+    console.log(`[KyselySubscriptionRepository] Webhook event ${eventId} tracked with status: ${status}`)
   }
 
   async isWebhookEventProcessed(eventId: string): Promise<boolean> {
     console.log(`[KyselySubscriptionRepository] Checking if webhook event ${eventId} was already processed`)
     
-    // For now, we'll assume events are not processed (simple implementation)
-    // In production, you would check a webhook_events table
-    // TODO: Implement proper event tracking with database table
-    return false
+    const existingEvent = await db
+      .selectFrom('webhook_events')
+      .select('status')
+      .where('event_id', '=', eventId)
+      .where('status', '=', 'processed')
+      .executeTakeFirst()
+
+    const isProcessed = !!existingEvent
+    console.log(`[KyselySubscriptionRepository] Event ${eventId} processed status: ${isProcessed}`)
+    return isProcessed
   }
 }
