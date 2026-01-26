@@ -7,7 +7,9 @@
     "start:api:dev": "cd apps/api && pnpm run dev",
     "start:mobile:dev": "cd apps/mobile && pnpm expo start",
     "start:mobile:dev:ios": "cd apps/mobile && pnpm expo run:ios",
-    "start:mobile:dev:android": "cd apps/mobile && pnpm expo run:android"
+    "start:mobile:dev:android": "cd apps/mobile && pnpm expo run:android",
+    "build:mobile:dev:ios": "cd apps/mobile && eas build --platform ios --profile development",
+    "build:mobile:dev:android": "cd apps/mobile && eas build --platform android --profile development"
   },
   "keywords": [],
   "author": "Mikabs",
