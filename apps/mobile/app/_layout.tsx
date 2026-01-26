@@ -23,18 +23,12 @@ const queryClient = new QueryClient();
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  // const [darkMode, setDarkMode] = useState(false);
-  const [loaded] = useFonts({
-    SpaceMonoRegular: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    SpaceMonoBold: require('../assets/fonts/SpaceMono-Bold.ttf'),
-    SpaceMonoItalic: require('../assets/fonts/SpaceMono-Italic.ttf'),
-    SpaceMonoBoldItalic: require('../assets/fonts/SpaceMono-BoldItalic.ttf'),
-  });
-  const token = useAuthStore(state => state.token);
+/**
+ * AppContent - Composant enfant qui utilise les hooks dépendant de QueryClient
+ * Doit être rendu à l'intérieur du QueryClientProvider
+ */
+function AppContent() {
   const user = useAuthStore(state => state.user);
-  const segments = useSegments();
-  const router = useRouter();
 
   // Subscription expired modal
   const {
@@ -94,12 +88,64 @@ export default function RootLayout() {
       try {
         await subscriptionService.initialize(user?.email);
       } catch (error) {
-        console.error('[RootLayout] Failed to initialize subscription service:', error);
+        console.error('[AppContent] Failed to initialize subscription service:', error);
       }
     };
 
     initSubscription();
   }, [user?.email]);
+
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="stories" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="register" />
+        <Stack.Screen name="signup" />
+        <Stack.Screen name="(protected)" />
+        <Stack.Screen name="notification-permission" />
+      </Stack>
+
+      {/* Subscription expired modal */}
+      <SubscriptionExpiredModal
+        visible={showExpiredModal}
+        onClose={dismissModal}
+        onRenew={handleRenew}
+        expirationDate={expirationDate}
+        status={status}
+      />
+
+      {/* Subscription sheet for renewal */}
+      <SubscriptionSheet
+        visible={showSubscriptionSheet}
+        onClose={closeSubscriptionSheet}
+        isPremium={isSubscribed}
+        price={getFormattedPrice()}
+        nextPaymentDate={getFormattedExpirationDate() ?? undefined}
+        willRenew={willRenew}
+        isLoading={isSubscriptionLoading}
+        onPurchase={handlePurchase}
+        onRestore={handleRestore}
+        onCancel={handleCancelSubscription}
+      />
+
+      <StatusBar style="dark" backgroundColor="#F0E6FF" />
+    </>
+  );
+}
+
+export default function RootLayout() {
+  const [loaded] = useFonts({
+    SpaceMonoRegular: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMonoBold: require('../assets/fonts/SpaceMono-Bold.ttf'),
+    SpaceMonoItalic: require('../assets/fonts/SpaceMono-Italic.ttf'),
+    SpaceMonoBoldItalic: require('../assets/fonts/SpaceMono-BoldItalic.ttf'),
+  });
+  const token = useAuthStore(state => state.token);
+  const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
     const isAuthGroup = segments[0] === '(protected)' || segments[0] === '(tabs)';
@@ -110,8 +156,6 @@ export default function RootLayout() {
       console.log('No token found, redirecting to login');
       router.replace('/');
     } else if (token && !isAlreadyInAuthenticatedArea) {
-      // Only redirect to tabs if the user is not already in an authenticated area
-      // This prevents resetting the navigation stack when navigating within the app
       console.log('Token found, redirecting to home');
       router.replace('/(tabs)');
     }
@@ -132,41 +176,7 @@ export default function RootLayout() {
     <ThemeProvider theme={theme}>
       <TamaguiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="stories" />
-            <Stack.Screen name="login" />
-            <Stack.Screen name="register" />
-            <Stack.Screen name="signup" />
-            <Stack.Screen name="(protected)" />
-            <Stack.Screen name="notification-permission" />
-          </Stack>
-
-          {/* Subscription expired modal */}
-          <SubscriptionExpiredModal
-            visible={showExpiredModal}
-            onClose={dismissModal}
-            onRenew={handleRenew}
-            expirationDate={expirationDate}
-            status={status}
-          />
-
-          {/* Subscription sheet for renewal */}
-          <SubscriptionSheet
-            visible={showSubscriptionSheet}
-            onClose={closeSubscriptionSheet}
-            isPremium={isSubscribed}
-            price={getFormattedPrice()}
-            nextPaymentDate={getFormattedExpirationDate() ?? undefined}
-            willRenew={willRenew}
-            isLoading={isSubscriptionLoading}
-            onPurchase={handlePurchase}
-            onRestore={handleRestore}
-            onCancel={handleCancelSubscription}
-          />
-
-          <StatusBar style="dark" backgroundColor="#F0E6FF" />
+          <AppContent />
         </QueryClientProvider>
       </TamaguiProvider>
     </ThemeProvider>
