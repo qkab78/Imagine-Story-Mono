@@ -26,11 +26,11 @@ export class CreateStoryUseCase {
     token: string,
     ownerId?: string
   ): Promise<StoryCreatedResponse> {
-    // 1. Validate form data
-    ValidateStoryCreationUseCase.execute(formData)
+    // 1. Validate form data and get complete data
+    const validatedData = ValidateStoryCreationUseCase.execute(formData)
 
-    // 2. Map form data to backend payload
-    const payload = MapStoryFormToPayloadUseCase.execute(formData, token, ownerId)
+    // 2. Map validated form data to backend payload
+    const payload = MapStoryFormToPayloadUseCase.execute(validatedData, ownerId)
 
     // 3. Call API to create story
     const createdStory = await createStory(payload, token)

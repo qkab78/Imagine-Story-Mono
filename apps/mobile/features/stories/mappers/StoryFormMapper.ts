@@ -1,4 +1,4 @@
-import type { StoryCreationFormData } from '@/types/creation'
+import type { CompleteStoryCreationFormData } from '../use-cases/ValidateStoryCreationUseCase'
 
 /**
  * Backend CreateStoryPayload interface
@@ -28,14 +28,13 @@ export interface CreateStoryPayload {
 export class StoryFormMapper {
   /**
    * Map frontend StoryCreationFormData to backend CreateStoryPayload
-   * @param formData Frontend form data
-   * @param token Authentication token
+   * This method expects validated and complete form data
+   * @param formData Frontend form data (must be complete and validated)
    * @param ownerId Story owner ID
    * @returns Backend CreateStoryPayload
    */
   public static toBackendPayload(
-    formData: StoryCreationFormData,
-    token: string,
+    formData: CompleteStoryCreationFormData,
     ownerId?: string
   ): CreateStoryPayload {
     return {
@@ -46,12 +45,12 @@ export class StoryFormMapper {
       numberOfChapters: formData.numberOfChapters,
       language: formData.language.id, // UUID from backend
       tone: formData.tone.id, // UUID from backend
-      species: formData.hero.name, // Map hero name to species
+      species: formData.hero.species || formData.hero.id, // Map hero species (girl, boy, robot, etc.) with fallback to id
       // Optional fields
+      ownerId,
       title: undefined,
       conclusion: undefined,
       coverImageUrl: undefined,
-      ownerId: ownerId,
       isPublic: false,
     }
   }

@@ -7,8 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { colors } from '@/theme/colors';
 import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
-import { createStory } from '@/api/stories/storyApi';
-import { StoryFormMapper } from '@/features/stories/mappers/StoryFormMapper';
+import { CreateStoryUseCase } from '@/features/stories/use-cases/CreateStoryUseCase';
 import useAuthStore from '@/store/auth/authStore';
 import { addPendingGeneration, setLastCreatedStoryId } from '@/store/library/libraryStorage';
 import { QuotaBadge } from '@/components/molecules/creation/QuotaBadge';
@@ -106,15 +105,12 @@ export const SummaryScreenNew: React.FC = () => {
       setIsGenerating(true);
       setError(null);
 
-      // Map form data to backend payload
-      const backendPayload = StoryFormMapper.toBackendPayload(
-        createStoryPayload as any,
+      // Create story using the use case (handles validation and mapping)
+      const response = await CreateStoryUseCase.execute(
+        createStoryPayload,
         token,
         user?.id
       );
-
-      // Create story
-      const response = await createStory(backendPayload, token);
 
       // Add to pending generations for polling
       if (response.data?.id && response.data?.jobId) {

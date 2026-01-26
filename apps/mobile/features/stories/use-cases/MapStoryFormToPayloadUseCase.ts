@@ -1,5 +1,5 @@
 import { StoryFormMapper } from '../mappers/StoryFormMapper'
-import type { StoryCreationFormData } from '@/types/creation'
+import type { CompleteStoryCreationFormData } from './ValidateStoryCreationUseCase'
 import type { CreateStoryPayload } from '../mappers/StoryFormMapper'
 
 /**
@@ -9,17 +9,15 @@ import type { CreateStoryPayload } from '../mappers/StoryFormMapper'
  */
 export class MapStoryFormToPayloadUseCase {
   /**
-   * Map frontend form data to backend payload
-   * @param formData Frontend form data
-   * @param token Authentication token
+   * Map validated frontend form data to backend payload
+   * @param formData Validated and complete frontend form data
    * @param ownerId Story owner ID (optional)
    * @returns Backend CreateStoryPayload
    */
   public static execute(
-    formData: StoryCreationFormData,
-    token: string,
+    formData: CompleteStoryCreationFormData,
     ownerId?: string
   ): CreateStoryPayload {
-    return StoryFormMapper.toBackendPayload(formData, token, ownerId)
+    return StoryFormMapper.toBackendPayload(formData, ownerId)
   }
 }
