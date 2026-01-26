@@ -1,29 +1,51 @@
 import { create } from 'zustand';
 import { MMKV } from 'react-native-mmkv';
 import type { CustomerInfo, PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
-import type { SubscriptionStatus, SubscriptionStore } from '@/types/subscription';
+import type { SubscriptionStatus, SubscriptionStore, ExpirationWarningLevel } from '@/types/subscription';
 import { ENTITLEMENT_ID } from '@/types/subscription';
+import { calculateDaysUntilExpiration } from '@/utils/date';
+
+const getExpirationWarningLevel = (
+  daysUntilExpiration: number | null,
+  willRenew: boolean
+): ExpirationWarningLevel => {
+  // N'afficher l'avertissement que si l'utilisateur a annulé le renouvellement
+  if (willRenew || daysUntilExpiration === null) return 'none';
+
+  if (daysUntilExpiration <= 3) return 'urgent';
+  if (daysUntilExpiration <= 7) return 'warning';
+  if (daysUntilExpiration <= 30) return 'info';
+  return 'none';
+};
 
 const storage = new MMKV({ id: 'subscription-storage' });
 
 const getStatusFromCustomerInfo = (customerInfo: CustomerInfo | null): SubscriptionStatus => {
   if (!customerInfo) return 'free';
 
-  const entitlement = customerInfo.entitlements.active[ENTITLEMENT_ID];
-  if (!entitlement) return 'free';
-
-  if (entitlement.isActive) {
+  // Vérifier d'abord les entitlements actifs
+  const activeEntitlement = customerInfo.entitlements.active[ENTITLEMENT_ID];
+  if (activeEntitlement?.isActive) {
     return 'premium';
   }
 
-  if (entitlement.expirationDate) {
-    const expirationDate = new Date(entitlement.expirationDate);
-    if (expirationDate < new Date()) {
-      return 'expired';
+  // Vérifier les entitlements expirés dans "all" (contient actifs ET expirés)
+  const allEntitlement = customerInfo.entitlements.all[ENTITLEMENT_ID];
+  if (allEntitlement) {
+    // L'utilisateur avait un abonnement mais il n'est plus actif
+    if (allEntitlement.expirationDate) {
+      const expirationDate = new Date(allEntitlement.expirationDate);
+      if (expirationDate < new Date()) {
+        return 'expired';
+      }
+    }
+    // Annulé mais pas encore expiré (willRenew = false mais date pas passée)
+    if (!allEntitlement.willRenew) {
+      return 'cancelled';
     }
   }
 
-  return 'cancelled';
+  return 'free';
 };
 
 const getMonthlyPackageFromOffering = (offering: PurchasesOffering | null): PurchasesPackage | null => {
@@ -41,25 +63,37 @@ const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
   willRenew: false,
   isLoading: false,
   error: null,
+  expiredModalDismissed: false,
+  daysUntilExpiration: null,
+  expirationWarningLevel: 'none',
 
   setCustomerInfo: (customerInfo: CustomerInfo | null) => {
     const status = getStatusFromCustomerInfo(customerInfo);
     const isSubscribed = status === 'premium';
-    const entitlement = customerInfo?.entitlements.active[ENTITLEMENT_ID];
+    // Utiliser active en priorité, sinon all (pour les abonnements expirés)
+    const entitlement = customerInfo?.entitlements.active[ENTITLEMENT_ID]
+      || customerInfo?.entitlements.all[ENTITLEMENT_ID];
+
+    const expirationDate = entitlement?.expirationDate || null;
+    const willRenew = entitlement?.willRenew ?? false;
+    const daysUntilExpiration = calculateDaysUntilExpiration(expirationDate);
+    const expirationWarningLevel = getExpirationWarningLevel(daysUntilExpiration, willRenew);
 
     set({
       customerInfo,
       status,
       isSubscribed,
-      expirationDate: entitlement?.expirationDate || null,
-      willRenew: entitlement?.willRenew ?? false,
+      expirationDate,
+      willRenew,
+      daysUntilExpiration,
+      expirationWarningLevel,
     });
 
     // Persist subscription status for offline access
     storage.set('isSubscribed', isSubscribed);
     storage.set('status', status);
-    if (entitlement?.expirationDate) {
-      storage.set('expirationDate', entitlement.expirationDate);
+    if (expirationDate) {
+      storage.set('expirationDate', expirationDate);
     }
   },
 
@@ -71,6 +105,8 @@ const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
   setLoading: (isLoading: boolean) => set({ isLoading }),
 
   setError: (error: string | null) => set({ error }),
+
+  setExpiredModalDismissed: (dismissed: boolean) => set({ expiredModalDismissed: dismissed }),
 
   reset: () => {
     storage.delete('isSubscribed');
@@ -87,6 +123,9 @@ const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
       willRenew: false,
       isLoading: false,
       error: null,
+      expiredModalDismissed: false,
+      daysUntilExpiration: null,
+      expirationWarningLevel: 'none',
     });
   },
 }));

@@ -2,6 +2,8 @@ import type { CustomerInfo, PurchasesOffering, PurchasesPackage } from 'react-na
 
 export type SubscriptionStatus = 'free' | 'premium' | 'expired' | 'cancelled';
 
+export type ExpirationWarningLevel = 'none' | 'info' | 'warning' | 'urgent';
+
 export interface SubscriptionState {
   status: SubscriptionStatus;
   isSubscribed: boolean;
@@ -12,6 +14,9 @@ export interface SubscriptionState {
   willRenew: boolean;
   isLoading: boolean;
   error: string | null;
+  // Expiration warning
+  daysUntilExpiration: number | null;
+  expirationWarningLevel: ExpirationWarningLevel;
 }
 
 export interface SubscriptionStore extends SubscriptionState {
@@ -20,6 +25,9 @@ export interface SubscriptionStore extends SubscriptionState {
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   reset: () => void;
+  // Expired modal state (session only, not persisted)
+  expiredModalDismissed: boolean;
+  setExpiredModalDismissed: (dismissed: boolean) => void;
 }
 
 export const ENTITLEMENT_ID = 'Mon Petit Conteur Premium';

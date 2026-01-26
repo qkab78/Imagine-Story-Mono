@@ -9,6 +9,7 @@ import {
   Heart,
   Home,
   Sparkles,
+  Sparkle,
   Book,
   // Tone icons
   Sun,
@@ -45,6 +46,8 @@ import {
   Palette,
   GraduationCap,
   Clock,
+  // Subscription icons
+  Calendar,
 } from 'lucide-react-native';
 import { useLiquidGlass } from '@/hooks/useLiquidGlass';
 
@@ -59,6 +62,7 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<{ size: number; color: st
   Heart,
   Home,
   Sparkles,
+  Sparkle,
   Book,
   // Tone icons
   Sun,
@@ -95,6 +99,8 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<{ size: number; color: st
   Palette,
   GraduationCap,
   Clock,
+  // Subscription icons
+  Calendar,
 };
 
 export interface IconConfig {
