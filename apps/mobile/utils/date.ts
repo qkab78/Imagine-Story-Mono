@@ -29,3 +29,15 @@ export const isRecentDate = (date: Date, hoursThreshold = 24): boolean => {
   const diffHours = diffMs / (1000 * 60 * 60);
   return diffHours < hoursThreshold;
 };
+
+/**
+ * Calcule le nombre de jours restants avant une date d'expiration
+ */
+export const calculateDaysUntilExpiration = (expirationDate: string | null): number | null => {
+  if (!expirationDate) return null;
+  const expDate = new Date(expirationDate);
+  const now = new Date();
+  const diffTime = expDate.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays > 0 ? diffDays : 0;
+};

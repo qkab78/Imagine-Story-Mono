@@ -1,20 +1,23 @@
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { Stack, useRouter, useSegments } from 'expo-router';
 import useAuthStore from '@/store/auth/authStore';
+import useSubscriptionStore from '@/store/subscription/subscriptionStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui'
 import config from '@/tamagui.config';
 import { ThemeProvider } from '@shopify/restyle';
 import { theme } from '@/config/theme';
-import { Alert } from 'react-native';
+import { Alert, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { subscriptionService } from '@/services/subscription';
 import { SubscriptionExpiredModal } from '@/components/organisms/subscription';
 import { SubscriptionSheet } from '@/components/organisms/profile/SubscriptionSheet';
+import { ExpirationWarningBanner } from '@/components/molecules/subscription';
 import { useSubscriptionExpiredModal } from '@/hooks/useSubscriptionExpiredModal';
 import { useSubscription } from '@/hooks/useSubscription';
 
@@ -28,7 +31,13 @@ SplashScreen.preventAutoHideAsync();
  * Doit être rendu à l'intérieur du QueryClientProvider
  */
 function AppContent() {
+  const insets = useSafeAreaInsets();
   const user = useAuthStore(state => state.user);
+  const daysUntilExpiration = useSubscriptionStore(state => state.daysUntilExpiration);
+  const expirationWarningLevel = useSubscriptionStore(state => state.expirationWarningLevel);
+
+  // State pour la SubscriptionSheet ouverte depuis la bannière
+  const [showRenewalSheet, setShowRenewalSheet] = useState(false);
 
   // Subscription expired modal
   const {
@@ -52,6 +61,15 @@ function AppContent() {
     restore,
     openManageSubscription,
   } = useSubscription();
+
+  // Handler pour le bouton "Renouveler" de la bannière
+  const handleBannerRenew = () => {
+    setShowRenewalSheet(true);
+  };
+
+  const handleRenewalSheetClose = () => {
+    setShowRenewalSheet(false);
+  };
 
   const handlePurchase = async () => {
     const success = await purchase();
@@ -96,7 +114,7 @@ function AppContent() {
   }, [user?.email]);
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
@@ -117,7 +135,7 @@ function AppContent() {
         status={status}
       />
 
-      {/* Subscription sheet for renewal */}
+      {/* Subscription sheet for renewal (from expired modal) */}
       <SubscriptionSheet
         visible={showSubscriptionSheet}
         onClose={closeSubscriptionSheet}
@@ -131,8 +149,40 @@ function AppContent() {
         onCancel={handleCancelSubscription}
       />
 
+      {/* Subscription sheet for renewal (from warning banner) */}
+      <SubscriptionSheet
+        visible={showRenewalSheet}
+        onClose={handleRenewalSheetClose}
+        isPremium={isSubscribed}
+        price={getFormattedPrice()}
+        nextPaymentDate={getFormattedExpirationDate() ?? undefined}
+        willRenew={willRenew}
+        isLoading={isSubscriptionLoading}
+        onPurchase={handlePurchase}
+        onRestore={handleRestore}
+        onCancel={handleCancelSubscription}
+      />
+
       <StatusBar style="dark" backgroundColor="#F0E6FF" />
-    </>
+
+      {/* Expiration warning banner - positioned absolutely to overlay content */}
+      {expirationWarningLevel !== 'none' && daysUntilExpiration !== null && (
+        <View style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          paddingTop: insets.top,
+          zIndex: 1000,
+        }}>
+          <ExpirationWarningBanner
+            daysUntilExpiration={daysUntilExpiration}
+            level={expirationWarningLevel}
+            onRenewPress={handleBannerRenew}
+          />
+        </View>
+      )}
+    </View>
   );
 }
 
