@@ -1,13 +1,17 @@
 import { useCallback, useEffect } from 'react';
 import { Linking, Platform } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import useSubscriptionStore from '@/store/subscription/subscriptionStore';
 import useAuthStore from '@/store/auth/authStore';
+import useQuotaStore from '@/store/quota/quotaStore';
 import { subscriptionService } from '@/services/subscription';
 import { syncSubscriptionToBackend } from '@/api/subscription';
 import { OFFERING_ID } from '@/types/subscription';
 
 export const useSubscription = () => {
+  const queryClient = useQueryClient();
   const { token, user, setUser } = useAuthStore();
+  const { reset: resetQuota } = useQuotaStore();
   const {
     status,
     isSubscribed,
@@ -69,11 +73,15 @@ export const useSubscription = () => {
           ...user,
           role: result.user.role,
         });
+        
+        // Reset quota store and invalidate cache to refresh the limits
+        resetQuota();
+        await queryClient.invalidateQueries({ queryKey: ['story-quota'] });
       }
     } catch (err) {
       console.error('[useSubscription] Failed to sync with backend:', err);
     }
-  }, [token, user, setUser]);
+  }, [token, user, setUser, queryClient, resetQuota]);
 
   const purchase = useCallback(async (): Promise<boolean> => {
     if (!monthlyPackage) {
