@@ -111,4 +111,11 @@ export default await Env.create(new URL('../', import.meta.url), {
   GOOGLE_TRANSLATE_API_KEY: Env.schema.string(),
   STORY_SOURCE_LANGUAGE: Env.schema.string(),
   STORY_SOURCE_LANGUAGE_CODE: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring RevenueCat webhook
+  |----------------------------------------------------------
+  */
+  REVENUECAT_WEBHOOK_AUTH_HEADER: Env.schema.string(),
 })
