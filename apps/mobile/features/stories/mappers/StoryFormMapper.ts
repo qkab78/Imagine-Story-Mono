@@ -46,7 +46,7 @@ export class StoryFormMapper {
       numberOfChapters: formData.numberOfChapters,
       language: formData.language.id, // UUID from backend
       tone: formData.tone.id, // UUID from backend
-      species: formData.hero.name, // Map hero name to species
+      species: formData.hero.species, // Map hero species (girl, boy, robot, etc.)
       // Optional fields
       title: undefined,
       conclusion: undefined,
