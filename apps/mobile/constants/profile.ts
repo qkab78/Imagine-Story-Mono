@@ -46,6 +46,23 @@ export const PROFILE_COLORS = {
   accent: '#F6C177',
   danger: '#FF6B6B',
   dangerLight: 'rgba(255, 107, 107, 0.1)',
+
+  // Warning banner colors
+  warningInfo: {
+    background: '#FFF9E6',
+    border: '#F5C518',
+    text: '#7A6200',
+  },
+  warningAlert: {
+    background: '#FFF3E0',
+    border: '#FF9800',
+    text: '#7A4100',
+  },
+  warningUrgent: {
+    background: '#FFEBEE',
+    border: '#F44336',
+    text: '#7A1A1A',
+  },
 } as const;
 
 export const PROFILE_SPACING = {

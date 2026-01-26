@@ -12,7 +12,7 @@ import { TamaguiProvider } from 'tamagui'
 import config from '@/tamagui.config';
 import { ThemeProvider } from '@shopify/restyle';
 import { theme } from '@/config/theme';
-import { Alert, View } from 'react-native';
+import { Alert, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { subscriptionService } from '@/services/subscription';
 import { SubscriptionExpiredModal } from '@/components/organisms/subscription';
@@ -36,16 +36,13 @@ function AppContent() {
   const daysUntilExpiration = useSubscriptionStore(state => state.daysUntilExpiration);
   const expirationWarningLevel = useSubscriptionStore(state => state.expirationWarningLevel);
 
-  // State pour la SubscriptionSheet ouverte depuis la bannière
-  const [showRenewalSheet, setShowRenewalSheet] = useState(false);
+  // État unifié pour la SubscriptionSheet (depuis modal ou bannière)
+  const [subscriptionSheetVisible, setSubscriptionSheetVisible] = useState(false);
 
   // Subscription expired modal
   const {
     showModal: showExpiredModal,
-    showSubscriptionSheet,
     dismissModal,
-    handleRenew,
-    closeSubscriptionSheet,
     expirationDate,
     status,
   } = useSubscriptionExpiredModal();
@@ -62,13 +59,19 @@ function AppContent() {
     openManageSubscription,
   } = useSubscription();
 
-  // Handler pour le bouton "Renouveler" de la bannière
-  const handleBannerRenew = () => {
-    setShowRenewalSheet(true);
+  // Ouvrir la SubscriptionSheet (depuis modal ou bannière)
+  const openSubscriptionSheet = () => {
+    setSubscriptionSheetVisible(true);
   };
 
-  const handleRenewalSheetClose = () => {
-    setShowRenewalSheet(false);
+  const closeSubscriptionSheet = () => {
+    setSubscriptionSheetVisible(false);
+  };
+
+  // Handler pour le bouton "Renouveler" de la modal expirée
+  const handleRenew = () => {
+    dismissModal();
+    openSubscriptionSheet();
   };
 
   const handlePurchase = async () => {
@@ -114,7 +117,7 @@ function AppContent() {
   }, [user?.email]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
@@ -135,24 +138,10 @@ function AppContent() {
         status={status}
       />
 
-      {/* Subscription sheet for renewal (from expired modal) */}
+      {/* Subscription sheet for renewal (unified) */}
       <SubscriptionSheet
-        visible={showSubscriptionSheet}
+        visible={subscriptionSheetVisible}
         onClose={closeSubscriptionSheet}
-        isPremium={isSubscribed}
-        price={getFormattedPrice()}
-        nextPaymentDate={getFormattedExpirationDate() ?? undefined}
-        willRenew={willRenew}
-        isLoading={isSubscriptionLoading}
-        onPurchase={handlePurchase}
-        onRestore={handleRestore}
-        onCancel={handleCancelSubscription}
-      />
-
-      {/* Subscription sheet for renewal (from warning banner) */}
-      <SubscriptionSheet
-        visible={showRenewalSheet}
-        onClose={handleRenewalSheetClose}
         isPremium={isSubscribed}
         price={getFormattedPrice()}
         nextPaymentDate={getFormattedExpirationDate() ?? undefined}
@@ -167,24 +156,30 @@ function AppContent() {
 
       {/* Expiration warning banner - positioned absolutely to overlay content */}
       {expirationWarningLevel !== 'none' && daysUntilExpiration !== null && (
-        <View style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          paddingTop: insets.top,
-          zIndex: 1000,
-        }}>
+        <View style={[styles.bannerContainer, { paddingTop: insets.top }]}>
           <ExpirationWarningBanner
             daysUntilExpiration={daysUntilExpiration}
             level={expirationWarningLevel}
-            onRenewPress={handleBannerRenew}
+            onRenewPress={openSubscriptionSheet}
           />
         </View>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  bannerContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+  },
+});
 
 export default function RootLayout() {
   const [loaded] = useFonts({

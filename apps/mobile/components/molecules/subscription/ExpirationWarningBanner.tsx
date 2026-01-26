@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { ExpirationWarningLevel } from '@/types/subscription';
+import { PROFILE_COLORS, PROFILE_SPACING } from '@/constants/profile';
 
 interface ExpirationWarningBannerProps {
   daysUntilExpiration: number;
@@ -8,26 +9,30 @@ interface ExpirationWarningBannerProps {
   onRenewPress: () => void;
 }
 
-const BANNER_COLORS = {
-  info: {
-    background: '#FFF9E6',
-    border: '#F5C518',
-    text: '#7A6200',
-    icon: '#F5C518',
-  },
-  warning: {
-    background: '#FFF3E0',
-    border: '#FF9800',
-    text: '#7A4100',
-    icon: '#FF9800',
-  },
-  urgent: {
-    background: '#FFEBEE',
-    border: '#F44336',
-    text: '#7A1A1A',
-    icon: '#F44336',
-  },
-} as const;
+const getBannerColors = (level: ExpirationWarningLevel) => {
+  switch (level) {
+    case 'info':
+      return {
+        ...PROFILE_COLORS.warningInfo,
+        icon: PROFILE_COLORS.warningInfo.border,
+      };
+    case 'warning':
+      return {
+        ...PROFILE_COLORS.warningAlert,
+        icon: PROFILE_COLORS.warningAlert.border,
+      };
+    case 'urgent':
+      return {
+        ...PROFILE_COLORS.warningUrgent,
+        icon: PROFILE_COLORS.warningUrgent.border,
+      };
+    default:
+      return {
+        ...PROFILE_COLORS.warningInfo,
+        icon: PROFILE_COLORS.warningInfo.border,
+      };
+  }
+};
 
 const getMessage = (days: number, level: ExpirationWarningLevel): string => {
   if (level === 'urgent') {
@@ -54,7 +59,7 @@ export const ExpirationWarningBanner: React.FC<ExpirationWarningBannerProps> = (
 }) => {
   if (level === 'none') return null;
 
-  const colors = BANNER_COLORS[level];
+  const colors = getBannerColors(level);
   const message = getMessage(daysUntilExpiration, level);
   const icon = getIcon(level);
 
@@ -76,8 +81,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: PROFILE_SPACING.md,
+    paddingHorizontal: PROFILE_SPACING.lg,
     borderBottomWidth: 2,
   },
   content: {
@@ -86,7 +91,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   icon: {
-    marginRight: 8,
+    marginRight: PROFILE_SPACING.sm,
   },
   message: {
     fontSize: 13,
@@ -94,14 +99,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   button: {
-    backgroundColor: '#7C3AED',
+    backgroundColor: PROFILE_COLORS.primary,
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: PROFILE_SPACING.md,
     borderRadius: 16,
-    marginLeft: 8,
+    marginLeft: PROFILE_SPACING.sm,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: PROFILE_COLORS.surface,
     fontSize: 12,
     fontWeight: '700',
   },
