@@ -12,14 +12,14 @@ import { TamaguiProvider } from 'tamagui'
 import config from '@/tamagui.config';
 import { ThemeProvider } from '@shopify/restyle';
 import { theme } from '@/config/theme';
-import { Alert, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { subscriptionService } from '@/services/subscription';
 import { SubscriptionExpiredModal } from '@/components/organisms/subscription';
 import { SubscriptionSheet } from '@/components/organisms/profile/SubscriptionSheet';
 import { ExpirationWarningBanner } from '@/components/molecules/subscription';
 import { useSubscriptionExpiredModal } from '@/hooks/useSubscriptionExpiredModal';
-import { useSubscription } from '@/hooks/useSubscription';
+import { useSubscriptionSheet } from '@/hooks/useSubscriptionSheet';
 
 const queryClient = new QueryClient();
 
@@ -36,12 +36,10 @@ function AppContent() {
   const daysUntilExpiration = useSubscriptionStore(state => state.daysUntilExpiration);
   const expirationWarningLevel = useSubscriptionStore(state => state.expirationWarningLevel);
 
-  // État unifié pour la SubscriptionSheet (depuis modal ou bannière)
-  const [subscriptionSheetVisible, setSubscriptionSheetVisible] = useState(false);
   // État pour le dismiss de la bannière d'expiration
   const [bannerDismissed, setBannerDismissed] = useState(false);
 
-  // Subscription expired modal
+  // Subscription expired modal hook
   const {
     showModal: showExpiredModal,
     dismissModal,
@@ -49,60 +47,13 @@ function AppContent() {
     status,
   } = useSubscriptionExpiredModal();
 
-  // Subscription actions for SubscriptionSheet
-  const {
-    isSubscribed,
-    isLoading: isSubscriptionLoading,
-    willRenew,
-    getFormattedPrice,
-    getFormattedExpirationDate,
-    purchase,
-    restore,
-    openManageSubscription,
-  } = useSubscription();
-
-  // Ouvrir la SubscriptionSheet (depuis modal ou bannière)
-  const openSubscriptionSheet = () => {
-    setSubscriptionSheetVisible(true);
-  };
-
-  const closeSubscriptionSheet = () => {
-    setSubscriptionSheetVisible(false);
-  };
+  // Subscription sheet hook
+  const subscriptionSheet = useSubscriptionSheet();
 
   // Handler pour le bouton "Renouveler" de la modal expirée
   const handleRenew = () => {
     dismissModal();
-    openSubscriptionSheet();
-  };
-
-  const handlePurchase = async () => {
-    const success = await purchase();
-    if (success) {
-      Alert.alert('Succès', 'Bienvenue dans la famille Premium !');
-      closeSubscriptionSheet();
-    }
-  };
-
-  const handleRestore = async () => {
-    const success = await restore();
-    if (success) {
-      Alert.alert('Succès', 'Vos achats ont été restaurés.');
-      closeSubscriptionSheet();
-    } else {
-      Alert.alert('Information', 'Aucun achat précédent trouvé.');
-    }
-  };
-
-  const handleCancelSubscription = () => {
-    Alert.alert(
-      'Gérer l\'abonnement',
-      'Vous allez être redirigé vers les paramètres de votre store.',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Continuer', onPress: () => openManageSubscription() },
-      ]
-    );
+    subscriptionSheet.open();
   };
 
   // Initialize RevenueCat subscription service
@@ -142,16 +93,16 @@ function AppContent() {
 
       {/* Subscription sheet for renewal (unified) */}
       <SubscriptionSheet
-        visible={subscriptionSheetVisible}
-        onClose={closeSubscriptionSheet}
-        isPremium={isSubscribed}
-        price={getFormattedPrice()}
-        nextPaymentDate={getFormattedExpirationDate() ?? undefined}
-        willRenew={willRenew}
-        isLoading={isSubscriptionLoading}
-        onPurchase={handlePurchase}
-        onRestore={handleRestore}
-        onCancel={handleCancelSubscription}
+        visible={subscriptionSheet.visible}
+        onClose={subscriptionSheet.close}
+        isPremium={subscriptionSheet.isSubscribed}
+        price={subscriptionSheet.price}
+        nextPaymentDate={subscriptionSheet.nextPaymentDate}
+        willRenew={subscriptionSheet.willRenew}
+        isLoading={subscriptionSheet.isLoading}
+        onPurchase={subscriptionSheet.handlePurchase}
+        onRestore={subscriptionSheet.handleRestore}
+        onCancel={subscriptionSheet.handleCancel}
       />
 
       <StatusBar style="dark" backgroundColor="#F0E6FF" />
@@ -162,7 +113,7 @@ function AppContent() {
           <ExpirationWarningBanner
             daysUntilExpiration={daysUntilExpiration}
             level={expirationWarningLevel}
-            onRenewPress={openSubscriptionSheet}
+            onRenewPress={subscriptionSheet.open}
             onDismiss={() => setBannerDismissed(true)}
           />
         </View>

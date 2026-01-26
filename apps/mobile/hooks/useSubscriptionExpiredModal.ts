@@ -4,10 +4,7 @@ import type { SubscriptionStatus } from '@/types/subscription'
 
 interface UseSubscriptionExpiredModalReturn {
   showModal: boolean
-  showSubscriptionSheet: boolean
   dismissModal: () => void
-  handleRenew: () => void
-  closeSubscriptionSheet: () => void
   expirationDate: string | null
   status: SubscriptionStatus
 }
@@ -21,7 +18,6 @@ export const useSubscriptionExpiredModal = (): UseSubscriptionExpiredModalReturn
   const setExpiredModalDismissed = useSubscriptionStore((state) => state.setExpiredModalDismissed)
 
   const [isReady, setIsReady] = useState(false)
-  const [showSubscriptionSheet, setShowSubscriptionSheet] = useState(false)
 
   // Delay modal appearance to avoid flash on app start
   useEffect(() => {
@@ -42,21 +38,9 @@ export const useSubscriptionExpiredModal = (): UseSubscriptionExpiredModalReturn
     setExpiredModalDismissed(true)
   }, [setExpiredModalDismissed])
 
-  const handleRenew = useCallback(() => {
-    setExpiredModalDismissed(true)
-    setShowSubscriptionSheet(true)
-  }, [setExpiredModalDismissed])
-
-  const closeSubscriptionSheet = useCallback(() => {
-    setShowSubscriptionSheet(false)
-  }, [])
-
   return {
     showModal: shouldShowModal,
-    showSubscriptionSheet,
     dismissModal,
-    handleRenew,
-    closeSubscriptionSheet,
     expirationDate,
     status,
   }
