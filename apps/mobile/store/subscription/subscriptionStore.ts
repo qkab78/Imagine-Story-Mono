@@ -9,21 +9,29 @@ const storage = new MMKV({ id: 'subscription-storage' });
 const getStatusFromCustomerInfo = (customerInfo: CustomerInfo | null): SubscriptionStatus => {
   if (!customerInfo) return 'free';
 
-  const entitlement = customerInfo.entitlements.active[ENTITLEMENT_ID];
-  if (!entitlement) return 'free';
-
-  if (entitlement.isActive) {
+  // Vérifier d'abord les entitlements actifs
+  const activeEntitlement = customerInfo.entitlements.active[ENTITLEMENT_ID];
+  if (activeEntitlement?.isActive) {
     return 'premium';
   }
 
-  if (entitlement.expirationDate) {
-    const expirationDate = new Date(entitlement.expirationDate);
-    if (expirationDate < new Date()) {
-      return 'expired';
+  // Vérifier les entitlements expirés dans "all" (contient actifs ET expirés)
+  const allEntitlement = customerInfo.entitlements.all[ENTITLEMENT_ID];
+  if (allEntitlement) {
+    // L'utilisateur avait un abonnement mais il n'est plus actif
+    if (allEntitlement.expirationDate) {
+      const expirationDate = new Date(allEntitlement.expirationDate);
+      if (expirationDate < new Date()) {
+        return 'expired';
+      }
+    }
+    // Annulé mais pas encore expiré (willRenew = false mais date pas passée)
+    if (!allEntitlement.willRenew) {
+      return 'cancelled';
     }
   }
 
-  return 'cancelled';
+  return 'free';
 };
 
 const getMonthlyPackageFromOffering = (offering: PurchasesOffering | null): PurchasesPackage | null => {
@@ -46,7 +54,9 @@ const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
   setCustomerInfo: (customerInfo: CustomerInfo | null) => {
     const status = getStatusFromCustomerInfo(customerInfo);
     const isSubscribed = status === 'premium';
-    const entitlement = customerInfo?.entitlements.active[ENTITLEMENT_ID];
+    // Utiliser active en priorité, sinon all (pour les abonnements expirés)
+    const entitlement = customerInfo?.entitlements.active[ENTITLEMENT_ID]
+      || customerInfo?.entitlements.all[ENTITLEMENT_ID];
 
     set({
       customerInfo,
