@@ -21,6 +21,7 @@ const AuthController = () => import('#auth/controllers/auth_controllers')
 const RegisterController = () => import('#auth/controllers/register/register_controller')
 const PaymentsController = () => import('#payments/controllers/payments_controllers')
 const SubscriptionController = () => import('#subscription/controllers/subscription_controller')
+const WebhookController = () => import('#subscription/controllers/webhook_controller')
 
 const StoriesControllerPresenter = () => import('#stories/presenters/stories.controller')
 const GoogleAuthController = () => import('#auth/controllers/social/google_auth_controller')
@@ -160,3 +161,10 @@ router
   })
   .middleware(middleware.auth())
   .prefix('/subscription')
+
+// Webhooks (no authentication required - RevenueCat will send auth header)
+router
+  .group(() => {
+    router.post('/revenuecat', [WebhookController, 'revenueCat'])
+  })
+  .prefix('/webhooks')
