@@ -110,7 +110,7 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
       payload
 
     const response = await this.openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: env.get('OPENAI_MODEL'),
       max_tokens: 16000,
       temperature: 0.8,
       messages: [
