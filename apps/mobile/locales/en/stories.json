@@ -1,0 +1,64 @@
+{
+  "creation": {
+    "title": "Create a Story",
+    "heroSelection": {
+      "title": "Choose Your Hero",
+      "subtitle": "Who will be the main character of your story?"
+    },
+    "settings": {
+      "title": "Settings",
+      "theme": "Theme",
+      "mood": "Mood",
+      "length": "Length",
+      "language": "Language"
+    },
+    "summary": {
+      "title": "Summary",
+      "subtitle": "Here's your story"
+    },
+    "generation": {
+      "title": "Generating",
+      "subtitle": "Your magical story is being prepared...",
+      "progress": "Creating your adventure..."
+    }
+  },
+  "library": {
+    "title": "My Library",
+    "empty": "You don't have any stories yet",
+    "emptySubtitle": "Create your first magical story!",
+    "createFirst": "Create a Story",
+    "filters": {
+      "all": "All",
+      "favorites": "Favorites",
+      "recent": "Recent"
+    }
+  },
+  "explore": {
+    "title": "Explore",
+    "searchPlaceholder": "Search for a story...",
+    "categories": {
+      "all": "All",
+      "magic": "Magic",
+      "adventure": "Adventure",
+      "animals": "Animals",
+      "space": "Space",
+      "nature": "Nature",
+      "friendship": "Friendship"
+    },
+    "featured": "Featured",
+    "popular": "Popular",
+    "recent": "Recent"
+  },
+  "reader": {
+    "chapter": "Chapter {{number}}",
+    "theEnd": "The End",
+    "nextChapter": "Next Chapter",
+    "previousChapter": "Previous Chapter",
+    "backToStory": "Back to Story"
+  },
+  "card": {
+    "readMore": "Read More",
+    "chapters": "{{count}} chapters",
+    "readTime": "{{minutes}} min read"
+  }
+}

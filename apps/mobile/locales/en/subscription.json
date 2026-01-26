@@ -1,0 +1,68 @@
+{
+  "sheet": {
+    "title": "Subscription",
+    "freeAccount": "Free Account",
+    "premiumMonthly": "Premium Monthly",
+    "freeDescription": "Enjoy 3 stories per month to discover the magic of Imagine Story",
+    "premiumDescription": "Unlimited stories and exclusive features"
+  },
+  "features": {
+    "free": {
+      "storiesPerMonth": "3 personalized stories per month",
+      "allThemes": "All themes and moods",
+      "frenchStories": "Stories in French"
+    },
+    "premium": {
+      "unlimited": "Unlimited stories",
+      "allThemes": "All themes and moods",
+      "multilingual": "Multilingual",
+      "pdfExport": "PDF Export",
+      "noAds": "Ad-free"
+    }
+  },
+  "sections": {
+    "included": "What's Included",
+    "premiumBenefits": "Your Premium Benefits",
+    "premiumPreview": "Premium Benefits",
+    "upgradeToPremium": "Upgrade to Premium",
+    "management": "Subscription Management"
+  },
+  "info": {
+    "currentPlan": "Current Plan",
+    "price": "Price",
+    "nextPayment": "Next Payment"
+  },
+  "renewal": {
+    "title": "Automatic Renewal",
+    "message": "Your subscription will renew on {{date}} for {{price}}"
+  },
+  "actions": {
+    "upgrade": "Upgrade to Premium",
+    "restore": "Restore Purchases",
+    "cancel": "Cancel Subscription",
+    "renew": "Renew Subscription"
+  },
+  "cancelAlert": {
+    "title": "Cancel Subscription",
+    "message": "Are you sure you want to cancel your Premium subscription? You will keep access until the end of the current period.",
+    "confirm": "Cancel"
+  },
+  "plan": {
+    "name": "Premium Monthly",
+    "priceDefault": "$9.99",
+    "period": "/ month",
+    "description": "Unlimited stories, multiple languages and exclusive features"
+  },
+  "expiration": {
+    "urgentSingular": "Urgent: your subscription expires tomorrow!",
+    "urgentPlural": "Urgent: your subscription expires in {{days}} days",
+    "warning": "Warning: you have {{days}} days of subscription left",
+    "info": "Your subscription expires in {{days}} days",
+    "expiredOn": "Expired on {{date}}",
+    "renewNow": "Renew Now"
+  },
+  "premium": {
+    "promptTitle": "Go Premium",
+    "promptDescription": "Unlock unlimited stories and exclusive features"
+  }
+}

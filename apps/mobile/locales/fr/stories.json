@@ -1,0 +1,64 @@
+{
+  "creation": {
+    "title": "Créer une histoire",
+    "heroSelection": {
+      "title": "Choisis ton héros",
+      "subtitle": "Qui sera le personnage principal de ton histoire ?"
+    },
+    "settings": {
+      "title": "Paramètres",
+      "theme": "Thème",
+      "mood": "Ambiance",
+      "length": "Longueur",
+      "language": "Langue"
+    },
+    "summary": {
+      "title": "Résumé",
+      "subtitle": "Voici ton histoire"
+    },
+    "generation": {
+      "title": "Génération en cours",
+      "subtitle": "Ta histoire magique est en préparation...",
+      "progress": "Création de ton aventure..."
+    }
+  },
+  "library": {
+    "title": "Ma Bibliothèque",
+    "empty": "Tu n'as pas encore d'histoires",
+    "emptySubtitle": "Crée ta première histoire magique !",
+    "createFirst": "Créer une histoire",
+    "filters": {
+      "all": "Toutes",
+      "favorites": "Favoris",
+      "recent": "Récentes"
+    }
+  },
+  "explore": {
+    "title": "Explorer",
+    "searchPlaceholder": "Rechercher une histoire...",
+    "categories": {
+      "all": "Tout",
+      "magic": "Magie",
+      "adventure": "Aventure",
+      "animals": "Animaux",
+      "space": "Espace",
+      "nature": "Nature",
+      "friendship": "Amitié"
+    },
+    "featured": "À la une",
+    "popular": "Populaires",
+    "recent": "Récentes"
+  },
+  "reader": {
+    "chapter": "Chapitre {{number}}",
+    "theEnd": "Fin",
+    "nextChapter": "Chapitre suivant",
+    "previousChapter": "Chapitre précédent",
+    "backToStory": "Retour à l'histoire"
+  },
+  "card": {
+    "readMore": "Lire la suite",
+    "chapters": "{{count}} chapitres",
+    "readTime": "{{minutes}} min de lecture"
+  }
+}

@@ -8,12 +8,14 @@ import { Platform } from "react-native";
 import { useNativeTabsSupport } from "@/hooks/useNativeTabsSupport";
 import { useTabHaptics } from "@/hooks/useTabHaptics";
 import { HapticTab } from "@/components/atoms/navigation";
+import { useAppTranslation } from "@/hooks/useAppTranslation";
 
 /**
  * Legacy JavaScript Tabs Component (Fallback for Android)
  */
 function LegacyJavaScriptTabs() {
   const user = useAuthStore(state => state.user);
+  const { t } = useAppTranslation('common');
   const defaultScreenOptions = {
     tabBarButton: HapticTab,
     tabBarActiveBackgroundColor: 'transparent',
@@ -39,7 +41,7 @@ function LegacyJavaScriptTabs() {
         name="index"
         options={{
           ...defaultScreenOptions,
-          title: 'Accueil',
+          title: t('navigation.home'),
           headerShown: false,
           tabBarIcon: ({ color }) => <HouseIcon color={color} />,
         }}
@@ -49,7 +51,7 @@ function LegacyJavaScriptTabs() {
         redirect={user?.role === Role.GUEST}
         options={{
           ...defaultScreenOptions,
-          title: 'Bibliothèque',
+          title: t('navigation.library'),
           headerShown: false,
           tabBarIcon: ({ color }) => <LibraryIcon color={color} />,
         }}
@@ -59,7 +61,7 @@ function LegacyJavaScriptTabs() {
         redirect={user?.role === Role.GUEST}
         options={{
           ...defaultScreenOptions,
-          title: 'Créer',
+          title: t('navigation.create'),
           headerShown: false,
           tabBarIcon: ({ color }) => <SquarePenIcon color={color} />,
         }}
@@ -68,7 +70,7 @@ function LegacyJavaScriptTabs() {
         name="search/index"
         options={{
           ...defaultScreenOptions,
-          title: 'Explorer',
+          title: t('navigation.explore'),
           headerShown: false,
           tabBarIcon: ({ color }) => <Compass color={color} />,
         }}
@@ -77,7 +79,7 @@ function LegacyJavaScriptTabs() {
         name="settings"
         options={{
           ...defaultScreenOptions,
-          title: 'Profil',
+          title: t('navigation.profile'),
           tabBarIcon: ({ color }) => <CircleUserRoundIcon color={color} />,
         }}
       />

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,16 +9,12 @@ import {
   FormDivider,
   ForgotPasswordLink,
 } from '@/components/molecules/auth';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
-const loginSchema = z.object({
-  email: z.string()
-    .min(1, 'Ce champ est obligatoire ⚠️')
-    .email("Oups ! Cet email n'a pas l'air correct 📧"),
-  password: z.string()
-    .min(1, 'Ce champ est obligatoire ⚠️'),
-});
-
-type LoginData = z.infer<typeof loginSchema>;
+type LoginData = {
+  email: string;
+  password: string;
+};
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
@@ -35,7 +31,21 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   loading = false,
   googleLoading = false,
 }) => {
+  const { t } = useAppTranslation('auth');
   const [passwordVisible, setPasswordVisible] = useState(false);
+
+  // Schema de validation avec traductions
+  const loginSchema = useMemo(
+    () =>
+      z.object({
+        email: z
+          .string()
+          .min(1, t('validation.required'))
+          .email(t('validation.invalidEmail')),
+        password: z.string().min(1, t('validation.required')),
+      }),
+    [t]
+  );
 
   const {
     control,
@@ -62,7 +72,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             icon="✉️"
-            placeholder="Ton email"
+            placeholder={t('login.emailPlaceholder')}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -80,7 +90,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             icon="🔒"
-            placeholder="Ton mot de passe"
+            placeholder={t('login.passwordPlaceholder')}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -95,7 +105,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       <ForgotPasswordLink onPress={onForgotPassword} />
 
       <AuthButton
-        title="Se connecter"
+        title={t('login.submitButton')}
         emoji="🔓"
         onPress={handleSubmit(handleFormSubmit)}
         variant="primary"
@@ -105,7 +115,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       <FormDivider />
 
       <AuthButton
-        title="Continuer avec Google"
+        title={t('login.googleButton')}
         onPress={onGoogleSignIn}
         variant="google"
         loading={googleLoading}

@@ -9,6 +9,7 @@ import {
   SettingsToggleItem,
   LogoutButton,
   DeleteAccountButton,
+  LanguageSelector,
 } from '@/components/molecules/profile';
 import { SettingsSection } from './SettingsSection';
 import { PersonalInfoSheet } from './PersonalInfoSheet';
@@ -19,10 +20,22 @@ import { useProfileSettings } from '@/hooks/useProfileSettings';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useUserStories } from '@/features/stories/hooks/useStoryList';
 import { formatLongDate } from '@/utils/dateFormatter';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_ICONS } from '@/constants/profile';
+
+/**
+ * Labels des langues pour l'affichage
+ */
+const LANGUAGE_DISPLAY: Record<string, string> = {
+  fr: 'Francais',
+  en: 'English',
+};
 
 export const ProfileContent: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const { t, language } = useAppTranslation('profile');
+  const { t: tCommon } = useAppTranslation('common');
+
   const {
     user,
     notificationsEnabled,
@@ -56,6 +69,7 @@ export const ProfileContent: React.FC = () => {
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
   const [showDownloads, setShowDownloads] = useState(false);
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
   const handleEditProfile = () => {
     setShowEditProfile(true);
@@ -75,7 +89,7 @@ export const ProfileContent: React.FC = () => {
   }, [refresh]);
 
   const handleLanguage = () => {
-    Alert.alert('Bientôt disponible', 'La sélection de langue sera disponible prochainement.');
+    setShowLanguageSelector(true);
   };
 
   const handleDownloads = () => {
@@ -87,45 +101,45 @@ export const ProfileContent: React.FC = () => {
     newPassword?: string;
   }) => {
     console.log('Save password:', data);
-    Alert.alert('Succès', 'Votre mot de passe a été mis à jour.');
+    Alert.alert(t('alerts.passwordUpdated'), t('alerts.passwordUpdatedMessage'));
     setShowEditProfile(false);
   };
 
   const handleUpgrade = useCallback(async () => {
     const success = await purchase();
     if (success) {
-      Alert.alert('Succès', 'Bienvenue dans la famille Premium ! Profitez de toutes les fonctionnalités.');
+      Alert.alert(t('alerts.upgradeSuccess'), t('alerts.upgradeSuccessMessage'));
       setShowSubscription(false);
     } else if (subscriptionError) {
-      Alert.alert('Erreur', subscriptionError);
+      Alert.alert(t('alerts.error'), subscriptionError);
     }
-  }, [purchase, subscriptionError]);
+  }, [purchase, subscriptionError, t]);
 
   const handleRestore = useCallback(async () => {
     const success = await restore();
     if (success) {
-      Alert.alert('Succès', 'Vos achats ont été restaurés.');
+      Alert.alert(t('alerts.restoreSuccess'), t('alerts.restoreSuccessMessage'));
       setShowSubscription(false);
     } else {
-      Alert.alert('Information', 'Aucun achat précédent trouvé.');
+      Alert.alert(t('alerts.restoreNoItems'), t('alerts.restoreNoItemsMessage'));
     }
-  }, [restore]);
+  }, [restore, t]);
 
   const handleCancelSubscription = useCallback(() => {
     Alert.alert(
-      'Gérer l\'abonnement',
-      'Vous allez être redirigé vers les paramètres de votre store pour gérer ou résilier votre abonnement.',
+      t('alerts.manageSubscriptionTitle'),
+      t('alerts.manageSubscriptionMessage'),
       [
-        { text: 'Annuler', style: 'cancel' },
+        { text: tCommon('buttons.cancel'), style: 'cancel' },
         {
-          text: 'Continuer',
+          text: tCommon('buttons.continue'),
           onPress: async () => {
             await openManageSubscription();
           },
         },
       ]
     );
-  }, [openManageSubscription]);
+  }, [openManageSubscription, t, tCommon]);
 
   // Refresh subscription status on mount
   useEffect(() => {
@@ -144,7 +158,7 @@ export const ProfileContent: React.FC = () => {
       >
         {/* Profile Header */}
         <ProfileHeaderCard
-          name={user?.fullname || 'Utilisateur'}
+          name={user?.fullname || t('defaultUser')}
           avatarUrl={user?.avatar}
           onEditPress={handleEditProfile}
         />
@@ -157,18 +171,18 @@ export const ProfileContent: React.FC = () => {
         )}
 
         {/* Mon compte */}
-        <SettingsSection title="Mon compte">
+        <SettingsSection title={t('sections.account')}>
           <SettingsItem
             icon={PROFILE_ICONS.user}
-            label="Informations personnelles"
+            label={t('settings.personalInfo')}
             value={user?.email}
             onPress={handlePersonalInfo}
           />
           <View style={styles.separator} />
           <SettingsItem
             icon={PROFILE_ICONS.subscription}
-            label="Abonnement"
-            value={isSubscribed ? 'Premium' : 'Gratuit'}
+            label={t('settings.subscription')}
+            value={isSubscribed ? tCommon('labels.premium') : tCommon('labels.free')}
             onPress={handleSubscription}
           />
           {isSubscribed && (
@@ -176,58 +190,58 @@ export const ProfileContent: React.FC = () => {
               <View style={styles.separator} />
               <SettingsItem
                 icon={{ sfSymbol: 'arrow.down.circle', lucide: 'Download' }}
-                label="Mes téléchargements"
+                label={t('settings.downloads')}
                 onPress={handleDownloads}
               />
             </>
           )}
         </SettingsSection>
 
-        {/* Préférences */}
-        <SettingsSection title="Préférences">
+        {/* Preferences */}
+        <SettingsSection title={t('sections.preferences')}>
           <SettingsToggleItem
             icon={PROFILE_ICONS.notifications}
-            label="Notifications"
+            label={t('settings.notifications')}
             value={notificationsEnabled}
             onValueChange={toggleNotifications}
           />
           <View style={styles.separator} />
           <SettingsItem
             icon={PROFILE_ICONS.language}
-            label="Langue"
-            value="Français"
+            label={t('settings.language')}
+            value={LANGUAGE_DISPLAY[language] || language}
             onPress={handleLanguage}
           />
         </SettingsSection>
 
-        {/* Support & À propos */}
-        <SettingsSection title="Support & À propos">
+        {/* Support & About */}
+        <SettingsSection title={t('sections.support')}>
           <SettingsItem
             icon={PROFILE_ICONS.help}
-            label="Aide & Support"
+            label={t('settings.help')}
             onPress={openHelp}
           />
           <View style={styles.separator} />
           <SettingsItem
             icon={PROFILE_ICONS.rating}
-            label="Donner mon avis"
+            label={t('settings.rating')}
             onPress={openAppStore}
           />
           <View style={styles.separator} />
           <SettingsItem
             icon={PROFILE_ICONS.terms}
-            label="Conditions d'utilisation"
+            label={t('settings.terms')}
             onPress={openTerms}
           />
           <View style={styles.separator} />
           <SettingsItem
             icon={PROFILE_ICONS.privacy}
-            label="Confidentialité"
+            label={t('settings.privacy')}
             onPress={openPrivacy}
           />
         </SettingsSection>
 
-        {/* Zone Danger */}
+        {/* Danger Zone */}
         <View style={styles.dangerZone}>
           <LogoutButton onPress={handleLogout} />
           <DeleteAccountButton onPress={handleDeleteAccount} />
@@ -241,7 +255,7 @@ export const ProfileContent: React.FC = () => {
       <PersonalInfoSheet
         visible={showPersonalInfo}
         onClose={() => setShowPersonalInfo(false)}
-        name={user?.fullname || 'Utilisateur'}
+        name={user?.fullname || t('defaultUser')}
         email={user?.email || 'N/A'}
         registrationDate={formatLongDate(user?.createdAt)}
         storiesCount={userStories.length}
@@ -270,6 +284,11 @@ export const ProfileContent: React.FC = () => {
       <DownloadsSheet
         visible={showDownloads}
         onClose={() => setShowDownloads(false)}
+      />
+
+      <LanguageSelector
+        visible={showLanguageSelector}
+        onClose={() => setShowLanguageSelector(false)}
       />
     </>
   );

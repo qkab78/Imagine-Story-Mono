@@ -1,0 +1,61 @@
+{
+  "title": "Profile",
+  "defaultUser": "User",
+  "sections": {
+    "account": "My Account",
+    "preferences": "Preferences",
+    "support": "Support & About"
+  },
+  "settings": {
+    "personalInfo": "Personal Information",
+    "subscription": "Subscription",
+    "downloads": "My Downloads",
+    "notifications": "Notifications",
+    "language": "Language",
+    "help": "Help & Support",
+    "rating": "Rate the App",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
+  },
+  "actions": {
+    "logout": "Sign Out",
+    "deleteAccount": "Delete My Account",
+    "editProfile": "Edit Profile"
+  },
+  "alerts": {
+    "languageComingSoon": "Coming Soon",
+    "languageComingSoonMessage": "Language selection will be available soon.",
+    "passwordUpdated": "Success",
+    "passwordUpdatedMessage": "Your password has been updated.",
+    "upgradeSuccess": "Success",
+    "upgradeSuccessMessage": "Welcome to the Premium family! Enjoy all the features.",
+    "restoreSuccess": "Success",
+    "restoreSuccessMessage": "Your purchases have been restored.",
+    "restoreNoItems": "Information",
+    "restoreNoItemsMessage": "No previous purchases found.",
+    "manageSubscriptionTitle": "Manage Subscription",
+    "manageSubscriptionMessage": "You will be redirected to your store settings to manage or cancel your subscription.",
+    "error": "Error",
+    "logoutTitle": "Sign Out",
+    "logoutMessage": "Are you sure you want to sign out?",
+    "deleteAccountTitle": "Delete Account",
+    "deleteAccountMessage": "This action is irreversible. All your data will be deleted."
+  },
+  "personalInfo": {
+    "title": "Personal Information",
+    "name": "Full Name",
+    "email": "Email Address",
+    "registrationDate": "Member Since",
+    "storiesCount": "Stories Created"
+  },
+  "editProfile": {
+    "title": "Edit Profile",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password"
+  },
+  "languageSelector": {
+    "title": "App Language",
+    "description": "Choose the interface language"
+  }
+}
