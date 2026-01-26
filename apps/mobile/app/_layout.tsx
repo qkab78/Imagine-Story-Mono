@@ -38,6 +38,8 @@ function AppContent() {
 
   // État unifié pour la SubscriptionSheet (depuis modal ou bannière)
   const [subscriptionSheetVisible, setSubscriptionSheetVisible] = useState(false);
+  // État pour le dismiss de la bannière d'expiration
+  const [bannerDismissed, setBannerDismissed] = useState(false);
 
   // Subscription expired modal
   const {
@@ -155,12 +157,13 @@ function AppContent() {
       <StatusBar style="dark" backgroundColor="#F0E6FF" />
 
       {/* Expiration warning banner - positioned absolutely to overlay content */}
-      {expirationWarningLevel !== 'none' && daysUntilExpiration !== null && (
+      {expirationWarningLevel !== 'none' && daysUntilExpiration !== null && !bannerDismissed && (
         <View style={[styles.bannerContainer, { paddingTop: insets.top }]}>
           <ExpirationWarningBanner
             daysUntilExpiration={daysUntilExpiration}
             level={expirationWarningLevel}
             onRenewPress={openSubscriptionSheet}
+            onDismiss={() => setBannerDismissed(true)}
           />
         </View>
       )}

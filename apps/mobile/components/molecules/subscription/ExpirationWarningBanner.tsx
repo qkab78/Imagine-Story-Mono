@@ -2,11 +2,13 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { ExpirationWarningLevel } from '@/types/subscription';
 import { PROFILE_COLORS, PROFILE_SPACING } from '@/constants/profile';
+import { DualIcon } from '@/components/ui';
 
 interface ExpirationWarningBannerProps {
   daysUntilExpiration: number;
   level: ExpirationWarningLevel;
   onRenewPress: () => void;
+  onDismiss?: () => void;
 }
 
 const getBannerColors = (level: ExpirationWarningLevel) => {
@@ -56,6 +58,7 @@ export const ExpirationWarningBanner: React.FC<ExpirationWarningBannerProps> = (
   daysUntilExpiration,
   level,
   onRenewPress,
+  onDismiss,
 }) => {
   if (level === 'none') return null;
 
@@ -69,9 +72,20 @@ export const ExpirationWarningBanner: React.FC<ExpirationWarningBannerProps> = (
         <Ionicons name={icon} size={20} color={colors.icon} style={styles.icon} />
         <Text style={[styles.message, { color: colors.text }]}>{message}</Text>
       </View>
-      <TouchableOpacity style={styles.button} onPress={onRenewPress} activeOpacity={0.7}>
-        <Text style={styles.buttonText}>Renouveler</Text>
-      </TouchableOpacity>
+      <View style={styles.actions}>
+        <TouchableOpacity style={styles.button} onPress={onRenewPress} activeOpacity={0.7}>
+          <Text style={styles.buttonText}>Renouveler</Text>
+        </TouchableOpacity>
+        {onDismiss && (
+          <TouchableOpacity style={styles.dismissButton} onPress={onDismiss} activeOpacity={0.7}>
+            <DualIcon
+              icon={{ sfSymbol: 'xmark', lucide: 'X' }}
+              size={18}
+              color={colors.text}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -98,17 +112,24 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flex: 1,
   },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: PROFILE_SPACING.sm,
+  },
   button: {
     backgroundColor: PROFILE_COLORS.primary,
     paddingVertical: 6,
     paddingHorizontal: PROFILE_SPACING.md,
     borderRadius: 16,
-    marginLeft: PROFILE_SPACING.sm,
   },
   buttonText: {
     color: PROFILE_COLORS.surface,
     fontSize: 12,
     fontWeight: '700',
+  },
+  dismissButton: {
+    padding: PROFILE_SPACING.xs,
   },
 });
 
