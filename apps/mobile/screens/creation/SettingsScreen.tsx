@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,26 +9,27 @@ import { PrimaryButton } from '@/components/molecules/creation/PrimaryButton';
 import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
 import { getLanguages } from '@/api/stories/storyApi';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import type { LanguageDTO } from '@/api/stories/storyTypes';
 
-// Options d'âge
-const AGE_OPTIONS: SelectOption[] = [
-  { label: '3 ans', value: 3, icon: '👶' },
-  { label: '4 ans', value: 4, icon: '🧒' },
-  { label: '5 ans', value: 5, icon: '👦' },
-  { label: '6 ans', value: 6, icon: '👧' },
-  { label: '7 ans', value: 7, icon: '🧑' },
-  { label: '8 ans', value: 8, icon: '👨' },
-];
+// Age icons
+const AGE_ICONS: Record<number, string> = {
+  3: '👶',
+  4: '🧒',
+  5: '👦',
+  6: '👧',
+  7: '🧑',
+  8: '👨',
+};
 
-// Options de chapitres
-const CHAPTERS_OPTIONS: SelectOption[] = [
-  { label: '1 chapitre', value: 1, icon: '📖' },
-  { label: '2 chapitres', value: 2, icon: '📚' },
-  { label: '3 chapitres', value: 3, icon: '📗' },
-  { label: '4 chapitres', value: 4, icon: '📘' },
-  { label: '5 chapitres', value: 5, icon: '📙' },
-];
+// Chapter icons
+const CHAPTER_ICONS: Record<number, string> = {
+  1: '📖',
+  2: '📚',
+  3: '📗',
+  4: '📘',
+  5: '📙',
+};
 
 /**
  * SettingsScreen - Écran de configuration de l'histoire
@@ -40,6 +41,7 @@ const CHAPTERS_OPTIONS: SelectOption[] = [
  */
 export const SettingsScreen: React.FC = () => {
   const router = useRouter();
+  const { t } = useAppTranslation('stories');
   const { createStoryPayload, setCreateStoryPayload } = useStoryStore();
 
   const [selectedLanguageId, setSelectedLanguageId] = useState<string>(
@@ -56,6 +58,24 @@ export const SettingsScreen: React.FC = () => {
   const [languages, setLanguages] = useState<LanguageDTO[]>([]);
   const [languageOptions, setLanguageOptions] = useState<SelectOption[]>([]);
   const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
+
+  // Generate translated options
+  const ageOptions: SelectOption[] = useMemo(() => [
+    { label: t('creation.ages.3'), value: 3, icon: AGE_ICONS[3] },
+    { label: t('creation.ages.4'), value: 4, icon: AGE_ICONS[4] },
+    { label: t('creation.ages.5'), value: 5, icon: AGE_ICONS[5] },
+    { label: t('creation.ages.6'), value: 6, icon: AGE_ICONS[6] },
+    { label: t('creation.ages.7'), value: 7, icon: AGE_ICONS[7] },
+    { label: t('creation.ages.8'), value: 8, icon: AGE_ICONS[8] },
+  ], [t]);
+
+  const chaptersOptions: SelectOption[] = useMemo(() => [
+    { label: t('creation.chapters.1'), value: 1, icon: CHAPTER_ICONS[1] },
+    { label: t('creation.chapters.2'), value: 2, icon: CHAPTER_ICONS[2] },
+    { label: t('creation.chapters.3'), value: 3, icon: CHAPTER_ICONS[3] },
+    { label: t('creation.chapters.4'), value: 4, icon: CHAPTER_ICONS[4] },
+    { label: t('creation.chapters.5'), value: 5, icon: CHAPTER_ICONS[5] },
+  ], [t]);
 
   // Fetch languages from API on mount
   useEffect(() => {
@@ -158,7 +178,7 @@ export const SettingsScreen: React.FC = () => {
           style={styles.backButton}
           onPress={handleBack}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('creation.back')}
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
@@ -171,22 +191,22 @@ export const SettingsScreen: React.FC = () => {
         {/* Settings Container */}
         <View style={styles.settingsContainer}>
           <Text style={styles.pageTitle}>
-            Personnalisons l'histoire
+            {t('creation.settings.title')}
           </Text>
           <Text style={styles.pageHint}>
-            Quelques réglages pour adapter le récit
+            {t('creation.settings.subtitle')}
           </Text>
 
           {/* Language Select */}
           {isLoadingLanguages ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={colors.forestGreen} />
-              <Text style={styles.loadingText}>Chargement des langues...</Text>
+              <Text style={styles.loadingText}>{t('creation.settings.loadingLanguages')}</Text>
             </View>
           ) : (
             <GlassSelect
-              label="Dans quelle langue ?"
-              placeholder="Sélectionnez une langue"
+              label={t('creation.settings.languageLabel')}
+              placeholder={t('creation.settings.languagePlaceholder')}
               options={languageOptions}
               value={selectedLanguageId}
               onValueChange={(value) => setSelectedLanguageId(value as string)}
@@ -195,18 +215,18 @@ export const SettingsScreen: React.FC = () => {
 
           {/* Age Select */}
           <GlassSelect
-            label="Quel est l'âge de votre enfant ?"
-            placeholder="Sélectionnez un âge"
-            options={AGE_OPTIONS}
+            label={t('creation.settings.ageLabel')}
+            placeholder={t('creation.settings.agePlaceholder')}
+            options={ageOptions}
             value={age}
             onValueChange={(value) => setAge(value as number)}
           />
 
           {/* Chapters Select */}
           <GlassSelect
-            label="Combien de chapitres ?"
-            placeholder="Sélectionnez le nombre de chapitres"
-            options={CHAPTERS_OPTIONS}
+            label={t('creation.settings.chaptersLabel')}
+            placeholder={t('creation.settings.chaptersPlaceholder')}
+            options={chaptersOptions}
             value={chapters}
             onValueChange={(value) => setChapters(value as number)}
           />
@@ -219,12 +239,12 @@ export const SettingsScreen: React.FC = () => {
             onPress={handleBack}
             accessibilityRole="button"
           >
-            <Text style={styles.secondaryButtonText}>Retour</Text>
+            <Text style={styles.secondaryButtonText}>{t('creation.back')}</Text>
           </TouchableOpacity>
 
           <View style={styles.primaryButtonContainer}>
             <PrimaryButton
-              title="Continuer"
+              title={t('creation.continue')}
               icon="→"
               onPress={handleContinue}
               disabled={!selectedLanguageId || !age || !chapters}

@@ -4,8 +4,10 @@ import Text from '@/components/ui/Text'
 import { Animated, ScrollView } from 'react-native'
 import { RegisterForm } from '@/components/register/RegisterForm'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useAppTranslation } from '@/hooks/useAppTranslation'
 
 const RegisterScreen = () => {
+  const { t } = useAppTranslation('auth')
   const bounceValue = React.useRef(new Animated.Value(0)).current
   const sparkleValue = React.useRef(new Animated.Value(0)).current
 
@@ -92,7 +94,7 @@ const RegisterScreen = () => {
                 borderRadius="l"
                 zIndex={10}
               >
-                <Text variant="buttonLabel" color="white" fontSize={12}>3-8 ans</Text>
+                <Text variant="buttonLabel" color="white" fontSize={12}>{t('ageBadge')}</Text>
               </Box>
               <Animated.View style={{
                 transform: [{ translateY: bounceTransform }],
@@ -138,7 +140,7 @@ const RegisterScreen = () => {
               fontSize={24}
               fontWeight="bold"
             >
-              Rejoins l'aventure ! ✨
+              {t('signup.titleAlt')}
             </Text>
 
             <Text
@@ -148,7 +150,7 @@ const RegisterScreen = () => {
               marginBottom="l"
               fontSize={16}
             >
-              Crée ton compte pour sauvegarder tes histoires magiques
+              {t('signup.subtitleAlt')}
             </Text>
           </Box>
 

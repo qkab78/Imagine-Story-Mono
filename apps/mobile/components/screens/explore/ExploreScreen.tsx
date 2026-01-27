@@ -20,9 +20,11 @@ import { useExplore, useExploreSearch } from '@/features/explore/hooks';
 import useExploreStore from '@/store/explore/exploreStore';
 import { EXPLORE_COLORS, EXPLORE_SPACING } from '@/constants/explore';
 import useSearchContext from '@/hooks/useSearchContext';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 export const ExploreScreen: React.FC = () => {
   const router = useRouter();
+  const { t } = useAppTranslation('stories');
 
   // Register as searchable page
   const setCurrentPage = useSearchContext((state) => state.setCurrentPage);
@@ -76,7 +78,7 @@ export const ExploreScreen: React.FC = () => {
         style={styles.loadingContainer}
       >
         <ActivityIndicator size="large" color={EXPLORE_COLORS.primary} />
-        <Text style={styles.loadingText}>Chargement...</Text>
+        <Text style={styles.loadingText}>{t('explore.loading')}</Text>
       </LinearGradient>
     );
   }

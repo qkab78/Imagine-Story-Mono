@@ -11,9 +11,11 @@ import { AgeBadge } from '@/components/atoms/auth';
 import { AuthHeader, AuthFooter } from '@/components/molecules/auth';
 import { SignupForm, type SignupData } from '@/components/organisms/auth';
 import { useRegister, useGoogleSignIn } from '@/hooks/useAuth';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const SignupScreen = () => {
   const router = useRouter();
+  const { t } = useAppTranslation('auth');
   const registerMutation = useRegister();
   const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleSignIn();
 
@@ -35,7 +37,7 @@ const SignupScreen = () => {
       style={styles.gradient}
     >
       <SafeAreaView style={styles.container} edges={['top']}>
-        <AgeBadge ageRange="3-8 ans" />
+        <AgeBadge ageRange={t('ageBadge')} />
 
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -49,8 +51,8 @@ const SignupScreen = () => {
           >
             <AuthHeader
               icon="✨"
-              title="Rejoins l'aventure ! ✨"
-              subtitle="Crée ton compte pour sauvegarder tes histoires magiques"
+              title={t('signup.titleAlt')}
+              subtitle={t('signup.subtitleAlt')}
               variant="signup"
               compact
             />
@@ -63,8 +65,8 @@ const SignupScreen = () => {
             />
 
             <AuthFooter
-              question="Déjà un compte ?"
-              linkText="Se connecter"
+              question={t('signup.hasAccount')}
+              linkText={t('signup.loginLink')}
               onLinkPress={handleLoginPress}
               compact
             />

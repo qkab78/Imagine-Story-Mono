@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 interface ForgotPasswordLinkProps {
   onPress: () => void;
@@ -7,13 +8,15 @@ interface ForgotPasswordLinkProps {
 export const ForgotPasswordLink: React.FC<ForgotPasswordLinkProps> = ({
   onPress,
 }) => {
+  const { t } = useAppTranslation('auth');
+
   return (
     <TouchableOpacity
       style={styles.container}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <Text style={styles.text}>Mot de passe oublié ? 🤔</Text>
+      <Text style={styles.text}>{t('login.forgotPassword')}</Text>
     </TouchableOpacity>
   );
 };

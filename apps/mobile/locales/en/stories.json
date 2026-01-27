@@ -12,6 +12,73 @@
     "title": "Create a Story",
     "back": "Back",
     "continue": "Continue",
+    "start": "Start",
+    "welcome": {
+      "title": "Let's create a magical story",
+      "subtitle": "A few questions to personalize your child's adventure",
+      "backLabel": "Back"
+    },
+    "settings": {
+      "title": "Let's personalize the story",
+      "subtitle": "A few settings to adapt the story",
+      "languageLabel": "What language?",
+      "languagePlaceholder": "Select a language",
+      "ageLabel": "How old is your child?",
+      "agePlaceholder": "Select an age",
+      "chaptersLabel": "How many chapters?",
+      "chaptersPlaceholder": "Select the number of chapters",
+      "loadingLanguages": "Loading languages..."
+    },
+    "ages": {
+      "3": "3 years old",
+      "4": "4 years old",
+      "5": "5 years old",
+      "6": "6 years old",
+      "7": "7 years old",
+      "8": "8 years old"
+    },
+    "chapters": {
+      "1": "1 chapter",
+      "2": "2 chapters",
+      "3": "3 chapters",
+      "4": "4 chapters",
+      "5": "5 chapters"
+    },
+    "generation": {
+      "title": "Generating",
+      "subtitle": "Your magical story is being prepared...",
+      "progress": "Creating your adventure...",
+      "loadingTitle": "Creating... ✨",
+      "loadingSubtitle": "Our magical AI is preparing a unique story for {{heroName}}!",
+      "steps": {
+        "character": "Creating the character",
+        "world": "Building the world",
+        "illustrations": "Generating illustrations",
+        "writing": "Writing the story"
+      },
+      "success": {
+        "title": "Story created! 🎉",
+        "viewStory": "View story"
+      },
+      "error": {
+        "title": "Generation error 😕",
+        "message": "An error occurred while creating your story. Would you like to try again?",
+        "back": "Back",
+        "retry": "Try again"
+      }
+    },
+    "alerts": {
+      "success": "Success",
+      "error": "Error",
+      "information": "Information",
+      "purchaseSuccess": "Welcome to the Premium family! Enjoy all the features.",
+      "restoreSuccess": "Your purchases have been restored.",
+      "restoreNoItems": "No previous purchases found.",
+      "manageSubscriptionTitle": "Manage Subscription",
+      "manageSubscriptionMessage": "You will be redirected to your store settings to manage or cancel your subscription.",
+      "cancel": "Cancel",
+      "continue": "Continue"
+    },
     "heroSelection": {
       "title": "What's the name of your story's hero?",
       "subtitle": "This will be the main character of the adventure",
@@ -69,28 +136,16 @@
       "ar": "🇦🇪 Arabic",
       "ja": "🇯🇵 Japanese"
     },
-    "settings": {
-      "title": "Settings",
-      "theme": "Theme",
-      "mood": "Mood",
-      "length": "Length",
-      "language": "Language"
-    },
     "summary": {
       "title": "Summary",
       "subtitle": "Here's your story"
-    },
-    "generation": {
-      "title": "Generating",
-      "subtitle": "Your magical story is being prepared...",
-      "progress": "Creating your adventure..."
     }
   },
   "library": {
     "title": "My Library",
-    "empty": "You don't have any stories yet",
-    "emptySubtitle": "Create your first magical story!",
-    "createFirst": "Create a Story",
+    "empty": "No stories yet",
+    "emptySubtitle": "Create your first magical story and it will appear here!",
+    "createFirst": "Create a story ✨",
     "filters": {
       "all": "All",
       "favorites": "Favorites",
@@ -100,6 +155,7 @@
   "explore": {
     "title": "Explore",
     "searchPlaceholder": "Search for a story...",
+    "loading": "Loading...",
     "categories": {
       "all": "All",
       "magic": "Magic",

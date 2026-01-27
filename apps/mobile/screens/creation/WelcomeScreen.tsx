@@ -10,6 +10,7 @@ import { QuotaExceededModal } from '@/components/organisms/creation/QuotaExceede
 import { SubscriptionSheet } from '@/components/organisms/profile/SubscriptionSheet';
 import { useStoryQuota } from '@/hooks/useStoryQuota';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { colors } from '@/theme/colors';
 
 /**
@@ -22,6 +23,8 @@ import { colors } from '@/theme/colors';
  */
 export const WelcomeScreen: React.FC = () => {
   const router = useRouter();
+  const { t } = useAppTranslation('stories');
+  const { t: tCommon } = useAppTranslation('common');
   const { canCreateStory, storiesCreatedThisMonth, limit, remaining, isUnlimited, resetDate, refreshQuota } = useStoryQuota();
   const {
     isSubscribed,
@@ -64,39 +67,39 @@ export const WelcomeScreen: React.FC = () => {
     const success = await purchase();
     if (success) {
       await refreshQuota();
-      Alert.alert('Succès', 'Bienvenue dans la famille Premium ! Profitez de toutes les fonctionnalités.');
+      Alert.alert(t('creation.alerts.success'), t('creation.alerts.purchaseSuccess'));
       setShowSubscriptionSheet(false);
     } else if (subscriptionError) {
-      Alert.alert('Erreur', subscriptionError);
+      Alert.alert(t('creation.alerts.error'), subscriptionError);
     }
-  }, [purchase, subscriptionError, refreshQuota]);
+  }, [purchase, subscriptionError, refreshQuota, t]);
 
   const handleRestore = useCallback(async () => {
     const success = await restore();
     if (success) {
       await refreshQuota();
-      Alert.alert('Succès', 'Vos achats ont été restaurés.');
+      Alert.alert(t('creation.alerts.success'), t('creation.alerts.restoreSuccess'));
       setShowSubscriptionSheet(false);
     } else {
-      Alert.alert('Information', 'Aucun achat précédent trouvé.');
+      Alert.alert(t('creation.alerts.information'), t('creation.alerts.restoreNoItems'));
     }
-  }, [restore, refreshQuota]);
+  }, [restore, refreshQuota, t]);
 
   const handleCancelSubscription = useCallback(() => {
     Alert.alert(
-      'Gérer l\'abonnement',
-      'Vous allez être redirigé vers les paramètres de votre store pour gérer ou résilier votre abonnement.',
+      t('creation.alerts.manageSubscriptionTitle'),
+      t('creation.alerts.manageSubscriptionMessage'),
       [
-        { text: 'Annuler', style: 'cancel' },
+        { text: tCommon('buttons.cancel'), style: 'cancel' },
         {
-          text: 'Continuer',
+          text: tCommon('buttons.continue'),
           onPress: async () => {
             await openManageSubscription();
           },
         },
       ]
     );
-  }, [openManageSubscription]);
+  }, [openManageSubscription, t, tCommon]);
 
   return (
     <LinearGradient
@@ -111,7 +114,7 @@ export const WelcomeScreen: React.FC = () => {
           style={styles.backButton}
           onPress={handleBack}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('creation.welcome.backLabel')}
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
@@ -128,14 +131,14 @@ export const WelcomeScreen: React.FC = () => {
 
         <WelcomeHero
           icon="✨"
-          title="Créons une histoire magique"
-          subtitle="Quelques questions pour personnaliser l'aventure de votre enfant"
+          title={t('creation.welcome.title')}
+          subtitle={t('creation.welcome.subtitle')}
           iconSize={120}
         />
 
         <View style={styles.footer}>
           <PrimaryButton
-            title="Commencer"
+            title={t('creation.start')}
             icon="→"
             onPress={handleStart}
           />
