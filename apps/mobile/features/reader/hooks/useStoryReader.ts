@@ -1,17 +1,66 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useStoryById } from '@/features/stories/hooks/useStoryById';
+import { useOfflineStory } from '@/hooks/useOfflineStory';
 import type { ReaderChapter, ReaderProgress } from '@/types/reader';
 
-export const useStoryReader = (storyId: string) => {
+interface OfflineChapter {
+  id: string;
+  title: string;
+  content: string;
+}
+
+export const useStoryReader = (storyId: string, isOffline: boolean = false) => {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const { data: story, isLoading, error } = useStoryById(storyId);
+  // Offline content state
+  const [offlineContent, setOfflineContent] = useState<{ title: string; chapters: OfflineChapter[] } | null>(null);
+  const [offlineLoading, setOfflineLoading] = useState(false);
+  const [offlineError, setOfflineError] = useState<string | null>(null);
 
-  // Transform domain chapters to reader chapters
+  // Online mode: fetch from API (disabled in offline mode)
+  const { data: story, isLoading: onlineLoading, error: onlineError } = useStoryById(storyId, {
+    enabled: !isOffline,
+  });
+
+  // Offline mode: read from local storage
+  const { readContent } = useOfflineStory(storyId);
+
+  useEffect(() => {
+    if (isOffline) {
+      setOfflineLoading(true);
+      readContent()
+        .then((content) => {
+          setOfflineContent(content);
+          setOfflineLoading(false);
+        })
+        .catch((err) => {
+          setOfflineError(err instanceof Error ? err.message : 'Erreur de lecture');
+          setOfflineLoading(false);
+        });
+    }
+  }, [isOffline, storyId, readContent]);
+
+  // Determine loading and error states
+  const isLoading = isOffline ? offlineLoading : onlineLoading;
+  const error = isOffline ? offlineError : onlineError?.message;
+
+  // Transform chapters based on mode (online vs offline)
   const chapters: ReaderChapter[] = useMemo(() => {
-    if (!story) return [];
+    if (isOffline) {
+      // Offline mode: use stored chapters directly
+      if (!offlineContent?.chapters) return [];
 
+      return offlineContent.chapters.map((chapter) => ({
+        id: chapter.id,
+        title: chapter.title,
+        content: chapter.content,
+        imageUrl: undefined,
+      }));
+    }
+
+    // Online mode: use story chapters
+    if (!story) return [];
     return story.getAllChapters().map((chapter) => {
       const rawImageUrl = chapter.image?.imageUrl?.getValue();
       return {
@@ -21,10 +70,13 @@ export const useStoryReader = (storyId: string) => {
         imageUrl: rawImageUrl,
       };
     });
-  }, [story]);
+  }, [isOffline, offlineContent, story]);
 
   const currentChapter = chapters[currentChapterIndex];
   const totalChapters = chapters.length;
+
+  // Story title (handles both online and offline)
+  const storyTitle = isOffline ? (offlineContent?.title || '') : (story?.title || '');
 
   // Navigation
   const goToNextChapter = useCallback(() => {
@@ -71,7 +123,7 @@ export const useStoryReader = (storyId: string) => {
   return {
     // Story data
     story,
-    storyTitle: story?.title || '',
+    storyTitle,
     conclusion: story?.conclusion || '',
     chapters,
     currentChapter,
@@ -81,7 +133,7 @@ export const useStoryReader = (storyId: string) => {
     isLastChapter,
     // State
     isLoading,
-    error: error?.message,
+    error,
     isMenuOpen,
     // Navigation
     goToNextChapter,

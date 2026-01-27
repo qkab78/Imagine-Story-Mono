@@ -23,10 +23,16 @@ const METADATA_FILE = `${OFFLINE_DIRECTORY}metadata.json`
 const GRACE_PERIOD_DAYS = Number(process.env.EXPO_PUBLIC_OFFLINE_GRACE_PERIOD_DAYS) || 7
 const LOCK_PERIOD_DAYS = Number(process.env.EXPO_PUBLIC_OFFLINE_LOCK_PERIOD_DAYS) || 30
 
-interface StoryContent {
+interface OfflineChapter {
   id: string
   title: string
   content: string
+}
+
+interface StoryContent {
+  id: string
+  title: string
+  chapters: OfflineChapter[]
   coverImageUrl: string | null
 }
 
@@ -85,7 +91,7 @@ class OfflineStorageService {
       await writeAsStringAsync(contentPath, JSON.stringify({
         id: story.id,
         title: story.title,
-        content: story.content,
+        chapters: story.chapters,
       }))
       const contentInfo = await getInfoAsync(contentPath)
       if (contentInfo.exists && 'size' in contentInfo) {
@@ -98,20 +104,16 @@ class OfflineStorageService {
         status: 'downloading',
       })
 
-      console.log('[OfflineStorage] After 30%, coverImageUrl:', story.coverImageUrl)
       const isUrlValid = story.coverImageUrl ? this.isValidUrl(story.coverImageUrl) : false
-      console.log('[OfflineStorage] isValidUrl result:', isUrlValid)
 
       // Télécharger l'image de couverture si disponible et si c'est une URL valide
       if (story.coverImageUrl && isUrlValid) {
-        console.log('[OfflineStorage] Downloading cover image...')
         try {
           coverImagePath = `${storyDir}cover.jpg`
           const downloadResult = await downloadAsync(
             story.coverImageUrl,
             coverImagePath
           )
-          console.log('[OfflineStorage] Cover download result:', downloadResult.status)
           if (downloadResult.status === 200) {
             const imageInfo = await getInfoAsync(coverImagePath)
             if (imageInfo.exists && 'size' in imageInfo) {
@@ -124,11 +126,7 @@ class OfflineStorageService {
           console.warn('[OfflineStorage] Failed to download cover image:', imageError)
           coverImagePath = null
         }
-      } else {
-        console.log('[OfflineStorage] Skipping cover image download')
       }
-
-      console.log('[OfflineStorage] Reaching 80%...')
       onProgress?.({
         storyId: story.id,
         progress: 80,
@@ -211,7 +209,7 @@ class OfflineStorageService {
   /**
    * Lit le contenu d'une histoire téléchargée
    */
-  async readStoryContent(storyId: string): Promise<{ title: string; content: string } | null> {
+  async readStoryContent(storyId: string): Promise<{ title: string; chapters: OfflineChapter[] } | null> {
     const story = await this.getStory(storyId)
     if (!story) return null
 
@@ -224,7 +222,7 @@ class OfflineStorageService {
 
       return {
         title: content.title,
-        content: content.content,
+        chapters: content.chapters || [],
       }
     } catch (error) {
       console.error('[OfflineStorage] Failed to read story content:', error)

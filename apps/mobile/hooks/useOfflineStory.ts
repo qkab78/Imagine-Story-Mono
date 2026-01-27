@@ -4,10 +4,16 @@ import { offlineStorageService } from '@/services/offline'
 import { useOfflineAccess } from './useOfflineAccess'
 import type { DownloadStatus, DownloadProgress } from '@/types/offline'
 
-interface StoryData {
+interface OfflineChapter {
   id: string
   title: string
   content: string
+}
+
+interface StoryData {
+  id: string
+  title: string
+  chapters: OfflineChapter[]
   coverImageUrl: string | null
 }
 
@@ -27,7 +33,7 @@ interface UseOfflineStoryReturn {
   // Supprimer l'histoire téléchargée
   remove: () => Promise<void>
   // Lire le contenu offline de l'histoire
-  readContent: () => Promise<{ title: string; content: string } | null>
+  readContent: () => Promise<{ title: string; chapters: OfflineChapter[] } | null>
 }
 
 /**
@@ -52,10 +58,7 @@ export const useOfflineStory = (storyId: string): UseOfflineStoryReturn => {
 
   const download = useCallback(
     async (story: StoryData): Promise<boolean> => {
-      console.log('[useOfflineStory] download called:', { canDownload, storyId, story: story.title })
-
       if (!canDownload) {
-        console.log('[useOfflineStory] canDownload is false, aborting')
         setError('Impossible de télécharger cette histoire')
         return false
       }
@@ -63,21 +66,17 @@ export const useOfflineStory = (storyId: string): UseOfflineStoryReturn => {
       setError(null)
 
       try {
-        console.log('[useOfflineStory] Starting download...')
         const offlineStory = await offlineStorageService.downloadStory(
           story,
           (progress: DownloadProgress) => {
-            console.log('[useOfflineStory] Progress:', progress)
             setDownloadProgress(storyId, progress)
           }
         )
 
-        console.log('[useOfflineStory] Download complete:', offlineStory)
         addStory(offlineStory)
         clearDownloadProgress(storyId)
         return true
       } catch (err) {
-        console.error('[useOfflineStory] Download error:', err)
         const errorMessage = err instanceof Error ? err.message : 'Erreur de téléchargement'
         setError(errorMessage)
         clearDownloadProgress(storyId)
@@ -98,7 +97,7 @@ export const useOfflineStory = (storyId: string): UseOfflineStoryReturn => {
     }
   }, [storyId, removeStory])
 
-  const readContent = useCallback(async (): Promise<{ title: string; content: string } | null> => {
+  const readContent = useCallback(async (): Promise<{ title: string; chapters: OfflineChapter[] } | null> => {
     if (!canRead) {
       setError('Accès aux contenus hors ligne non disponible')
       return null
