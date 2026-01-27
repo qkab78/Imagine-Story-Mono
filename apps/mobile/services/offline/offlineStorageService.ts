@@ -98,23 +98,37 @@ class OfflineStorageService {
         status: 'downloading',
       })
 
-      // Télécharger l'image de couverture si disponible
-      if (story.coverImageUrl) {
-        coverImagePath = `${storyDir}cover.jpg`
-        const downloadResult = await downloadAsync(
-          story.coverImageUrl,
-          coverImagePath
-        )
-        if (downloadResult.status === 200) {
-          const imageInfo = await getInfoAsync(coverImagePath)
-          if (imageInfo.exists && 'size' in imageInfo) {
-            totalSize += imageInfo.size
+      console.log('[OfflineStorage] After 30%, coverImageUrl:', story.coverImageUrl)
+      const isUrlValid = story.coverImageUrl ? this.isValidUrl(story.coverImageUrl) : false
+      console.log('[OfflineStorage] isValidUrl result:', isUrlValid)
+
+      // Télécharger l'image de couverture si disponible et si c'est une URL valide
+      if (story.coverImageUrl && isUrlValid) {
+        console.log('[OfflineStorage] Downloading cover image...')
+        try {
+          coverImagePath = `${storyDir}cover.jpg`
+          const downloadResult = await downloadAsync(
+            story.coverImageUrl,
+            coverImagePath
+          )
+          console.log('[OfflineStorage] Cover download result:', downloadResult.status)
+          if (downloadResult.status === 200) {
+            const imageInfo = await getInfoAsync(coverImagePath)
+            if (imageInfo.exists && 'size' in imageInfo) {
+              totalSize += imageInfo.size
+            }
+          } else {
+            coverImagePath = null
           }
-        } else {
+        } catch (imageError) {
+          console.warn('[OfflineStorage] Failed to download cover image:', imageError)
           coverImagePath = null
         }
+      } else {
+        console.log('[OfflineStorage] Skipping cover image download')
       }
 
+      console.log('[OfflineStorage] Reaching 80%...')
       onProgress?.({
         storyId: story.id,
         progress: 80,
@@ -376,6 +390,10 @@ class OfflineStorageService {
     } catch (error) {
       console.error('[OfflineStorage] Failed to delete story files:', error)
     }
+  }
+
+  private isValidUrl(url: string): boolean {
+    return url.startsWith('http://') || url.startsWith('https://')
   }
 }
 

@@ -62,11 +62,20 @@ interface OfflineActions {
 
 type OfflineStore = OfflineState & OfflineActions
 
+// Default config values
+const DEFAULT_MAX_STORIES = 10
+const DEFAULT_MAX_SIZE_BYTES = 500 * 1024 * 1024 // 500 MB
+
 const initialState: OfflineState = {
   stories: {},
   downloads: {},
   totalSizeBytes: 0,
-  config: null,
+  config: {
+    maxStories: DEFAULT_MAX_STORIES,
+    currentCount: 0,
+    maxSizeBytes: DEFAULT_MAX_SIZE_BYTES,
+    currentSizeBytes: 0,
+  },
   accessLevel: 'none',
   accessMessage: null,
   daysUntilDeletion: null,

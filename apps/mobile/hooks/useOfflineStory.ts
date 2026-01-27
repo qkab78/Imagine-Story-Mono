@@ -52,7 +52,10 @@ export const useOfflineStory = (storyId: string): UseOfflineStoryReturn => {
 
   const download = useCallback(
     async (story: StoryData): Promise<boolean> => {
+      console.log('[useOfflineStory] download called:', { canDownload, storyId, story: story.title })
+
       if (!canDownload) {
+        console.log('[useOfflineStory] canDownload is false, aborting')
         setError('Impossible de télécharger cette histoire')
         return false
       }
@@ -60,17 +63,21 @@ export const useOfflineStory = (storyId: string): UseOfflineStoryReturn => {
       setError(null)
 
       try {
+        console.log('[useOfflineStory] Starting download...')
         const offlineStory = await offlineStorageService.downloadStory(
           story,
           (progress: DownloadProgress) => {
+            console.log('[useOfflineStory] Progress:', progress)
             setDownloadProgress(storyId, progress)
           }
         )
 
+        console.log('[useOfflineStory] Download complete:', offlineStory)
         addStory(offlineStory)
         clearDownloadProgress(storyId)
         return true
       } catch (err) {
+        console.error('[useOfflineStory] Download error:', err)
         const errorMessage = err instanceof Error ? err.message : 'Erreur de téléchargement'
         setError(errorMessage)
         clearDownloadProgress(storyId)
