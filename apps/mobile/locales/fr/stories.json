@@ -148,10 +148,18 @@
     "empty": "Pas encore d'histoires",
     "emptySubtitle": "Crée ta première histoire magique et elle apparaîtra ici !",
     "createFirst": "Créer une histoire ✨",
+    "storyCount": "{{count}} histoire",
+    "storiesCount": "{{count}} histoires",
     "filters": {
       "all": "Toutes",
       "favorites": "Favoris",
-      "recent": "Récentes"
+      "recent": "Récentes",
+      "title": "Filtres",
+      "subtitle": "Affinez votre bibliothèque",
+      "themes": "Thèmes",
+      "tones": "Ambiances",
+      "reset": "Réinitialiser",
+      "apply": "Appliquer les filtres"
     }
   },
   "explore": {
@@ -188,15 +196,48 @@
   },
   "reader": {
     "chapter": "Chapitre {{number}}",
+    "chapterOf": "Chapitre {{current}} sur {{total}}",
+    "chapters": "Chapitres",
     "theEnd": "Fin",
+    "endOfStory": "Fin de l'histoire",
     "nextChapter": "Chapitre suivant",
     "previousChapter": "Chapitre précédent",
-    "backToStory": "Retour à l'histoire"
+    "backToStory": "Retour à l'histoire",
+    "loading": "Chargement de l'histoire...",
+    "loadError": "Impossible de charger l'histoire",
+    "startReading": "Commencer à lire",
+    "close": "Fermer",
+    "chapterNumber": "Chapitre {{position}}"
+  },
+  "detail": {
+    "forAgeChapters": "Pour {{age}} ans • {{count}} chapitres",
+    "forAgeChapter": "Pour {{age}} ans • {{count}} chapitre",
+    "conclusion": "Conclusion"
+  },
+  "badges": {
+    "new": "NOUVEAU",
+    "popular": "POPULAIRE",
+    "featured": "Histoire du jour"
   },
   "card": {
     "readMore": "Lire la suite",
     "chapters": "{{count}} chapitres",
     "chapter": "{{count}} chapitre",
-    "readTime": "{{minutes}} min de lecture"
+    "readTime": "{{minutes}} min de lecture",
+    "storyLabel": "Histoire: {{title}}",
+    "chaptersHint": "{{count}} chapitres",
+    "pressToRead": "Appuyez pour lire cette histoire",
+    "pressToContinue": "Appuyez pour continuer",
+    "forAge": "Pour {{age}} ans",
+    "storyOfTheDay": "Histoire du jour",
+    "storiesCount": "{{count}} histoires",
+    "storyCount": "{{count}} histoire"
+  },
+  "quota": {
+    "unlimited": "Illimité",
+    "storiesRemaining": "{{count}} histoire restante",
+    "storiesRemainingPlural": "{{count}} histoires restantes",
+    "storiesUsed": "{{count}} utilisée",
+    "storiesUsedPlural": "{{count}} utilisées"
   }
 }

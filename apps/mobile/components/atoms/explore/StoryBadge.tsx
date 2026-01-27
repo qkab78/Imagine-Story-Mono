@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { EXPLORE_COLORS, EXPLORE_SPACING, EXPLORE_TYPOGRAPHY } from '@/constants/explore';
 
 type BadgeType = 'new' | 'popular' | 'featured';
@@ -7,30 +8,31 @@ interface StoryBadgeProps {
   type: BadgeType;
 }
 
-const BADGE_CONFIG: Record<BadgeType, { label: string; backgroundColor: string; textColor: string }> = {
+const BADGE_CONFIG: Record<BadgeType, { labelKey: string; backgroundColor: string; textColor: string }> = {
   new: {
-    label: 'NOUVEAU',
+    labelKey: 'badges.new',
     backgroundColor: EXPLORE_COLORS.badgeNew,
     textColor: EXPLORE_COLORS.textLight,
   },
   popular: {
-    label: 'POPULAIRE',
+    labelKey: 'badges.popular',
     backgroundColor: EXPLORE_COLORS.badgePopular,
     textColor: EXPLORE_COLORS.textPrimary,
   },
   featured: {
-    label: 'Histoire du jour',
+    labelKey: 'badges.featured',
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
     textColor: EXPLORE_COLORS.textLight,
   },
 };
 
 export const StoryBadge: React.FC<StoryBadgeProps> = ({ type }) => {
+  const { t } = useAppTranslation('stories');
   const config = BADGE_CONFIG[type];
 
   return (
     <View style={[styles.badge, { backgroundColor: config.backgroundColor }]}>
-      <Text style={[styles.text, { color: config.textColor }]}>{config.label}</Text>
+      <Text style={[styles.text, { color: config.textColor }]}>{t(config.labelKey as any)}</Text>
     </View>
   );
 };

@@ -4,30 +4,16 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { TextInput, AuthButton, FormDivider } from '@/components/molecules/auth';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
-const signupSchema = z.object({
-  firstName: z.string()
-    .min(1, 'Ce champ est obligatoire ⚠️')
-    .min(2, 'Le prénom doit avoir au moins 2 caractères ✏️'),
-  lastName: z.string()
-    .min(1, 'Ce champ est obligatoire ⚠️')
-    .min(2, 'Le nom doit avoir au moins 2 caractères ✏️'),
-  email: z.string()
-    .min(1, 'Ce champ est obligatoire ⚠️')
-    .email("Oups ! Cet email n'a pas l'air correct 📧"),
-  password: z.string()
-    .min(1, 'Ce champ est obligatoire ⚠️')
-    .min(6, 'Ton mot de passe doit avoir au moins 6 caractères 🔐')
-    .regex(/[A-Z]/, 'Ton mot de passe doit contenir une majuscule 🔠')
-    .regex(/[0-9]/, 'Ton mot de passe doit contenir un chiffre 🔢'),
-  passwordConfirm: z.string()
-    .min(1, 'Ce champ est obligatoire ⚠️'),
-}).refine((data) => data.password === data.passwordConfirm, {
-  message: 'Les mots de passe ne correspondent pas 🤔',
-  path: ['passwordConfirm'],
-});
-
-export type SignupData = z.infer<typeof signupSchema>;
+// Schema will be created inside component to access translations
+export type SignupData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  passwordConfirm: string;
+};
 
 interface SignupFormProps {
   onSubmit: (data: SignupData) => void;
@@ -42,8 +28,32 @@ export const SignupForm: React.FC<SignupFormProps> = ({
   loading = false,
   googleLoading = false,
 }) => {
+  const { t } = useAppTranslation('auth');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
+
+  // Create schema with translations
+  const signupSchema = React.useMemo(() => z.object({
+    firstName: z.string()
+      .min(1, t('validation.required'))
+      .min(2, t('validation.nameTooShort')),
+    lastName: z.string()
+      .min(1, t('validation.required'))
+      .min(2, t('validation.lastnameTooShort')),
+    email: z.string()
+      .min(1, t('validation.required'))
+      .email(t('validation.invalidEmail')),
+    password: z.string()
+      .min(1, t('validation.required'))
+      .min(6, t('validation.passwordTooShort'))
+      .regex(/[A-Z]/, t('validation.passwordNeedsUppercase'))
+      .regex(/[0-9]/, t('validation.passwordNeedsNumber')),
+    passwordConfirm: z.string()
+      .min(1, t('validation.required')),
+  }).refine((data) => data.password === data.passwordConfirm, {
+    message: t('validation.passwordMismatch'),
+    path: ['passwordConfirm'],
+  }), [t]);
 
   const {
     control,
@@ -71,7 +81,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 icon="👤"
-                placeholder="Prénom"
+                placeholder={t('signup.firstnamePlaceholder')}
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
@@ -90,7 +100,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 icon="👤"
-                placeholder="Nom"
+                placeholder={t('signup.lastnamePlaceholder')}
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
@@ -109,7 +119,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             icon="✉️"
-            placeholder="Email"
+            placeholder={t('signup.emailPlaceholder')}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -128,7 +138,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             icon="🔒"
-            placeholder="Mot de passe sécurisé"
+            placeholder={t('signup.passwordPlaceholder')}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -147,7 +157,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             icon="🔒"
-            placeholder="Confirme ton mot de passe"
+            placeholder={t('signup.confirmPasswordPlaceholder')}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -161,7 +171,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
       />
 
       <AuthButton
-        title="Créer mon compte"
+        title={t('signup.submitButton')}
         emoji="✨"
         onPress={handleSubmit(onSubmit)}
         variant="signup"
@@ -173,7 +183,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         <>
           <FormDivider />
           <AuthButton
-            title="Continuer avec Google"
+            title={t('signup.googleButton')}
             onPress={onGoogleSignIn}
             variant="google"
             loading={googleLoading}

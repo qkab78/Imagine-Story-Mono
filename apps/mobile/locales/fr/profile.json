@@ -47,7 +47,9 @@
     "name": "Nom complet",
     "email": "Adresse email",
     "registrationDate": "Membre depuis",
-    "storiesCount": "Histoires créées"
+    "storiesCount": "Histoires créées",
+    "storyValue": "{{count}} histoire",
+    "storiesValue": "{{count}} histoires"
   },
   "editProfile": {
     "title": "Modifier le profil",

@@ -9,7 +9,13 @@
     "continue": "Continue",
     "close": "Close",
     "delete": "Delete",
-    "edit": "Edit"
+    "edit": "Edit",
+    "skip": "Skip"
+  },
+  "notifications": {
+    "title": "Enable notifications!",
+    "subtitle": "Don't miss new chapters and personalized stories for your child",
+    "activateButton": "Enable notifications"
   },
   "navigation": {
     "home": "Home",
@@ -37,5 +43,8 @@
   "toggle": {
     "enabled": "Enabled",
     "disabled": "Disabled"
+  },
+  "onboarding": {
+    "safetyBanner": "100% safe content validated by parents"
   }
 }

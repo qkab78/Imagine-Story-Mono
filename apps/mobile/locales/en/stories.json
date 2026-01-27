@@ -148,10 +148,18 @@
     "empty": "No stories yet",
     "emptySubtitle": "Create your first magical story and it will appear here!",
     "createFirst": "Create a story ✨",
+    "storyCount": "{{count}} story",
+    "storiesCount": "{{count}} stories",
     "filters": {
       "all": "All",
       "favorites": "Favorites",
-      "recent": "Recent"
+      "recent": "Recent",
+      "title": "Filters",
+      "subtitle": "Refine your library",
+      "themes": "Themes",
+      "tones": "Moods",
+      "reset": "Reset",
+      "apply": "Apply filters"
     }
   },
   "explore": {
@@ -188,15 +196,48 @@
   },
   "reader": {
     "chapter": "Chapter {{number}}",
+    "chapterOf": "Chapter {{current}} of {{total}}",
+    "chapters": "Chapters",
     "theEnd": "The End",
+    "endOfStory": "End of the story",
     "nextChapter": "Next Chapter",
     "previousChapter": "Previous Chapter",
-    "backToStory": "Back to Story"
+    "backToStory": "Back to Story",
+    "loading": "Loading story...",
+    "loadError": "Unable to load story",
+    "startReading": "Start reading",
+    "close": "Close",
+    "chapterNumber": "Chapter {{position}}"
+  },
+  "detail": {
+    "forAgeChapters": "For {{age}} years old • {{count}} chapters",
+    "forAgeChapter": "For {{age}} years old • {{count}} chapter",
+    "conclusion": "Conclusion"
+  },
+  "badges": {
+    "new": "NEW",
+    "popular": "POPULAR",
+    "featured": "Story of the day"
   },
   "card": {
     "readMore": "Read More",
     "chapters": "{{count}} chapters",
     "chapter": "{{count}} chapter",
-    "readTime": "{{minutes}} min read"
+    "readTime": "{{minutes}} min read",
+    "storyLabel": "Story: {{title}}",
+    "chaptersHint": "{{count}} chapters",
+    "pressToRead": "Press to read this story",
+    "pressToContinue": "Press to continue",
+    "forAge": "For {{age}} years old",
+    "storyOfTheDay": "Story of the day",
+    "storiesCount": "{{count}} stories",
+    "storyCount": "{{count}} story"
+  },
+  "quota": {
+    "unlimited": "Unlimited",
+    "storiesRemaining": "{{count}} story remaining",
+    "storiesRemainingPlural": "{{count}} stories remaining",
+    "storiesUsed": "{{count}} used",
+    "storiesUsedPlural": "{{count}} used"
   }
 }

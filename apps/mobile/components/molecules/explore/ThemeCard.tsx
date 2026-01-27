@@ -1,6 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { DualIcon } from '@/components/ui/DualIcon';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { EXPLORE_COLORS, EXPLORE_SPACING, EXPLORE_DIMENSIONS } from '@/constants/explore';
 import type { PopularTheme } from '@/types/explore';
 
@@ -10,6 +11,8 @@ interface ThemeCardProps {
 }
 
 export const ThemeCard: React.FC<ThemeCardProps> = ({ theme, onPress }) => {
+  const { t } = useAppTranslation('stories');
+
   return (
     <Pressable onPress={onPress}>
       <LinearGradient
@@ -26,7 +29,11 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({ theme, onPress }) => {
           />
         </View>
         <Text style={styles.name}>{theme.name}</Text>
-        <Text style={styles.count}>{theme.storyCount} histoires</Text>
+        <Text style={styles.count}>
+          {theme.storyCount === 1
+            ? t('card.storyCount', { count: theme.storyCount })
+            : t('card.storiesCount', { count: theme.storyCount })}
+        </Text>
       </LinearGradient>
     </Pressable>
   );

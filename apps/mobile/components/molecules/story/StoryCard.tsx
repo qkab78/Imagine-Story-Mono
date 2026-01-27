@@ -14,6 +14,7 @@ import { StoryFormatterService } from '@/domain/stories/services/StoryFormatterS
 import { GlassCard } from '@/components/molecules/glass/GlassCard';
 import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import useOfflineStore from '@/store/offline/offlineStore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 interface StoryCardProps {
   story: StoryListItem;
@@ -22,6 +23,7 @@ interface StoryCardProps {
 }
 
 export const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, onLongPress }) => {
+  const { t } = useAppTranslation('stories');
   const scaleAnimation = useSharedValue(1);
   const { trigger: triggerHaptic } = useHapticFeedback();
   const isDownloaded = useOfflineStore((state) => state.isStoryDownloaded(story.id.getValue()));
@@ -67,8 +69,8 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story, onPress, onLongPres
           onTouchStart={handlePressIn}
           onTouchEnd={handlePressOut}
           accessibilityRole="button"
-          accessibilityLabel={`Histoire: ${story.title}`}
-          accessibilityHint={`${story.numberOfChapters} chapitres`}
+          accessibilityLabel={t('card.storyLabel', { title: story.title })}
+          accessibilityHint={t('card.chaptersHint', { count: story.numberOfChapters })}
         >
           <View style={styles.thumbnailContainer}>
             <StoryThumbnail imageUrl={coverImageUrl} />

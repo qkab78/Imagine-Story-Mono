@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { DualIcon } from '@/components/ui'
+import { useAppTranslation } from '@/hooks/useAppTranslation'
 import { PROFILE_SPACING, PROFILE_ICONS } from '@/constants/profile'
 
 type QuotaBadgeVariant = 'default' | 'compact' | 'inline'
@@ -39,6 +40,8 @@ export const QuotaBadge: React.FC<QuotaBadgeProps> = ({
   isUnlimited,
   variant = 'default',
 }) => {
+  const { t } = useAppTranslation('stories')
+
   if (isUnlimited) {
     return (
       <LinearGradient
@@ -53,7 +56,7 @@ export const QuotaBadge: React.FC<QuotaBadgeProps> = ({
           color="white"
         />
         <Text style={[styles.text, variant === 'compact' && styles.textCompact]}>
-          Illimité
+          {t('quota.unlimited')}
         </Text>
       </LinearGradient>
     )
@@ -77,6 +80,17 @@ export const QuotaBadge: React.FC<QuotaBadgeProps> = ({
     )
   }
 
+  const getQuotaText = () => {
+    if (remaining !== null) {
+      return remaining > 1
+        ? t('quota.storiesRemainingPlural', { count: remaining })
+        : t('quota.storiesRemaining', { count: remaining })
+    }
+    return storiesCreatedThisMonth > 1
+      ? t('quota.storiesUsedPlural', { count: storiesCreatedThisMonth })
+      : t('quota.storiesUsed', { count: storiesCreatedThisMonth })
+  }
+
   return (
     <View style={[
       styles.container,
@@ -93,7 +107,7 @@ export const QuotaBadge: React.FC<QuotaBadgeProps> = ({
         variant === 'compact' && styles.textCompact,
         { color: statusColor }
       ]}>
-        {remaining !== null ? `${remaining} histoire${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''}` : `${storiesCreatedThisMonth} utilisée${storiesCreatedThisMonth > 1 ? 's' : ''}`}
+        {getQuotaText()}
       </Text>
     </View>
   )

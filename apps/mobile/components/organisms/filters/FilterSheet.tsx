@@ -21,6 +21,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { FilterSection, FilterChipList } from '@/components/molecules/filters';
 import { getThemes, getTones } from '@/api/stories/storyApi';
 import { ThemeDTO, ToneDTO } from '@/api/stories/storyTypes';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { LIBRARY_COLORS, LIBRARY_SPACING } from '@/constants/library';
 import { THEME_ICONS, TONE_ICONS } from '@/types/library';
 
@@ -47,6 +48,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
   onToggleTone,
   onReset,
 }) => {
+  const { t } = useAppTranslation('stories');
   const insets = useSafeAreaInsets();
   const translateY = useSharedValue(SHEET_HEIGHT);
   const backdropOpacity = useSharedValue(0);
@@ -149,14 +151,14 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
             {/* Header */}
             <View style={styles.header}>
               <View>
-                <Text style={styles.title}>Filtres</Text>
+                <Text style={styles.title}>{t('library.filters.title')}</Text>
                 <Text style={styles.subtitle}>
-                  Affinez votre bibliothèque
+                  {t('library.filters.subtitle')}
                 </Text>
               </View>
               {hasActiveFilters && (
                 <Pressable onPress={onReset} style={styles.resetButton}>
-                  <Text style={styles.resetText}>Réinitialiser</Text>
+                  <Text style={styles.resetText}>{t('library.filters.reset')}</Text>
                 </Pressable>
               )}
             </View>
@@ -170,7 +172,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
               {/* Themes Section - Horizontal scroll with icons */}
               {themeItems.length > 0 && (
                 <FilterSection
-                  title="Thèmes"
+                  title={t('library.filters.themes')}
                   items={themeItems}
                   selectedIds={selectedThemes}
                   onToggle={onToggleTheme}
@@ -181,7 +183,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
               {/* Tones Section - Text chips only */}
               {toneItems.length > 0 && (
                 <FilterChipList
-                  title="Ambiances"
+                  title={t('library.filters.tones')}
                   items={toneItems}
                   selectedIds={selectedTones}
                   onToggle={onToggleTone}
@@ -192,7 +194,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
             {/* Apply Button */}
             <View style={styles.footer}>
               <Pressable style={styles.applyButton} onPress={onClose}>
-                <Text style={styles.applyButtonText}>Appliquer les filtres</Text>
+                <Text style={styles.applyButtonText}>{t('library.filters.apply')}</Text>
               </Pressable>
             </View>
           </Animated.View>

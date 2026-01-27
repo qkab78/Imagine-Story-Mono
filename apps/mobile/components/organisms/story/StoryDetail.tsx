@@ -4,6 +4,7 @@ import { Story } from '@/domain/stories/entities/Story';
 import { StoryTitle } from '@/components/atoms/story/StoryTitle';
 import { StoryThumbnail } from '@/components/atoms/story/StoryThumbnail';
 import { ChapterList } from './ChapterList';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import Text from '@/components/ui/Text';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
@@ -14,6 +15,7 @@ interface StoryDetailProps {
 }
 
 export const StoryDetail: React.FC<StoryDetailProps> = ({ story }) => {
+  const { t } = useAppTranslation('stories');
   const coverImageUrl = story.coverImageUrl?.getValue() || '';
 
   return (
@@ -24,14 +26,16 @@ export const StoryDetail: React.FC<StoryDetailProps> = ({ story }) => {
         <Text style={styles.synopsis}>{story.synopsis}</Text>
         <View style={styles.meta}>
           <Text style={styles.metaText}>
-            Pour {story.childAge.getValue()} ans • {story.numberOfChapters} chapitres
+            {story.numberOfChapters === 1
+              ? t('detail.forAgeChapter', { age: story.childAge.getValue(), count: story.numberOfChapters })
+              : t('detail.forAgeChapters', { age: story.childAge.getValue(), count: story.numberOfChapters })}
           </Text>
         </View>
       </View>
       <ChapterList chapters={story.getAllChapters()} />
       {story.conclusion && (
         <View style={styles.conclusion}>
-          <Text style={styles.conclusionTitle}>Conclusion</Text>
+          <Text style={styles.conclusionTitle}>{t('detail.conclusion')}</Text>
           <Text style={styles.conclusionText}>{story.conclusion}</Text>
         </View>
       )}

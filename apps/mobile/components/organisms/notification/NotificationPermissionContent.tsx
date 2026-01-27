@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NotificationCharacter, NotificationActionButtons } from '@/components/molecules/notification';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const COLORS = {
   textPrimary: '#1F3D2B',
@@ -22,6 +23,7 @@ export const NotificationPermissionContent: React.FC<NotificationPermissionConte
   onSkip,
   isLoading = false,
 }) => {
+  const { t } = useAppTranslation('common');
   const insets = useSafeAreaInsets();
 
   return (
@@ -32,9 +34,9 @@ export const NotificationPermissionContent: React.FC<NotificationPermissionConte
       <View style={[styles.content, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 20 }]}>
         {/* Hero section */}
         <View style={styles.heroSection}>
-          <Text style={styles.title}>Active les notifications !</Text>
+          <Text style={styles.title}>{t('notifications.title')}</Text>
           <Text style={styles.subtitle}>
-            Ne rate pas les nouveaux chapitres et histoires personnalisées pour ton enfant
+            {t('notifications.subtitle')}
           </Text>
 
           {/* Illustration */}

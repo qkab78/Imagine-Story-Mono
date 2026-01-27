@@ -2,6 +2,7 @@ import { useRef, useEffect } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { ChapterDivider, DropCapText } from '@/components/atoms/reader';
 import { ChapterImage } from '@/components/molecules/reader';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import {
   READER_COLORS,
   READER_SPACING,
@@ -23,6 +24,7 @@ export const ReaderContent: React.FC<ReaderContentProps> = ({
   isLastChapter = false,
   conclusion,
 }) => {
+  const { t } = useAppTranslation('stories');
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Scroll to top when chapter changes
@@ -76,7 +78,7 @@ export const ReaderContent: React.FC<ReaderContentProps> = ({
         {showConclusion && (
           <View style={styles.conclusionContainer}>
             <View style={styles.conclusionCard}>
-              <Text style={styles.conclusionTitle}>Fin de l'histoire</Text>
+              <Text style={styles.conclusionTitle}>{t('reader.endOfStory')}</Text>
               <View style={styles.conclusionDivider} />
               <Text style={styles.conclusionText}>{conclusion}</Text>
               <Text style={styles.conclusionEmoji}>✨ 🌟 ✨</Text>

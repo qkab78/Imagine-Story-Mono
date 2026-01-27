@@ -25,13 +25,12 @@ export const PersonalInfoSheet: React.FC<PersonalInfoSheetProps> = ({
   storiesCount,
 }) => {
   const insets = useSafeAreaInsets();
-  const { t, language } = useAppTranslation('profile');
+  const { t } = useAppTranslation('profile');
 
-  // Pluralisation pour le nombre d'histoires
-  const storiesLabel =
-    language === 'en'
-      ? `${storiesCount} ${storiesCount === 1 ? 'story' : 'stories'}`
-      : `${storiesCount} histoire${storiesCount > 1 ? 's' : ''}`;
+  // Use translation for stories count
+  const storiesLabel = storiesCount === 1
+    ? t('personalInfo.storyValue', { count: storiesCount })
+    : t('personalInfo.storiesValue', { count: storiesCount });
 
   return (
     <Modal

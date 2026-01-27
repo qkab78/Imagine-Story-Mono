@@ -9,7 +9,13 @@
     "continue": "Continuer",
     "close": "Fermer",
     "delete": "Supprimer",
-    "edit": "Modifier"
+    "edit": "Modifier",
+    "skip": "Passer"
+  },
+  "notifications": {
+    "title": "Active les notifications !",
+    "subtitle": "Ne rate pas les nouveaux chapitres et histoires personnalisées pour ton enfant",
+    "activateButton": "Activer les notifications"
   },
   "navigation": {
     "home": "Accueil",
@@ -37,5 +43,8 @@
   "toggle": {
     "enabled": "Activées",
     "disabled": "Désactivées"
+  },
+  "onboarding": {
+    "safetyBanner": "Contenu 100% sécurisé et validé par des parents"
   }
 }

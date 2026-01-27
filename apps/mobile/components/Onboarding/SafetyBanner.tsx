@@ -2,15 +2,18 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import Box from '@/components/ui/Box';
 import Text from '@/components/ui/Text';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { theme } from '@/config/theme';
 
 const SafetyBanner: React.FC = () => {
+  const { t } = useAppTranslation('common');
+
   return (
     <Box style={styles.container}>
       <Box style={styles.gradient}>
         <Box flexDirection="row" alignItems="center" justifyContent="center">
           <Text style={styles.icon}>🛡️</Text>
-          <Text style={styles.text}>Contenu 100% sécurisé et validé par des parents</Text>
+          <Text style={styles.text}>{t('onboarding.safetyBanner')}</Text>
         </Box>
       </Box>
     </Box>

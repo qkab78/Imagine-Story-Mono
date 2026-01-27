@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { StoryCountText } from '@/components/atoms/library';
 import { FilterButton } from '@/components/atoms/filters';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { LIBRARY_COLORS, LIBRARY_TYPOGRAPHY, LIBRARY_SPACING } from '@/constants/library';
 
 interface LibraryHeaderProps {
@@ -14,10 +15,12 @@ export const LibraryHeader: React.FC<LibraryHeaderProps> = ({
   onFilterPress,
   activeFiltersCount = 0,
 }) => {
+  const { t } = useAppTranslation('stories');
+
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
-        <Text style={styles.title}>Ma Bibliothèque</Text>
+        <Text style={styles.title}>{t('library.title')}</Text>
         <FilterButton onPress={onFilterPress} activeFiltersCount={activeFiltersCount} />
       </View>
       <StoryCountText count={storyCount} />

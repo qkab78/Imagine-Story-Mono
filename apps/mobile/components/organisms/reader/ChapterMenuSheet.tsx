@@ -2,6 +2,7 @@ import { View, Text, Modal, Pressable, ScrollView, StyleSheet } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { DualIcon } from '@/components/ui/DualIcon';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { READER_COLORS, READER_SPACING, READER_ICONS } from '@/constants/reader';
 import type { ReaderChapter } from '@/types/reader';
 
@@ -22,6 +23,7 @@ export const ChapterMenuSheet: React.FC<ChapterMenuSheetProps> = ({
   onSelectChapter,
   storyTitle,
 }) => {
+  const { t } = useAppTranslation('stories');
   const insets = useSafeAreaInsets();
 
   return (
@@ -38,7 +40,7 @@ export const ChapterMenuSheet: React.FC<ChapterMenuSheetProps> = ({
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + READER_SPACING.md }]}>
           <View style={styles.handle} />
-          <Text style={styles.title}>Chapitres</Text>
+          <Text style={styles.title}>{t('reader.chapters')}</Text>
           <Text style={styles.storyTitle} numberOfLines={1}>
             {storyTitle}
           </Text>
@@ -103,7 +105,7 @@ export const ChapterMenuSheet: React.FC<ChapterMenuSheetProps> = ({
         {/* Close Button */}
         <View style={[styles.footer, { paddingBottom: insets.bottom + READER_SPACING.lg }]}>
           <Pressable style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Fermer</Text>
+            <Text style={styles.closeButtonText}>{t('reader.close')}</Text>
           </Pressable>
         </View>
       </LinearGradient>

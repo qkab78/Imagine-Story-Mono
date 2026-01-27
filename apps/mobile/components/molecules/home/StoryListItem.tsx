@@ -6,6 +6,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { StoryDate } from '@/components/atoms/home';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -20,6 +21,7 @@ interface StoryListItemProps {
 }
 
 export const StoryListItem: React.FC<StoryListItemProps> = ({ story, onPress }) => {
+  const { t } = useAppTranslation('stories');
   const translateX = useSharedValue(0);
   const shadowOpacity = useSharedValue(0.06);
 
@@ -42,7 +44,9 @@ export const StoryListItem: React.FC<StoryListItemProps> = ({ story, onPress }) 
     shadowOpacity: shadowOpacity.value,
   }));
 
-  const chapterText = story.chaptersCount === 1 ? '1 chapitre' : `${story.chaptersCount} chapitres`;
+  const chapterText = story.chaptersCount === 1
+    ? t('card.chapter', { count: story.chaptersCount })
+    : t('card.chapters', { count: story.chaptersCount });
 
   return (
     <AnimatedTouchableOpacity
@@ -53,7 +57,7 @@ export const StoryListItem: React.FC<StoryListItemProps> = ({ story, onPress }) 
       activeOpacity={1}
       accessibilityRole="button"
       accessibilityLabel={`${story.title}. ${chapterText}`}
-      accessibilityHint="Appuyez pour lire cette histoire"
+      accessibilityHint={t('card.pressToRead')}
     >
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={2}>
