@@ -5,6 +5,7 @@ export interface AuthUserProps {
   firstname: string
   lastname: string
   role: number
+  emailVerifiedAt: Date | null
   createdAt: Date
   updatedAt: Date
 }
@@ -33,6 +34,9 @@ export class AuthUser {
   }
   get role(): number {
     return this.props.role
+  }
+  get emailVerifiedAt(): Date | null {
+    return this.props.emailVerifiedAt
   }
   get createdAt(): Date {
     return this.props.createdAt

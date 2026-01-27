@@ -11,6 +11,7 @@ export type AuthUser = {
   lastname: string;
   role: number;
   avatar: string;
+  emailVerifiedAt: string | null;
   createdAt: string;
 };
 
@@ -25,6 +26,7 @@ export type AuthStore = {
   getFirstname: () => string;
   getInitials: () => string;
   isPremium: () => boolean;
+  isEmailVerified: () => boolean;
 };
 
 const useAuthStore = create<AuthStore>((set, get) => ({
@@ -49,6 +51,9 @@ const useAuthStore = create<AuthStore>((set, get) => ({
   },
   isPremium: () => {
     return get().user?.role === ROLE_PREMIUM;
+  },
+  isEmailVerified: () => {
+    return get().user?.emailVerifiedAt !== null && get().user?.emailVerifiedAt !== undefined;
   },
 }));
 

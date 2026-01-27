@@ -15,6 +15,7 @@ export default class LoginController {
         fullname: `${user.firstname} ${user.lastname}`.trim(),
         role: user.role,
         avatar: '',
+        emailVerifiedAt: user.email_verified_at,
         createdAt: user.created_at,
         currentAccessToken: user.currentAccessToken,
       },

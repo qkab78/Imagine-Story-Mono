@@ -18,8 +18,12 @@ import { subscriptionService } from '@/services/subscription';
 import { SubscriptionExpiredModal } from '@/components/organisms/subscription';
 import { SubscriptionSheet } from '@/components/organisms/profile/SubscriptionSheet';
 import { ExpirationWarningBanner } from '@/components/molecules/subscription';
+import { EmailVerificationBanner } from '@/components/molecules/auth/EmailVerificationBanner';
 import { useSubscriptionExpiredModal } from '@/hooks/useSubscriptionExpiredModal';
 import { useSubscriptionSheet } from '@/hooks/useSubscriptionSheet';
+import { resendVerificationEmail } from '@/api/auth';
+import { Alert } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 // Internationalisation
 import '@/locales';
@@ -37,12 +41,37 @@ SplashScreen.preventAutoHideAsync();
  */
 function AppContent() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation('auth');
   const user = useAuthStore(state => state.user);
+  const token = useAuthStore(state => state.token);
+  const isEmailVerified = useAuthStore(state => state.isEmailVerified);
   const daysUntilExpiration = useSubscriptionStore(state => state.daysUntilExpiration);
   const expirationWarningLevel = useSubscriptionStore(state => state.expirationWarningLevel);
 
   // État pour le dismiss de la bannière d'expiration
   const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  // État pour le dismiss de la bannière de vérification email
+  const [verificationBannerDismissed, setVerificationBannerDismissed] = useState(false);
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
+
+  // Handler pour renvoyer l'email de vérification
+  const handleResendVerification = async () => {
+    if (!token) return;
+
+    setIsResendingVerification(true);
+    try {
+      await resendVerificationEmail(token);
+      Alert.alert(t('verification.resendSuccess'));
+    } catch (error) {
+      Alert.alert(t('verification.resendError'));
+    } finally {
+      setIsResendingVerification(false);
+    }
+  };
+
+  // Afficher la bannière si l'utilisateur est connecté mais n'a pas vérifié son email
+  const shouldShowVerificationBanner = user && !isEmailVerified() && !verificationBannerDismissed;
 
   // Subscription expired modal hook
   const {
@@ -123,8 +152,19 @@ function AppContent() {
 
       <StatusBar style="dark" backgroundColor="#F0E6FF" />
 
+      {/* Email verification banner - positioned absolutely to overlay content */}
+      {shouldShowVerificationBanner && (
+        <View style={[styles.bannerContainer, { paddingTop: insets.top }]}>
+          <EmailVerificationBanner
+            onResendPress={handleResendVerification}
+            onDismiss={() => setVerificationBannerDismissed(true)}
+            isResending={isResendingVerification}
+          />
+        </View>
+      )}
+
       {/* Expiration warning banner - positioned absolutely to overlay content */}
-      {expirationWarningLevel !== 'none' && daysUntilExpiration !== null && !bannerDismissed && (
+      {expirationWarningLevel !== 'none' && daysUntilExpiration !== null && !bannerDismissed && !shouldShowVerificationBanner && (
         <View style={[styles.bannerContainer, { paddingTop: insets.top }]}>
           <ExpirationWarningBanner
             daysUntilExpiration={daysUntilExpiration}
