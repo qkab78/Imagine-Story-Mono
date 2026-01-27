@@ -1,6 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import { SectionTitle } from '@/components/atoms/explore';
 import { TopStoryItem } from '@/components/molecules/explore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { EXPLORE_COLORS, EXPLORE_SPACING } from '@/constants/explore';
 import type { TopStory } from '@/types/explore';
 
@@ -15,12 +16,14 @@ export const TopStoriesSection: React.FC<TopStoriesSectionProps> = ({
   onStoryPress,
   onSeeAll,
 }) => {
+  const { t } = useAppTranslation('stories');
+
   if (stories.length === 0) return null;
 
   return (
     <>
       <SectionTitle
-        title="Top Histoires"
+        title={t('explore.sections.topStories')}
         emoji="🔥"
         showSeeAll={!!onSeeAll}
         onSeeAll={onSeeAll}

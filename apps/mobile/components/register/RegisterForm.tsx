@@ -11,24 +11,25 @@ import TextInput from "../ui/TextInput";
 import { Link, useRouter } from "expo-router";
 import { TouchableOpacity, Animated } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { useMMKVString } from "react-native-mmkv";
-
-
-const schema = z.object({
-  email: z.string().email("⚠️ Email invalide"),
-  password: z.string().min(6, "⚠️ Au moins 6 caractères requis"),
-  firstname: z.string().min(3, "⚠️ Au moins 3 caractères requis"),
-  lastname: z.string().min(3, "⚠️ Au moins 3 caractères requis"),
-});
+import { useAppTranslation } from "@/hooks/useAppTranslation";
 
 export const RegisterForm = () => {
+  const { t } = useAppTranslation('auth');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { setToken, setUser } = useAuthStore((state) => state);
   const [, setUserToken] = useMMKVString('user.token');
   const router = useRouter();
   const shakeAnimation = useRef(new Animated.Value(0)).current;
+
+  const schema = useMemo(() => z.object({
+    email: z.string().email(t('validation.invalidEmail')),
+    password: z.string().min(6, t('validation.passwordTooShort')),
+    firstname: z.string().min(3, t('validation.nameMinChars')),
+    lastname: z.string().min(3, t('validation.nameMinChars')),
+  }), [t]);
 
   const mutation = useMutation({
     mutationFn: (data: RegisterFormData) => register(data),
@@ -52,6 +53,13 @@ export const RegisterForm = () => {
     }
   })
 
+  const extendedSchema = useMemo(() => schema.extend({
+    confirmPassword: z.string().min(6, t('validation.passwordTooShort'))
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('validation.passwordMismatch'),
+    path: ["confirmPassword"],
+  }), [schema, t]);
+
   const { control, handleSubmit, formState: { errors, isSubmitting }, watch } = useForm<RegisterFormData & { confirmPassword: string }>({
     defaultValues: {
       email: '',
@@ -60,12 +68,7 @@ export const RegisterForm = () => {
       lastname: '',
       confirmPassword: '',
     },
-    resolver: zodResolver(schema.extend({
-      confirmPassword: z.string().min(6, "⚠️ Au moins 6 caractères requis")
-    }).refine((data) => data.password === data.confirmPassword, {
-      message: "⚠️ Les mots de passe ne correspondent pas",
-      path: ["confirmPassword"],
-    })),
+    resolver: zodResolver(extendedSchema),
     mode: "onBlur"
   });
 
@@ -95,7 +98,7 @@ export const RegisterForm = () => {
           >
             <TextInput
               name="firstname"
-              placeholder="Prénom"
+              placeholder={t('signup.firstnamePlaceholder')}
               control={control}
               style={{ fontSize: 16, color: '#424242' }}
               Icon={User}
@@ -125,7 +128,7 @@ export const RegisterForm = () => {
           >
             <TextInput
               name="lastname"
-              placeholder="Nom de famille"
+              placeholder={t('signup.lastnamePlaceholder')}
               control={control}
               style={{ fontSize: 16, color: '#424242' }}
               Icon={User}
@@ -155,7 +158,7 @@ export const RegisterForm = () => {
           >
             <TextInput
               name="email"
-              placeholder="Email"
+              placeholder={t('signup.emailPlaceholder')}
               control={control}
               style={{ fontSize: 16, color: '#424242' }}
               Icon={Mail}
@@ -188,7 +191,7 @@ export const RegisterForm = () => {
             <Box flex={1}>
               <TextInput
                 name="password"
-                placeholder="Mot de passe sécurisé"
+                placeholder={t('signup.passwordPlaceholder')}
                 control={control}
                 showPassword={showPassword}
                 style={{ fontSize: 16, color: '#424242' }}
@@ -232,7 +235,7 @@ export const RegisterForm = () => {
             <Box flex={1}>
               <TextInput
                 name="confirmPassword"
-                placeholder="Confirme ton mot de passe"
+                placeholder={t('signup.confirmPasswordPlaceholder')}
                 control={control}
                 showPassword={showConfirmPassword}
                 style={{ fontSize: 16, color: '#424242' }}
@@ -282,7 +285,7 @@ export const RegisterForm = () => {
               fontSize={17}
               fontWeight="700"
             >
-              {mutation.isPending ? "Création..." : "Créer mon compte ✨"}
+              {mutation.isPending ? t('signup.submitting') : t('signup.submitButton')}
             </Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -290,7 +293,7 @@ export const RegisterForm = () => {
         <TouchableOpacity style={{ marginTop: 16, padding: 12 }}>
           <Text variant="body" color="primaryPink" fontSize={16} fontWeight="600" textAlign="center">
             <Link href={"/login"} asChild>
-              <Text>Déjà un compte ? Se connecter</Text>
+              <Text>{t('signup.hasAccount')}</Text>
             </Link>
           </Text>
         </TouchableOpacity>

@@ -1,11 +1,11 @@
 export type IllustrationType = 'books' | 'wand' | 'shield';
 
+export type KidSlideKey = 'welcome' | 'create' | 'security';
+
 export type KidSlide = {
   id: number;
   illustrationType: IllustrationType;
-  title: string;
-  description: string;
-  buttonLabel: string;
+  slideKey: KidSlideKey;
   isLast?: boolean;
 }
 
@@ -13,23 +13,17 @@ export const kidSlides: KidSlide[] = [
   {
     id: 1,
     illustrationType: 'books',
-    title: 'Mon Petit Conteur',
-    description: 'Des histoires magiques personnalisées qui émerveilleront votre enfant',
-    buttonLabel: 'Commencer',
+    slideKey: 'welcome',
   },
   {
     id: 2,
     illustrationType: 'wand',
-    title: 'Créez en 3 étapes',
-    description: 'Choisissez un héros, partagez un rêve, et découvrez une histoire unique en quelques instants',
-    buttonLabel: 'Suivant',
+    slideKey: 'create',
   },
   {
     id: 3,
     illustrationType: 'shield',
-    title: '100% sécurisé',
-    description: 'Contenu adapté à l\'âge, contrôle parental complet et mode hors-ligne pour une tranquillité d\'esprit totale',
-    buttonLabel: 'C\'est parti !',
+    slideKey: 'security',
     isLast: true,
   },
 ];

@@ -2,10 +2,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProfileContent } from '@/components/organisms/profile';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING } from '@/constants/profile';
 
 export const ProfileScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const { t } = useAppTranslation('profile');
 
   return (
     <LinearGradient
@@ -13,7 +15,7 @@ export const ProfileScreen: React.FC = () => {
       style={styles.container}
     >
       <View style={[styles.header, { paddingTop: insets.top + PROFILE_SPACING.lg }]}>
-        <Text style={styles.title}>Profil</Text>
+        <Text style={styles.title}>{t('title')}</Text>
       </View>
       <ProfileContent />
     </LinearGradient>

@@ -6,6 +6,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { LIBRARY_COLORS, LIBRARY_SPACING } from '@/constants/library';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 interface EmptyLibraryStateProps {
   onCreateStory: () => void;
@@ -14,6 +15,7 @@ interface EmptyLibraryStateProps {
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export const EmptyLibraryState: React.FC<EmptyLibraryStateProps> = ({ onCreateStory }) => {
+  const { t } = useAppTranslation('stories');
   const scale = useSharedValue(1);
 
   const handlePressIn = () => {
@@ -31,9 +33,9 @@ export const EmptyLibraryState: React.FC<EmptyLibraryStateProps> = ({ onCreateSt
   return (
     <View style={styles.container}>
       <Text style={styles.icon}>📚</Text>
-      <Text style={styles.title}>Pas encore d'histoires</Text>
+      <Text style={styles.title}>{t('library.empty')}</Text>
       <Text style={styles.description}>
-        Crée ta première histoire magique et elle apparaîtra ici !
+        {t('library.emptySubtitle')}
       </Text>
 
       <AnimatedPressable
@@ -42,7 +44,7 @@ export const EmptyLibraryState: React.FC<EmptyLibraryStateProps> = ({ onCreateSt
         onPressOut={handlePressOut}
         onPress={onCreateStory}
       >
-        <Text style={styles.buttonText}>Créer une histoire ✨</Text>
+        <Text style={styles.buttonText}>{t('library.createFirst')}</Text>
       </AnimatedPressable>
     </View>
   );

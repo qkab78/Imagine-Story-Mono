@@ -8,12 +8,14 @@ import { Platform } from "react-native";
 import { useNativeTabsSupport } from "@/hooks/useNativeTabsSupport";
 import { useTabHaptics } from "@/hooks/useTabHaptics";
 import { HapticTab } from "@/components/atoms/navigation";
+import { useAppTranslation } from "@/hooks/useAppTranslation";
 
 /**
  * Legacy JavaScript Tabs Component (Fallback for Android)
  */
 function LegacyJavaScriptTabs() {
   const user = useAuthStore(state => state.user);
+  const { t } = useAppTranslation('common');
   const defaultScreenOptions = {
     tabBarButton: HapticTab,
     tabBarActiveBackgroundColor: 'transparent',
@@ -39,7 +41,7 @@ function LegacyJavaScriptTabs() {
         name="index"
         options={{
           ...defaultScreenOptions,
-          title: 'Accueil',
+          title: t('navigation.home'),
           headerShown: false,
           tabBarIcon: ({ color }) => <HouseIcon color={color} />,
         }}
@@ -49,7 +51,7 @@ function LegacyJavaScriptTabs() {
         redirect={user?.role === Role.GUEST}
         options={{
           ...defaultScreenOptions,
-          title: 'Bibliothèque',
+          title: t('navigation.library'),
           headerShown: false,
           tabBarIcon: ({ color }) => <LibraryIcon color={color} />,
         }}
@@ -59,7 +61,7 @@ function LegacyJavaScriptTabs() {
         redirect={user?.role === Role.GUEST}
         options={{
           ...defaultScreenOptions,
-          title: 'Créer',
+          title: t('navigation.create'),
           headerShown: false,
           tabBarIcon: ({ color }) => <SquarePenIcon color={color} />,
         }}
@@ -68,7 +70,7 @@ function LegacyJavaScriptTabs() {
         name="search/index"
         options={{
           ...defaultScreenOptions,
-          title: 'Explorer',
+          title: t('navigation.explore'),
           headerShown: false,
           tabBarIcon: ({ color }) => <Compass color={color} />,
         }}
@@ -77,7 +79,7 @@ function LegacyJavaScriptTabs() {
         name="settings"
         options={{
           ...defaultScreenOptions,
-          title: 'Profil',
+          title: t('navigation.profile'),
           tabBarIcon: ({ color }) => <CircleUserRoundIcon color={color} />,
         }}
       />
@@ -94,6 +96,7 @@ function LegacyJavaScriptTabs() {
 export default function TabLayout() {
   const user = useAuthStore(state => state.user);
   const { shouldUseNativeTabs, hasAdvancedFeatures } = useNativeTabsSupport();
+  const { t } = useAppTranslation('common');
   useTabHaptics();
 
   // iOS: Use NativeTabs for native performance and liquid glass support
@@ -107,14 +110,14 @@ export default function TabLayout() {
           {/* Home Tab */}
           <NativeTabs.Trigger name="index">
             <Icon sf="house.fill" />
-            <Label>Accueil</Label>
+            <Label>{t('navigation.home')}</Label>
           </NativeTabs.Trigger>
 
           {/* Library Tab - Hidden for guests */}
           {user?.role !== Role.GUEST && (
             <NativeTabs.Trigger name="library">
               <Icon sf="books.vertical.fill" />
-              <Label>Bibliothèque</Label>
+              <Label>{t('navigation.library')}</Label>
             </NativeTabs.Trigger>
           )}
 
@@ -122,7 +125,7 @@ export default function TabLayout() {
           {user?.role !== Role.GUEST && (
             <NativeTabs.Trigger name="create">
               <Icon sf="square.and.pencil" />
-              <Label>Créer</Label>
+              <Label>{t('navigation.create')}</Label>
             </NativeTabs.Trigger>
           )}
 
@@ -132,13 +135,13 @@ export default function TabLayout() {
             role={hasAdvancedFeatures ? "search" : undefined}
           >
             <Icon sf="safari.fill" />
-            <Label>Explorer</Label>
+            <Label>{t('navigation.explore')}</Label>
           </NativeTabs.Trigger>
 
           {/* Profile Tab - Hidden for guests */}
           <NativeTabs.Trigger name="settings">
               <Icon sf="person.circle.fill" />
-            <Label>Profil</Label>
+            <Label>{t('navigation.profile')}</Label>
           </NativeTabs.Trigger>
         </NativeTabs>
       </GestureHandlerRootView>

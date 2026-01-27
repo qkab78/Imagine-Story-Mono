@@ -9,6 +9,7 @@ import { GlassCard } from '@/components/molecules/glass/GlassCard';
 import { Control, useController } from 'react-hook-form';
 import { User } from 'lucide-react-native';
 import KidButton from '@/components/Onboarding/KidButton';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { spacing } from '@/theme/spacing';
 import { StoryCreationRules } from '@/domain/stories/rules/story-creation.rules';
 import { AGE_OPTIONS, CHAPTERS_OPTIONS } from '@/types/creation';
@@ -48,6 +49,9 @@ export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
   onContinue,
   languages,
 }) => {
+  const { t } = useAppTranslation('stories');
+  const { t: tAuth } = useAppTranslation('auth');
+
   // Build language options with UUIDs from API
   const languageOptions = useMemo(() => {
     return languages.map(lang => ({
@@ -59,13 +63,13 @@ export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
     name: 'heroName',
     control,
     rules: {
-      required: "Le nom de ton héros est requis",
+      required: tAuth('validation.heroNameRequired') || 'Required',
       validate: (value) => {
         try {
           StoryCreationRules.validateHeroName(value);
           return true;
         } catch (error) {
-          return error instanceof Error ? error.message : 'Nom invalide';
+          return error instanceof Error ? error.message : (tAuth('validation.invalidName') || 'Invalid name');
         }
       },
     },
@@ -109,8 +113,8 @@ export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
 
       <FormField
         name="heroName"
-        label="Nom de ton héros"
-        placeholder={`${selectedHero?.emoji || '✨'} Comment s'appelle ton héros ?`}
+        label={t('creation.heroSelection.heroNameLabel')}
+        placeholder={`${selectedHero?.emoji || '✨'} ${t('creation.heroSelection.heroNamePlaceholder')}`}
         control={control}
         Icon={User}
         error={heroNameFieldState.error}
@@ -119,8 +123,8 @@ export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
 
       <SelectField
         name="language"
-        label="Langue de l'histoire"
-        placeholder="Choisir une langue 🌍"
+        label={t('creation.heroSelection.languageLabel')}
+        placeholder={t('creation.heroSelection.languagePlaceholder')}
         options={languageOptions}
         control={control}
         error={languageFieldState.error}
@@ -128,23 +132,23 @@ export const HeroSelectionGrid: React.FC<HeroSelectionGridProps> = ({
 
       <SelectField
         name="age"
-        label="Âge de l'enfant"
-        placeholder="Choisir un âge 👶"
+        label={t('creation.heroSelection.ageLabel')}
+        placeholder={t('creation.heroSelection.agePlaceholder')}
         options={AGE_OPTIONS}
         control={control}
       />
 
       <SelectField
         name="numberOfChapters"
-        label="Nombre de chapitres"
-        placeholder="Choisir le nombre de chapitres 📚"
+        label={t('creation.heroSelection.chaptersLabel')}
+        placeholder={t('creation.heroSelection.chaptersPlaceholder')}
         options={CHAPTERS_OPTIONS}
         control={control}
       />
 
       <View style={styles.buttonContainer}>
         <KidButton
-          title="Continuer l'aventure !"
+          title={t('creation.heroSelection.continueButton')}
           emoji="🚀"
           onPress={onContinue}
         />

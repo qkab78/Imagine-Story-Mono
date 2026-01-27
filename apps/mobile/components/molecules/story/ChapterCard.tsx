@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Chapter } from '@/domain/stories/entities/Chapter';
 import { StoryTitle } from '@/components/atoms/story/StoryTitle';
 import { GlassCard } from '@/components/molecules/glass/GlassCard';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import Text from '@/components/ui/Text';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
@@ -14,6 +15,8 @@ interface ChapterCardProps {
 }
 
 export const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, position }) => {
+  const { t } = useAppTranslation('stories');
+
   return (
     <GlassCard
       glassStyle="clear"
@@ -23,7 +26,7 @@ export const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, position }) =
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.chapterNumber}>Chapitre {position}</Text>
+        <Text style={styles.chapterNumber}>{t('reader.chapterNumber', { position })}</Text>
         <StoryTitle title={chapter.title} variant="small" />
       </View>
       <Text style={styles.content}>{chapter.content}</Text>

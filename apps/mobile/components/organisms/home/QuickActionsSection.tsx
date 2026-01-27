@@ -6,6 +6,7 @@ import { QuotaBadge } from '@/components/molecules/creation/QuotaBadge';
 import { SubscriptionSheet } from '@/components/organisms/profile/SubscriptionSheet';
 import { useStoryQuota } from '@/hooks/useStoryQuota';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 interface QuickActionsSectionProps {
   onCreateStory: () => void;
@@ -16,6 +17,9 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
   onCreateStory,
   onReadStories,
 }) => {
+  const { t } = useAppTranslation('stories');
+  const { t: tProfile } = useAppTranslation('profile');
+  const { t: tCommon } = useAppTranslation('common');
   const { canCreateStory, storiesCreatedThisMonth, limit, remaining, isUnlimited, resetDate, refreshQuota } = useStoryQuota();
   const {
     isSubscribed,
@@ -53,46 +57,46 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
     const success = await purchase();
     if (success) {
       await refreshQuota();
-      Alert.alert('Succès', 'Bienvenue dans la famille Premium ! Profitez de toutes les fonctionnalités.');
+      Alert.alert(tProfile('alerts.upgradeSuccess'), tProfile('alerts.upgradeSuccessMessage'));
       setShowSubscriptionSheet(false);
     } else if (subscriptionError) {
-      Alert.alert('Erreur', subscriptionError);
+      Alert.alert(tProfile('alerts.error'), subscriptionError);
     }
-  }, [purchase, subscriptionError, refreshQuota]);
+  }, [purchase, subscriptionError, refreshQuota, tProfile]);
 
   const handleRestore = useCallback(async () => {
     const success = await restore();
     if (success) {
       await refreshQuota();
-      Alert.alert('Succès', 'Vos achats ont été restaurés.');
+      Alert.alert(tProfile('alerts.restoreSuccess'), tProfile('alerts.restoreSuccessMessage'));
       setShowSubscriptionSheet(false);
     } else {
-      Alert.alert('Information', 'Aucun achat précédent trouvé.');
+      Alert.alert(tProfile('alerts.restoreNoItems'), tProfile('alerts.restoreNoItemsMessage'));
     }
-  }, [restore, refreshQuota]);
+  }, [restore, refreshQuota, tProfile]);
 
   const handleCancelSubscription = useCallback(() => {
     Alert.alert(
-      'Gérer l\'abonnement',
-      'Vous allez être redirigé vers les paramètres de votre store pour gérer ou résilier votre abonnement.',
+      tProfile('alerts.manageSubscriptionTitle'),
+      tProfile('alerts.manageSubscriptionMessage'),
       [
-        { text: 'Annuler', style: 'cancel' },
+        { text: tCommon('buttons.cancel'), style: 'cancel' },
         {
-          text: 'Continuer',
+          text: tCommon('buttons.continue'),
           onPress: async () => {
             await openManageSubscription();
           },
         },
       ]
     );
-  }, [openManageSubscription]);
+  }, [openManageSubscription, tProfile, tCommon]);
 
   return (
     <View style={styles.container}>
       <View style={styles.createCardContainer}>
         <ActionCard
-          title="Créer une histoire"
-          description="Invente une nouvelle aventure magique"
+          title={t('home.createStory')}
+          description={t('home.createDescription')}
           icon="✨"
           iconGradient={['#F6C177', '#E8A957']}
           onPress={handleCreateStory}
@@ -111,8 +115,8 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
         )}
       </View>
       <ActionCard
-        title="Lire une histoire"
-        description="Découvre tes histoires préférées"
+        title={t('home.readStory')}
+        description={t('home.readDescription')}
         icon="📖"
         iconGradient={['#2F6B4F', '#7FB8A0']}
         onPress={onReadStories}

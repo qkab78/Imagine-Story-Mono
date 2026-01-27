@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Tone } from '@/domain/stories/value-objects/settings/Tone';
 import { ToneCard } from '@/components/molecules/creation/ToneCard';
 import MagicalButton from '@/components/home/MagicalButton';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import Text from '@/components/ui/Text';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
@@ -23,12 +24,14 @@ export const ToneSelectionList: React.FC<ToneSelectionListProps> = React.memo(({
   onToneSelect,
   onCreateStory,
 }) => {
+  const { t } = useAppTranslation('stories');
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>
-        Quelle ambiance veux-tu pour ton histoire ? 🌟
+        {t('creation.toneSelection.title')} 🌟
       </Text>
-      
+
       <View style={styles.tonesContainer}>
         {tones.map((tone) => (
           <ToneCard
@@ -43,7 +46,7 @@ export const ToneSelectionList: React.FC<ToneSelectionListProps> = React.memo(({
 
       <View style={styles.buttonContainer}>
         <MagicalButton
-          title="Créer mon histoire magique ! ✨"
+          title={t('creation.toneSelection.createButton')}
           onPress={onCreateStory}
           disabled={!selectedTone}
           style={[

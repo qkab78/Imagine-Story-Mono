@@ -1,5 +1,6 @@
 import { Pressable, Text, StyleSheet } from 'react-native';
 import { DualIcon } from '@/components/ui';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_ICONS } from '@/constants/profile';
 
 interface DeleteAccountButtonProps {
@@ -7,10 +8,12 @@ interface DeleteAccountButtonProps {
 }
 
 export const DeleteAccountButton: React.FC<DeleteAccountButtonProps> = ({ onPress }) => {
+  const { t } = useAppTranslation('profile');
+
   return (
     <Pressable style={styles.button} onPress={onPress}>
       <DualIcon icon={PROFILE_ICONS.delete} size={16} color={PROFILE_COLORS.danger} />
-      <Text style={styles.text}>Supprimer mon compte</Text>
+      <Text style={styles.text}>{t('actions.deleteAccount')}</Text>
     </Pressable>
   );
 };

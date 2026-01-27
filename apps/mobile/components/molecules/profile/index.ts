@@ -8,3 +8,4 @@ export { FeatureItem } from './FeatureItem';
 export { PlanOption } from './PlanOption';
 export { AlertBox } from './AlertBox';
 export { SubscriptionCard } from './SubscriptionCard';
+export { LanguageSelector } from './LanguageSelector';

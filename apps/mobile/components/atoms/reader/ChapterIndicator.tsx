@@ -1,4 +1,5 @@
 import { Text, StyleSheet } from 'react-native';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { READER_COLORS, READER_TYPOGRAPHY } from '@/constants/reader';
 
 interface ChapterIndicatorProps {
@@ -10,9 +11,11 @@ export const ChapterIndicator: React.FC<ChapterIndicatorProps> = ({
   current,
   total,
 }) => {
+  const { t } = useAppTranslation('stories');
+
   return (
     <Text style={styles.text}>
-      Chapitre {current} sur {total}
+      {t('reader.chapterOf', { current, total })}
     </Text>
   );
 };

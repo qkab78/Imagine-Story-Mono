@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { DualIcon } from '@/components/ui'
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_DIMENSIONS, PROFILE_ICONS } from '@/constants/profile'
 import { formatShortDate } from '@/utils/dateFormatter'
+import { useAppTranslation } from '@/hooks/useAppTranslation'
 
 interface QuotaExceededModalProps {
   visible: boolean
@@ -20,6 +21,7 @@ export const QuotaExceededModal: React.FC<QuotaExceededModalProps> = ({
   resetDate,
   limit,
 }) => {
+  const { t } = useAppTranslation('subscription')
   const insets = useSafeAreaInsets()
   const formattedDate = formatShortDate(resetDate)
 
@@ -41,10 +43,10 @@ export const QuotaExceededModal: React.FC<QuotaExceededModalProps> = ({
             </LinearGradient>
           </View>
 
-          <Text style={styles.title}>Limite mensuelle atteinte</Text>
+          <Text style={styles.title}>{t('quota.title')}</Text>
 
           <Text style={styles.description}>
-            Tu as utilisé tes {limit} histoires gratuites ce mois-ci.
+            {t('quota.description', { limit })}
           </Text>
 
           {formattedDate && (
@@ -55,20 +57,20 @@ export const QuotaExceededModal: React.FC<QuotaExceededModalProps> = ({
                 color={PROFILE_COLORS.textSecondary}
               />
               <Text style={styles.resetText}>
-                Ton quota sera renouvelé le {formattedDate}
+                {t('quota.resetDate', { date: formattedDate })}
               </Text>
             </View>
           )}
 
           <View style={styles.premiumBenefits}>
-            <Text style={styles.benefitsTitle}>Avec Premium, profite de :</Text>
+            <Text style={styles.benefitsTitle}>{t('quota.benefitsTitle')}</Text>
             <View style={styles.benefitItem}>
               <DualIcon
                 icon={PROFILE_ICONS.sparkles}
                 size={14}
                 color={PROFILE_COLORS.primary}
               />
-              <Text style={styles.benefitText}>Histoires illimitées</Text>
+              <Text style={styles.benefitText}>{t('quota.unlimitedStories')}</Text>
             </View>
             <View style={styles.benefitItem}>
               <DualIcon
@@ -76,7 +78,7 @@ export const QuotaExceededModal: React.FC<QuotaExceededModalProps> = ({
                 size={14}
                 color={PROFILE_COLORS.primary}
               />
-              <Text style={styles.benefitText}>Toutes les langues</Text>
+              <Text style={styles.benefitText}>{t('quota.allLanguages')}</Text>
             </View>
             <View style={styles.benefitItem}>
               <DualIcon
@@ -84,7 +86,7 @@ export const QuotaExceededModal: React.FC<QuotaExceededModalProps> = ({
                 size={14}
                 color={PROFILE_COLORS.primary}
               />
-              <Text style={styles.benefitText}>Fonctionnalités exclusives</Text>
+              <Text style={styles.benefitText}>{t('quota.exclusiveFeatures')}</Text>
             </View>
           </View>
 
@@ -95,11 +97,11 @@ export const QuotaExceededModal: React.FC<QuotaExceededModalProps> = ({
                 size={18}
                 color="white"
               />
-              <Text style={styles.primaryButtonText}>Passer à Premium</Text>
+              <Text style={styles.primaryButtonText}>{t('quota.upgradeToPremium')}</Text>
             </Pressable>
 
             <Pressable style={styles.secondaryButton} onPress={onClose}>
-              <Text style={styles.secondaryButtonText}>Plus tard</Text>
+              <Text style={styles.secondaryButtonText}>{t('quota.later')}</Text>
             </Pressable>
           </View>
         </View>

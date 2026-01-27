@@ -1,6 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { DualIcon } from '@/components/ui';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_DIMENSIONS, PROFILE_ICONS } from '@/constants/profile';
 
 interface PremiumPromptCardProps {
@@ -8,6 +9,8 @@ interface PremiumPromptCardProps {
 }
 
 export const PremiumPromptCard: React.FC<PremiumPromptCardProps> = ({ onPress }) => {
+  const { t } = useAppTranslation('subscription');
+
   return (
     <Pressable onPress={onPress}>
       <LinearGradient
@@ -20,9 +23,9 @@ export const PremiumPromptCard: React.FC<PremiumPromptCardProps> = ({ onPress })
           <DualIcon icon={PROFILE_ICONS.crown} size={20} color={PROFILE_COLORS.premiumGradientEnd} />
         </View>
         <View style={styles.content}>
-          <Text style={styles.title}>Passer à Premium</Text>
+          <Text style={styles.title}>{t('premium.promptTitle')}</Text>
           <Text style={styles.description}>
-            Histoires illimitées et fonctionnalités exclusives
+            {t('premium.promptDescription')}
           </Text>
         </View>
         <DualIcon icon={PROFILE_ICONS.chevronRight} size={16} color="white" />

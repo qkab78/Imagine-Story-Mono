@@ -12,19 +12,21 @@ import { Link } from "expo-router";
 import { TouchableOpacity, Animated } from "react-native";
 import { useMMKVString } from "react-native-mmkv";
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRef, useState } from "react";
-
-const schema = z.object({
-  email: z.string().email("⚠️ Email invalide"),
-  password: z.string().min(6, "⚠️ Au moins 6 caractères requis"),
-});
+import { useRef, useState, useMemo } from "react";
+import { useAppTranslation } from "@/hooks/useAppTranslation";
 
 export const LoginForm = () => {
+  const { t } = useAppTranslation('auth');
   const [showPassword, setShowPassword] = useState(false);
   const { setToken, setUser } = useAuthStore((state) => state);
   const [, setUserToken] = useMMKVString('user.token');
   const shakeAnimation = useRef(new Animated.Value(0)).current;
-  
+
+  const schema = useMemo(() => z.object({
+    email: z.string().email(t('validation.invalidEmail')),
+    password: z.string().min(6, t('validation.passwordTooShort')),
+  }), [t]);
+
   const mutation = useMutation({
     mutationFn: (data: LoginFormData) => login(data),
     onSuccess: (data) => {
@@ -77,10 +79,10 @@ export const LoginForm = () => {
               shadowRadius: 8,
             }}
           >
-            <TextInput 
-              name="email" 
-              placeholder="Ton email" 
-              control={control} 
+            <TextInput
+              name="email"
+              placeholder={t('login.emailPlaceholder')}
+              control={control}
               style={{ fontSize: 16, color: '#424242' }}
               Icon={Mail}
             />
@@ -110,9 +112,9 @@ export const LoginForm = () => {
             }}
           >
             <Box flex={1}>
-              <TextInput 
-                name="password" 
-                placeholder="Ton mot de passe" 
+              <TextInput
+                name="password"
+                placeholder={t('login.passwordPlaceholder')}
                 control={control}
                 showPassword={showPassword}
                 style={{ fontSize: 16, color: '#424242' }}
@@ -142,7 +144,7 @@ export const LoginForm = () => {
             color="textGray" 
             fontSize={14}
           >
-            Mot de passe oublié ? 🤔
+{t('login.forgotPassword')}
           </Text>
         </TouchableOpacity>
 
@@ -172,7 +174,7 @@ export const LoginForm = () => {
               fontSize={17}
               fontWeight="700"
             >
-              {mutation.isPending ? "Connexion..." : "Se connecter 🔐"}
+              {mutation.isPending ? t('login.submitting') : t('login.submitButton')}
             </Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -180,7 +182,7 @@ export const LoginForm = () => {
         <TouchableOpacity style={{ marginTop: 16, padding: 12 }}>
           <Text variant="body" color="kidBlue" fontSize={16} fontWeight="600" textAlign="center">
             <Link href={"/register"} asChild>
-              <Text>Pas encore de compte ? S'inscrire</Text>
+              <Text>{t('login.noAccount')}</Text>
             </Link>
           </Text>
         </TouchableOpacity>

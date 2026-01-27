@@ -1,0 +1,102 @@
+{
+  "sheet": {
+    "title": "Abonnement",
+    "freeAccount": "Compte Gratuit",
+    "premiumMonthly": "Premium Mensuel",
+    "freeDescription": "Profitez de 3 histoires par mois pour découvrir la magie d'Imagine Story",
+    "premiumDescription": "Histoires illimitées et fonctionnalités exclusives"
+  },
+  "features": {
+    "free": {
+      "storiesPerMonth": "3 histoires personnalisées par mois",
+      "allThemes": "Tous les thèmes et ambiances",
+      "frenchStories": "Histoires en français"
+    },
+    "premium": {
+      "unlimited": "Histoires illimitées",
+      "allThemes": "Tous les thèmes et ambiances",
+      "multilingual": "Multilingue",
+      "pdfExport": "Export en PDF",
+      "noAds": "Sans publicité"
+    }
+  },
+  "sections": {
+    "included": "Ce qui est inclus",
+    "premiumBenefits": "Vos avantages Premium",
+    "premiumPreview": "Avantages Premium",
+    "upgradeToPremium": "Passer à Premium",
+    "management": "Gestion de l'abonnement"
+  },
+  "info": {
+    "currentPlan": "Plan actuel",
+    "price": "Prix",
+    "nextPayment": "Prochain paiement"
+  },
+  "renewal": {
+    "title": "Renouvellement automatique",
+    "message": "Votre abonnement se renouvellera le {{date}} pour {{price}}"
+  },
+  "actions": {
+    "upgrade": "Passer à Premium",
+    "restore": "Restaurer mes achats",
+    "cancel": "Résilier mon abonnement",
+    "renew": "Renouveler mon abonnement"
+  },
+  "cancelAlert": {
+    "title": "Résilier l'abonnement",
+    "message": "Êtes-vous sûr de vouloir résilier votre abonnement Premium ? Vous conserverez l'accès jusqu'à la fin de la période en cours.",
+    "confirm": "Résilier"
+  },
+  "plan": {
+    "name": "Premium Mensuel",
+    "priceDefault": "9,99€",
+    "period": "/ mois",
+    "description": "Histoires illimitées, langues multiples et fonctionnalités exclusives"
+  },
+  "expiration": {
+    "urgentSingular": "Urgent : votre abonnement expire demain !",
+    "urgentPlural": "Urgent : votre abonnement expire dans {{days}} jours",
+    "warning": "Attention : il vous reste {{days}} jours d'abonnement",
+    "info": "Votre abonnement expire dans {{days}} jours",
+    "expiredOn": "Expiré le {{date}}",
+    "renewNow": "Renouveler maintenant"
+  },
+  "premium": {
+    "promptTitle": "Passez à Premium",
+    "promptDescription": "Débloquez des histoires illimitées et des fonctionnalités exclusives"
+  },
+  "quota": {
+    "title": "Limite mensuelle atteinte",
+    "description": "Tu as utilisé tes {{limit}} histoires gratuites ce mois-ci.",
+    "resetDate": "Ton quota sera renouvelé le {{date}}",
+    "benefitsTitle": "Avec Premium, profite de :",
+    "unlimitedStories": "Histoires illimitées",
+    "allLanguages": "Toutes les langues",
+    "exclusiveFeatures": "Fonctionnalités exclusives",
+    "upgradeToPremium": "Passer à Premium",
+    "later": "Plus tard"
+  },
+  "expired": {
+    "titleMissYou": "Tu nous manques !",
+    "descriptionMissYou": "Ton abonnement Premium est terminé. Reviens profiter d'histoires illimitées et de toutes les fonctionnalités Premium.",
+    "titleExpired": "Ton abonnement a expiré",
+    "descriptionExpired": "Ton accès Premium s'est terminé. Renouvelle pour continuer à profiter de toutes les fonctionnalités.",
+    "expiredOn": "Expiré le {{date}}",
+    "benefitsTitle": "Avec Premium, profite de :",
+    "renewSubscription": "Renouveler mon abonnement",
+    "later": "Plus tard"
+  },
+  "premiumCard": {
+    "description": "Débloquez toutes les histoires et fonctionnalités pour une expérience magique illimitée !",
+    "unlimitedStories": "Histoires illimitées",
+    "customization": "Personnalisation",
+    "offlineMode": "Mode hors-ligne",
+    "multipleProfiles": "Profils multiples",
+    "perMonth": "par mois",
+    "insteadOf": "au lieu de 9,99€",
+    "savingsYear": "Économisez 60€/an",
+    "upgradeButton": "🚀 Passer Premium",
+    "freeTrial": "7 jours d'essai gratuit",
+    "cancelAnytime": " • Annulable à tout moment"
+  }
+}

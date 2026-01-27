@@ -12,9 +12,11 @@ import { AgeBadge } from '@/components/atoms/auth';
 import { AuthHeader, AuthFooter } from '@/components/molecules/auth';
 import { LoginForm } from '@/components/organisms/auth';
 import { useLogin, useGoogleSignIn } from '@/hooks/useAuth';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const LoginScreen = () => {
   const router = useRouter();
+  const { t } = useAppTranslation('auth');
   const loginMutation = useLogin();
   const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleSignIn();
 
@@ -28,8 +30,8 @@ const LoginScreen = () => {
 
   const handleForgotPassword = () => {
     Alert.alert(
-      'Mot de passe oublié',
-      'Un email de réinitialisation te sera envoyé bientôt ! 📧'
+      t('alerts.forgotPasswordTitle'),
+      t('alerts.forgotPasswordMessage')
     );
   };
 
@@ -43,7 +45,7 @@ const LoginScreen = () => {
       style={styles.gradient}
     >
       <SafeAreaView style={styles.container} edges={['top']}>
-        <AgeBadge ageRange="3-8 ans" />
+        <AgeBadge ageRange={t('ageBadge')} />
 
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -57,8 +59,8 @@ const LoginScreen = () => {
           >
             <AuthHeader
               icon="✨"
-              title="Bon retour ! 👋"
-              subtitle="Connecte-toi pour retrouver tes histoires magiques"
+              title={t('login.title')}
+              subtitle={t('login.subtitle')}
               variant="default"
             />
 
@@ -71,8 +73,8 @@ const LoginScreen = () => {
             />
 
             <AuthFooter
-              question="Pas encore de compte ?"
-              linkText="S'inscrire"
+              question={t('login.noAccount')}
+              linkText={t('login.signupLink')}
               onLinkPress={handleSignupPress}
             />
           </ScrollView>

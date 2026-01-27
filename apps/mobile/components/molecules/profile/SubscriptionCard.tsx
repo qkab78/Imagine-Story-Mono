@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { DualIcon } from '@/components/ui';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_DIMENSIONS, PROFILE_ICONS } from '@/constants/profile';
 
 interface SubscriptionCardProps {
@@ -14,6 +15,8 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   planName,
   description,
 }) => {
+  const { t } = useAppTranslation('common');
+
   return (
     <LinearGradient
       colors={[PROFILE_COLORS.subscriptionGradientStart, PROFILE_COLORS.subscriptionGradientEnd]}
@@ -27,7 +30,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
           size={14}
           color="white"
         />
-        <Text style={styles.badgeText}>{isPremium ? 'Premium' : 'Gratuit'}</Text>
+        <Text style={styles.badgeText}>{isPremium ? t('labels.premium') : t('labels.free')}</Text>
       </View>
       <Text style={styles.planName}>{planName}</Text>
       <Text style={styles.description}>{description}</Text>

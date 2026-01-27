@@ -10,12 +10,14 @@ import {
 import { useStoryReader } from '@/features/reader/hooks';
 import { useOfflineStory } from '@/hooks/useOfflineStory';
 import useSubscriptionStore from '@/store/subscription/subscriptionStore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { READER_COLORS, READER_SPACING } from '@/constants/reader';
 
 export const StoryReaderScreen: React.FC = () => {
   const { id, offline } = useLocalSearchParams<{ id: string; offline?: string }>();
   const router = useRouter();
   const isOffline = offline === 'true';
+  const { t } = useAppTranslation('stories');
 
   const {
     story,
@@ -72,7 +74,7 @@ export const StoryReaderScreen: React.FC = () => {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color={READER_COLORS.primary} />
-        <Text style={styles.loadingText}>Chargement de l'histoire...</Text>
+        <Text style={styles.loadingText}>{t('reader.loading')}</Text>
       </View>
     );
   }
@@ -82,7 +84,7 @@ export const StoryReaderScreen: React.FC = () => {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>
-          {error || "Impossible de charger l'histoire"}
+          {error || t('reader.loadError')}
         </Text>
       </View>
     );

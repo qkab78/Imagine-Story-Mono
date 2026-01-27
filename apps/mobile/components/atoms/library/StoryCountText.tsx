@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { LIBRARY_COLORS, LIBRARY_TYPOGRAPHY } from '@/constants/library';
 
 interface StoryCountTextProps {
@@ -7,11 +8,13 @@ interface StoryCountTextProps {
 }
 
 export const StoryCountText: React.FC<StoryCountTextProps> = ({ count }) => {
-  const label = count === 1 ? 'histoire' : 'histoires';
+  const { t } = useAppTranslation('stories');
 
   return (
     <Text style={styles.text}>
-      {count} {label}
+      {count === 1
+        ? t('library.storyCount', { count })
+        : t('library.storiesCount', { count })}
     </Text>
   );
 };

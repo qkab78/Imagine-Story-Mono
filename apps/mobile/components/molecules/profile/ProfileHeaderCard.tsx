@@ -1,6 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { ProfileAvatar } from '@/components/atoms/profile';
 import { DualIcon } from '@/components/ui';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_DIMENSIONS, PROFILE_ICONS } from '@/constants/profile';
 
 interface ProfileHeaderCardProps {
@@ -14,6 +15,8 @@ export const ProfileHeaderCard: React.FC<ProfileHeaderCardProps> = ({
   avatarUrl,
   onEditPress,
 }) => {
+  const { t } = useAppTranslation('profile');
+
   return (
     <Pressable style={styles.container} onPress={onEditPress}>
       <ProfileAvatar name={name} imageUrl={avatarUrl} size={PROFILE_DIMENSIONS.avatarSize} />
@@ -21,7 +24,7 @@ export const ProfileHeaderCard: React.FC<ProfileHeaderCardProps> = ({
         <Text style={styles.name} numberOfLines={1}>
           {name}
         </Text>
-        <Text style={styles.editLabel}>Modifier le profil</Text>
+        <Text style={styles.editLabel}>{t('actions.editProfile')}</Text>
       </View>
       <DualIcon icon={PROFILE_ICONS.chevronRight} size={16} color={PROFILE_COLORS.textMuted} />
     </Pressable>

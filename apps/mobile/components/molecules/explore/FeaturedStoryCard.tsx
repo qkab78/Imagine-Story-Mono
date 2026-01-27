@@ -2,6 +2,7 @@ import { View, Text, Pressable, ImageBackground, StyleSheet } from 'react-native
 import { LinearGradient } from 'expo-linear-gradient';
 import { DualIcon } from '@/components/ui/DualIcon';
 import { StoryBadge, StarRating } from '@/components/atoms/explore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import {
   EXPLORE_COLORS,
   EXPLORE_SPACING,
@@ -19,6 +20,7 @@ export const FeaturedStoryCard: React.FC<FeaturedStoryCardProps> = ({
   story,
   onPress,
 }) => {
+  const { t } = useAppTranslation('stories');
   const hasCoverImage = !!story.coverImageUrl;
 
   const renderContent = () => (
@@ -52,7 +54,11 @@ export const FeaturedStoryCard: React.FC<FeaturedStoryCardProps> = ({
               size={14}
               color={EXPLORE_COLORS.textLight}
             />
-            <Text style={styles.metaText}>{story.chapters} chapitres</Text>
+            <Text style={styles.metaText}>
+              {story.chapters === 1
+                ? t('card.chapter', { count: story.chapters })
+                : t('card.chapters', { count: story.chapters })}
+            </Text>
           </View>
           <View style={styles.metaDivider} />
           <StarRating rating={story.rating} size={14} />
@@ -65,7 +71,7 @@ export const FeaturedStoryCard: React.FC<FeaturedStoryCardProps> = ({
             size={16}
             color={EXPLORE_COLORS.primary}
           />
-          <Text style={styles.ctaText}>Commencer à lire</Text>
+          <Text style={styles.ctaText}>{t('reader.startReading')}</Text>
         </View>
       </View>
     </>

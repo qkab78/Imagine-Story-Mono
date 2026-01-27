@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { StyleSheet, SafeAreaView, View, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -10,6 +10,7 @@ import { spacing } from '@/theme/spacing';
 import Text from '@/components/ui/Text';
 import { useStoryCreation } from '@/features/stories/hooks/useStoryCreation';
 import useStoryStore from '@/store/stories/storyStore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const STEP_STATUS = {
   COMPLETED: 'completed',
@@ -17,21 +18,23 @@ const STEP_STATUS = {
   PENDING: 'pending',
 } as const;
 
-// Visual steps for the interface
-const VISUAL_STEPS: GenerationStep[] = [
-  { id: '1', title: 'Création du personnage', icon: '✅', status: STEP_STATUS.COMPLETED },
-  { id: '2', title: 'Construction de l\'univers', icon: '✅', status: STEP_STATUS.COMPLETED },
-  { id: '3', title: 'Génération des illustrations', icon: '⏳', status: STEP_STATUS.ACTIVE },
-  { id: '4', title: 'Écriture de l\'histoire', icon: '⭕', status: STEP_STATUS.PENDING },
-];
-
 const StoryGenerationScreen: React.FC = () => {
+  const { t } = useAppTranslation('stories');
   const { createStoryPayload, resetCreateStoryPayload } = useStoryStore();
-  const [steps, setSteps] = useState<GenerationStep[]>(VISUAL_STEPS);
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Use the useStoryCreation hook instead of direct API call
   const { mutate: createStory, isPending } = useStoryCreation();
+
+  // Visual steps for the interface (translated)
+  const initialSteps: GenerationStep[] = useMemo(() => [
+    { id: '1', title: t('creation.generation.steps.character'), icon: '✅', status: STEP_STATUS.COMPLETED },
+    { id: '2', title: t('creation.generation.steps.world'), icon: '✅', status: STEP_STATUS.COMPLETED },
+    { id: '3', title: t('creation.generation.steps.illustrations'), icon: '⏳', status: STEP_STATUS.ACTIVE },
+    { id: '4', title: t('creation.generation.steps.writing'), icon: '⭕', status: STEP_STATUS.PENDING },
+  ], [t]);
+
+  const [steps, setSteps] = useState<GenerationStep[]>(initialSteps);
 
   useEffect(() => {
     if (!createStoryPayload || isGenerating) return;
@@ -41,12 +44,12 @@ const StoryGenerationScreen: React.FC = () => {
     // Visual progress animation
     let currentStepIndex = 2; // Start at step 3 (index 2)
     const progressInterval = setInterval(() => {
-      if (currentStepIndex < VISUAL_STEPS.length) {
+      if (currentStepIndex < initialSteps.length) {
         setSteps(prevSteps =>
           prevSteps.map((step, index) => {
             if (index === currentStepIndex) {
               return { ...step, status: STEP_STATUS.COMPLETED, icon: '✅' };
-            } else if (index === currentStepIndex + 1 && index < VISUAL_STEPS.length) {
+            } else if (index === currentStepIndex + 1 && index < initialSteps.length) {
               return { ...step, status: STEP_STATUS.ACTIVE, icon: '⏳' };
             }
             return step;
@@ -71,11 +74,11 @@ const StoryGenerationScreen: React.FC = () => {
         );
 
         Alert.alert(
-          'Histoire créée ! 🎉',
+          t('creation.generation.success.title'),
           '',
           [
             {
-              text: 'Voir l\'histoire',
+              text: t('creation.generation.success.viewStory'),
               onPress: () => {
                 resetCreateStoryPayload();
                 router.push(`/stories/${response.data.id}/reader`);
@@ -89,15 +92,15 @@ const StoryGenerationScreen: React.FC = () => {
         clearInterval(progressInterval);
         console.error('Story creation error:', error);
         Alert.alert(
-          'Erreur de génération 😕',
-          `Une erreur est survenue lors de la création de votre histoire. Voulez-vous réessayer ?`,
+          t('creation.generation.error.title'),
+          t('creation.generation.error.message'),
           [
-            { text: 'Retour', style: 'cancel', onPress: () => router.back() },
+            { text: t('creation.generation.error.back'), style: 'cancel', onPress: () => router.back() },
             {
-              text: 'Réessayer',
+              text: t('creation.generation.error.retry'),
               onPress: () => {
                 setIsGenerating(false);
-                setSteps(VISUAL_STEPS);
+                setSteps(initialSteps);
               }
             }
           ]
@@ -122,9 +125,9 @@ const StoryGenerationScreen: React.FC = () => {
             sparkleEmoji="✨"
           />
 
-          <Text style={styles.loadingTitle}>Création en cours... ✨</Text>
+          <Text style={styles.loadingTitle}>{t('creation.generation.loadingTitle')}</Text>
           <Text style={styles.loadingSubtitle}>
-            Notre IA magique prépare une histoire unique pour {createStoryPayload?.heroName} !
+            {t('creation.generation.loadingSubtitle', { heroName: createStoryPayload?.heroName })}
           </Text>
 
           <View style={styles.stepsContainer}>

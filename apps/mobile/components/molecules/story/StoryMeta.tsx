@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Platform, View } from 'react-native';
 import Text from '@/components/ui/Text';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 
@@ -10,10 +11,14 @@ interface StoryMetaProps {
 }
 
 export const StoryMeta: React.FC<StoryMetaProps> = ({ numberOfChapters, timeAgo }) => {
+  const { t } = useAppTranslation('stories');
+
   return (
     <View style={styles.container}>
       <Text style={styles.meta}>
-        {numberOfChapters} chapitres
+        {numberOfChapters === 1
+          ? t('card.chapter', { count: numberOfChapters })
+          : t('card.chapters', { count: numberOfChapters })}
       </Text>
       <Text style={styles.timestamp}>
         {timeAgo}

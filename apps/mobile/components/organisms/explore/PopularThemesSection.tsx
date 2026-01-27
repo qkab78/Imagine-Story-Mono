@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet } from 'react-native';
 import { SectionTitle } from '@/components/atoms/explore';
 import { ThemeCard } from '@/components/molecules/explore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { EXPLORE_SPACING } from '@/constants/explore';
 import type { PopularTheme } from '@/types/explore';
 
@@ -13,11 +14,13 @@ export const PopularThemesSection: React.FC<PopularThemesSectionProps> = ({
   themes,
   onThemePress,
 }) => {
+  const { t } = useAppTranslation('stories');
+
   if (themes.length === 0) return null;
 
   return (
     <>
-      <SectionTitle title="Thèmes populaires" emoji="🎨" />
+      <SectionTitle title={t('explore.sections.popularThemes')} emoji="🎨" />
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}

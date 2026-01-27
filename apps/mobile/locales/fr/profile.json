@@ -1,0 +1,69 @@
+{
+  "title": "Profil",
+  "version": "Version {{version}}",
+  "defaultUser": "Utilisateur",
+  "sections": {
+    "account": "Mon compte",
+    "preferences": "Préférences",
+    "support": "Support & À propos"
+  },
+  "settings": {
+    "personalInfo": "Informations personnelles",
+    "subscription": "Abonnement",
+    "downloads": "Mes téléchargements",
+    "notifications": "Notifications",
+    "language": "Langue",
+    "help": "Aide & Support",
+    "rating": "Donner mon avis",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Confidentialité"
+  },
+  "actions": {
+    "logout": "Se déconnecter",
+    "deleteAccount": "Supprimer mon compte",
+    "editProfile": "Modifier le profil"
+  },
+  "alerts": {
+    "languageComingSoon": "Bientôt disponible",
+    "languageComingSoonMessage": "La sélection de langue sera disponible prochainement.",
+    "passwordUpdated": "Succès",
+    "passwordUpdatedMessage": "Votre mot de passe a été mis à jour.",
+    "upgradeSuccess": "Succès",
+    "upgradeSuccessMessage": "Bienvenue dans la famille Premium ! Profitez de toutes les fonctionnalités.",
+    "restoreSuccess": "Succès",
+    "restoreSuccessMessage": "Vos achats ont été restaurés.",
+    "restoreNoItems": "Information",
+    "restoreNoItemsMessage": "Aucun achat précédent trouvé.",
+    "manageSubscriptionTitle": "Gérer l'abonnement",
+    "manageSubscriptionMessage": "Vous allez être redirigé vers les paramètres de votre store pour gérer ou résilier votre abonnement.",
+    "error": "Erreur",
+    "logoutTitle": "Se déconnecter",
+    "logoutMessage": "Êtes-vous sûr de vouloir vous déconnecter ?",
+    "deleteAccountTitle": "Supprimer le compte",
+    "deleteAccountMessage": "Cette action est irréversible. Toutes vos données seront supprimées."
+  },
+  "personalInfo": {
+    "title": "Informations personnelles",
+    "name": "Nom complet",
+    "email": "Adresse email",
+    "registrationDate": "Membre depuis",
+    "storiesCount": "Histoires créées",
+    "storyValue": "{{count}} histoire",
+    "storiesValue": "{{count}} histoires"
+  },
+  "editProfile": {
+    "title": "Modifier le profil",
+    "passwordSection": "Changer le mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "saveButton": "Enregistrer les modifications",
+    "errorNewPassword": "Veuillez entrer un nouveau mot de passe",
+    "errorPasswordMismatch": "Les mots de passe ne correspondent pas",
+    "errorCurrentPassword": "Veuillez entrer votre mot de passe actuel"
+  },
+  "languageSelector": {
+    "title": "Langue de l'application",
+    "description": "Choisissez la langue de l'interface"
+  }
+}

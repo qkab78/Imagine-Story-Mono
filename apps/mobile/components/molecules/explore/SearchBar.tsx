@@ -1,6 +1,7 @@
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
 import { DualIcon } from '@/components/ui/DualIcon';
 import useExploreStore from '@/store/explore/exploreStore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import {
   EXPLORE_COLORS,
   EXPLORE_SPACING,
@@ -14,8 +15,10 @@ interface SearchBarProps {
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder = 'Rechercher des histoires...',
+  placeholder,
 }) => {
+  const { t } = useAppTranslation('stories');
+  const searchPlaceholder = placeholder || t('explore.searchPlaceholder');
   const { searchQuery, setSearchQuery, clearSearchQuery, setIsSearchFocused } =
     useExploreStore();
 
@@ -32,7 +35,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           onChangeText={setSearchQuery}
           onFocus={() => setIsSearchFocused(true)}
           onBlur={() => setIsSearchFocused(false)}
-          placeholder={placeholder}
+          placeholder={searchPlaceholder}
           placeholderTextColor={EXPLORE_COLORS.textMuted}
           style={styles.input}
           returnKeyType="search"

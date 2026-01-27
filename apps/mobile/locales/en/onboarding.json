@@ -1,0 +1,19 @@
+{
+  "slides": {
+    "welcome": {
+      "title": "My Little Storyteller",
+      "description": "Personalized magical stories that will delight your child",
+      "button": "Get Started"
+    },
+    "create": {
+      "title": "Create in 3 Steps",
+      "description": "Choose a hero, share a dream, and discover a unique story in moments",
+      "button": "Next"
+    },
+    "security": {
+      "title": "100% Secure",
+      "description": "Age-appropriate content, full parental controls and offline mode for total peace of mind",
+      "button": "Let's Go!"
+    }
+  }
+}

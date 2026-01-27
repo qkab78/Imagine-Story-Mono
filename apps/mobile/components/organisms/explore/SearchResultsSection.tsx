@@ -2,6 +2,7 @@ import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { DualIcon } from '@/components/ui/DualIcon';
 import useExploreStore from '@/store/explore/exploreStore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import {
   EXPLORE_COLORS,
   EXPLORE_SPACING,
@@ -22,6 +23,7 @@ export const SearchResultsSection: React.FC<SearchResultsSectionProps> = ({
   onStoryPress,
   onHistoryItemPress,
 }) => {
+  const { t } = useAppTranslation('stories');
   const { searchQuery, searchHistory, removeFromSearchHistory } = useExploreStore();
 
   const showHistory = searchQuery.length === 0 && searchHistory.length > 0;
@@ -39,7 +41,7 @@ export const SearchResultsSection: React.FC<SearchResultsSectionProps> = ({
               size={16}
               color={EXPLORE_COLORS.textMuted}
             />
-            <Text style={styles.sectionTitle}>Recherches récentes</Text>
+            <Text style={styles.sectionTitle}>{t('explore.recentSearches')}</Text>
           </View>
           {searchHistory.map((query, index) => (
             <Pressable
@@ -66,7 +68,7 @@ export const SearchResultsSection: React.FC<SearchResultsSectionProps> = ({
       {/* Loading */}
       {isLoading && (
         <View style={styles.messageContainer}>
-          <Text style={styles.messageText}>Recherche en cours...</Text>
+          <Text style={styles.messageText}>{t('explore.searching')}</Text>
         </View>
       )}
 
@@ -74,7 +76,7 @@ export const SearchResultsSection: React.FC<SearchResultsSectionProps> = ({
       {showNoResults && (
         <View style={styles.messageContainer}>
           <Text style={styles.messageText}>
-            Aucune histoire trouvée pour "{searchQuery}"
+            {t('explore.noResults', { query: searchQuery })}
           </Text>
         </View>
       )}
@@ -83,7 +85,9 @@ export const SearchResultsSection: React.FC<SearchResultsSectionProps> = ({
       {showResults && results.length > 0 && (
         <View style={styles.section}>
           <Text style={styles.resultsCount}>
-            {results.length} résultat{results.length > 1 ? 's' : ''}
+            {results.length > 1
+              ? t('explore.resultsCountPlural', { count: results.length })
+              : t('explore.resultsCount', { count: results.length })}
           </Text>
           {results.map((result) => (
             <Pressable
@@ -110,7 +114,9 @@ export const SearchResultsSection: React.FC<SearchResultsSectionProps> = ({
                   {result.title}
                 </Text>
                 <Text style={styles.resultMeta}>
-                  {result.ageRange} • {result.chapters} chapitres
+                  {result.ageRange} • {result.chapters > 1
+                    ? t('card.chapters', { count: result.chapters })
+                    : t('card.chapter', { count: result.chapters })}
                 </Text>
               </View>
               <DualIcon

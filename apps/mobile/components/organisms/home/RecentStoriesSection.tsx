@@ -1,9 +1,9 @@
-
 import { StyleSheet, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { StoryListItem as StoryListItemType } from '@/domain/stories/value-objects/StoryListItem';
 import { StoryListItem, EmptyState } from '@/components/molecules/home';
 import { SectionTitle } from '@/components/atoms/home';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 interface RecentStoriesSectionProps {
   stories: StoryListItemType[];
@@ -16,15 +16,17 @@ export const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
   onStoryPress,
   isLoading = false,
 }) => {
+  const { t } = useAppTranslation('stories');
+
   if (stories.length === 0 && !isLoading) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <SectionTitle title="Histoires récentes" icon="✨" />
+          <SectionTitle title={t('home.recentStories')} icon="✨" />
         </View>
         <EmptyState
-          title="Aucune histoire pour le moment"
-          subtitle="Crée ta première histoire magique !"
+          title={t('home.noStories')}
+          subtitle={t('home.noStoriesSubtitle')}
         />
       </View>
     );
@@ -41,7 +43,7 @@ export const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <SectionTitle title="Histoires récentes" icon="✨" />
+        <SectionTitle title={t('home.recentStories')} icon="✨" />
       </View>
 
       <View style={styles.listContainer}>

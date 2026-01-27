@@ -1,0 +1,243 @@
+{
+  "home": {
+    "greeting": "Hello {{name}}! 👋",
+    "greetingSubtitle": "Ready for a new adventure?",
+    "createStory": "Create a Story",
+    "createDescription": "Create a new magical adventure",
+    "readStory": "Read a Story",
+    "readDescription": "Discover your favorite stories",
+    "recentStories": "✨ Recent Stories",
+    "noStories": "No stories yet",
+    "noStoriesSubtitle": "Create your first magical story!"
+  },
+  "creation": {
+    "title": "Create a Story",
+    "back": "Back",
+    "continue": "Continue",
+    "start": "Start",
+    "welcome": {
+      "title": "Let's create a magical story",
+      "subtitle": "A few questions to personalize your child's adventure",
+      "backLabel": "Back"
+    },
+    "settings": {
+      "title": "Let's personalize the story",
+      "subtitle": "A few settings to adapt the story",
+      "languageLabel": "What language?",
+      "languagePlaceholder": "Select a language",
+      "ageLabel": "How old is your child?",
+      "agePlaceholder": "Select an age",
+      "chaptersLabel": "How many chapters?",
+      "chaptersPlaceholder": "Select the number of chapters",
+      "loadingLanguages": "Loading languages..."
+    },
+    "ages": {
+      "3": "3 years old",
+      "4": "4 years old",
+      "5": "5 years old",
+      "6": "6 years old",
+      "7": "7 years old",
+      "8": "8 years old"
+    },
+    "chapters": {
+      "1": "1 chapter",
+      "2": "2 chapters",
+      "3": "3 chapters",
+      "4": "4 chapters",
+      "5": "5 chapters"
+    },
+    "generation": {
+      "title": "Generating",
+      "subtitle": "Your magical story is being prepared...",
+      "progress": "Creating your adventure...",
+      "loadingTitle": "Creating... ✨",
+      "loadingSubtitle": "Our magical AI is preparing a unique story for {{heroName}}!",
+      "steps": {
+        "character": "Creating the character",
+        "world": "Building the world",
+        "illustrations": "Generating illustrations",
+        "writing": "Writing the story"
+      },
+      "success": {
+        "title": "Story created! 🎉",
+        "viewStory": "View story"
+      },
+      "error": {
+        "title": "Generation error 😕",
+        "message": "An error occurred while creating your story. Would you like to try again?",
+        "back": "Back",
+        "retry": "Try again"
+      }
+    },
+    "alerts": {
+      "success": "Success",
+      "error": "Error",
+      "information": "Information",
+      "purchaseSuccess": "Welcome to the Premium family! Enjoy all the features.",
+      "restoreSuccess": "Your purchases have been restored.",
+      "restoreNoItems": "No previous purchases found.",
+      "manageSubscriptionTitle": "Manage Subscription",
+      "manageSubscriptionMessage": "You will be redirected to your store settings to manage or cancel your subscription.",
+      "cancel": "Cancel",
+      "continue": "Continue"
+    },
+    "heroSelection": {
+      "title": "What's the name of your story's hero?",
+      "subtitle": "This will be the main character of the adventure",
+      "placeholder": "Hero's name...",
+      "heroNameLabel": "Your hero's name",
+      "heroNamePlaceholder": "What's your hero's name?",
+      "languageLabel": "Story language",
+      "languagePlaceholder": "Choose a language 🌍",
+      "languagesAvailable": "Available languages",
+      "ageLabel": "Child's age",
+      "agePlaceholder": "Choose an age 👶",
+      "agesAvailable": "Available ages",
+      "chaptersLabel": "Number of chapters",
+      "chaptersPlaceholder": "Choose number of chapters 📚",
+      "continueButton": "Continue the adventure!",
+      "chooseHero": "Choose {{name}}",
+      "errors": {
+        "required": "Hero name is required",
+        "tooShort": "Name must be at least 2 characters",
+        "tooLong": "Name must be 30 characters or less"
+      },
+      "avatars": {
+        "girl": "Girl",
+        "boy": "Boy",
+        "robot": "Robot",
+        "superhero": "Superhero",
+        "superheroine": "Superheroine",
+        "animal": "Animal"
+      }
+    },
+    "themeSelection": {
+      "title": "What will be the story's theme?",
+      "subtitle": "Choose the world that your child will love",
+      "loading": "Loading themes...",
+      "createButton": "Create my story!"
+    },
+    "toneSelection": {
+      "title": "What will be the story's tone?",
+      "subtitle": "Choose the atmosphere that fits best",
+      "loading": "Loading tones...",
+      "createButton": "Create my magical story! ✨"
+    },
+    "languages": {
+      "fr": "🇫🇷 French",
+      "en": "🇬🇧 English",
+      "es": "🇪🇸 Spanish",
+      "de": "🇩🇪 German",
+      "it": "🇮🇹 Italian",
+      "pt": "🇵🇹 Portuguese",
+      "li": "🇨🇩 Lingala",
+      "nl": "🇳🇱 Dutch",
+      "pl": "🇵🇱 Polish",
+      "ru": "🇷🇺 Russian",
+      "tr": "🇹🇷 Turkish",
+      "ar": "🇦🇪 Arabic",
+      "ja": "🇯🇵 Japanese"
+    },
+    "summary": {
+      "title": "Summary",
+      "subtitle": "Here's your story"
+    }
+  },
+  "library": {
+    "title": "My Library",
+    "empty": "No stories yet",
+    "emptySubtitle": "Create your first magical story and it will appear here!",
+    "createFirst": "Create a story ✨",
+    "storyCount": "{{count}} story",
+    "storiesCount": "{{count}} stories",
+    "filters": {
+      "all": "All",
+      "favorites": "Favorites",
+      "recent": "Recent",
+      "title": "Filters",
+      "subtitle": "Refine your library",
+      "themes": "Themes",
+      "tones": "Moods",
+      "reset": "Reset",
+      "apply": "Apply filters"
+    }
+  },
+  "explore": {
+    "title": "Explore",
+    "searchPlaceholder": "Search for stories...",
+    "loading": "Loading...",
+    "searching": "Searching...",
+    "noResults": "No stories found for \"{{query}}\"",
+    "recentSearches": "Recent searches",
+    "resultsCount": "{{count}} result",
+    "resultsCountPlural": "{{count}} results",
+    "categories": {
+      "all": "All",
+      "magic": "Magic",
+      "adventure": "Adventure",
+      "animals": "Animals",
+      "space": "Space",
+      "nature": "Nature",
+      "friendship": "Friendship"
+    },
+    "sections": {
+      "featured": "Featured",
+      "popular": "Popular",
+      "recent": "Recent",
+      "newReleases": "New Releases",
+      "topStories": "Top Stories",
+      "recommended": "Recommended for you",
+      "popularThemes": "Popular Themes",
+      "byAgeGroup": "By Age Group"
+    },
+    "featured": "Featured",
+    "popular": "Popular",
+    "recent": "Recent"
+  },
+  "reader": {
+    "chapter": "Chapter {{number}}",
+    "chapterOf": "Chapter {{current}} of {{total}}",
+    "chapters": "Chapters",
+    "theEnd": "The End",
+    "endOfStory": "End of the story",
+    "nextChapter": "Next Chapter",
+    "previousChapter": "Previous Chapter",
+    "backToStory": "Back to Story",
+    "loading": "Loading story...",
+    "loadError": "Unable to load story",
+    "startReading": "Start reading",
+    "close": "Close",
+    "chapterNumber": "Chapter {{position}}"
+  },
+  "detail": {
+    "forAgeChapters": "For {{age}} years old • {{count}} chapters",
+    "forAgeChapter": "For {{age}} years old • {{count}} chapter",
+    "conclusion": "Conclusion"
+  },
+  "badges": {
+    "new": "NEW",
+    "popular": "POPULAR",
+    "featured": "Story of the day"
+  },
+  "card": {
+    "readMore": "Read More",
+    "chapters": "{{count}} chapters",
+    "chapter": "{{count}} chapter",
+    "readTime": "{{minutes}} min read",
+    "storyLabel": "Story: {{title}}",
+    "chaptersHint": "{{count}} chapters",
+    "pressToRead": "Press to read this story",
+    "pressToContinue": "Press to continue",
+    "forAge": "For {{age}} years old",
+    "storyOfTheDay": "Story of the day",
+    "storiesCount": "{{count}} stories",
+    "storyCount": "{{count}} story"
+  },
+  "quota": {
+    "unlimited": "Unlimited",
+    "storiesRemaining": "{{count}} story remaining",
+    "storiesRemainingPlural": "{{count}} stories remaining",
+    "storiesUsed": "{{count}} used",
+    "storiesUsedPlural": "{{count}} used"
+  }
+}

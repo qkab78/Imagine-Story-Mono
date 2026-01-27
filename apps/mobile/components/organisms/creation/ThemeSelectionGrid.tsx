@@ -3,6 +3,7 @@ import { StyleSheet, View, Dimensions } from 'react-native';
 import { Theme } from '@/domain/stories/value-objects/settings/Theme';
 import { ThemeCard } from '@/components/molecules/creation/ThemeCard';
 import KidButton from '@/components/Onboarding/KidButton';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import Box from '@/components/ui/Box';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
@@ -27,12 +28,14 @@ export const ThemeSelectionGrid: React.FC<ThemeSelectionGridProps> = ({
   onThemeSelect,
   onCreateStory,
 }) => {
+  const { t } = useAppTranslation('stories');
+
   return (
     <Box style={styles.container}>
       <View style={styles.themeGrid}>
         {themes.map((theme) => {
           const isSelected = selectedTheme?.getIdValue() === theme.getIdValue();
-          
+
           return (
             <ThemeCard
               key={theme.getIdValue()}
@@ -49,7 +52,7 @@ export const ThemeSelectionGrid: React.FC<ThemeSelectionGridProps> = ({
 
       <View style={styles.buttonContainer}>
         <KidButton
-          title="Créer mon histoire !"
+          title={t('creation.themeSelection.createButton')}
           emoji="🌟"
           onPress={onCreateStory}
         />

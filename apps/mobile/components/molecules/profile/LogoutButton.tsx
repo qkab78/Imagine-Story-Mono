@@ -1,5 +1,6 @@
 import { Pressable, Text, StyleSheet } from 'react-native';
 import { DualIcon } from '@/components/ui';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_DIMENSIONS, PROFILE_ICONS } from '@/constants/profile';
 
 interface LogoutButtonProps {
@@ -7,10 +8,12 @@ interface LogoutButtonProps {
 }
 
 export const LogoutButton: React.FC<LogoutButtonProps> = ({ onPress }) => {
+  const { t } = useAppTranslation('profile');
+
   return (
     <Pressable style={styles.button} onPress={onPress}>
       <DualIcon icon={PROFILE_ICONS.logout} size={18} color={PROFILE_COLORS.danger} />
-      <Text style={styles.text}>Se déconnecter</Text>
+      <Text style={styles.text}>{t('actions.logout')}</Text>
     </Pressable>
   );
 };

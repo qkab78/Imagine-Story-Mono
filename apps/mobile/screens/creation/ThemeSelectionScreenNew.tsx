@@ -10,6 +10,7 @@ import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
 import { getThemes } from '@/api/stories/storyApi';
 import type { ThemeDTO } from '@/api/stories/storyTypes';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 // Emoji mapping for themes
 const THEME_EMOJIS: Record<string, string> = {
@@ -46,6 +47,7 @@ interface ThemeOption extends ThemeDTO {
  */
 export const ThemeSelectionScreenNew: React.FC = () => {
   const router = useRouter();
+  const { t } = useAppTranslation('stories');
   const { createStoryPayload, setCreateStoryPayload } = useStoryStore();
 
   const [selectedThemeId, setSelectedThemeId] = useState<string | null>(
@@ -125,7 +127,7 @@ export const ThemeSelectionScreenNew: React.FC = () => {
           style={styles.backButton}
           onPress={handleBack}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('creation.back')}
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
@@ -138,16 +140,16 @@ export const ThemeSelectionScreenNew: React.FC = () => {
         {/* Themes Container */}
         <View style={styles.themesContainer}>
           <Text style={styles.pageTitle}>
-            Quel sera le thème de l'histoire ?
+            {t('creation.themeSelection.title')}
           </Text>
           <Text style={styles.pageHint}>
-            Choisis l'univers qui plaira à ton enfant
+            {t('creation.themeSelection.subtitle')}
           </Text>
 
           {isLoading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={colors.forestGreen} />
-              <Text style={styles.loadingText}>Chargement des thèmes...</Text>
+              <Text style={styles.loadingText}>{t('creation.themeSelection.loading')}</Text>
             </View>
           ) : (
             <View style={styles.themesGrid}>
@@ -174,12 +176,12 @@ export const ThemeSelectionScreenNew: React.FC = () => {
             onPress={handleBack}
             accessibilityRole="button"
           >
-            <Text style={styles.secondaryButtonText}>Retour</Text>
+            <Text style={styles.secondaryButtonText}>{t('creation.back')}</Text>
           </TouchableOpacity>
 
           <View style={styles.primaryButtonContainer}>
             <PrimaryButton
-              title="Continuer"
+              title={t('creation.continue')}
               icon="→"
               onPress={handleContinue}
               disabled={!selectedThemeId}

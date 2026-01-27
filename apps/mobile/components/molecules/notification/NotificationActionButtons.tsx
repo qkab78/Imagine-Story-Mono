@@ -6,6 +6,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const COLORS = {
   primary: '#2F6B4F',
@@ -26,6 +27,7 @@ export const NotificationActionButtons: React.FC<NotificationActionButtonsProps>
   onSkip,
   isLoading = false,
 }) => {
+  const { t } = useAppTranslation('common');
   const primaryScale = useSharedValue(1);
   const primaryTranslateY = useSharedValue(0);
 
@@ -59,7 +61,7 @@ export const NotificationActionButtons: React.FC<NotificationActionButtonsProps>
         {isLoading ? (
           <ActivityIndicator color="white" size="small" />
         ) : (
-          <Text style={styles.primaryText}>Activer les notifications</Text>
+          <Text style={styles.primaryText}>{t('notifications.activateButton')}</Text>
         )}
       </AnimatedPressable>
 
@@ -69,7 +71,7 @@ export const NotificationActionButtons: React.FC<NotificationActionButtonsProps>
         onPress={onSkip}
         disabled={isLoading}
       >
-        <Text style={styles.secondaryText}>Passer</Text>
+        <Text style={styles.secondaryText}>{t('buttons.skip')}</Text>
       </Pressable>
     </View>
   );

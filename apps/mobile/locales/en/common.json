@@ -1,0 +1,50 @@
+{
+  "buttons": {
+    "back": "Back",
+    "next": "Next",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "later": "Later",
+    "continue": "Continue",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "skip": "Skip"
+  },
+  "notifications": {
+    "title": "Enable notifications!",
+    "subtitle": "Don't miss new chapters and personalized stories for your child",
+    "activateButton": "Enable notifications"
+  },
+  "navigation": {
+    "home": "Home",
+    "library": "Library",
+    "create": "Create",
+    "explore": "Explore",
+    "profile": "Profile"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Oops! This email doesn't look right",
+    "passwordTooShort": "Password must be at least 8 characters"
+  },
+  "errors": {
+    "generic": "An error occurred",
+    "network": "Connection error",
+    "tryAgain": "Please try again"
+  },
+  "labels": {
+    "premium": "Premium",
+    "free": "Free",
+    "loading": "Loading...",
+    "noData": "No data"
+  },
+  "toggle": {
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "onboarding": {
+    "safetyBanner": "100% safe content validated by parents"
+  }
+}

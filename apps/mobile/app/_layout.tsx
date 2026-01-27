@@ -21,6 +21,11 @@ import { ExpirationWarningBanner } from '@/components/molecules/subscription';
 import { useSubscriptionExpiredModal } from '@/hooks/useSubscriptionExpiredModal';
 import { useSubscriptionSheet } from '@/hooks/useSubscriptionSheet';
 
+// Internationalisation
+import '@/locales';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/locales';
+
 const queryClient = new QueryClient();
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -183,12 +188,14 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <TamaguiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <AppContent />
-        </QueryClientProvider>
-      </TamaguiProvider>
-    </ThemeProvider>
+    <I18nextProvider i18n={i18n}>
+      <ThemeProvider theme={theme}>
+        <TamaguiProvider config={config}>
+          <QueryClientProvider client={queryClient}>
+            <AppContent />
+          </QueryClientProvider>
+        </TamaguiProvider>
+      </ThemeProvider>
+    </I18nextProvider>
   );
 }

@@ -1,0 +1,19 @@
+{
+  "slides": {
+    "welcome": {
+      "title": "Mon Petit Conteur",
+      "description": "Des histoires magiques personnalisées qui émerveilleront votre enfant",
+      "button": "Commencer"
+    },
+    "create": {
+      "title": "Créez en 3 étapes",
+      "description": "Choisissez un héros, partagez un rêve, et découvrez une histoire unique en quelques instants",
+      "button": "Suivant"
+    },
+    "security": {
+      "title": "100% sécurisé",
+      "description": "Contenu adapté à l'âge, contrôle parental complet et mode hors-ligne pour une tranquillité d'esprit totale",
+      "button": "C'est parti !"
+    }
+  }
+}

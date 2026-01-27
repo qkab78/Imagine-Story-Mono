@@ -1,0 +1,243 @@
+{
+  "home": {
+    "greeting": "Bonjour {{name}} ! 👋",
+    "greetingSubtitle": "Prête pour une nouvelle aventure ?",
+    "createStory": "Créer une histoire",
+    "createDescription": "Invente une nouvelle aventure magique",
+    "readStory": "Lire une histoire",
+    "readDescription": "Découvre tes histoires préférées",
+    "recentStories": "✨ Histoires récentes",
+    "noStories": "Aucune histoire pour le moment",
+    "noStoriesSubtitle": "Crée ta première histoire magique !"
+  },
+  "creation": {
+    "title": "Créer une histoire",
+    "back": "Retour",
+    "continue": "Continuer",
+    "start": "Commencer",
+    "welcome": {
+      "title": "Créons une histoire magique",
+      "subtitle": "Quelques questions pour personnaliser l'aventure de votre enfant",
+      "backLabel": "Retour"
+    },
+    "settings": {
+      "title": "Personnalisons l'histoire",
+      "subtitle": "Quelques réglages pour adapter le récit",
+      "languageLabel": "Dans quelle langue ?",
+      "languagePlaceholder": "Sélectionnez une langue",
+      "ageLabel": "Quel est l'âge de votre enfant ?",
+      "agePlaceholder": "Sélectionnez un âge",
+      "chaptersLabel": "Combien de chapitres ?",
+      "chaptersPlaceholder": "Sélectionnez le nombre de chapitres",
+      "loadingLanguages": "Chargement des langues..."
+    },
+    "ages": {
+      "3": "3 ans",
+      "4": "4 ans",
+      "5": "5 ans",
+      "6": "6 ans",
+      "7": "7 ans",
+      "8": "8 ans"
+    },
+    "chapters": {
+      "1": "1 chapitre",
+      "2": "2 chapitres",
+      "3": "3 chapitres",
+      "4": "4 chapitres",
+      "5": "5 chapitres"
+    },
+    "generation": {
+      "title": "Génération en cours",
+      "subtitle": "Ta histoire magique est en préparation...",
+      "progress": "Création de ton aventure...",
+      "loadingTitle": "Création en cours... ✨",
+      "loadingSubtitle": "Notre IA magique prépare une histoire unique pour {{heroName}} !",
+      "steps": {
+        "character": "Création du personnage",
+        "world": "Construction de l'univers",
+        "illustrations": "Génération des illustrations",
+        "writing": "Écriture de l'histoire"
+      },
+      "success": {
+        "title": "Histoire créée ! 🎉",
+        "viewStory": "Voir l'histoire"
+      },
+      "error": {
+        "title": "Erreur de génération 😕",
+        "message": "Une erreur est survenue lors de la création de votre histoire. Voulez-vous réessayer ?",
+        "back": "Retour",
+        "retry": "Réessayer"
+      }
+    },
+    "alerts": {
+      "success": "Succès",
+      "error": "Erreur",
+      "information": "Information",
+      "purchaseSuccess": "Bienvenue dans la famille Premium ! Profitez de toutes les fonctionnalités.",
+      "restoreSuccess": "Vos achats ont été restaurés.",
+      "restoreNoItems": "Aucun achat précédent trouvé.",
+      "manageSubscriptionTitle": "Gérer l'abonnement",
+      "manageSubscriptionMessage": "Vous allez être redirigé vers les paramètres de votre store pour gérer ou résilier votre abonnement.",
+      "cancel": "Annuler",
+      "continue": "Continuer"
+    },
+    "heroSelection": {
+      "title": "Comment s'appelle le héros de ton histoire ?",
+      "subtitle": "Ce sera le personnage principal de l'aventure",
+      "placeholder": "Prénom du héros...",
+      "heroNameLabel": "Nom de ton héros",
+      "heroNamePlaceholder": "Comment s'appelle ton héros ?",
+      "languageLabel": "Langue de l'histoire",
+      "languagePlaceholder": "Choisir une langue 🌍",
+      "languagesAvailable": "Langues disponibles",
+      "ageLabel": "Âge de l'enfant",
+      "agePlaceholder": "Choisir un âge 👶",
+      "agesAvailable": "Âges disponibles",
+      "chaptersLabel": "Nombre de chapitres",
+      "chaptersPlaceholder": "Choisir le nombre de chapitres 📚",
+      "continueButton": "Continuer l'aventure !",
+      "chooseHero": "Choisir {{name}}",
+      "errors": {
+        "required": "Le nom du héros est requis",
+        "tooShort": "Le nom doit contenir au moins 2 caractères",
+        "tooLong": "Le nom doit contenir maximum 30 caractères"
+      },
+      "avatars": {
+        "girl": "Fille",
+        "boy": "Garçon",
+        "robot": "Robot",
+        "superhero": "Super-héros",
+        "superheroine": "Super-héroïne",
+        "animal": "Animal"
+      }
+    },
+    "themeSelection": {
+      "title": "Quel sera le thème de l'histoire ?",
+      "subtitle": "Choisis l'univers qui plaira à ton enfant",
+      "loading": "Chargement des thèmes...",
+      "createButton": "Créer mon histoire !"
+    },
+    "toneSelection": {
+      "title": "Quel sera le ton de l'histoire ?",
+      "subtitle": "Choisis l'ambiance qui convient le mieux",
+      "loading": "Chargement des tons...",
+      "createButton": "Créer mon histoire magique ! ✨"
+    },
+    "languages": {
+      "fr": "🇫🇷 Français",
+      "en": "🇬🇧 Anglais",
+      "es": "🇪🇸 Espagnol",
+      "de": "🇩🇪 Allemand",
+      "it": "🇮🇹 Italien",
+      "pt": "🇵🇹 Portugais",
+      "li": "🇨🇩 Lingala",
+      "nl": "🇳🇱 Néerlandais",
+      "pl": "🇵🇱 Polonais",
+      "ru": "🇷🇺 Russe",
+      "tr": "🇹🇷 Turc",
+      "ar": "🇦🇪 Arabe",
+      "ja": "🇯🇵 Japonais"
+    },
+    "summary": {
+      "title": "Résumé",
+      "subtitle": "Voici ton histoire"
+    }
+  },
+  "library": {
+    "title": "Ma Bibliothèque",
+    "empty": "Pas encore d'histoires",
+    "emptySubtitle": "Crée ta première histoire magique et elle apparaîtra ici !",
+    "createFirst": "Créer une histoire ✨",
+    "storyCount": "{{count}} histoire",
+    "storiesCount": "{{count}} histoires",
+    "filters": {
+      "all": "Toutes",
+      "favorites": "Favoris",
+      "recent": "Récentes",
+      "title": "Filtres",
+      "subtitle": "Affinez votre bibliothèque",
+      "themes": "Thèmes",
+      "tones": "Ambiances",
+      "reset": "Réinitialiser",
+      "apply": "Appliquer les filtres"
+    }
+  },
+  "explore": {
+    "title": "Explorer",
+    "searchPlaceholder": "Rechercher des histoires...",
+    "loading": "Chargement...",
+    "searching": "Recherche en cours...",
+    "noResults": "Aucune histoire trouvée pour \"{{query}}\"",
+    "recentSearches": "Recherches récentes",
+    "resultsCount": "{{count}} résultat",
+    "resultsCountPlural": "{{count}} résultats",
+    "categories": {
+      "all": "Tout",
+      "magic": "Magie",
+      "adventure": "Aventure",
+      "animals": "Animaux",
+      "space": "Espace",
+      "nature": "Nature",
+      "friendship": "Amitié"
+    },
+    "sections": {
+      "featured": "À la une",
+      "popular": "Populaires",
+      "recent": "Récentes",
+      "newReleases": "Nouveautés",
+      "topStories": "Top Histoires",
+      "recommended": "Recommandées pour vous",
+      "popularThemes": "Thèmes populaires",
+      "byAgeGroup": "Par tranche d'âge"
+    },
+    "featured": "À la une",
+    "popular": "Populaires",
+    "recent": "Récentes"
+  },
+  "reader": {
+    "chapter": "Chapitre {{number}}",
+    "chapterOf": "Chapitre {{current}} sur {{total}}",
+    "chapters": "Chapitres",
+    "theEnd": "Fin",
+    "endOfStory": "Fin de l'histoire",
+    "nextChapter": "Chapitre suivant",
+    "previousChapter": "Chapitre précédent",
+    "backToStory": "Retour à l'histoire",
+    "loading": "Chargement de l'histoire...",
+    "loadError": "Impossible de charger l'histoire",
+    "startReading": "Commencer à lire",
+    "close": "Fermer",
+    "chapterNumber": "Chapitre {{position}}"
+  },
+  "detail": {
+    "forAgeChapters": "Pour {{age}} ans • {{count}} chapitres",
+    "forAgeChapter": "Pour {{age}} ans • {{count}} chapitre",
+    "conclusion": "Conclusion"
+  },
+  "badges": {
+    "new": "NOUVEAU",
+    "popular": "POPULAIRE",
+    "featured": "Histoire du jour"
+  },
+  "card": {
+    "readMore": "Lire la suite",
+    "chapters": "{{count}} chapitres",
+    "chapter": "{{count}} chapitre",
+    "readTime": "{{minutes}} min de lecture",
+    "storyLabel": "Histoire: {{title}}",
+    "chaptersHint": "{{count}} chapitres",
+    "pressToRead": "Appuyez pour lire cette histoire",
+    "pressToContinue": "Appuyez pour continuer",
+    "forAge": "Pour {{age}} ans",
+    "storyOfTheDay": "Histoire du jour",
+    "storiesCount": "{{count}} histoires",
+    "storyCount": "{{count}} histoire"
+  },
+  "quota": {
+    "unlimited": "Illimité",
+    "storiesRemaining": "{{count}} histoire restante",
+    "storiesRemainingPlural": "{{count}} histoires restantes",
+    "storiesUsed": "{{count}} utilisée",
+    "storiesUsedPlural": "{{count}} utilisées"
+  }
+}
