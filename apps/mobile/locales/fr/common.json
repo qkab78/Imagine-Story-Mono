@@ -33,5 +33,9 @@
     "free": "Gratuit",
     "loading": "Chargement...",
     "noData": "Aucune donnée"
+  },
+  "toggle": {
+    "enabled": "Activées",
+    "disabled": "Désactivées"
   }
 }

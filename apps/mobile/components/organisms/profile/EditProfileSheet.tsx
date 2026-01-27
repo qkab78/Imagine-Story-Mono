@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SheetHeader, FormInput, SectionTitle } from '@/components/atoms/profile';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_DIMENSIONS } from '@/constants/profile';
 
 interface EditProfileSheetProps {
@@ -29,23 +30,26 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
   onSave,
 }) => {
   const insets = useSafeAreaInsets();
+  const { t } = useAppTranslation('profile');
+  const { t: tCommon } = useAppTranslation('common');
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSave = () => {
     if (!newPassword) {
-      Alert.alert('Erreur', 'Veuillez entrer un nouveau mot de passe');
+      Alert.alert(tCommon('errors.generic'), t('editProfile.errorNewPassword'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
+      Alert.alert(tCommon('errors.generic'), t('editProfile.errorPasswordMismatch'));
       return;
     }
 
     if (!currentPassword) {
-      Alert.alert('Erreur', 'Veuillez entrer votre mot de passe actuel');
+      Alert.alert(tCommon('errors.generic'), t('editProfile.errorCurrentPassword'));
       return;
     }
 
@@ -67,7 +71,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
         style={styles.container}
       >
         <View style={{ paddingTop: insets.top }}>
-          <SheetHeader title="Modifier mon mot de passe" onBack={onClose} />
+          <SheetHeader title={t('editProfile.title')} onBack={onClose} />
         </View>
 
         <KeyboardAvoidingView
@@ -85,24 +89,24 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
           >
             {/* Password Section */}
             <View style={styles.section}>
-              <SectionTitle>Mot de passe</SectionTitle>
+              <SectionTitle>{t('editProfile.passwordSection')}</SectionTitle>
               <View style={styles.card}>
                 <FormInput
-                  label="Mot de passe actuel"
+                  label={t('editProfile.currentPassword')}
                   value={currentPassword}
                   onChangeText={setCurrentPassword}
                   placeholder="••••••••"
                   secureTextEntry
                 />
                 <FormInput
-                  label="Nouveau mot de passe"
+                  label={t('editProfile.newPassword')}
                   value={newPassword}
                   onChangeText={setNewPassword}
                   placeholder="••••••••"
                   secureTextEntry
                 />
                 <FormInput
-                  label="Confirmer le mot de passe"
+                  label={t('editProfile.confirmPassword')}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   placeholder="••••••••"
@@ -113,7 +117,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
 
             {/* Save Button */}
             <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>Modifier le mot de passe</Text>
+              <Text style={styles.saveButtonText}>{t('editProfile.saveButton')}</Text>
             </Pressable>
           </ScrollView>
         </KeyboardAvoidingView>

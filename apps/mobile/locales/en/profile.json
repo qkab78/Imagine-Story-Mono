@@ -1,5 +1,6 @@
 {
   "title": "Profile",
+  "version": "Version {{version}}",
   "defaultUser": "User",
   "sections": {
     "account": "My Account",
@@ -50,9 +51,14 @@
   },
   "editProfile": {
     "title": "Edit Profile",
+    "passwordSection": "Change Password",
     "currentPassword": "Current Password",
     "newPassword": "New Password",
-    "confirmPassword": "Confirm Password"
+    "confirmPassword": "Confirm Password",
+    "saveButton": "Save Changes",
+    "errorNewPassword": "Please enter a new password",
+    "errorPasswordMismatch": "Passwords do not match",
+    "errorCurrentPassword": "Please enter your current password"
   },
   "languageSelector": {
     "title": "App Language",

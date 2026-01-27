@@ -1,4 +1,5 @@
 import { Text, StyleSheet } from 'react-native';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING } from '@/constants/profile';
 
 interface VersionBadgeProps {
@@ -6,7 +7,9 @@ interface VersionBadgeProps {
 }
 
 export const VersionBadge: React.FC<VersionBadgeProps> = ({ version }) => {
-  return <Text style={styles.version}>Version {version}</Text>;
+  const { t } = useAppTranslation('profile');
+
+  return <Text style={styles.version}>{t('version', { version })}</Text>;
 };
 
 const styles = StyleSheet.create({

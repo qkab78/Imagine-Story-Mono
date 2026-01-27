@@ -2,6 +2,7 @@ import { View, ScrollView, Modal, StyleSheet, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SheetHeader, InfoRow, SectionTitle } from '@/components/atoms/profile';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_DIMENSIONS } from '@/constants/profile';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -24,6 +25,13 @@ export const PersonalInfoSheet: React.FC<PersonalInfoSheetProps> = ({
   storiesCount,
 }) => {
   const insets = useSafeAreaInsets();
+  const { t, language } = useAppTranslation('profile');
+
+  // Pluralisation pour le nombre d'histoires
+  const storiesLabel =
+    language === 'en'
+      ? `${storiesCount} ${storiesCount === 1 ? 'story' : 'stories'}`
+      : `${storiesCount} histoire${storiesCount > 1 ? 's' : ''}`;
 
   return (
     <Modal
@@ -37,7 +45,7 @@ export const PersonalInfoSheet: React.FC<PersonalInfoSheetProps> = ({
         style={styles.container}
       >
         <View style={{ paddingTop: insets.top }}>
-          <SheetHeader title="Informations personnelles" onBack={onClose} />
+          <SheetHeader title={t('personalInfo.title')} onBack={onClose} />
         </View>
 
         <ScrollView
@@ -49,12 +57,12 @@ export const PersonalInfoSheet: React.FC<PersonalInfoSheetProps> = ({
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.card}>
-            <InfoRow label="Nom" value={name} isFirst />
-            <InfoRow label="Email" value={email} />
-            <InfoRow label="Date d'inscription" value={registrationDate} />
+            <InfoRow label={t('personalInfo.name')} value={name} isFirst />
+            <InfoRow label={t('personalInfo.email')} value={email} />
+            <InfoRow label={t('personalInfo.registrationDate')} value={registrationDate} />
             <InfoRow
-              label="Histoires créées"
-              value={`${storiesCount} histoire${storiesCount > 1 ? 's' : ''}`}
+              label={t('personalInfo.storiesCount')}
+              value={storiesLabel}
               isLast
             />
           </View>

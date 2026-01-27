@@ -33,5 +33,9 @@
     "free": "Free",
     "loading": "Loading...",
     "noData": "No data"
+  },
+  "toggle": {
+    "enabled": "Enabled",
+    "disabled": "Disabled"
   }
 }

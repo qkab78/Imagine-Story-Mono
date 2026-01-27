@@ -7,6 +7,7 @@ import {
   FeatureItem,
   AlertBox,
 } from '@/components/molecules/profile';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_DIMENSIONS } from '@/constants/profile';
 
 interface SubscriptionSheetProps {
@@ -22,20 +23,6 @@ interface SubscriptionSheetProps {
   onCancel: () => void;
 }
 
-const FREE_FEATURES = [
-  '3 histoires personnalisées par mois',
-  'Tous les thèmes et ambiances',
-  'Histoires en français',
-];
-
-const PREMIUM_FEATURES = [
-  'Histoires illimitées',
-  'Tous les thèmes et ambiances',
-  'Multilingue',
-  'Export en PDF',
-  'Sans publicité',
-];
-
 export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
   visible,
   onClose,
@@ -49,14 +36,31 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
   onCancel,
 }) => {
   const insets = useSafeAreaInsets();
+  const { t } = useAppTranslation('subscription');
+  const { t: tCommon } = useAppTranslation('common');
+
+  // Features traduites
+  const FREE_FEATURES = [
+    t('features.free.storiesPerMonth'),
+    t('features.free.allThemes'),
+    t('features.free.frenchStories'),
+  ];
+
+  const PREMIUM_FEATURES = [
+    t('features.premium.unlimited'),
+    t('features.premium.allThemes'),
+    t('features.premium.multilingual'),
+    t('features.premium.pdfExport'),
+    t('features.premium.noAds'),
+  ];
 
   const handleCancel = () => {
     Alert.alert(
-      'Résilier l\'abonnement',
-      'Êtes-vous sûr de vouloir résilier votre abonnement Premium ? Vous conserverez l\'accès jusqu\'à la fin de la période en cours.',
+      t('cancelAlert.title'),
+      t('cancelAlert.message'),
       [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Résilier', style: 'destructive', onPress: onCancel },
+        { text: tCommon('buttons.cancel'), style: 'cancel' },
+        { text: t('cancelAlert.confirm'), style: 'destructive', onPress: onCancel },
       ]
     );
   };
@@ -73,7 +77,7 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
         style={styles.container}
       >
         <View style={{ paddingTop: insets.top }}>
-          <SheetHeader title="Abonnement" onBack={onClose} />
+          <SheetHeader title={t('sheet.title')} onBack={onClose} />
         </View>
 
         <ScrollView
@@ -87,25 +91,30 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
           {/* Subscription Card */}
           <SubscriptionCard
             isPremium={isPremium}
-            planName={isPremium ? 'Premium Mensuel' : 'Compte Gratuit'}
+            planName={isPremium ? t('sheet.premiumMonthly') : t('sheet.freeAccount')}
             description={
               isPremium
-                ? 'Histoires illimitées et fonctionnalités exclusives'
-                : "Profitez de 3 histoires par mois pour découvrir la magie d'Imagine Story"
+                ? t('sheet.premiumDescription')
+                : t('sheet.freeDescription')
             }
           />
 
           {/* Premium: Renewal Alert */}
           {isPremium && nextPaymentDate && willRenew && (
             <AlertBox
-              title="Renouvellement automatique"
-              text={`Votre abonnement se renouvellera le ${nextPaymentDate} pour ${price?.split(' /')[0] || '9,99€'}`}
+              title={t('renewal.title')}
+              text={t('renewal.message', {
+                date: nextPaymentDate,
+                price: price?.split(' /')[0] || t('plan.priceDefault'),
+              })}
             />
           )}
 
           {/* Current Plan Features */}
           <View style={styles.section}>
-            <SectionTitle>{isPremium ? 'Vos avantages Premium' : 'Ce qui est inclus'}</SectionTitle>
+            <SectionTitle>
+              {isPremium ? t('sections.premiumBenefits') : t('sections.included')}
+            </SectionTitle>
             <View style={styles.card}>
               {(isPremium ? PREMIUM_FEATURES : FREE_FEATURES).map((feature, index, arr) => (
                 <FeatureItem
@@ -121,7 +130,7 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
           {/* Free User: Premium Benefits Preview */}
           {!isPremium && (
             <View style={styles.section}>
-              <SectionTitle>Avantages Premium</SectionTitle>
+              <SectionTitle>{t('sections.premiumPreview')}</SectionTitle>
               <View style={styles.card}>
                 {PREMIUM_FEATURES.map((feature, index, arr) => (
                   <FeatureItem
@@ -138,17 +147,17 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
           {/* Free User: Monthly Plan */}
           {!isPremium && (
             <View style={styles.section}>
-              <SectionTitle>Passer à Premium</SectionTitle>
+              <SectionTitle>{t('sections.upgradeToPremium')}</SectionTitle>
               <View style={styles.planCard}>
                 <View style={styles.planHeader}>
-                  <Text style={styles.planName}>Premium Mensuel</Text>
+                  <Text style={styles.planName}>{t('plan.name')}</Text>
                   <View style={styles.priceContainer}>
-                    <Text style={styles.planPrice}>{price || '9,99€'}</Text>
-                    <Text style={styles.planPeriod}>/ mois</Text>
+                    <Text style={styles.planPrice}>{price || t('plan.priceDefault')}</Text>
+                    <Text style={styles.planPeriod}>{t('plan.period')}</Text>
                   </View>
                 </View>
                 <Text style={styles.planDescription}>
-                  Histoires illimitées, langues multiples et fonctionnalités exclusives
+                  {t('plan.description')}
                 </Text>
               </View>
             </View>
@@ -157,11 +166,11 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
           {/* Premium User: Management Section */}
           {isPremium && (
             <View style={styles.section}>
-              <SectionTitle>Gestion de l'abonnement</SectionTitle>
+              <SectionTitle>{t('sections.management')}</SectionTitle>
               <View style={styles.card}>
-                <InfoRow label="Plan actuel" value="Premium Mensuel" isFirst />
-                <InfoRow label="Prix" value={price || '9,99€ / mois'} />
-                <InfoRow label="Prochain paiement" value={nextPaymentDate || 'N/A'} isLast />
+                <InfoRow label={t('info.currentPlan')} value={t('plan.name')} isFirst />
+                <InfoRow label={t('info.price')} value={price || `${t('plan.priceDefault')} ${t('plan.period')}`} />
+                <InfoRow label={t('info.nextPayment')} value={nextPaymentDate || 'N/A'} isLast />
               </View>
             </View>
           )}
@@ -177,7 +186,7 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
                 {isLoading ? (
                   <ActivityIndicator color="white" />
                 ) : (
-                  <Text style={styles.primaryButtonText}>Passer à Premium</Text>
+                  <Text style={styles.primaryButtonText}>{t('actions.upgrade')}</Text>
                 )}
               </Pressable>
               <Pressable
@@ -185,12 +194,12 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
                 onPress={onRestore}
                 disabled={isLoading}
               >
-                <Text style={styles.restoreButtonText}>Restaurer mes achats</Text>
+                <Text style={styles.restoreButtonText}>{t('actions.restore')}</Text>
               </Pressable>
             </View>
           ) : (
             <Pressable style={styles.dangerButton} onPress={handleCancel}>
-              <Text style={styles.dangerButtonText}>Résilier mon abonnement</Text>
+              <Text style={styles.dangerButtonText}>{t('actions.cancel')}</Text>
             </Pressable>
           )}
         </ScrollView>

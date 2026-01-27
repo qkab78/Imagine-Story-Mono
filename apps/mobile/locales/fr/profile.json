@@ -1,5 +1,6 @@
 {
   "title": "Profil",
+  "version": "Version {{version}}",
   "defaultUser": "Utilisateur",
   "sections": {
     "account": "Mon compte",
@@ -50,9 +51,14 @@
   },
   "editProfile": {
     "title": "Modifier le profil",
+    "passwordSection": "Changer le mot de passe",
     "currentPassword": "Mot de passe actuel",
     "newPassword": "Nouveau mot de passe",
-    "confirmPassword": "Confirmer le mot de passe"
+    "confirmPassword": "Confirmer le mot de passe",
+    "saveButton": "Enregistrer les modifications",
+    "errorNewPassword": "Veuillez entrer un nouveau mot de passe",
+    "errorPasswordMismatch": "Les mots de passe ne correspondent pas",
+    "errorCurrentPassword": "Veuillez entrer votre mot de passe actuel"
   },
   "languageSelector": {
     "title": "Langue de l'application",

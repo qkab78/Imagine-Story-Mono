@@ -1,6 +1,7 @@
 import { View, Text, Switch, StyleSheet } from 'react-native';
 import { SettingsIcon } from '@/components/atoms/profile';
 import { type IconConfig } from '@/components/ui';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING } from '@/constants/profile';
 
 interface SettingsToggleItemProps {
@@ -16,12 +17,14 @@ export const SettingsToggleItem: React.FC<SettingsToggleItemProps> = ({
   value,
   onValueChange,
 }) => {
+  const { t } = useAppTranslation('common');
+
   return (
     <View style={styles.container}>
       <SettingsIcon icon={icon} />
       <View style={styles.content}>
         <Text style={styles.label}>{label}</Text>
-        <Text style={styles.status}>{value ? 'Activées' : 'Désactivées'}</Text>
+        <Text style={styles.status}>{value ? t('toggle.enabled') : t('toggle.disabled')}</Text>
       </View>
       <Switch
         value={value}
