@@ -64,5 +64,26 @@
   "premium": {
     "promptTitle": "Passez à Premium",
     "promptDescription": "Débloquez des histoires illimitées et des fonctionnalités exclusives"
+  },
+  "quota": {
+    "title": "Limite mensuelle atteinte",
+    "description": "Tu as utilisé tes {{limit}} histoires gratuites ce mois-ci.",
+    "resetDate": "Ton quota sera renouvelé le {{date}}",
+    "benefitsTitle": "Avec Premium, profite de :",
+    "unlimitedStories": "Histoires illimitées",
+    "allLanguages": "Toutes les langues",
+    "exclusiveFeatures": "Fonctionnalités exclusives",
+    "upgradeToPremium": "Passer à Premium",
+    "later": "Plus tard"
+  },
+  "expired": {
+    "titleMissYou": "Tu nous manques !",
+    "descriptionMissYou": "Ton abonnement Premium est terminé. Reviens profiter d'histoires illimitées et de toutes les fonctionnalités Premium.",
+    "titleExpired": "Ton abonnement a expiré",
+    "descriptionExpired": "Ton accès Premium s'est terminé. Renouvelle pour continuer à profiter de toutes les fonctionnalités.",
+    "expiredOn": "Expiré le {{date}}",
+    "benefitsTitle": "Avec Premium, profite de :",
+    "renewSubscription": "Renouveler mon abonnement",
+    "later": "Plus tard"
   }
 }

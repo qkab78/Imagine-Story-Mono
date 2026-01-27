@@ -1,4 +1,13 @@
 {
+  "home": {
+    "createStory": "Create a Story",
+    "createDescription": "Create a new magical adventure",
+    "readStory": "Read a Story",
+    "readDescription": "Discover your favorite stories",
+    "recentStories": "Recent Stories",
+    "noStories": "No stories yet",
+    "noStoriesSubtitle": "Create your first magical story!"
+  },
   "creation": {
     "title": "Create a Story",
     "heroSelection": {

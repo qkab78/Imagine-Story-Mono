@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { DualIcon } from '@/components/ui'
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_DIMENSIONS, PROFILE_ICONS } from '@/constants/profile'
 import { formatShortDate } from '@/utils/dateFormatter'
+import { useAppTranslation } from '@/hooks/useAppTranslation'
 import type { SubscriptionStatus } from '@/types/subscription'
 
 interface SubscriptionExpiredModalProps {
@@ -14,21 +15,6 @@ interface SubscriptionExpiredModalProps {
   status: SubscriptionStatus
 }
 
-const getContent = (status: SubscriptionStatus) => {
-  if (status === 'cancelled') {
-    return {
-      title: 'Tu nous manques !',
-      description: 'Ton abonnement Premium est terminé. Reviens profiter d\'histoires illimitées et de toutes les fonctionnalités Premium.',
-      emoji: '💔',
-    }
-  }
-  return {
-    title: 'Ton abonnement a expiré',
-    description: 'Ton accès Premium s\'est terminé. Renouvelle pour continuer à profiter de toutes les fonctionnalités.',
-    emoji: '⏰',
-  }
-}
-
 export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> = ({
   visible,
   onClose,
@@ -36,9 +22,21 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
   expirationDate,
   status,
 }) => {
+  const { t } = useAppTranslation('subscription')
   const insets = useSafeAreaInsets()
   const formattedDate = formatShortDate(expirationDate)
-  const content = getContent(status)
+
+  const content = status === 'cancelled'
+    ? {
+        title: t('expired.titleMissYou'),
+        description: t('expired.descriptionMissYou'),
+        emoji: '💔',
+      }
+    : {
+        title: t('expired.titleExpired'),
+        description: t('expired.descriptionExpired'),
+        emoji: '⏰',
+      }
 
   return (
     <Modal
@@ -72,20 +70,20 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
                 color={PROFILE_COLORS.textSecondary}
               />
               <Text style={styles.expirationText}>
-                Expiré le {formattedDate}
+                {t('expired.expiredOn', { date: formattedDate })}
               </Text>
             </View>
           )}
 
           <View style={styles.premiumBenefits}>
-            <Text style={styles.benefitsTitle}>Avec Premium, profite de :</Text>
+            <Text style={styles.benefitsTitle}>{t('expired.benefitsTitle')}</Text>
             <View style={styles.benefitItem}>
               <DualIcon
                 icon={PROFILE_ICONS.sparkles}
                 size={14}
                 color={PROFILE_COLORS.primary}
               />
-              <Text style={styles.benefitText}>Histoires illimitées</Text>
+              <Text style={styles.benefitText}>{t('quota.unlimitedStories')}</Text>
             </View>
             <View style={styles.benefitItem}>
               <DualIcon
@@ -93,7 +91,7 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
                 size={14}
                 color={PROFILE_COLORS.primary}
               />
-              <Text style={styles.benefitText}>Toutes les langues</Text>
+              <Text style={styles.benefitText}>{t('quota.allLanguages')}</Text>
             </View>
             <View style={styles.benefitItem}>
               <DualIcon
@@ -101,7 +99,7 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
                 size={14}
                 color={PROFILE_COLORS.primary}
               />
-              <Text style={styles.benefitText}>Fonctionnalités exclusives</Text>
+              <Text style={styles.benefitText}>{t('quota.exclusiveFeatures')}</Text>
             </View>
           </View>
 
@@ -112,11 +110,11 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
                 size={18}
                 color="white"
               />
-              <Text style={styles.primaryButtonText}>Renouveler mon abonnement</Text>
+              <Text style={styles.primaryButtonText}>{t('expired.renewSubscription')}</Text>
             </Pressable>
 
             <Pressable style={styles.secondaryButton} onPress={onClose}>
-              <Text style={styles.secondaryButtonText}>Plus tard</Text>
+              <Text style={styles.secondaryButtonText}>{t('expired.later')}</Text>
             </Pressable>
           </View>
         </View>

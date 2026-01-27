@@ -64,5 +64,26 @@
   "premium": {
     "promptTitle": "Go Premium",
     "promptDescription": "Unlock unlimited stories and exclusive features"
+  },
+  "quota": {
+    "title": "Monthly Limit Reached",
+    "description": "You've used your {{limit}} free stories this month.",
+    "resetDate": "Your quota will reset on {{date}}",
+    "benefitsTitle": "With Premium, enjoy:",
+    "unlimitedStories": "Unlimited stories",
+    "allLanguages": "All languages",
+    "exclusiveFeatures": "Exclusive features",
+    "upgradeToPremium": "Upgrade to Premium",
+    "later": "Later"
+  },
+  "expired": {
+    "titleMissYou": "We miss you!",
+    "descriptionMissYou": "Your Premium subscription has ended. Come back to enjoy unlimited stories and all Premium features.",
+    "titleExpired": "Your subscription has expired",
+    "descriptionExpired": "Your Premium access has ended. Renew to continue enjoying all features.",
+    "expiredOn": "Expired on {{date}}",
+    "benefitsTitle": "With Premium, enjoy:",
+    "renewSubscription": "Renew my subscription",
+    "later": "Later"
   }
 }

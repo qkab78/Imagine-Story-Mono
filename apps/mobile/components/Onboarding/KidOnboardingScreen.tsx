@@ -11,6 +11,7 @@ import {
   OnboardingHeader,
   OnboardingNavigation,
 } from '@/components/molecules/onboarding';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const { width } = Dimensions.get('window');
 
@@ -33,6 +34,7 @@ const KidOnboardingScreen: React.FC<KidOnboardingScreenProps> = ({
   onDotPress,
   onComplete,
 }) => {
+  const { t } = useAppTranslation('onboarding');
   const contentOpacity = useSharedValue(0);
   const contentTranslateY = useSharedValue(30);
 
@@ -74,8 +76,8 @@ const KidOnboardingScreen: React.FC<KidOnboardingScreenProps> = ({
         {/* Content Section */}
         <View style={styles.contentSection}>
           <OnboardingHeader
-            title={slide.title}
-            description={slide.description}
+            title={t(`slides.${slide.slideKey}.title`)}
+            description={t(`slides.${slide.slideKey}.description`)}
           />
 
           <OnboardingNavigation
@@ -84,7 +86,7 @@ const KidOnboardingScreen: React.FC<KidOnboardingScreenProps> = ({
             onBack={!isFirstSlide ? onBack : undefined}
             onNext={!isLastSlide ? onNext : undefined}
             onPrimary={handlePrimaryPress}
-            primaryLabel={slide.buttonLabel}
+            primaryLabel={t(`slides.${slide.slideKey}.button`)}
             showBackButton={!isFirstSlide}
             showNextButton={!isLastSlide}
           />
