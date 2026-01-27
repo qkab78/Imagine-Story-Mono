@@ -10,9 +10,64 @@
   },
   "creation": {
     "title": "Créer une histoire",
+    "back": "Retour",
+    "continue": "Continuer",
     "heroSelection": {
-      "title": "Choisis ton héros",
-      "subtitle": "Qui sera le personnage principal de ton histoire ?"
+      "title": "Comment s'appelle le héros de ton histoire ?",
+      "subtitle": "Ce sera le personnage principal de l'aventure",
+      "placeholder": "Prénom du héros...",
+      "heroNameLabel": "Nom de ton héros",
+      "heroNamePlaceholder": "Comment s'appelle ton héros ?",
+      "languageLabel": "Langue de l'histoire",
+      "languagePlaceholder": "Choisir une langue 🌍",
+      "languagesAvailable": "Langues disponibles",
+      "ageLabel": "Âge de l'enfant",
+      "agePlaceholder": "Choisir un âge 👶",
+      "agesAvailable": "Âges disponibles",
+      "chaptersLabel": "Nombre de chapitres",
+      "chaptersPlaceholder": "Choisir le nombre de chapitres 📚",
+      "continueButton": "Continuer l'aventure !",
+      "chooseHero": "Choisir {{name}}",
+      "errors": {
+        "required": "Le nom du héros est requis",
+        "tooShort": "Le nom doit contenir au moins 2 caractères",
+        "tooLong": "Le nom doit contenir maximum 30 caractères"
+      },
+      "avatars": {
+        "girl": "Fille",
+        "boy": "Garçon",
+        "robot": "Robot",
+        "superhero": "Super-héros",
+        "superheroine": "Super-héroïne",
+        "animal": "Animal"
+      }
+    },
+    "themeSelection": {
+      "title": "Quel sera le thème de l'histoire ?",
+      "subtitle": "Choisis l'univers qui plaira à ton enfant",
+      "loading": "Chargement des thèmes...",
+      "createButton": "Créer mon histoire !"
+    },
+    "toneSelection": {
+      "title": "Quel sera le ton de l'histoire ?",
+      "subtitle": "Choisis l'ambiance qui convient le mieux",
+      "loading": "Chargement des tons...",
+      "createButton": "Créer mon histoire magique ! ✨"
+    },
+    "languages": {
+      "fr": "🇫🇷 Français",
+      "en": "🇬🇧 Anglais",
+      "es": "🇪🇸 Espagnol",
+      "de": "🇩🇪 Allemand",
+      "it": "🇮🇹 Italien",
+      "pt": "🇵🇹 Portugais",
+      "li": "🇨🇩 Lingala",
+      "nl": "🇳🇱 Néerlandais",
+      "pl": "🇵🇱 Polonais",
+      "ru": "🇷🇺 Russe",
+      "tr": "🇹🇷 Turc",
+      "ar": "🇦🇪 Arabe",
+      "ja": "🇯🇵 Japonais"
     },
     "settings": {
       "title": "Paramètres",

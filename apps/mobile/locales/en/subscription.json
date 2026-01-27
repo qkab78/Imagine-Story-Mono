@@ -85,5 +85,18 @@
     "benefitsTitle": "With Premium, enjoy:",
     "renewSubscription": "Renew my subscription",
     "later": "Later"
+  },
+  "premiumCard": {
+    "description": "Unlock all stories and features for an unlimited magical experience!",
+    "unlimitedStories": "Unlimited stories",
+    "customization": "Customization",
+    "offlineMode": "Offline mode",
+    "multipleProfiles": "Multiple profiles",
+    "perMonth": "per month",
+    "insteadOf": "instead of $9.99",
+    "savingsYear": "Save $60/year",
+    "upgradeButton": "🚀 Go Premium",
+    "freeTrial": "7-day free trial",
+    "cancelAnytime": " • Cancel anytime"
   }
 }

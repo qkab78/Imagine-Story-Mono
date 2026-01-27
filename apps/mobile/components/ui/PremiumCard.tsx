@@ -15,6 +15,7 @@ import Animated, {
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 interface PremiumCardProps {
   onUpgrade: () => void;
@@ -37,6 +38,7 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ icon, text }) => {
 
 // Composant principal PremiumCard
 const PremiumCard: React.FC<PremiumCardProps> = ({ onUpgrade }) => {
+  const { t } = useAppTranslation('subscription');
   const buttonScale = useSharedValue(1);
   const crownRotation = useSharedValue(0);
   const shimmerTranslateX = useSharedValue(-100);
@@ -116,15 +118,15 @@ const PremiumCard: React.FC<PremiumCardProps> = ({ onUpgrade }) => {
 
           {/* Description */}
           <Text style={styles.premiumDescription}>
-            Débloquez toutes les histoires et fonctionnalités pour une expérience magique illimitée !
+            {t('premiumCard.description')}
           </Text>
 
           {/* Features Grid */}
           <View style={styles.premiumFeatures}>
-            <FeatureItem icon="📚" text="Histoires illimitées" />
-            <FeatureItem icon="🎨" text="Personnalisation" />
-            <FeatureItem icon="📱" text="Mode hors-ligne" />
-            <FeatureItem icon="👥" text="Profils multiples" />
+            <FeatureItem icon="📚" text={t('premiumCard.unlimitedStories')} />
+            <FeatureItem icon="🎨" text={t('premiumCard.customization')} />
+            <FeatureItem icon="📱" text={t('premiumCard.offlineMode')} />
+            <FeatureItem icon="👥" text={t('premiumCard.multipleProfiles')} />
           </View>
 
           {/* Pricing */}
@@ -138,10 +140,10 @@ const PremiumCard: React.FC<PremiumCardProps> = ({ onUpgrade }) => {
               <Text style={styles.priceAmount}>4,99</Text>
               <Text style={styles.priceCurrency}>€</Text>
             </View>
-            <Text style={styles.pricePeriod}>par mois</Text>
-            <Text style={styles.priceSubtitle}>au lieu de 9,99€</Text>
+            <Text style={styles.pricePeriod}>{t('premiumCard.perMonth')}</Text>
+            <Text style={styles.priceSubtitle}>{t('premiumCard.insteadOf')}</Text>
             <View style={styles.priceSavings}>
-              <Text style={styles.savingsText}>Économisez 60€/an</Text>
+              <Text style={styles.savingsText}>{t('premiumCard.savingsYear')}</Text>
             </View>
           </LinearGradient>
 
@@ -154,7 +156,7 @@ const PremiumCard: React.FC<PremiumCardProps> = ({ onUpgrade }) => {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Text style={styles.buttonText}>🚀 Passer Premium</Text>
+                <Text style={styles.buttonText}>{t('premiumCard.upgradeButton')}</Text>
               </LinearGradient>
             </Pressable>
           </Animated.View>
@@ -162,8 +164,8 @@ const PremiumCard: React.FC<PremiumCardProps> = ({ onUpgrade }) => {
           {/* Trial Info */}
           <View style={styles.premiumTrial}>
             <Text style={styles.trialText}>
-              <Text style={styles.trialLink}>7 jours d'essai gratuit</Text>
-              <Text> • Annulable à tout moment</Text>
+              <Text style={styles.trialLink}>{t('premiumCard.freeTrial')}</Text>
+              <Text>{t('premiumCard.cancelAnytime')}</Text>
             </Text>
           </View>
         </LinearGradient>

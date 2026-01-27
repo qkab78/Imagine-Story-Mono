@@ -10,6 +10,7 @@ import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
 import { getTones } from '@/api/stories/storyApi';
 import type { ToneDTO } from '@/api/stories/storyTypes';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 // Emoji mapping for tones
 const TONE_EMOJIS: Record<string, string> = {
@@ -46,6 +47,7 @@ interface ToneOption extends ToneDTO {
  */
 export const ToneSelectionScreenNew: React.FC = () => {
   const router = useRouter();
+  const { t } = useAppTranslation('stories');
   const { createStoryPayload, setCreateStoryPayload } = useStoryStore();
 
   const [selectedToneId, setSelectedToneId] = useState<string | null>(
@@ -125,7 +127,7 @@ export const ToneSelectionScreenNew: React.FC = () => {
           style={styles.backButton}
           onPress={handleBack}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('creation.back')}
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
@@ -138,16 +140,16 @@ export const ToneSelectionScreenNew: React.FC = () => {
         {/* Tones Container */}
         <View style={styles.tonesContainer}>
           <Text style={styles.pageTitle}>
-            Quel sera le ton de l'histoire ?
+            {t('creation.toneSelection.title')}
           </Text>
           <Text style={styles.pageHint}>
-            Choisis l'ambiance qui convient le mieux
+            {t('creation.toneSelection.subtitle')}
           </Text>
 
           {isLoading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={colors.forestGreen} />
-              <Text style={styles.loadingText}>Chargement des tons...</Text>
+              <Text style={styles.loadingText}>{t('creation.toneSelection.loading')}</Text>
             </View>
           ) : (
             <View style={styles.tonesList}>
@@ -172,12 +174,12 @@ export const ToneSelectionScreenNew: React.FC = () => {
             onPress={handleBack}
             accessibilityRole="button"
           >
-            <Text style={styles.secondaryButtonText}>Retour</Text>
+            <Text style={styles.secondaryButtonText}>{t('creation.back')}</Text>
           </TouchableOpacity>
 
           <View style={styles.primaryButtonContainer}>
             <PrimaryButton
-              title="Continuer"
+              title={t('creation.continue')}
               icon="→"
               onPress={handleContinue}
               disabled={!selectedToneId}

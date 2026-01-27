@@ -10,9 +10,64 @@
   },
   "creation": {
     "title": "Create a Story",
+    "back": "Back",
+    "continue": "Continue",
     "heroSelection": {
-      "title": "Choose Your Hero",
-      "subtitle": "Who will be the main character of your story?"
+      "title": "What's the name of your story's hero?",
+      "subtitle": "This will be the main character of the adventure",
+      "placeholder": "Hero's name...",
+      "heroNameLabel": "Your hero's name",
+      "heroNamePlaceholder": "What's your hero's name?",
+      "languageLabel": "Story language",
+      "languagePlaceholder": "Choose a language 🌍",
+      "languagesAvailable": "Available languages",
+      "ageLabel": "Child's age",
+      "agePlaceholder": "Choose an age 👶",
+      "agesAvailable": "Available ages",
+      "chaptersLabel": "Number of chapters",
+      "chaptersPlaceholder": "Choose number of chapters 📚",
+      "continueButton": "Continue the adventure!",
+      "chooseHero": "Choose {{name}}",
+      "errors": {
+        "required": "Hero name is required",
+        "tooShort": "Name must be at least 2 characters",
+        "tooLong": "Name must be 30 characters or less"
+      },
+      "avatars": {
+        "girl": "Girl",
+        "boy": "Boy",
+        "robot": "Robot",
+        "superhero": "Superhero",
+        "superheroine": "Superheroine",
+        "animal": "Animal"
+      }
+    },
+    "themeSelection": {
+      "title": "What will be the story's theme?",
+      "subtitle": "Choose the world that your child will love",
+      "loading": "Loading themes...",
+      "createButton": "Create my story!"
+    },
+    "toneSelection": {
+      "title": "What will be the story's tone?",
+      "subtitle": "Choose the atmosphere that fits best",
+      "loading": "Loading tones...",
+      "createButton": "Create my magical story! ✨"
+    },
+    "languages": {
+      "fr": "🇫🇷 French",
+      "en": "🇬🇧 English",
+      "es": "🇪🇸 Spanish",
+      "de": "🇩🇪 German",
+      "it": "🇮🇹 Italian",
+      "pt": "🇵🇹 Portuguese",
+      "li": "🇨🇩 Lingala",
+      "nl": "🇳🇱 Dutch",
+      "pl": "🇵🇱 Polish",
+      "ru": "🇷🇺 Russian",
+      "tr": "🇹🇷 Turkish",
+      "ar": "🇦🇪 Arabic",
+      "ja": "🇯🇵 Japanese"
     },
     "settings": {
       "title": "Settings",

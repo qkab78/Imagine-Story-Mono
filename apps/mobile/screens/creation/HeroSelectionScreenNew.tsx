@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,52 +9,17 @@ import { AvatarSelector, Avatar } from '@/components/organisms/creation/AvatarSe
 import { PrimaryButton } from '@/components/molecules/creation/PrimaryButton';
 import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
-// Avatars disponibles (mapping backend species)
-const AVATARS: Avatar[] = [
-  {
-    id: 'girl',
-    species: 'girl',
-    emoji: '👧',
-    sfSymbol: 'figure.dress.line.vertical.figure',
-    label: 'Fille'
-  },
-  {
-    id: 'boy',
-    species: 'boy',
-    emoji: '👦',
-    sfSymbol: 'figure.arms.open',
-    label: 'Garçon'
-  },
-  {
-    id: 'robot',
-    species: 'robot',
-    emoji: '🤖',
-    sfSymbol: 'figure.walk.motion',
-    label: 'Robot'
-  },
-  {
-    id: 'superhero',
-    species: 'superhero',
-    emoji: '🦸‍♂️',
-    sfSymbol: 'bolt.shield.fill',
-    label: 'Super-héros'
-  },
-  {
-    id: 'superheroine',
-    species: 'superheroine',
-    emoji: '🦸‍♀️',
-    sfSymbol: 'bolt.shield.fill',
-    label: 'Super-héroïne'
-  },
-  {
-    id: 'animal',
-    species: 'animal',
-    emoji: '🦊',
-    sfSymbol: 'pawprint.fill',
-    label: 'Animal'
-  },
-];
+// Avatar base data (without labels - those come from translations)
+const AVATAR_BASE_DATA = [
+  { id: 'girl', species: 'girl', emoji: '👧', sfSymbol: 'figure.dress.line.vertical.figure' },
+  { id: 'boy', species: 'boy', emoji: '👦', sfSymbol: 'figure.arms.open' },
+  { id: 'robot', species: 'robot', emoji: '🤖', sfSymbol: 'figure.walk.motion' },
+  { id: 'superhero', species: 'superhero', emoji: '🦸‍♂️', sfSymbol: 'bolt.shield.fill' },
+  { id: 'superheroine', species: 'superheroine', emoji: '🦸‍♀️', sfSymbol: 'bolt.shield.fill' },
+  { id: 'animal', species: 'animal', emoji: '🦊', sfSymbol: 'pawprint.fill' },
+] as const;
 
 /**
  * HeroSelectionScreenNew - Écran de sélection du héros (simplifié)
@@ -66,11 +31,18 @@ const AVATARS: Avatar[] = [
  */
 export const HeroSelectionScreenNew: React.FC = () => {
   const router = useRouter();
+  const { t } = useAppTranslation('stories');
   const { createStoryPayload, setCreateStoryPayload } = useStoryStore();
+
+  // Build avatars with translated labels
+  const avatars: Avatar[] = useMemo(() => AVATAR_BASE_DATA.map((avatar) => ({
+    ...avatar,
+    label: t(`creation.heroSelection.avatars.${avatar.id}`),
+  })), [t]);
 
   const [heroName, setHeroName] = useState(createStoryPayload?.heroName || '');
   const [selectedAvatarId, setSelectedAvatarId] = useState<string>(
-    createStoryPayload?.hero?.id || AVATARS[0].id // Default to first avatar (girl)
+    createStoryPayload?.hero?.id || avatars[0].id // Default to first avatar (girl)
   );
   const [error, setError] = useState('');
 
@@ -81,22 +53,22 @@ export const HeroSelectionScreenNew: React.FC = () => {
   const handleContinue = () => {
     // Validation
     if (!heroName.trim()) {
-      setError('Le nom du héros est requis');
+      setError(t('creation.heroSelection.errors.required'));
       return;
     }
 
     if (heroName.trim().length < 2) {
-      setError('Le nom doit contenir au moins 2 caractères');
+      setError(t('creation.heroSelection.errors.tooShort'));
       return;
     }
 
     if (heroName.trim().length > 30) {
-      setError('Le nom doit contenir maximum 30 caractères');
+      setError(t('creation.heroSelection.errors.tooLong'));
       return;
     }
 
     // Find selected avatar
-    const selectedAvatar = AVATARS.find(a => a.id === selectedAvatarId);
+    const selectedAvatar = avatars.find(a => a.id === selectedAvatarId);
 
     // Save to store
     setCreateStoryPayload({
@@ -130,7 +102,7 @@ export const HeroSelectionScreenNew: React.FC = () => {
           style={styles.backButton}
           onPress={handleBack}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('creation.back')}
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
@@ -143,15 +115,15 @@ export const HeroSelectionScreenNew: React.FC = () => {
         {/* Question Container */}
         <View style={styles.questionContainer}>
           <Text style={styles.questionTitle}>
-            Comment s'appelle le héros de ton histoire ?
+            {t('creation.heroSelection.title')}
           </Text>
           <Text style={styles.questionHint}>
-            Ce sera le personnage principal de l'aventure
+            {t('creation.heroSelection.subtitle')}
           </Text>
 
           {/* Hero Name Input */}
           <GlassInputField
-            placeholder="Prénom du héros..."
+            placeholder={t('creation.heroSelection.placeholder')}
             value={heroName}
             onChangeText={(text) => {
               setHeroName(text);
@@ -165,7 +137,7 @@ export const HeroSelectionScreenNew: React.FC = () => {
 
           {/* Avatar Selector */}
           <AvatarSelector
-            avatars={AVATARS}
+            avatars={avatars}
             selectedId={selectedAvatarId}
             onSelect={setSelectedAvatarId}
           />
@@ -178,12 +150,12 @@ export const HeroSelectionScreenNew: React.FC = () => {
             onPress={handleBack}
             accessibilityRole="button"
           >
-            <Text style={styles.secondaryButtonText}>Retour</Text>
+            <Text style={styles.secondaryButtonText}>{t('creation.back')}</Text>
           </TouchableOpacity>
 
           <View style={styles.primaryButtonContainer}>
             <PrimaryButton
-              title="Continuer"
+              title={t('creation.continue')}
               icon="→"
               onPress={handleContinue}
               disabled={!heroName.trim() || !selectedAvatarId}

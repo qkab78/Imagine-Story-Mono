@@ -85,5 +85,18 @@
     "benefitsTitle": "Avec Premium, profite de :",
     "renewSubscription": "Renouveler mon abonnement",
     "later": "Plus tard"
+  },
+  "premiumCard": {
+    "description": "Débloquez toutes les histoires et fonctionnalités pour une expérience magique illimitée !",
+    "unlimitedStories": "Histoires illimitées",
+    "customization": "Personnalisation",
+    "offlineMode": "Mode hors-ligne",
+    "multipleProfiles": "Profils multiples",
+    "perMonth": "par mois",
+    "insteadOf": "au lieu de 9,99€",
+    "savingsYear": "Économisez 60€/an",
+    "upgradeButton": "🚀 Passer Premium",
+    "freeTrial": "7 jours d'essai gratuit",
+    "cancelAnytime": " • Annulable à tout moment"
   }
 }
