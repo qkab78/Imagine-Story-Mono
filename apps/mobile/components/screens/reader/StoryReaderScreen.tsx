@@ -13,8 +13,9 @@ import useSubscriptionStore from '@/store/subscription/subscriptionStore';
 import { READER_COLORS, READER_SPACING } from '@/constants/reader';
 
 export const StoryReaderScreen: React.FC = () => {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, offline } = useLocalSearchParams<{ id: string; offline?: string }>();
   const router = useRouter();
+  const isOffline = offline === 'true';
 
   const {
     story,
@@ -36,7 +37,7 @@ export const StoryReaderScreen: React.FC = () => {
     hasNextChapter,
     toggleMenu,
     closeMenu,
-  } = useStoryReader(id || '');
+  } = useStoryReader(id || '', isOffline);
 
   // Offline download
   const isSubscribed = useSubscriptionStore((state) => state.isSubscribed);
@@ -47,7 +48,11 @@ export const StoryReaderScreen: React.FC = () => {
       const storyData = {
         id: id || '',
         title: story.title,
-        content: chapters.map(ch => ch.content).join('\n\n'),
+        chapters: chapters.map(chapter => ({
+          id: chapter.id,
+          title: chapter.title,
+          content: chapter.content,
+        })),
         coverImageUrl: story.coverImageUrl?.getValue() || null,
       };
       await download(storyData);
@@ -91,7 +96,7 @@ export const StoryReaderScreen: React.FC = () => {
         totalChapters={totalChapters}
         onBack={handleBack}
         onClose={handleClose}
-        showDownload={isSubscribed}
+        showDownload={isSubscribed && !isOffline}
         downloadStatus={downloadStatus}
         onDownload={handleDownload}
         downloadDisabled={!canDownload && !isDownloaded}
