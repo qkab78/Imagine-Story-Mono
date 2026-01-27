@@ -11,7 +11,7 @@ export type AuthUser = {
   lastname: string;
   role: number;
   avatar: string;
-  emailVerifiedAt: string | null;
+  isEmailVerified: boolean;
   createdAt: string;
 };
 
@@ -53,7 +53,7 @@ const useAuthStore = create<AuthStore>((set, get) => ({
     return get().user?.role === ROLE_PREMIUM;
   },
   isEmailVerified: () => {
-    return get().user?.emailVerifiedAt !== null && get().user?.emailVerifiedAt !== undefined;
+    return get().user?.isEmailVerified === true;
   },
 }));
 

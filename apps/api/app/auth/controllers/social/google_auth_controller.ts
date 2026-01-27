@@ -63,7 +63,7 @@ export default class GoogleAuthController {
         fullname: `${result.user.firstname} ${result.user.lastname}`,
         role: result.user.role,
         avatar: '',
-        emailVerifiedAt: result.user.emailVerifiedAt,
+        isEmailVerified: result.user.emailVerifiedAt !== null,
         createdAt: result.user.createdAt,
       },
       isNewUser: result.isNewUser,

@@ -87,7 +87,7 @@ export default class RegisterController {
         fullname: `${newUser.firstname} ${newUser.lastname}`,
         role: newUser.role,
         avatar: '',
-        emailVerifiedAt: null,
+        isEmailVerified: false,
         createdAt: newUser.created_at,
       },
     })

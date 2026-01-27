@@ -100,7 +100,7 @@ export default class VerifyEmailController {
         fullname: `${user.firstname} ${user.lastname}`,
         role: user.role,
         avatar: '',
-        emailVerifiedAt: user.emailVerifiedAt,
+        isEmailVerified: true,
         createdAt: user.createdAt,
       },
     })

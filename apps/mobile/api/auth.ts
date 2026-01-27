@@ -9,7 +9,7 @@ type UserInfo = {
   fullname: string,
   role: number,
   avatar: string,
-  emailVerifiedAt: string | null,
+  isEmailVerified: boolean,
   createdAt: string,
   currentAccessToken: { token: string }
 }

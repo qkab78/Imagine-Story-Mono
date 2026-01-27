@@ -29,7 +29,7 @@ export const useLogin = () => {
         lastname: data.user.lastname,
         role: data.user.role,
         avatar: data.user.avatar,
-        emailVerifiedAt: data.user.emailVerifiedAt,
+        isEmailVerified: data.user.isEmailVerified,
         createdAt: data.user.createdAt,
       });
       router.replace('/(tabs)');
@@ -111,7 +111,7 @@ export const useGoogleSignIn = () => {
             lastname: authData.user.lastname,
             role: authData.user.role,
             avatar: authData.user.avatar,
-            emailVerifiedAt: authData.user.emailVerifiedAt,
+            isEmailVerified: authData.user.isEmailVerified,
             createdAt: authData.user.createdAt,
           });
 
