@@ -56,18 +56,29 @@ function AppContent() {
     subscriptionSheet.open();
   };
 
-  // Initialize RevenueCat subscription service
+  const setCustomerInfo = useSubscriptionStore(state => state.setCustomerInfo);
+
+  // Initialize RevenueCat subscription service and fetch customer info
+  // Note: RevenueCat uses email as app_user_id
   useEffect(() => {
     const initSubscription = async () => {
       try {
         await subscriptionService.initialize(user?.email);
+
+        // Fetch and update customer info after initialization
+        if (subscriptionService.isInitialized()) {
+          const customerInfo = await subscriptionService.getCustomerInfo();
+          setCustomerInfo(customerInfo);
+        }
       } catch (error) {
         console.error('[AppContent] Failed to initialize subscription service:', error);
       }
     };
 
-    initSubscription();
-  }, [user?.email]);
+    if (user?.email) {
+      initSubscription();
+    }
+  }, [user?.email, setCustomerInfo]);
 
   return (
     <View style={styles.container}>

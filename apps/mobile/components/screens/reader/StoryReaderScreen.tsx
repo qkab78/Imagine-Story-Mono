@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ReaderHeader } from '@/components/molecules/reader';
@@ -7,6 +8,8 @@ import {
   ChapterMenuSheet,
 } from '@/components/organisms/reader';
 import { useStoryReader } from '@/features/reader/hooks';
+import { useOfflineStory } from '@/hooks/useOfflineStory';
+import useSubscriptionStore from '@/store/subscription/subscriptionStore';
 import { READER_COLORS, READER_SPACING } from '@/constants/reader';
 
 export const StoryReaderScreen: React.FC = () => {
@@ -14,6 +17,7 @@ export const StoryReaderScreen: React.FC = () => {
   const router = useRouter();
 
   const {
+    story,
     storyTitle,
     conclusion,
     chapters,
@@ -33,6 +37,22 @@ export const StoryReaderScreen: React.FC = () => {
     toggleMenu,
     closeMenu,
   } = useStoryReader(id || '');
+
+  // Offline download
+  const isSubscribed = useSubscriptionStore((state) => state.isSubscribed);
+  const { downloadStatus, isDownloaded, canDownload, download } = useOfflineStory(id || '');
+
+  const handleDownload = useCallback(async () => {
+    if (canDownload && story) {
+      const storyData = {
+        id: id || '',
+        title: story.title,
+        content: chapters.map(ch => ch.content).join('\n\n'),
+        coverImageUrl: story.coverImageUrl?.getValue() || null,
+      };
+      await download(storyData);
+    }
+  }, [canDownload, download, id, story, chapters]);
 
   const handleBack = () => {
     router.back();
@@ -71,6 +91,10 @@ export const StoryReaderScreen: React.FC = () => {
         totalChapters={totalChapters}
         onBack={handleBack}
         onClose={handleClose}
+        showDownload={isSubscribed}
+        downloadStatus={downloadStatus}
+        onDownload={handleDownload}
+        downloadDisabled={!canDownload && !isDownloaded}
       />
 
       {/* Content */}

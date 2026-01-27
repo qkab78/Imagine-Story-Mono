@@ -130,17 +130,23 @@ const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
   },
 }));
 
-// Load cached subscription status on store initialization
-const cachedStatus = storage.getString('status') as SubscriptionStatus | undefined;
-const cachedIsSubscribed = storage.getBoolean('isSubscribed');
-const cachedExpirationDate = storage.getString('expirationDate');
+// Load cached subscription status on store initialization (client-side only)
+if (typeof window !== 'undefined') {
+  try {
+    const cachedStatus = storage.getString('status') as SubscriptionStatus | undefined;
+    const cachedIsSubscribed = storage.getBoolean('isSubscribed');
+    const cachedExpirationDate = storage.getString('expirationDate');
 
-if (cachedStatus && cachedIsSubscribed !== undefined) {
-  useSubscriptionStore.setState({
-    status: cachedStatus,
-    isSubscribed: cachedIsSubscribed,
-    expirationDate: cachedExpirationDate || null,
-  });
+    if (cachedStatus && cachedIsSubscribed !== undefined) {
+      useSubscriptionStore.setState({
+        status: cachedStatus,
+        isSubscribed: cachedIsSubscribed,
+        expirationDate: cachedExpirationDate || null,
+      });
+    }
+  } catch {
+    // MMKV not available (SSR or web)
+  }
 }
 
 export default useSubscriptionStore;

@@ -14,6 +14,7 @@ import { SettingsSection } from './SettingsSection';
 import { PersonalInfoSheet } from './PersonalInfoSheet';
 import { EditProfileSheet } from './EditProfileSheet';
 import { SubscriptionSheet } from './SubscriptionSheet';
+import { DownloadsSheet } from './DownloadsSheet';
 import { useProfileSettings } from '@/hooks/useProfileSettings';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useUserStories } from '@/features/stories/hooks/useStoryList';
@@ -54,6 +55,7 @@ export const ProfileContent: React.FC = () => {
   const [showPersonalInfo, setShowPersonalInfo] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
+  const [showDownloads, setShowDownloads] = useState(false);
 
   const handleEditProfile = () => {
     setShowEditProfile(true);
@@ -74,6 +76,10 @@ export const ProfileContent: React.FC = () => {
 
   const handleLanguage = () => {
     Alert.alert('Bientôt disponible', 'La sélection de langue sera disponible prochainement.');
+  };
+
+  const handleDownloads = () => {
+    setShowDownloads(true);
   };
 
   const handleSaveProfile = (data: {
@@ -165,6 +171,16 @@ export const ProfileContent: React.FC = () => {
             value={isSubscribed ? 'Premium' : 'Gratuit'}
             onPress={handleSubscription}
           />
+          {isSubscribed && (
+            <>
+              <View style={styles.separator} />
+              <SettingsItem
+                icon={{ sfSymbol: 'arrow.down.circle', lucide: 'Download' }}
+                label="Mes téléchargements"
+                onPress={handleDownloads}
+              />
+            </>
+          )}
         </SettingsSection>
 
         {/* Préférences */}
@@ -249,6 +265,11 @@ export const ProfileContent: React.FC = () => {
         onPurchase={handleUpgrade}
         onRestore={handleRestore}
         onCancel={handleCancelSubscription}
+      />
+
+      <DownloadsSheet
+        visible={showDownloads}
+        onClose={() => setShowDownloads(false)}
       />
     </>
   );
