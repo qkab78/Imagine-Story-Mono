@@ -182,6 +182,7 @@ const ProfileScreen: React.FC = () => {
 
           {/* Premium Section */}
           <PremiumCard onUpgrade={handleUpgradeToPremium} />
+
           {/* Statistics Cards - Row 1 */}
           <View style={styles.statsRow}>
             <StatCard

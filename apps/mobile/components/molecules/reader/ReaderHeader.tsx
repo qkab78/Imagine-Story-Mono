@@ -1,13 +1,20 @@
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReaderNavButton, ChapterIndicator } from '@/components/atoms/reader';
+import { DownloadButton } from '@/components/molecules/offline';
 import { READER_COLORS, READER_SPACING, READER_ICONS } from '@/constants/reader';
+import type { DownloadStatus } from '@/types/offline';
 
 interface ReaderHeaderProps {
   currentChapter: number;
   totalChapters: number;
   onBack: () => void;
   onClose: () => void;
+  // Download props (optional - only shown for premium users)
+  showDownload?: boolean;
+  downloadStatus?: DownloadStatus;
+  onDownload?: () => void;
+  downloadDisabled?: boolean;
 }
 
 export const ReaderHeader: React.FC<ReaderHeaderProps> = ({
@@ -15,6 +22,10 @@ export const ReaderHeader: React.FC<ReaderHeaderProps> = ({
   totalChapters,
   onBack,
   onClose,
+  showDownload = false,
+  downloadStatus = 'idle',
+  onDownload,
+  downloadDisabled = false,
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -28,11 +39,21 @@ export const ReaderHeader: React.FC<ReaderHeaderProps> = ({
         />
         <ChapterIndicator current={currentChapter} total={totalChapters} />
       </View>
-      <ReaderNavButton
-        icon={READER_ICONS.close}
-        onPress={onClose}
-        variant="close"
-      />
+      <View style={styles.right}>
+        {showDownload && onDownload && (
+          <DownloadButton
+            status={downloadStatus}
+            onPress={onDownload}
+            disabled={downloadDisabled}
+            size="medium"
+          />
+        )}
+        <ReaderNavButton
+          icon={READER_ICONS.close}
+          onPress={onClose}
+          variant="close"
+        />
+      </View>
     </View>
   );
 };
@@ -47,6 +68,11 @@ const styles = StyleSheet.create({
     backgroundColor: READER_COLORS.background,
   },
   left: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: READER_SPACING.md,
+  },
+  right: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: READER_SPACING.md,

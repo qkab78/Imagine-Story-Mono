@@ -74,17 +74,6 @@ export const OfflineStoryCard: React.FC<OfflineStoryCardProps> = ({
           <Text style={styles.metaDot}>•</Text>
           <Text style={styles.metaText}>{fileSize}</Text>
         </View>
-
-        {story.audioPath && (
-          <View style={styles.audioIndicator}>
-            <DualIcon
-              icon={{ sfSymbol: 'speaker.wave.2.fill', lucide: 'Volume2' }}
-              size={12}
-              color={PROFILE_COLORS.textSecondary}
-            />
-            <Text style={styles.audioText}>Audio disponible</Text>
-          </View>
-        )}
       </View>
 
       {/* Delete Button */}
@@ -169,15 +158,6 @@ const styles = StyleSheet.create({
   metaDot: {
     fontSize: 12,
     color: PROFILE_COLORS.textMuted,
-  },
-  audioIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  audioText: {
-    fontSize: 11,
-    color: PROFILE_COLORS.textSecondary,
   },
   deleteButton: {
     alignSelf: 'center',

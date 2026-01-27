@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { VersionBadge } from '@/components/atoms/profile';
 import {
   ProfileHeaderCard,
@@ -22,6 +23,7 @@ import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_ICONS } from '@/constants/prof
 
 export const ProfileContent: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const {
     user,
     notificationsEnabled,
@@ -74,6 +76,10 @@ export const ProfileContent: React.FC = () => {
 
   const handleLanguage = () => {
     Alert.alert('Bientôt disponible', 'La sélection de langue sera disponible prochainement.');
+  };
+
+  const handleDownloads = () => {
+    router.push('/profile/downloads');
   };
 
   const handleSaveProfile = (data: {
@@ -165,6 +171,16 @@ export const ProfileContent: React.FC = () => {
             value={isSubscribed ? 'Premium' : 'Gratuit'}
             onPress={handleSubscription}
           />
+          {isSubscribed && (
+            <>
+              <View style={styles.separator} />
+              <SettingsItem
+                icon={{ sfSymbol: 'arrow.down.circle', lucide: 'Download' }}
+                label="Mes téléchargements"
+                onPress={handleDownloads}
+              />
+            </>
+          )}
         </SettingsSection>
 
         {/* Préférences */}

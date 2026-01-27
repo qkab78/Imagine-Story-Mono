@@ -9,7 +9,6 @@ interface StoryData {
   title: string
   content: string
   coverImageUrl: string | null
-  audioUrl: string | null
 }
 
 interface UseOfflineStoryReturn {

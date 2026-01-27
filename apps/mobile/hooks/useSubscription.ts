@@ -32,12 +32,13 @@ export const useSubscription = () => {
   const initialize = useCallback(async () => {
     if (!subscriptionService.isInitialized()) {
       try {
-        await subscriptionService.initialize(user?.id);
+        // Note: RevenueCat uses email as app_user_id
+        await subscriptionService.initialize(user?.email);
       } catch (err) {
         console.error('[useSubscription] Failed to initialize:', err);
       }
     }
-  }, [user?.id]);
+  }, [user?.email]);
 
   const refresh = useCallback(async () => {
     if (!subscriptionService.isInitialized()) {
@@ -177,10 +178,10 @@ export const useSubscription = () => {
 
   // Initialize on mount if user is logged in
   useEffect(() => {
-    if (user?.id) {
+    if (user?.email) {
       initialize();
     }
-  }, [user?.id, initialize]);
+  }, [user?.email, initialize]);
 
   return {
     // State
