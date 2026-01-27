@@ -17,6 +17,24 @@ export type AuthUser = {
 
 const ROLE_PREMIUM = 3;
 
+// Récupérer l'utilisateur persisté au démarrage
+const getPersistedUser = (): AuthUser | undefined => {
+  const userJson = storage.getString('user.data');
+  if (userJson) {
+    try {
+      return JSON.parse(userJson);
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+};
+
+// Récupérer le token persisté au démarrage
+const getPersistedToken = (): string | undefined => {
+  return storage.getString('user.token');
+};
+
 export type AuthStore = {
   token: string | undefined;
   user: AuthUser | undefined;
@@ -30,16 +48,24 @@ export type AuthStore = {
 };
 
 const useAuthStore = create<AuthStore>((set, get) => ({
-  token: undefined,
-  user: undefined,
+  token: getPersistedToken(),
+  user: getPersistedUser(),
   setToken: (token: string) => {
     set({ token });
     storage.set('user.token', token);
   },
-  setUser: (user: AuthUser | undefined) => set({ user }),
+  setUser: (user: AuthUser | undefined) => {
+    set({ user });
+    if (user) {
+      storage.set('user.data', JSON.stringify(user));
+    } else {
+      storage.delete('user.data');
+    }
+  },
   clearAuth: () => {
     set({ token: undefined, user: undefined });
     storage.delete('user.token');
+    storage.delete('user.data');
   },
   getFirstname: () => {
     return get().user?.fullname.split(' ')[0] || '';
