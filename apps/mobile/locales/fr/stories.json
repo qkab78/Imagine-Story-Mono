@@ -1,10 +1,12 @@
 {
   "home": {
+    "greeting": "Bonjour {{name}} ! 👋",
+    "greetingSubtitle": "Prête pour une nouvelle aventure ?",
     "createStory": "Créer une histoire",
     "createDescription": "Invente une nouvelle aventure magique",
     "readStory": "Lire une histoire",
     "readDescription": "Découvre tes histoires préférées",
-    "recentStories": "Histoires récentes",
+    "recentStories": "✨ Histoires récentes",
     "noStories": "Aucune histoire pour le moment",
     "noStoriesSubtitle": "Crée ta première histoire magique !"
   },
@@ -154,8 +156,13 @@
   },
   "explore": {
     "title": "Explorer",
-    "searchPlaceholder": "Rechercher une histoire...",
+    "searchPlaceholder": "Rechercher des histoires...",
     "loading": "Chargement...",
+    "searching": "Recherche en cours...",
+    "noResults": "Aucune histoire trouvée pour \"{{query}}\"",
+    "recentSearches": "Recherches récentes",
+    "resultsCount": "{{count}} résultat",
+    "resultsCountPlural": "{{count}} résultats",
     "categories": {
       "all": "Tout",
       "magic": "Magie",
@@ -164,6 +171,16 @@
       "space": "Espace",
       "nature": "Nature",
       "friendship": "Amitié"
+    },
+    "sections": {
+      "featured": "À la une",
+      "popular": "Populaires",
+      "recent": "Récentes",
+      "newReleases": "Nouveautés",
+      "topStories": "Top Histoires",
+      "recommended": "Recommandées pour vous",
+      "popularThemes": "Thèmes populaires",
+      "byAgeGroup": "Par tranche d'âge"
     },
     "featured": "À la une",
     "popular": "Populaires",
@@ -179,6 +196,7 @@
   "card": {
     "readMore": "Lire la suite",
     "chapters": "{{count}} chapitres",
+    "chapter": "{{count}} chapitre",
     "readTime": "{{minutes}} min de lecture"
   }
 }

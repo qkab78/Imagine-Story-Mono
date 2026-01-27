@@ -1,6 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import { SectionTitle, AgeGroupCard } from '@/components/atoms/explore';
 import useExploreStore from '@/store/explore/exploreStore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { AGE_GROUPS, EXPLORE_SPACING } from '@/constants/explore';
 
 interface AgeGroupSectionProps {
@@ -10,6 +11,7 @@ interface AgeGroupSectionProps {
 export const AgeGroupSection: React.FC<AgeGroupSectionProps> = ({
   onAgeGroupPress,
 }) => {
+  const { t } = useAppTranslation('stories');
   const { selectedAgeGroup, setSelectedAgeGroup } = useExploreStore();
 
   const handlePress = (ageGroupId: string) => {
@@ -20,7 +22,7 @@ export const AgeGroupSection: React.FC<AgeGroupSectionProps> = ({
 
   return (
     <>
-      <SectionTitle title="Par tranche d'âge" emoji="👶" />
+      <SectionTitle title={t('explore.sections.byAgeGroup')} emoji="👶" />
       <View style={styles.container}>
         <View style={styles.row}>
           {AGE_GROUPS.map((ageGroup) => (

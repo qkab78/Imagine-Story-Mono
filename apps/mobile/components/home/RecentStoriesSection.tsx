@@ -4,6 +4,7 @@ import { FlashList } from '@shopify/flash-list';
 import { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
 import { StoryCard } from '@/components/molecules/story/StoryCard';
 import Text from '@/components/ui/Text';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { colors } from '@/theme/colors';
 import { typography } from '@/theme/typography';
 import { spacing } from '@/theme/spacing';
@@ -21,18 +22,20 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
   onStoryLongPress,
   isLoading = false,
 }) => {
+  const { t } = useAppTranslation('stories');
+
   if (stories.length === 0 && !isLoading) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>✨ Histoires récentes</Text>
+          <Text style={styles.title}>{t('home.recentStories')}</Text>
         </View>
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>
-            Aucune histoire pour le moment
+            {t('home.noStories')}
           </Text>
           <Text style={styles.emptySubtext}>
-            Crée ta première histoire magique !
+            {t('home.noStoriesSubtitle')}
           </Text>
         </View>
       </View>
@@ -42,7 +45,7 @@ const RecentStoriesSection: React.FC<RecentStoriesSectionProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>✨ Histoires récentes</Text>
+        <Text style={styles.title}>{t('home.recentStories')}</Text>
       </View>
 
       <View style={styles.listContainer}>

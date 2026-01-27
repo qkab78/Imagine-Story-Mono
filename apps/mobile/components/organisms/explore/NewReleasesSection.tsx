@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet } from 'react-native';
 import { SectionTitle } from '@/components/atoms/explore';
 import { NewReleaseCard } from '@/components/molecules/explore';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { EXPLORE_SPACING } from '@/constants/explore';
 import type { ExploreStory } from '@/types/explore';
 
@@ -15,12 +16,14 @@ export const NewReleasesSection: React.FC<NewReleasesSectionProps> = ({
   onStoryPress,
   onSeeAll,
 }) => {
+  const { t } = useAppTranslation('stories');
+
   if (stories.length === 0) return null;
 
   return (
     <>
       <SectionTitle
-        title="Nouveautés"
+        title={t('explore.sections.newReleases')}
         emoji="✨"
         showSeeAll={!!onSeeAll}
         onSeeAll={onSeeAll}

@@ -13,10 +13,12 @@ import type { WelcomeHeaderProps } from '@/types/home';
 import useAuthStore from '@/store/auth/authStore';
 import { QuotaBadge } from '@/components/molecules/creation/QuotaBadge';
 import { useStoryQuota } from '@/hooks/useStoryQuota';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ user }) => {
+  const { t } = useAppTranslation('stories');
   const firstname = useAuthStore(state => state.getFirstname());
   const initials = useAuthStore(state => state.getInitials());
   const bounceAnimation = useSharedValue(0);
@@ -41,10 +43,10 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ user }) => {
     <View style={styles.container}>
       <View style={styles.textSection}>
         <Text style={styles.greeting}>
-          Bonjour {firstname} ! 👋
+          {t('home.greeting', { name: firstname })}
         </Text>
         <Text style={styles.subtitle}>
-          Prête pour une nouvelle aventure ?
+          {t('home.greetingSubtitle')}
         </Text>
         <View style={styles.quotaBadgeContainer}>
           <QuotaBadge

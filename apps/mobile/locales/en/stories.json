@@ -1,10 +1,12 @@
 {
   "home": {
+    "greeting": "Hello {{name}}! 👋",
+    "greetingSubtitle": "Ready for a new adventure?",
     "createStory": "Create a Story",
     "createDescription": "Create a new magical adventure",
     "readStory": "Read a Story",
     "readDescription": "Discover your favorite stories",
-    "recentStories": "Recent Stories",
+    "recentStories": "✨ Recent Stories",
     "noStories": "No stories yet",
     "noStoriesSubtitle": "Create your first magical story!"
   },
@@ -154,8 +156,13 @@
   },
   "explore": {
     "title": "Explore",
-    "searchPlaceholder": "Search for a story...",
+    "searchPlaceholder": "Search for stories...",
     "loading": "Loading...",
+    "searching": "Searching...",
+    "noResults": "No stories found for \"{{query}}\"",
+    "recentSearches": "Recent searches",
+    "resultsCount": "{{count}} result",
+    "resultsCountPlural": "{{count}} results",
     "categories": {
       "all": "All",
       "magic": "Magic",
@@ -164,6 +171,16 @@
       "space": "Space",
       "nature": "Nature",
       "friendship": "Friendship"
+    },
+    "sections": {
+      "featured": "Featured",
+      "popular": "Popular",
+      "recent": "Recent",
+      "newReleases": "New Releases",
+      "topStories": "Top Stories",
+      "recommended": "Recommended for you",
+      "popularThemes": "Popular Themes",
+      "byAgeGroup": "By Age Group"
     },
     "featured": "Featured",
     "popular": "Popular",
@@ -179,6 +196,7 @@
   "card": {
     "readMore": "Read More",
     "chapters": "{{count}} chapters",
+    "chapter": "{{count}} chapter",
     "readTime": "{{minutes}} min read"
   }
 }
