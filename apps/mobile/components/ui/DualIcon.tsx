@@ -48,6 +48,14 @@ import {
   Clock,
   // Subscription icons
   Calendar,
+  // Offline icons
+  Download,
+  CheckCircle,
+  AlertCircle,
+  AlertTriangle,
+  XCircle,
+  HardDrive,
+  Volume2,
 } from 'lucide-react-native';
 import { useLiquidGlass } from '@/hooks/useLiquidGlass';
 
@@ -101,6 +109,14 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<{ size: number; color: st
   Clock,
   // Subscription icons
   Calendar,
+  // Offline icons
+  Download,
+  CheckCircle,
+  AlertCircle,
+  AlertTriangle,
+  XCircle,
+  HardDrive,
+  Volume2,
 };
 
 export interface IconConfig {
