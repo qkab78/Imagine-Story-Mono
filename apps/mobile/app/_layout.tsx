@@ -22,6 +22,7 @@ import { useSubscriptionSheet } from '@/hooks/useSubscriptionSheet';
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { useEmailVerificationBanner } from '@/hooks/useEmailVerificationBanner';
 import { useSubscriptionInit } from '@/hooks/useSubscriptionInit';
+import { useUserSync } from '@/hooks/useUserSync';
 
 // Internationalisation
 import '@/locales';
@@ -42,6 +43,9 @@ function AppContent() {
 
   // Navigation basée sur l'authentification
   useAuthNavigation();
+
+  // Synchronisation des données utilisateur avec le backend
+  useUserSync();
 
   // Initialisation du service d'abonnement
   useSubscriptionInit();
