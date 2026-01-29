@@ -52,15 +52,18 @@ function AppContent() {
 
   // Gestion de la navigation basée sur l'authentification
   useEffect(() => {
-    const isAuthGroup = segments[0] === '(protected)' || segments[0] === '(tabs)';
-    const isStoriesGroup = segments[0] === 'stories';
-    const isAlreadyInAuthenticatedArea = isAuthGroup || isStoriesGroup;
+    const isInProtectedArea = ['(protected)', '(tabs)', 'stories'].includes(segments[0]);
+    const isAuthenticated = !!token;
 
-    if (!token && isAlreadyInAuthenticatedArea) {
-      console.log('No token found, redirecting to login');
+    const shouldRedirectToLogin = !isAuthenticated && isInProtectedArea;
+    const shouldRedirectToHome = isAuthenticated && !isInProtectedArea;
+
+    if (shouldRedirectToLogin) {
       router.replace('/');
-    } else if (token && !isAlreadyInAuthenticatedArea) {
-      console.log('Token found, redirecting to home');
+      return;
+    }
+
+    if (shouldRedirectToHome) {
       router.replace('/(tabs)');
     }
   }, [token, segments, router]);
