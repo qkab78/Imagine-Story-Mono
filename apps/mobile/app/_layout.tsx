@@ -47,6 +47,23 @@ function AppContent() {
   const isEmailVerified = useAuthStore(state => state.isEmailVerified);
   const daysUntilExpiration = useSubscriptionStore(state => state.daysUntilExpiration);
   const expirationWarningLevel = useSubscriptionStore(state => state.expirationWarningLevel);
+  const segments = useSegments();
+  const router = useRouter();
+
+  // Gestion de la navigation basée sur l'authentification
+  useEffect(() => {
+    const isAuthGroup = segments[0] === '(protected)' || segments[0] === '(tabs)';
+    const isStoriesGroup = segments[0] === 'stories';
+    const isAlreadyInAuthenticatedArea = isAuthGroup || isStoriesGroup;
+
+    if (!token && isAlreadyInAuthenticatedArea) {
+      console.log('No token found, redirecting to login');
+      router.replace('/');
+    } else if (token && !isAlreadyInAuthenticatedArea) {
+      console.log('Token found, redirecting to home');
+      router.replace('/(tabs)');
+    }
+  }, [token, segments, router]);
 
   // État pour le dismiss de la bannière d'expiration
   const [bannerDismissed, setBannerDismissed] = useState(false);
@@ -198,25 +215,6 @@ export default function RootLayout() {
     SpaceMonoItalic: require('../assets/fonts/SpaceMono-Italic.ttf'),
     SpaceMonoBoldItalic: require('../assets/fonts/SpaceMono-BoldItalic.ttf'),
   });
-  const token = useAuthStore(state => state.token);
-  const segments = useSegments();
-  const router = useRouter();
-
-  useEffect(() => {
-    const isAuthGroup = segments[0] === '(protected)' || segments[0] === '(tabs)';
-    const isStoriesGroup = segments[0] === 'stories';
-    const isAlreadyInAuthenticatedArea = isAuthGroup || isStoriesGroup;
-
-    if (!token && isAlreadyInAuthenticatedArea) {
-      console.log('No token found, redirecting to login');
-      router.replace('/');
-    } else if (token && !isAlreadyInAuthenticatedArea) {
-      console.log('Token found, redirecting to home');
-      router.replace('/(tabs)');
-    }
-
-  }, [token]);
-
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
