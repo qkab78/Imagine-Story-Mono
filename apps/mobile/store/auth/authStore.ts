@@ -22,7 +22,13 @@ const getPersistedUser = (): AuthUser | undefined => {
   const userJson = storage.getString('user.data');
   if (userJson) {
     try {
-      return JSON.parse(userJson);
+      const user = JSON.parse(userJson);
+      // Migration: si isEmailVerified n'existe pas, on considère l'utilisateur comme vérifié
+      // (pour les utilisateurs existants avant cette feature)
+      if (user.isEmailVerified === undefined) {
+        user.isEmailVerified = true;
+      }
+      return user;
     } catch {
       return undefined;
     }
