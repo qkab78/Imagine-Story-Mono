@@ -50,6 +50,14 @@ export interface Characters {
   updated_at: Generated<Timestamp>;
 }
 
+export interface EmailVerificationTokens {
+  created_at: Timestamp;
+  expires_at: Timestamp;
+  id: Generated<string>;
+  token: string;
+  user_id: string;
+}
+
 export interface Languages {
   code: string;
   created_at: Generated<Timestamp>;
@@ -122,6 +130,7 @@ export interface Users {
   created_at: Timestamp;
   customer_id: string | null;
   email: string;
+  email_verified_at: Timestamp | null;
   firstname: string;
   id: Generated<string>;
   lastname: string;
@@ -147,6 +156,7 @@ export interface WebhookEvents {
 export interface DB {
   access_tokens: AccessTokens;
   characters: Characters;
+  email_verification_tokens: EmailVerificationTokens;
   languages: Languages;
   social_accounts: SocialAccounts;
   stories: Stories;

@@ -35,6 +35,7 @@ export default class LoginController {
         fullname: `${user.firstname} ${user.lastname}`,
         role: user.role,
         avatar: '',
+        isEmailVerified: user.email_verified_at !== null,
         createdAt: user.created_at,
       },
     })

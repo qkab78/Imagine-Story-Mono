@@ -4,8 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
-import { Stack, useRouter, useSegments } from 'expo-router';
-import useAuthStore from '@/store/auth/authStore';
+import { Stack } from 'expo-router';
 import useSubscriptionStore from '@/store/subscription/subscriptionStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui'
@@ -14,12 +13,16 @@ import { ThemeProvider } from '@shopify/restyle';
 import { theme } from '@/config/theme';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { subscriptionService } from '@/services/subscription';
 import { SubscriptionExpiredModal } from '@/components/organisms/subscription';
 import { SubscriptionSheet } from '@/components/organisms/profile/SubscriptionSheet';
 import { ExpirationWarningBanner } from '@/components/molecules/subscription';
+import { EmailVerificationBanner } from '@/components/molecules/auth/EmailVerificationBanner';
 import { useSubscriptionExpiredModal } from '@/hooks/useSubscriptionExpiredModal';
 import { useSubscriptionSheet } from '@/hooks/useSubscriptionSheet';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
+import { useEmailVerificationBanner } from '@/hooks/useEmailVerificationBanner';
+import { useSubscriptionInit } from '@/hooks/useSubscriptionInit';
+import { useUserSync } from '@/hooks/useUserSync';
 
 // Internationalisation
 import '@/locales';
@@ -37,53 +40,38 @@ SplashScreen.preventAutoHideAsync();
  */
 function AppContent() {
   const insets = useSafeAreaInsets();
-  const user = useAuthStore(state => state.user);
+
+  // Navigation basée sur l'authentification
+  useAuthNavigation();
+
+  // Synchronisation des données utilisateur avec le backend
+  useUserSync();
+
+  // Initialisation du service d'abonnement
+  useSubscriptionInit();
+
+  // Bannière de vérification email
+  const emailBanner = useEmailVerificationBanner();
+
+  // Bannière d'expiration d'abonnement
+  const [expirationBannerDismissed, setExpirationBannerDismissed] = useState(false);
   const daysUntilExpiration = useSubscriptionStore(state => state.daysUntilExpiration);
   const expirationWarningLevel = useSubscriptionStore(state => state.expirationWarningLevel);
 
-  // État pour le dismiss de la bannière d'expiration
-  const [bannerDismissed, setBannerDismissed] = useState(false);
-
-  // Subscription expired modal hook
-  const {
-    showModal: showExpiredModal,
-    dismissModal,
-    expirationDate,
-    status,
-  } = useSubscriptionExpiredModal();
-
-  // Subscription sheet hook
+  // Modals et sheets d'abonnement
+  const expiredModal = useSubscriptionExpiredModal();
   const subscriptionSheet = useSubscriptionSheet();
 
-  // Handler pour le bouton "Renouveler" de la modal expirée
   const handleRenew = () => {
-    dismissModal();
+    expiredModal.dismissModal();
     subscriptionSheet.open();
   };
 
-  const setCustomerInfo = useSubscriptionStore(state => state.setCustomerInfo);
-
-  // Initialize RevenueCat subscription service and fetch customer info
-  // Note: RevenueCat uses email as app_user_id
-  useEffect(() => {
-    const initSubscription = async () => {
-      try {
-        await subscriptionService.initialize(user?.email);
-
-        // Fetch and update customer info after initialization
-        if (subscriptionService.isInitialized()) {
-          const customerInfo = await subscriptionService.getCustomerInfo();
-          setCustomerInfo(customerInfo);
-        }
-      } catch (error) {
-        console.error('[AppContent] Failed to initialize subscription service:', error);
-      }
-    };
-
-    if (user?.email) {
-      initSubscription();
-    }
-  }, [user?.email, setCustomerInfo]);
+  const shouldShowExpirationBanner =
+    expirationWarningLevel !== 'none' &&
+    daysUntilExpiration !== null &&
+    !expirationBannerDismissed &&
+    !emailBanner.shouldShow;
 
   return (
     <View style={styles.container}>
@@ -98,16 +86,14 @@ function AppContent() {
         <Stack.Screen name="notification-permission" />
       </Stack>
 
-      {/* Subscription expired modal */}
       <SubscriptionExpiredModal
-        visible={showExpiredModal}
-        onClose={dismissModal}
+        visible={expiredModal.showModal}
+        onClose={expiredModal.dismissModal}
         onRenew={handleRenew}
-        expirationDate={expirationDate}
-        status={status}
+        expirationDate={expiredModal.expirationDate}
+        status={expiredModal.status}
       />
 
-      {/* Subscription sheet for renewal (unified) */}
       <SubscriptionSheet
         visible={subscriptionSheet.visible}
         onClose={subscriptionSheet.close}
@@ -123,14 +109,23 @@ function AppContent() {
 
       <StatusBar style="dark" backgroundColor="#F0E6FF" />
 
-      {/* Expiration warning banner - positioned absolutely to overlay content */}
-      {expirationWarningLevel !== 'none' && daysUntilExpiration !== null && !bannerDismissed && (
+      {emailBanner.shouldShow && (
+        <View style={[styles.bannerContainer, { paddingTop: insets.top }]}>
+          <EmailVerificationBanner
+            onResendPress={emailBanner.handleResend}
+            onDismiss={emailBanner.handleDismiss}
+            isResending={emailBanner.isResending}
+          />
+        </View>
+      )}
+
+      {shouldShowExpirationBanner && (
         <View style={[styles.bannerContainer, { paddingTop: insets.top }]}>
           <ExpirationWarningBanner
             daysUntilExpiration={daysUntilExpiration}
             level={expirationWarningLevel}
             onRenewPress={subscriptionSheet.open}
-            onDismiss={() => setBannerDismissed(true)}
+            onDismiss={() => setExpirationBannerDismissed(true)}
           />
         </View>
       )}
@@ -158,25 +153,6 @@ export default function RootLayout() {
     SpaceMonoItalic: require('../assets/fonts/SpaceMono-Italic.ttf'),
     SpaceMonoBoldItalic: require('../assets/fonts/SpaceMono-BoldItalic.ttf'),
   });
-  const token = useAuthStore(state => state.token);
-  const segments = useSegments();
-  const router = useRouter();
-
-  useEffect(() => {
-    const isAuthGroup = segments[0] === '(protected)' || segments[0] === '(tabs)';
-    const isStoriesGroup = segments[0] === 'stories';
-    const isAlreadyInAuthenticatedArea = isAuthGroup || isStoriesGroup;
-
-    if (!token && isAlreadyInAuthenticatedArea) {
-      console.log('No token found, redirecting to login');
-      router.replace('/');
-    } else if (token && !isAlreadyInAuthenticatedArea) {
-      console.log('Token found, redirecting to home');
-      router.replace('/(tabs)');
-    }
-
-  }, [token]);
-
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();

@@ -25,6 +25,8 @@ const WebhookController = () => import('#subscription/controllers/webhook_contro
 
 const StoriesControllerPresenter = () => import('#stories/presenters/stories.controller')
 const GoogleAuthController = () => import('#auth/controllers/social/google_auth_controller')
+const VerifyEmailController = () => import('#auth/controllers/verify_email/verify_email_controller')
+const ResendVerificationController = () => import('#auth/controllers/verify_email/resend_verification_controller')
 
 router.get('/', async ({ response }: HttpContext) => {
   console.log('[Route] GET / called')
@@ -136,10 +138,16 @@ router
     router.post('/google/redirect', [GoogleAuthController, 'redirect'])
     router.get('/google/callback', [GoogleAuthController, 'callback'])
 
+    // Email verification (public - accessed via email link)
+    router.get('/verify-email/:token', [VerifyEmailController, 'verify'])
+    router.post('/verify-email', [VerifyEmailController, 'verifyJson'])
+
     router
       .group(() => {
         router.post('/logout', [LogoutController, 'logout'])
         router.get('/authenticate', [AuthController, 'authenticate'])
+        // Email verification (authenticated - for resending)
+        router.post('/resend-verification', [ResendVerificationController, 'resend'])
       })
       .middleware(middleware.auth())
   })

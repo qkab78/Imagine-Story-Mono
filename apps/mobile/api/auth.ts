@@ -1,14 +1,15 @@
 export interface LoginFormData { email: string, password: string }
 export interface RegisterFormData { email: string, password: string, firstname: string, lastname: string }
 
-type UserInfo = { 
-  id: string, 
-  email: string, 
-  firstname: string, 
-  lastname: string, 
-  fullname: string, 
-  role: number, 
+type UserInfo = {
+  id: string,
+  email: string,
+  firstname: string,
+  lastname: string,
+  fullname: string,
+  role: number,
   avatar: string,
+  isEmailVerified: boolean,
   createdAt: string,
   currentAccessToken: { token: string }
 }
@@ -76,6 +77,26 @@ export const authenticate = async (token: string) => {
   const result: { user: UserInfo } = await response.json();
 
   return result;
+};
+
+// Email verification
+const resendVerificationUrl = `${apiUrl}/auth/resend-verification`;
+
+export const resendVerificationEmail = async (token: string): Promise<{ message: string }> => {
+  const response = await fetch(resendVerificationUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': token,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to resend verification email');
+  }
+
+  return response.json();
 };
 
 // Google OAuth

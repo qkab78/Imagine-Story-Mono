@@ -18,6 +18,7 @@ import { ISubscriptionRepository } from '#subscription/domain/repositories/i_sub
 import { KyselySubscriptionRepository } from '#subscription/infrastructure/repositories/kysely_subscription_repository'
 import { ISocialAccountRepository } from '#auth/domain/repositories/i_social_account_repository'
 import { IAuthUserRepository } from '#auth/domain/repositories/i_auth_user_repository'
+import { IEmailVerificationTokenRepository } from '#auth/domain/repositories/i_email_verification_token_repository'
 import { ISocialAuthService } from '#auth/application/services/i_social_auth_service'
 import storageConfig from '#config/storage'
 import env from '#start/env'
@@ -57,6 +58,8 @@ export default class AppProvider {
       await import('#auth/infrastructure/repositories/kysely_social_account_repository')
     const { KyselyAuthUserRepository } =
       await import('#auth/infrastructure/repositories/kysely_auth_user_repository')
+    const { KyselyEmailVerificationTokenRepository } =
+      await import('#auth/infrastructure/repositories/kysely_email_verification_token_repository')
     const { AllySocialAuthService } =
       await import('#auth/infrastructure/services/ally_social_auth_service')
     const { DeepLTranslationService } =
@@ -141,6 +144,9 @@ export default class AppProvider {
     })
     this.app.container.singleton(IAuthUserRepository, () => {
       return this.app.container.make(KyselyAuthUserRepository)
+    })
+    this.app.container.singleton(IEmailVerificationTokenRepository, () => {
+      return this.app.container.make(KyselyEmailVerificationTokenRepository)
     })
     this.app.container.singleton(ISocialAuthService, () => {
       return this.app.container.make(AllySocialAuthService)

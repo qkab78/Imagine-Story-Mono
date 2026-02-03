@@ -7,9 +7,20 @@ import hash from '@adonisjs/core/services/hash'
 import { registerValidator } from './register_validator.js'
 import queue from '@rlanz/bull-queue/services/main'
 import SendUserRegisterConfirmationEmailJob from '#jobs/send_user_register_confirmation_email_job'
+import { IEmailVerificationTokenRepository } from '../../domain/repositories/i_email_verification_token_repository.js'
+import { EmailVerificationToken } from '../../domain/entities/email_verification_token.entity.js'
+import { IRandomService } from '#stories/domain/services/i_random_service'
+import { IDateService } from '#stories/domain/services/i_date_service'
+import { randomBytes } from 'crypto'
 
 @inject()
 export default class RegisterController {
+  constructor(
+    private readonly tokenRepository: IEmailVerificationTokenRepository,
+    private readonly randomService: IRandomService,
+    private readonly dateService: IDateService
+  ) {}
+
   public async register({ request, response, auth }: HttpContext) {
     const { email, password, firstname, lastname } = await request.validateUsing(registerValidator)
     const user = await db
@@ -30,6 +41,7 @@ export default class RegisterController {
         firstname: firstname,
         lastname: lastname,
         role: 1,
+        email_verified_at: null,
         created_at: new Date(),
         updated_at: new Date(),
       })
@@ -40,11 +52,29 @@ export default class RegisterController {
       throw new errors.E_VALIDATION_ERROR('User not created')
     }
 
+    // Generate verification token
+    const token = randomBytes(32).toString('hex')
+    const now = new Date(this.dateService.now())
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000) // 24 hours
+
+    const verificationToken = EmailVerificationToken.create({
+      id: this.randomService.generateRandomUuid(),
+      userId: newUser.id,
+      token,
+      expiresAt,
+      createdAt: now,
+    })
+
+    await this.tokenRepository.create(verificationToken)
+
     //@ts-ignore
     const userToLogin = await auth.use('api').authenticateAsClient(newUser)
 
+    // Send verification email with token
     queue.dispatch(SendUserRegisterConfirmationEmailJob, {
       email: newUser.email,
+      firstname: newUser.firstname,
+      token,
     })
 
     return response.json({
@@ -57,6 +87,8 @@ export default class RegisterController {
         fullname: `${newUser.firstname} ${newUser.lastname}`,
         role: newUser.role,
         avatar: '',
+        isEmailVerified: false,
+        createdAt: newUser.created_at,
       },
     })
   }

@@ -22,6 +22,7 @@ export interface GoogleAuthResult {
     firstname: string
     lastname: string
     role: number
+    emailVerifiedAt: Date | null
     createdAt: Date
   }
   isNewUser: boolean
@@ -91,7 +92,7 @@ export class GoogleAuthUseCase {
     const userId = this.randomService.generateRandomUuid()
     const now = new Date(this.dateService.now())
 
-    // Create user entity
+    // Create user entity - Google OAuth users are auto-verified since Google already verified their email
     const newUser = AuthUser.create({
       id: userId,
       email: socialUser.email.toLowerCase(),
@@ -99,6 +100,7 @@ export class GoogleAuthUseCase {
       firstname: socialUser.firstName ?? '',
       lastname: socialUser.lastName ?? '',
       role: Role.CUSTOMER,
+      emailVerifiedAt: now,
       createdAt: now,
       updatedAt: now,
     })
@@ -146,6 +148,7 @@ export class GoogleAuthUseCase {
         firstname: user.firstname,
         lastname: user.lastname,
         role: user.role,
+        emailVerifiedAt: user.emailVerifiedAt,
         createdAt: user.createdAt,
       },
       isNewUser,

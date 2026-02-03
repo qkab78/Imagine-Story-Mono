@@ -31,12 +31,25 @@ export class KyselyAuthUserRepository implements IAuthUserRepository {
         firstname: user.firstname,
         lastname: user.lastname,
         role: user.role,
+        email_verified_at: user.emailVerifiedAt?.toISOString() ?? null,
         created_at: user.createdAt.toISOString(),
         updated_at: user.updatedAt.toISOString(),
       })
       .execute()
 
     return user
+  }
+
+  async verifyEmail(userId: string, verifiedAt: Date, newRole: number): Promise<void> {
+    await db
+      .updateTable('users')
+      .set({
+        email_verified_at: verifiedAt.toISOString(),
+        role: newRole,
+        updated_at: new Date().toISOString(),
+      })
+      .where('id', '=', userId)
+      .execute()
   }
 
   private toDomain(row: any): AuthUser {
@@ -47,6 +60,7 @@ export class KyselyAuthUserRepository implements IAuthUserRepository {
       firstname: row.firstname,
       lastname: row.lastname,
       role: row.role,
+      emailVerifiedAt: row.email_verified_at ? new Date(row.email_verified_at) : null,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     })

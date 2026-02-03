@@ -2,6 +2,7 @@ import { authenticate } from '@/api/auth'
 import Box from '@/components/ui/Box'
 import { theme } from '@/config/theme'
 import useAuthStore from '@/store/auth/authStore'
+import { transformApiUserToAuthUser } from '@/utils/userTransform'
 import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useEffect } from 'react'
@@ -30,16 +31,7 @@ const Onboarding = () => {
   useEffect(() => {
     if (data?.user) {
       setToken(`Bearer ${data.user.currentAccessToken.token}`);
-      setUser({
-        id: String(data.user.id),
-        email: data.user.email,
-        fullname: `${data.user.firstname} ${data.user.lastname}`.trim(),
-        firstname: data.user.firstname,
-        lastname: data.user.lastname,
-        role: Number(data.user.role),
-        avatar: '',
-        createdAt: data.user.createdAt,
-      });
+      setUser(transformApiUserToAuthUser(data.user));
       router.push("/(tabs)");
     }
   }, [data?.user])
