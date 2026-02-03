@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import useAuthStore from '@/store/auth/authStore';
 import { authenticate } from '@/api/auth';
+import { transformApiUserToAuthUser } from '@/utils/userTransform';
 
 export function useUserSync() {
   const token = useAuthStore(state => state.token);
@@ -12,17 +13,7 @@ export function useUserSync() {
 
       try {
         const { user } = await authenticate(token);
-        setUser({
-          id: user.id,
-          email: user.email,
-          firstname: user.firstname,
-          lastname: user.lastname,
-          fullname: user.fullname,
-          role: user.role,
-          avatar: user.avatar,
-          isEmailVerified: user.isEmailVerified,
-          createdAt: user.createdAt,
-        });
+        setUser(transformApiUserToAuthUser(user));
       } catch (error) {
         console.error('[useUserSync] Failed to sync user:', error);
       }

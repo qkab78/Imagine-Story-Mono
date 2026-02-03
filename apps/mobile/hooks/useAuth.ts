@@ -6,6 +6,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { login as apiLogin, register as apiRegister, getGoogleRedirectUrl, type GoogleAuthResponse } from '@/api/auth';
 import useAuthStore from '@/store/auth/authStore';
+import { transformApiUserToAuthUser } from '@/utils/userTransform';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -21,17 +22,7 @@ export const useLogin = () => {
         throw new Error('Identifiants invalides');
       }
       setToken(data.token);
-      setUser({
-        id: data.user.id,
-        fullname: `${data.user.firstname} ${data.user.lastname}`,
-        email: data.user.email,
-        firstname: data.user.firstname,
-        lastname: data.user.lastname,
-        role: data.user.role,
-        avatar: data.user.avatar,
-        isEmailVerified: data.user.isEmailVerified,
-        createdAt: data.user.createdAt,
-      });
+      setUser(transformApiUserToAuthUser(data.user));
       router.replace('/(tabs)');
     },
     onError: (error: any) => {
@@ -64,7 +55,7 @@ export const useRegister = () => {
         throw new Error("Erreur lors de la création du compte");
       }
       setToken(data.token);
-      setUser(data.user);
+      setUser(transformApiUserToAuthUser(data.user));
       router.replace('/(tabs)');
     },
     onError: (error: any) => {
@@ -103,17 +94,7 @@ export const useGoogleSignIn = () => {
           const authData: GoogleAuthResponse = JSON.parse(decodeURIComponent(encodedData));
 
           setToken(authData.token);
-          setUser({
-            id: authData.user.id,
-            fullname: `${authData.user.firstname} ${authData.user.lastname}`,
-            email: authData.user.email,
-            firstname: authData.user.firstname,
-            lastname: authData.user.lastname,
-            role: authData.user.role,
-            avatar: authData.user.avatar,
-            isEmailVerified: authData.user.isEmailVerified,
-            createdAt: authData.user.createdAt,
-          });
+          setUser(transformApiUserToAuthUser(authData.user));
 
           if (authData.isNewUser) {
             Alert.alert('Bienvenue !', 'Votre compte a été créé avec succès.');

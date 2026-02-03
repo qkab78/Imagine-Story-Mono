@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import useAuthStore from '@/store/auth/authStore';
+import { transformApiUserToAuthUser } from '@/utils/userTransform';
 import type { GoogleAuthResponse } from '@/api/auth';
 
 /**
@@ -20,16 +21,7 @@ export default function GoogleCallbackScreen() {
         const authData: GoogleAuthResponse = JSON.parse(decodeURIComponent(data));
 
         setToken(authData.token);
-        setUser({
-          id: authData.user.id,
-          fullname: `${authData.user.firstname} ${authData.user.lastname}`,
-          email: authData.user.email,
-          firstname: authData.user.firstname,
-          lastname: authData.user.lastname,
-          role: authData.user.role,
-          avatar: authData.user.avatar,
-          createdAt: authData.user.createdAt,
-        });
+        setUser(transformApiUserToAuthUser(authData.user));
 
         router.replace('/(tabs)');
       } catch (error) {
