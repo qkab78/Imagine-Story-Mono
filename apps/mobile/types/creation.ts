@@ -3,6 +3,7 @@ export interface Hero {
   species?: 'girl' | 'boy' | 'robot' | 'superhero' | 'superheroine' | 'animal';
   emoji: string;
   name: string;
+  skinTone?: string;
 }
 
 export interface Theme {

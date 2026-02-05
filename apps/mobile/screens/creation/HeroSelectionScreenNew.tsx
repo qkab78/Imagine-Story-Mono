@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { colors } from '@/theme/colors';
 import { GlassInputField } from '@/components/molecules/creation/GlassInputField';
 import { AvatarSelector, Avatar } from '@/components/organisms/creation/AvatarSelector';
+import { SkinToneSelector, DEFAULT_SKIN_TONE } from '@/components/organisms/creation/SkinToneSelector';
 import { PrimaryButton } from '@/components/molecules/creation/PrimaryButton';
 import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
@@ -44,7 +45,17 @@ export const HeroSelectionScreenNew: React.FC = () => {
   const [selectedAvatarId, setSelectedAvatarId] = useState<string>(
     createStoryPayload?.hero?.id || avatars[0].id // Default to first avatar (girl)
   );
+  const [selectedSkinTone, setSelectedSkinTone] = useState<string>(
+    createStoryPayload?.hero?.skinTone || DEFAULT_SKIN_TONE
+  );
   const [error, setError] = useState('');
+
+  // Human species that support skin tone selection
+  const HUMAN_SPECIES = ['girl', 'boy', 'superhero', 'superheroine'];
+
+  // Check if current avatar is a human species
+  const selectedAvatar = avatars.find(a => a.id === selectedAvatarId);
+  const isHumanSpecies = selectedAvatar && HUMAN_SPECIES.includes(selectedAvatar.species);
 
   const handleBack = () => {
     router.back();
@@ -68,16 +79,18 @@ export const HeroSelectionScreenNew: React.FC = () => {
     }
 
     // Find selected avatar
-    const selectedAvatar = avatars.find(a => a.id === selectedAvatarId);
+    const avatar = avatars.find(a => a.id === selectedAvatarId);
 
     // Save to store
     setCreateStoryPayload({
       heroName: heroName.trim(),
       hero: {
-        id: selectedAvatar!.id,
-        species: selectedAvatar!.species,
-        emoji: selectedAvatar!.emoji,
+        id: avatar!.id,
+        species: avatar!.species,
+        emoji: avatar!.emoji,
         name: heroName.trim(),
+        // Only include skin tone for human species
+        skinTone: HUMAN_SPECIES.includes(avatar!.species) ? selectedSkinTone : undefined,
       },
     });
 
@@ -141,6 +154,14 @@ export const HeroSelectionScreenNew: React.FC = () => {
             selectedId={selectedAvatarId}
             onSelect={setSelectedAvatarId}
           />
+
+          {/* Skin Tone Selector (only for human species) */}
+          {isHumanSpecies && (
+            <SkinToneSelector
+              selectedId={selectedSkinTone}
+              onSelect={setSelectedSkinTone}
+            />
+          )}
         </View>
 
         {/* Navigation Footer */}

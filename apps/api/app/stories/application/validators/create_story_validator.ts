@@ -17,5 +17,6 @@ export const createStoryValidator = vine.compile(
     isPrivate: vine.boolean().optional(),
     generateCharacters: vine.boolean().optional(),
     generateChapterImages: vine.boolean().optional(),
+    appearancePreset: vine.string().trim().optional(),
   })
 )

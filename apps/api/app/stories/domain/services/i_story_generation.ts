@@ -14,6 +14,7 @@ export abstract class IStoryGenerationService {
 }
 
 export interface StoryGenerationPayload {
+  storyId?: string
   title: string
   synopsis: string
   theme: string
@@ -26,6 +27,7 @@ export interface StoryGenerationPayload {
   ownerId: string
   isPublic: boolean
   status: GenerationStatus
+  appearancePreset?: string
 }
 
 export interface StoryImagePayload {

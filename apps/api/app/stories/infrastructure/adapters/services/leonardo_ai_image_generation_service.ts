@@ -11,6 +11,7 @@ import type {
   ChapterImageResult,
 } from '#stories/domain/services/types/image_generation_types'
 import { IStorageService } from '#stories/domain/services/i_storage_service'
+import { AppearancePresetService } from '#stories/domain/services/appearance_preset_service'
 
 /**
  * Service de génération d'images utilisant Leonardo AI
@@ -33,7 +34,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
   private readonly COVER_INIT_STRENGTH = 0.3
   private readonly CHAPTER_INIT_STRENGTH = 0.4
   private readonly IMAGE_SIZE = 1024
-  private readonly MAX_WAIT_TIME_MS = 120000 // 2 minutes
+  private readonly MAX_WAIT_TIME_MS = 300000 // 5 minutes
   private readonly POLL_INTERVAL_MS = 2000
 
   constructor(private readonly storageService: IStorageService) {
@@ -112,8 +113,9 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
       logger.info('✅ Image de couverture Leonardo AI créée')
       return coverPath
     } catch (error: any) {
-      logger.error('❌ Erreur génération couverture Leonardo AI:', error)
-      throw new Error(`Cover image generation failed: ${error.message}`)
+      const errorMessage = error?.message || JSON.stringify(error) || 'Unknown error'
+      logger.error('❌ Erreur génération couverture Leonardo AI:', errorMessage)
+      throw new Error(`Cover image generation failed: ${errorMessage}`)
     }
   }
 
@@ -254,8 +256,9 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
         seed: characterSeed,
       }
     } catch (error: any) {
-      logger.error('❌ Erreur création character reference:', error)
-      throw new Error(`Character reference creation failed: ${error.message}`)
+      const errorMessage = error?.message || JSON.stringify(error) || 'Unknown error'
+      logger.error('❌ Erreur création character reference:', errorMessage)
+      throw new Error(`Character reference creation failed: ${errorMessage}`)
     }
   }
 
@@ -431,7 +434,7 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
       }
     }
 
-    throw new Error(`Timeout waiting for generation ${generationId}`)
+    throw new Error(`Timeout waiting for generation ${generationId} after ${this.MAX_WAIT_TIME_MS / 1000}s`)
   }
 
   /**
@@ -551,7 +554,15 @@ Reference sheet for maintaining visual consistency.
    * @private
    */
   private getCharacterDescription(context: ImageGenerationContext): string {
-    return `${context.protagonist}, a ${context.childAge}-year-old ${context.species}`
+    const baseDescription = `${context.protagonist}, a ${context.childAge}-year-old ${context.species}`
+
+    // Add skin tone description for human characters
+    if (AppearancePresetService.isHumanSpecies(context.species)) {
+      const preset = AppearancePresetService.getPreset(context.appearancePreset)
+      return `${baseDescription} with ${preset.description}`
+    }
+
+    return baseDescription
   }
 
   /**

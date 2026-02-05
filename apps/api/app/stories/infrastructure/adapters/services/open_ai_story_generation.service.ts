@@ -9,6 +9,7 @@ import { IStoryImageGenerationService } from '#stories/domain/services/i_story_i
 import { IStoryRepository } from '#stories/domain/repositories/story_repository'
 import { ChapterFactory } from '#stories/domain/factories/chapter_factory'
 import { Slug } from '#stories/domain/value-objects/metadata/slug.vo'
+import type { Story } from '#stories/domain/entities/story.entity'
 import type {
   ImageGenerationContext,
   ChapterContent,
@@ -74,6 +75,111 @@ export class OpenAiStoryGenerationService implements IStoryGenerationService {
       `⚠️ Plus de ${MAX_SLUG_ATTEMPTS} duplications, utilisation du timestamp: ${timestampSlug}`
     )
     return timestampSlug
+  }
+
+  /**
+   * Convert an existing story entity to the text JSON format used internally.
+   * Used when resuming generation from existing text.
+   */
+  private storyToTextJson(story: Story): any {
+    return {
+      title: story.title,
+      synopsis: story.synopsis,
+      theme: story.theme.name,
+      protagonist: story.protagonist,
+      childAge: story.childAge.getValue(),
+      numberOfChapters: story.numberOfChapters,
+      language: story.language.name,
+      tone: story.tone.name,
+      species: story.species,
+      slug: story.slug.getValue(),
+      chapters: story.chapters.map((chapter) => ({
+        title: chapter.title,
+        content: chapter.content,
+      })),
+      conclusion: story.conclusion,
+    }
+  }
+
+  /**
+   * Save generated text content to the database.
+   * This allows resuming from image generation if it fails.
+   */
+  private async saveGeneratedText(
+    story: Story,
+    storyTextJson: any,
+    slug: string
+  ): Promise<void> {
+    const chapters = storyTextJson.chapters.map((chapter: any, index: number) => {
+      return ChapterFactory.createWithoutImage({
+        position: index + 1,
+        title: chapter.title,
+        content: chapter.content,
+      })
+    })
+
+    const updatedStory = story.updateGeneratedText(
+      chapters,
+      storyTextJson.conclusion || '',
+      storyTextJson.title,
+      Slug.create(slug)
+    )
+
+    await this.storyRepository.save(updatedStory)
+  }
+
+  /**
+   * Generate and parse story text from OpenAI.
+   * Extracts and validates JSON response.
+   */
+  private async generateAndParseStoryText(payload: StoryGenerationPayload): Promise<any> {
+    const storyText = await this.generateStoryText(payload)
+
+    // Log raw response for debugging
+    logger.debug('📄 Longueur de la réponse OpenAI:', storyText.length, 'caractères')
+    logger.debug('📄 Réponse OpenAI brute (premiers 1000 chars):', storyText.substring(0, 1000))
+    logger.debug(
+      '📄 Réponse OpenAI brute (derniers 500 chars):',
+      storyText.substring(storyText.length - 500)
+    )
+
+    // Clean and extract JSON
+    let cleanedJson: string
+    try {
+      cleanedJson = this.extractJsonFromResponse(storyText)
+    } catch (error: any) {
+      logger.error('❌ Erreur lors du nettoyage de la réponse:', error)
+      logger.error('📄 Réponse complète:', storyText)
+      throw new Error(`Impossible d'extraire le JSON de la réponse OpenAI: ${error.message}`)
+    }
+
+    // Parse JSON
+    let storyTextJson: any
+    try {
+      storyTextJson = JSON.parse(cleanedJson)
+    } catch (parseError: any) {
+      logger.error('❌ Erreur de parsing JSON:', parseError.message)
+      logger.error('📄 JSON nettoyé:', cleanedJson)
+      throw new Error(`Le JSON retourné par OpenAI est invalide: ${parseError.message}`)
+    }
+
+    // Validate chapters exist
+    if (!storyTextJson.chapters || !Array.isArray(storyTextJson.chapters)) {
+      logger.error(
+        '❌ Structure de la réponse OpenAI invalide:',
+        JSON.stringify(storyTextJson, null, 2)
+      )
+      throw new Error('La réponse OpenAI ne contient pas de chapitres valides')
+    }
+
+    // Warn if chapter count doesn't match
+    if (storyTextJson.chapters.length !== payload.numberOfChapters) {
+      logger.warn(
+        `⚠️ Nombre de chapitres incorrect: attendu ${payload.numberOfChapters}, reçu ${storyTextJson.chapters.length}`
+      )
+    }
+
+    return storyTextJson
   }
 
   /**
@@ -179,10 +285,11 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
    * Génère une histoire complète avec texte et images
    *
    * Flux:
-   * 1. Générer le contenu texte de l'histoire (OpenAI)
-   * 2. Générer la character reference sheet (Image Provider)
-   * 3. Générer cover image avec character reference
-   * 4. Générer chapter images avec character reference
+   * 1. Vérifier si le texte existe déjà (génération incrémentale)
+   * 2. Si non, générer le contenu texte de l'histoire (OpenAI) et sauvegarder
+   * 3. Générer la character reference sheet (Image Provider)
+   * 4. Générer cover image avec character reference
+   * 5. Générer chapter images avec character reference
    */
   async generateStory(payload: StoryGenerationPayload): Promise<StoryGenerated> {
     logger.info(
@@ -191,63 +298,50 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
     const startTime = Date.now()
 
     try {
-      // Générer un slug unique en vérifiant les duplications
-      const slug = await this.generateUniqueSlug(payload.title)
-
-      // ÉTAPE 1: Générer le contenu texte de l'histoire via OpenAI
-      const storyStartTime = Date.now()
-      logger.info("📝 Génération du contenu texte de l'histoire (OpenAI)...")
-
-      const storyText = await this.generateStoryText(payload)
-
-      // Log la réponse brute pour debug
-      logger.debug('📄 Longueur de la réponse OpenAI:', storyText.length, 'caractères')
-      logger.debug('📄 Réponse OpenAI brute (premiers 1000 chars):', storyText.substring(0, 1000))
-      logger.debug(
-        '📄 Réponse OpenAI brute (derniers 500 chars):',
-        storyText.substring(storyText.length - 500)
-      )
-
-      // Nettoyer et extraire le JSON
-      let cleanedJson: string
-      try {
-        cleanedJson = this.extractJsonFromResponse(storyText)
-      } catch (error: any) {
-        logger.error('❌ Erreur lors du nettoyage de la réponse:', error)
-        logger.error('📄 Réponse complète:', storyText)
-        throw new Error(`Impossible d'extraire le JSON de la réponse OpenAI: ${error.message}`)
-      }
-
-      // Parser le JSON avec gestion d'erreur
       let storyTextJson: any
-      try {
-        storyTextJson = JSON.parse(cleanedJson)
-      } catch (parseError: any) {
-        logger.error('❌ Erreur de parsing JSON:', parseError.message)
-        logger.error('📄 JSON nettoyé:', cleanedJson)
-        throw new Error(`Le JSON retourné par OpenAI est invalide: ${parseError.message}`)
+      let slug!: string
+      let existingStory: Story | null = null
+      let textWasReused = false
+
+      // ÉTAPE 1: Vérifier si le texte existe déjà (génération incrémentale)
+      // Only check for existing text if storyId is provided (async flow)
+      if (payload.storyId) {
+        existingStory = await this.storyRepository.findById(payload.storyId)
+        if (!existingStory) {
+          throw new Error(`Story not found: ${payload.storyId}`)
+        }
+
+        if (existingStory.hasGeneratedText()) {
+          logger.info('📝 Texte existant trouvé, reprise de la génération d\'images...')
+          storyTextJson = this.storyToTextJson(existingStory)
+          slug = existingStory.slug.getValue()
+          textWasReused = true
+          logger.info(`📖 ${storyTextJson.chapters.length} chapitre(s) récupéré(s) de la base de données`)
+        }
       }
 
-      const storyEndTime = Date.now()
-      logger.info(`✅ Texte généré en ${((storyEndTime - storyStartTime) / 1000).toFixed(2)}s`)
+      // Generate text if not already available
+      if (!textWasReused) {
+        // Générer un slug unique en vérifiant les duplications
+        slug = await this.generateUniqueSlug(payload.title)
 
-      // Vérifier que les chapitres existent AVANT d'y accéder
-      if (!storyTextJson.chapters || !Array.isArray(storyTextJson.chapters)) {
-        logger.error(
-          '❌ Structure de la réponse OpenAI invalide:',
-          JSON.stringify(storyTextJson, null, 2)
-        )
-        throw new Error('La réponse OpenAI ne contient pas de chapitres valides')
+        // Générer le contenu texte de l'histoire via OpenAI
+        const storyStartTime = Date.now()
+        logger.info("📝 Génération du contenu texte de l'histoire (OpenAI)...")
+
+        storyTextJson = await this.generateAndParseStoryText(payload)
+
+        const storyEndTime = Date.now()
+        logger.info(`✅ Texte généré en ${((storyEndTime - storyStartTime) / 1000).toFixed(2)}s`)
+        logger.info(`📖 ${storyTextJson.chapters.length} chapitre(s) généré(s)`)
+
+        // SAUVEGARDER immédiatement le texte généré (only if we have an existing story)
+        if (existingStory) {
+          await this.saveGeneratedText(existingStory, storyTextJson, slug)
+          logger.info('💾 Texte sauvegardé en base de données')
+        }
       }
 
-      // Vérifier que le nombre de chapitres correspond
-      if (storyTextJson.chapters.length !== payload.numberOfChapters) {
-        logger.warn(
-          `⚠️ Nombre de chapitres incorrect: attendu ${payload.numberOfChapters}, reçu ${storyTextJson.chapters.length}`
-        )
-      }
-
-      logger.info(`📖 ${storyTextJson.chapters.length} chapitre(s) généré(s)`)
       logger.debug('📄 Structure JSON complète:', JSON.stringify(storyTextJson, null, 2))
 
       // Créer le contexte de génération d'images
@@ -262,6 +356,7 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
         tone: payload.tone,
         species: payload.species,
         slug,
+        appearancePreset: payload.appearancePreset,
       }
 
       // ÉTAPE 2: Générer la character reference (si le provider supporte)

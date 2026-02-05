@@ -109,6 +109,18 @@
         "superhero": "Superhero",
         "superheroine": "Superheroine",
         "animal": "Animal"
+      },
+      "skinTone": {
+        "label": "Skin tone",
+        "selectHint": "Select a skin tone for your character",
+        "presets": {
+          "light": "Light",
+          "light-medium": "Light medium",
+          "medium": "Medium",
+          "medium-tan": "Medium tan",
+          "tan": "Tan",
+          "deep": "Deep"
+        }
       }
     },
     "themeSelection": {
