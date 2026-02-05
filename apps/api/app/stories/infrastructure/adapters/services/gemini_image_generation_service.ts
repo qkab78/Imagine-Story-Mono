@@ -11,6 +11,7 @@ import type {
   ChapterImageResult,
 } from '#stories/domain/services/types/image_generation_types'
 import { IStorageService } from '#stories/domain/services/i_storage_service'
+import { AppearancePresetService } from '#stories/domain/services/appearance_preset_service'
 
 /**
  * Service de génération d'images utilisant Google Gemini Imagen 3 (Nano Banana)
@@ -298,6 +299,11 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
    */
   private buildCoverPrompt(context: ImageGenerationContext): string {
     const characterDescription = this.getCharacterDescription(context)
+    const skinTonePreset = AppearancePresetService.getPreset(context.appearancePreset)
+    const skinToneDescription = `${skinTonePreset.description} (${skinTonePreset.color})`
+    const isHumanCharacter = ['human', 'girl', 'boy', 'superhero', 'superheroine'].includes(
+      context.species.toLowerCase()
+    )
 
     return `🚫 CRITICAL TEXT RESTRICTION - READ FIRST:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -318,7 +324,15 @@ SECTION 1: MAIN CHARACTER DESIGN (CANONICAL REFERENCE)
 ═══════════════════════════════════════════════════════════════
 
 ${characterDescription}
-
+${isHumanCharacter ? `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ CRITICAL SKIN TONE ENFORCEMENT - MANDATORY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The character's skin MUST be ${skinToneDescription}.
+This skin tone is REQUIRED on face, hands, and all exposed skin.
+Any deviation from this skin tone is UNACCEPTABLE.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+` : ''}
 ⚠️ CHARACTER DESIGN IMPORTANCE:
 This character design is ICONIC and must be INSTANTLY RECOGNIZABLE. Every visual detail described above is essential and must appear EXACTLY as specified in all future illustrations. This is the MASTER REFERENCE that defines the character's appearance for the entire story.
 
@@ -399,6 +413,11 @@ This is a TEXT-FREE children's book illustration - focus on creating an engaging
   private buildChapterPrompt(context: ImageGenerationContext, chapter: ChapterContent): string {
     const characterDescription = this.getCharacterDescription(context)
     const contentPreview = chapter.content.substring(0, 500)
+    const skinTonePreset = AppearancePresetService.getPreset(context.appearancePreset)
+    const skinToneDescription = `${skinTonePreset.description} (${skinTonePreset.color})`
+    const isHumanCharacter = ['human', 'girl', 'boy', 'superhero', 'superheroine'].includes(
+      context.species.toLowerCase()
+    )
 
     return `🚫 CRITICAL TEXT RESTRICTION - READ FIRST:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -421,7 +440,16 @@ SECTION 1: CHARACTER CONSISTENCY (CRITICAL - EXACT MATCH REQUIRED)
 ═══════════════════════════════════════════════════════════════
 
 ${characterDescription}
-
+${isHumanCharacter ? `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ CRITICAL SKIN TONE ENFORCEMENT - MANDATORY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The character's skin MUST be ${skinToneDescription}.
+This skin tone is REQUIRED on face, hands, and all exposed skin.
+Any deviation from this skin tone is UNACCEPTABLE.
+This MUST match exactly the cover and all previous chapters.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+` : ''}
 ⚠️ ABSOLUTE CHARACTER CONSISTENCY REQUIREMENTS:
 The character MUST have EXACTLY the same appearance as in the cover and all previous chapter illustrations:
 
@@ -431,14 +459,15 @@ CRITICAL CHECKLIST (EVERY ITEM MUST MATCH EXACTLY):
 ✓ EXACT SAME accessories in the same positions
 ✓ SAME proportions, height, and body shape
 ✓ SAME distinctive features and unique characteristics
-✓ SAME fur/skin/metal colors and textures
+✓ SAME fur/skin/metal colors and textures${isHumanCharacter ? ` - SKIN TONE MUST BE ${skinToneDescription}` : ''}
 ✓ SAME art style and rendering technique
 ✓ The character should be INSTANTLY recognizable as the same character from the cover
 
 DO NOT ALTER:
 ✗ NO changes to outfit or clothing colors
 ✗ NO different accessories or missing accessories
-✗ NO variations in proportions or features
+✗ NO variations in proportions or features${isHumanCharacter ? `
+✗ NO changes to skin tone - MUST remain ${skinToneDescription}` : ''}
 ✗ NO style changes or artistic reinterpretation
 This is chapter ${chapter.index + 1} - the character is already established and CANNOT change.
 
@@ -533,11 +562,25 @@ Focus on telling this chapter's story visually while maintaining perfect consist
    * @private
    */
   private buildDetailedCharacterDescription(context: ImageGenerationContext): string {
-    const { protagonist, species, childAge, theme, tone } = context
+    const { protagonist, species, childAge, theme, tone, appearancePreset } = context
+
+    // Get skin tone preset for human characters
+    const skinTonePreset = AppearancePresetService.getPreset(appearancePreset)
+    const skinToneDescription = `${skinTonePreset.description} (${skinTonePreset.color})`
 
     // Templates de description ULTRA-DÉTAILLÉE par espèce avec spécifications visuelles précises
     const speciesTemplates: Record<string, string> = {
-      human: `${protagonist}, a ${childAge}-year-old child character with the following EXACT physical characteristics:
+      human: `
+═══════════════════════════════════════════════════════════════
+⚠️ MANDATORY SKIN TONE - THIS IS CRITICAL - READ FIRST
+═══════════════════════════════════════════════════════════════
+This character MUST have: ${skinToneDescription}
+The skin tone is LOCKED and CANNOT be changed in any image.
+This skin tone MUST be clearly visible on face, hands, and all exposed skin.
+DO NOT use any other skin tone - this is the DEFINING characteristic.
+═══════════════════════════════════════════════════════════════
+
+${protagonist}, a ${childAge}-year-old child character with the following EXACT physical characteristics:
 
 FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
 - Face shape: Round with soft cheeks and a small chin
@@ -546,13 +589,13 @@ FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
 - Eyebrows: Thin, arched, dark brown eyebrows
 - Nose: Small button nose with a subtle upward tilt
 - Mouth: Wide friendly smile showing small white teeth, pink lips
-- Skin tone: Fair peachy skin (#FFDAB9) with rosy pink cheeks
+- Skin tone: ${skinToneDescription} with rosy pink cheeks ← MANDATORY - DO NOT CHANGE
 - Hair: Shoulder-length wavy brown hair (#8B4513) with natural highlights, parted on the left side
 
 BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
 - Height: Average for ${childAge} years old (head = 1/5 of total body height)
 - Build: Slim but healthy proportions, slightly rounded belly
-- Hands: Small with 4 visible fingers, pink palms
+- Hands: Small with 4 visible fingers, ${skinToneDescription} palms
 - Posture: Upright, confident stance with slight forward lean
 
 CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
@@ -564,7 +607,9 @@ CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
 
 DISTINCTIVE MARKS:
 - One small freckle on the right cheek
-- Cowlick in hair on the top left side of head`,
+- Cowlick in hair on the top left side of head
+
+⚠️ FINAL SKIN TONE REMINDER: The character's skin MUST be ${skinToneDescription}. This is absolute and non-negotiable.`,
 
       cat: `${protagonist}, a ${childAge}-year-old anthropomorphic cat character with the following EXACT physical characteristics:
 
@@ -716,6 +761,174 @@ CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
 DISTINCTIVE MARKS:
 - White spot on the tip of the tail
 - Left ear has a tiny notch at the top edge`,
+
+      // Human species variants with dynamic skin tone
+      girl: `
+═══════════════════════════════════════════════════════════════
+⚠️ MANDATORY SKIN TONE - THIS IS CRITICAL - READ FIRST
+═══════════════════════════════════════════════════════════════
+This character MUST have: ${skinToneDescription}
+The skin tone is LOCKED and CANNOT be changed in any image.
+This skin tone MUST be clearly visible on face, hands, and all exposed skin.
+DO NOT use any other skin tone - this is the DEFINING characteristic.
+═══════════════════════════════════════════════════════════════
+
+${protagonist}, a ${childAge}-year-old girl character with the following EXACT physical characteristics:
+
+FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
+- Face shape: Round with soft cheeks and a small chin
+- Eyes: Large round bright brown eyes with long black eyelashes, positioned wide apart
+- Iris color: Warm chocolate brown (#6B4423) with small golden highlights
+- Eyebrows: Thin, arched, dark brown eyebrows
+- Nose: Small button nose with a subtle upward tilt
+- Mouth: Wide friendly smile showing small white teeth, pink lips
+- Skin tone: ${skinToneDescription} with rosy pink cheeks ← MANDATORY - DO NOT CHANGE
+- Hair: Long flowing dark brown hair (#3D2314) with natural waves, reaching mid-back
+
+BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
+- Height: Average for ${childAge} years old (head = 1/5 of total body height)
+- Build: Slim but healthy proportions, slightly rounded belly
+- Hands: Small with 4 visible fingers, ${skinToneDescription} palms
+- Posture: Upright, confident stance with slight forward lean
+
+CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
+- Dress: Bright pink and white polka dot dress (#FF69B4) with short puffy sleeves
+- Cardigan: Light lavender cardigan (#E6E6FA) worn open over the dress
+- Shoes: White mary jane shoes with small pink bows
+- Accessories: Small sparkly hair clip shaped like a butterfly on the right side
+
+DISTINCTIVE MARKS:
+- Two small freckles on the nose bridge
+- Natural curl in hair that frames the face
+
+⚠️ FINAL SKIN TONE REMINDER: The character's skin MUST be ${skinToneDescription}. This is absolute and non-negotiable.`,
+
+      boy: `
+═══════════════════════════════════════════════════════════════
+⚠️ MANDATORY SKIN TONE - THIS IS CRITICAL - READ FIRST
+═══════════════════════════════════════════════════════════════
+This character MUST have: ${skinToneDescription}
+The skin tone is LOCKED and CANNOT be changed in any image.
+This skin tone MUST be clearly visible on face, hands, and all exposed skin.
+DO NOT use any other skin tone - this is the DEFINING characteristic.
+═══════════════════════════════════════════════════════════════
+
+${protagonist}, a ${childAge}-year-old boy character with the following EXACT physical characteristics:
+
+FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
+- Face shape: Round with soft cheeks and a small chin
+- Eyes: Large round bright blue eyes with long black eyelashes, positioned wide apart
+- Iris color: Bright sapphire blue (#0066CC) with small white highlights
+- Eyebrows: Thin, arched, dark brown eyebrows
+- Nose: Small button nose with a subtle upward tilt
+- Mouth: Wide friendly smile showing small white teeth, pink lips
+- Skin tone: ${skinToneDescription} with rosy pink cheeks ← MANDATORY - DO NOT CHANGE
+- Hair: Short messy brown hair (#8B4513) with natural highlights, slightly spiked at front
+
+BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
+- Height: Average for ${childAge} years old (head = 1/5 of total body height)
+- Build: Slim but healthy proportions, slightly rounded belly
+- Hands: Small with 4 visible fingers, ${skinToneDescription} palms
+- Posture: Upright, confident stance with slight forward lean
+
+CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
+- Top: Bright red and white horizontal striped t-shirt (5 stripes visible, each 3cm wide)
+- Overalls: Classic blue denim overalls (#4682B4) with silver metal buttons and adjustable straps
+- Pockets: Two front pockets on the overalls with visible stitching
+- Shoes: Red sneakers with white laces and white rubber toe caps
+- Accessories: Small yellow star badge pinned on the left overall strap
+
+DISTINCTIVE MARKS:
+- One small freckle on the right cheek
+- Cowlick in hair on the top left side of head
+
+⚠️ FINAL SKIN TONE REMINDER: The character's skin MUST be ${skinToneDescription}. This is absolute and non-negotiable.`,
+
+      superhero: `
+═══════════════════════════════════════════════════════════════
+⚠️ MANDATORY SKIN TONE - THIS IS CRITICAL - READ FIRST
+═══════════════════════════════════════════════════════════════
+This character MUST have: ${skinToneDescription}
+The skin tone is LOCKED and CANNOT be changed in any image.
+This skin tone MUST be clearly visible on face and all exposed skin.
+DO NOT use any other skin tone - this is the DEFINING characteristic.
+═══════════════════════════════════════════════════════════════
+
+${protagonist}, a ${childAge}-year-old boy superhero character with the following EXACT physical characteristics:
+
+FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
+- Face shape: Strong but youthful, with defined jaw for a child
+- Eyes: Large determined bright green eyes with confident expression
+- Iris color: Emerald green (#50C878) with heroic sparkle
+- Eyebrows: Strong, slightly angled showing determination
+- Nose: Small straight nose
+- Mouth: Confident smile showing courage, pink lips
+- Skin tone: ${skinToneDescription} with healthy glow ← MANDATORY - DO NOT CHANGE
+- Hair: Short spiky black hair (#1A1A1A) styled heroically upward
+- Mask: Small red domino mask (#FF0000) covering eye area
+
+BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
+- Height: Average for ${childAge} years old, standing tall and proud
+- Build: Athletic child proportions, confident posture
+- Hands: Small but strong-looking with ${skinToneDescription}
+- Posture: Heroic stance, chest out, hands on hips
+
+CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
+- Suit: Bright blue superhero bodysuit (#1E90FF) with red accents
+- Cape: Flowing red cape (#FF0000) attached at shoulders
+- Emblem: Yellow lightning bolt (#FFD700) on chest
+- Belt: Gold utility belt with small pouches
+- Boots: Red boots matching the cape
+- Gloves: Blue gloves matching the suit
+
+DISTINCTIVE MARKS:
+- Small star-shaped birthmark on right wrist (visible when gloves removed)
+- Cape has a subtle shimmer effect
+
+⚠️ FINAL SKIN TONE REMINDER: The character's skin MUST be ${skinToneDescription}. This is absolute and non-negotiable.`,
+
+      superheroine: `
+═══════════════════════════════════════════════════════════════
+⚠️ MANDATORY SKIN TONE - THIS IS CRITICAL - READ FIRST
+═══════════════════════════════════════════════════════════════
+This character MUST have: ${skinToneDescription}
+The skin tone is LOCKED and CANNOT be changed in any image.
+This skin tone MUST be clearly visible on face and all exposed skin.
+DO NOT use any other skin tone - this is the DEFINING characteristic.
+═══════════════════════════════════════════════════════════════
+
+${protagonist}, a ${childAge}-year-old girl superhero character with the following EXACT physical characteristics:
+
+FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
+- Face shape: Strong but youthful, with soft feminine features
+- Eyes: Large determined bright purple eyes with confident expression
+- Iris color: Vibrant violet (#8A2BE2) with heroic sparkle
+- Eyebrows: Elegant, slightly angled showing determination
+- Nose: Small button nose
+- Mouth: Confident smile showing courage, pink lips
+- Skin tone: ${skinToneDescription} with healthy glow ← MANDATORY - DO NOT CHANGE
+- Hair: Long flowing auburn hair (#8B4513) in a high ponytail, reaching mid-back
+- Mask: Small purple domino mask (#8A2BE2) covering eye area
+
+BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
+- Height: Average for ${childAge} years old, standing tall and proud
+- Build: Athletic child proportions, confident posture
+- Hands: Small but strong-looking with ${skinToneDescription}
+- Posture: Heroic stance, confident and ready for action
+
+CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
+- Suit: Bright purple superhero bodysuit (#8A2BE2) with gold accents
+- Cape: Flowing gold cape (#FFD700) attached at shoulders
+- Emblem: Silver star (#C0C0C0) on chest
+- Belt: Silver utility belt with small pouches
+- Boots: Purple boots matching the suit
+- Gloves: Purple gloves with gold trim
+
+DISTINCTIVE MARKS:
+- Small crescent moon charm on a thin silver chain around neck
+- Hair tie has a small star-shaped decoration
+
+⚠️ FINAL SKIN TONE REMINDER: The character's skin MUST be ${skinToneDescription}. This is absolute and non-negotiable.`,
 
       robot: `${protagonist}, a ${childAge}-year-old small robot character with the following EXACT physical characteristics:
 

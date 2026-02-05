@@ -18,6 +18,7 @@ export interface CreateStoryPayload {
   coverImageUrl?: string
   ownerId?: string
   isPublic?: boolean
+  appearancePreset?: string
 }
 
 /**
@@ -46,6 +47,7 @@ export class StoryFormMapper {
       language: formData.language.id, // UUID from backend
       tone: formData.tone.id, // UUID from backend
       species: formData.hero.species || formData.hero.id, // Map hero species (girl, boy, robot, etc.) with fallback to id
+      appearancePreset: formData.hero.skinTone, // Map skin tone to appearance preset
       // Optional fields
       ownerId,
       title: undefined,

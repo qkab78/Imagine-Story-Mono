@@ -25,6 +25,7 @@ export interface GenerateStoryContentPayload {
   languageCode: string
   tone: string
   species: string
+  appearancePreset?: string
 }
 
 @inject()
@@ -59,6 +60,7 @@ export class GenerateStoryContentUseCase {
 
       // 3. Générer le contenu avec AI (en français si traduction nécessaire)
       let storyGenerated = await this.storyGenerationService.generateStory({
+        storyId: payload.storyId,
         title: story.title,
         synopsis: payload.synopsis,
         theme: payload.theme,
@@ -71,6 +73,7 @@ export class GenerateStoryContentUseCase {
         isPublic: story.isPublic(),
         ownerId: story.ownerId.getValue(),
         status: story.generationStatus,
+        appearancePreset: payload.appearancePreset,
       })
 
       // 4. Traduire si nécessaire

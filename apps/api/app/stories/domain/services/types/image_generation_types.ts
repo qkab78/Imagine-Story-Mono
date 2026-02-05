@@ -38,6 +38,9 @@ export interface ImageGenerationContext {
 
   /** Nombre de chapitres */
   numberOfChapters: number
+
+  /** Preset d'apparence (teint de peau pour les humains) */
+  appearancePreset?: string
 }
 
 /**

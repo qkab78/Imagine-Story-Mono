@@ -454,6 +454,52 @@ export class Story {
   }
 
   /**
+   * Update generated text content without marking as completed.
+   * Used for incremental generation to save text before image generation.
+   */
+  public updateGeneratedText(
+    chapters: Chapter[],
+    conclusion: string,
+    title: string,
+    slug: Slug
+  ): Story {
+    return new Story(
+      this.id,
+      slug,
+      this.childAge,
+      this.coverImageUrl, // Keeps null
+      this.ownerId,
+      this.publicationDate,
+      this._publicationStatus,
+      title,
+      this.synopsis,
+      this.protagonist,
+      this.species,
+      conclusion,
+      this.theme,
+      this.language,
+      this.tone,
+      chapters,
+      this._generationStatus, // Stays "processing"
+      this._jobId,
+      this._generationStartedAt,
+      this._generationCompletedAt,
+      this._generationError,
+      false
+    )
+  }
+
+  /**
+   * Check if story has generated text content.
+   * The initial title is a placeholder (e.g., "Story Wed Feb 05 2026...")
+   * The generated title from OpenAI is different.
+   */
+  public hasGeneratedText(): boolean {
+    const hasGeneratedTitle = !this.title.startsWith('Story ')
+    return hasGeneratedTitle && this._chapters.length > 0 && this.conclusion !== ''
+  }
+
+  /**
    * Retry generation
    * @throws InvariantViolationException if status is not failed
    */

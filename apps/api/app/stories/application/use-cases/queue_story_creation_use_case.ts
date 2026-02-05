@@ -27,6 +27,7 @@ export interface QueueStoryCreationPayload {
   languageId: string
   toneId: string
   numberOfChapters: number
+  appearancePreset?: string
 }
 
 @inject()
@@ -107,6 +108,7 @@ export class QueueStoryCreationUseCase {
       languageId: language.id.getValue(),
       toneId: tone.id.getValue(),
       numberOfChapters: payload.numberOfChapters,
+      appearancePreset: payload.appearancePreset,
     })
 
     if (!job.id) {
