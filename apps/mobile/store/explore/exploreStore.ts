@@ -59,7 +59,7 @@ const useExploreStore = create<ExploreStore>()(
       // Search actions
       setSearchQuery: (query) => set({ searchQuery: query }),
 
-      clearSearchQuery: () => set({ searchQuery: '', isSearching: false }),
+      clearSearchQuery: () => set({ searchQuery: '', isSearching: false, isSearchFocused: false }),
 
       addToSearchHistory: (query) => {
         const trimmedQuery = query.trim();
