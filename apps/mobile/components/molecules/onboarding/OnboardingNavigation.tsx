@@ -11,6 +11,7 @@ interface OnboardingNavigationProps {
   primaryLabel: string;
   showBackButton?: boolean;
   showNextButton?: boolean;
+  showProgressBar?: boolean;
 }
 
 export const OnboardingNavigation: React.FC<OnboardingNavigationProps> = ({
@@ -22,6 +23,7 @@ export const OnboardingNavigation: React.FC<OnboardingNavigationProps> = ({
   primaryLabel,
   showBackButton = true,
   showNextButton = true,
+  showProgressBar = true,
 }) => {
   return (
     <View style={styles.container}>
@@ -45,9 +47,11 @@ export const OnboardingNavigation: React.FC<OnboardingNavigationProps> = ({
         )}
       </View>
 
-      <View style={styles.progressContainer}>
-        <ProgressBar totalSteps={totalSteps} currentStep={currentStep} />
-      </View>
+      {showProgressBar && (
+        <View style={styles.progressContainer}>
+          <ProgressBar totalSteps={totalSteps} currentStep={currentStep} />
+        </View>
+      )}
     </View>
   );
 };

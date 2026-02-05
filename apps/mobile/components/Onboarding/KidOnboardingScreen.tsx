@@ -89,6 +89,7 @@ const KidOnboardingScreen: React.FC<KidOnboardingScreenProps> = ({
             primaryLabel={t(`slides.${slide.slideKey}.button`)}
             showBackButton={!isFirstSlide}
             showNextButton={!isLastSlide}
+            showProgressBar={false}
           />
         </View>
       </Animated.View>

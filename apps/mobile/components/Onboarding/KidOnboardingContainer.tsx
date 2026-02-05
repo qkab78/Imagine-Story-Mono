@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -8,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { kidSlides } from './kidSlides';
 import KidOnboardingScreen from './KidOnboardingScreen';
+import { OnboardingProgressHeader } from '@/components/molecules/onboarding';
 import { router } from 'expo-router';
 import { hasCompletedNotificationOnboarding } from '@/store/notifications/notificationStorage';
 
@@ -74,27 +76,49 @@ const KidOnboardingContainer: React.FC = () => {
     transform: [{ translateX: translateX.value }],
   }));
 
+  const handleSkip = () => {
+    handleComplete();
+  };
+
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Animated.View
-        style={[
-          styles.animatedContainer,
-          animatedStyle,
-        ]}
+    <View style={styles.container}>
+      {/* Progress Header with gradient background */}
+      <LinearGradient
+        colors={['#D4A89A', '#C8A4B8', '#9B8AA6']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.headerGradient, { paddingTop: insets.top }]}
       >
-        {kidSlides.map((slide, index) => (
-          <KidOnboardingScreen
-            key={slide.id}
-            slide={slide}
-            currentSlide={currentSlide}
-            totalSlides={totalSlides}
-            onNext={goToNextSlide}
-            onBack={goToPreviousSlide}
-            onDotPress={goToSlide}
-            onComplete={handleComplete}
-          />
-        ))}
-      </Animated.View>
+        <OnboardingProgressHeader
+          currentStep={currentSlide}
+          totalSteps={totalSlides}
+          onClose={handleSkip}
+          showCloseButton={true}
+        />
+      </LinearGradient>
+
+      {/* Slides content */}
+      <View style={styles.slidesContainer}>
+        <Animated.View
+          style={[
+            styles.animatedContainer,
+            animatedStyle,
+          ]}
+        >
+          {kidSlides.map((slide, index) => (
+            <KidOnboardingScreen
+              key={slide.id}
+              slide={slide}
+              currentSlide={currentSlide}
+              totalSlides={totalSlides}
+              onNext={goToNextSlide}
+              onBack={goToPreviousSlide}
+              onDotPress={goToSlide}
+              onComplete={handleComplete}
+            />
+          ))}
+        </Animated.View>
+      </View>
     </View>
   );
 };
@@ -103,6 +127,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  headerGradient: {
+    width: '100%',
+  },
+  slidesContainer: {
+    flex: 1,
+    overflow: 'hidden',
   },
   animatedContainer: {
     flex: 1,
