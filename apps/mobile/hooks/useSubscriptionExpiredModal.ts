@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import useSubscriptionStore from '@/store/subscription/subscriptionStore'
+import useAuthStore from '@/store/auth/authStore'
 import type { SubscriptionStatus } from '@/types/subscription'
 
 interface UseSubscriptionExpiredModalReturn {
@@ -12,6 +13,7 @@ interface UseSubscriptionExpiredModalReturn {
 const MODAL_DELAY_MS = 500
 
 export const useSubscriptionExpiredModal = (): UseSubscriptionExpiredModalReturn => {
+  const user = useAuthStore((state) => state.user)
   const status = useSubscriptionStore((state) => state.status)
   const expirationDate = useSubscriptionStore((state) => state.expirationDate)
   const expiredModalDismissed = useSubscriptionStore((state) => state.expiredModalDismissed)
@@ -30,6 +32,7 @@ export const useSubscriptionExpiredModal = (): UseSubscriptionExpiredModalReturn
 
   const shouldShowModal =
     isReady &&
+    user !== undefined &&
     (status === 'expired' || status === 'cancelled') &&
     expirationDate !== null &&
     !expiredModalDismissed
