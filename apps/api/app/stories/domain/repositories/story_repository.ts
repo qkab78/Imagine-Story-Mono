@@ -29,6 +29,7 @@ export abstract class IStoryRepository {
   abstract existsBySlug(slug: Slug, excludeId?: StoryId): Promise<boolean>
 
   // Queue-related queries
+  abstract findActiveByOwnerId(ownerId: OwnerId): Promise<Story | null>
   abstract findByJobId(jobId: string): Promise<Story | null>
   abstract findPendingStories(): Promise<Story[]>
   abstract findByGenerationStatus(status: GenerationStatus): Promise<Story[]>

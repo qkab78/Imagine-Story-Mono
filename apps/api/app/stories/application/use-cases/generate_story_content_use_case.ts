@@ -10,7 +10,6 @@ import { Slug } from '#stories/domain/value-objects/metadata/slug.vo'
 import { IUserRepository } from '#users/domain/repositories/user_repository'
 import queue from '@rlanz/bull-queue/services/main'
 import SendStoryGeneratedSuccessEmailJob from '#jobs/story/send_story_generated_success_email_job'
-import SendStoryGenerationFailedEmailJob from '#jobs/story/send_story_generation_failed_email_job'
 import type { Story } from '#stories/domain/entities/story.entity'
 import type { StoryGenerated } from '#stories/domain/services/types/story_generated'
 
@@ -129,23 +128,10 @@ export class GenerateStoryContentUseCase {
 
       return updatedStory
     } catch (error: any) {
-      logger.error(`❌ Story generation failed: ${error.message}`)
-
-      // Marquer comme échoué seulement si le status est processing
-      if (story.generationStatus.isProcessing()) {
-        story.failGeneration(error.message)
-        await this.storyRepository.save(story)
-
-        // Dispatch failure email (non-blocking)
-        this.dispatchFailureEmail(story, error.message).catch((emailError) => {
-          logger.error('⚠️ Failed to dispatch failure email job:', emailError.message)
-        })
-      } else {
-        logger.error(
-          `⚠️ Cannot mark story as failed: status is ${story.generationStatus.getValue()}, expected processing`
-        )
-      }
-
+      logger.error(`Story generation failed for ${payload.storyId}: ${error.message}`)
+      // Ne PAS marquer comme failed ici - Bull Queue peut retenter ce job.
+      // Le marquage et l'email se font dans GenerateStoryJob.rescue()
+      // uniquement après épuisement des retries.
       throw error
     }
   }
@@ -176,56 +162,6 @@ export class GenerateStoryContentUseCase {
       logger.error('❌ Error dispatching success email:', error.message)
       // Don't throw - continue execution
     }
-  }
-
-  /**
-   * Dispatch failure email notification job
-   */
-  private async dispatchFailureEmail(story: Story, errorMessage: string): Promise<void> {
-    try {
-      // Retrieve user information
-      const user = await this.userRepository.findById(story.ownerId.getValue())
-
-      if (!user) {
-        logger.warn(`⚠️ User not found: ${story.ownerId.getValue()}`)
-        return
-      }
-
-      // Simplify error message for user
-      const userFriendlyError = this.simplifyErrorMessage(errorMessage)
-
-      // Dispatch email job
-      await queue.dispatch(SendStoryGenerationFailedEmailJob, {
-        recipientEmail: user.email.getValue(),
-        recipientName: user.getFullName(),
-        storyId: story.id.getValue(),
-        errorMessage: userFriendlyError,
-      })
-
-      logger.info(`📧 Failure email dispatched for ${user.email.getValue()}`)
-    } catch (error: any) {
-      logger.error('❌ Error dispatching failure email:', error.message)
-      // Don't throw - continue execution
-    }
-  }
-
-  /**
-   * Simplify technical error messages for end users
-   */
-  private simplifyErrorMessage(technicalError: string): string {
-    if (technicalError.includes('quota') || technicalError.includes('rate limit')) {
-      return 'Limite de requêtes atteinte. Veuillez réessayer dans quelques instants.'
-    }
-
-    if (technicalError.includes('timeout') || technicalError.includes('timed out')) {
-      return 'Le serveur a mis trop de temps à répondre. Veuillez réessayer.'
-    }
-
-    if (technicalError.includes('API') || technicalError.includes('OpenAI')) {
-      return 'Service de génération temporairement indisponible. Veuillez réessayer.'
-    }
-
-    return 'Une erreur technique est survenue. Notre équipe a été notifiée.'
   }
 
   /**

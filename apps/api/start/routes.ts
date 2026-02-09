@@ -119,6 +119,7 @@ router
         router.get('/users/me', [StoriesControllerPresenter, 'getUserStories'])
         router.get('/quota', [StoriesControllerPresenter, 'getStoryQuota'])
         router.post('/', [StoriesControllerPresenter, 'createStory'])
+        router.post('/:id/retry', [StoriesControllerPresenter, 'retryStoryGeneration'])
         router.get('/search/suggestions', [StoriesControllerPresenter, 'searchStories'])
       })
       .middleware(middleware.auth())

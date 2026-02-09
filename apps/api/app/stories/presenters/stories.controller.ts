@@ -1,5 +1,6 @@
 import { GetStoryByIdUseCase } from '#stories/application/use-cases/get_story_by_id_use_case'
 import { QueueStoryCreationUseCase } from '#stories/application/use-cases/queue_story_creation_use_case'
+import { RetryStoryGenerationUseCase } from '#stories/application/use-cases/retry_story_generation_use_case'
 import { GetStoryGenerationStatusUseCase } from '#stories/application/use-cases/get_story_generation_status_use_case'
 import { GetStoryQuotaUseCase } from '#stories/application/use-cases/get_story_quota_use_case'
 import { ListPublicStoriesUseCase } from '#stories/application/use-cases/story/list_public_stories_use_case'
@@ -28,6 +29,7 @@ export default class StoriesController {
   constructor(
     private readonly getStoryByIdUseCase: GetStoryByIdUseCase,
     private readonly queueStoryCreationUseCase: QueueStoryCreationUseCase,
+    private readonly retryStoryGenerationUseCase: RetryStoryGenerationUseCase,
     private readonly getStoryGenerationStatusUseCase: GetStoryGenerationStatusUseCase,
     private readonly getStoryQuotaUseCase: GetStoryQuotaUseCase,
     private readonly listPublicStoriesUseCase: ListPublicStoriesUseCase,
@@ -73,6 +75,20 @@ export default class StoriesController {
 
     return response.accepted({
       message: 'Story generation queued successfully',
+      data: result,
+    })
+  }
+
+  async retryStoryGeneration({ params, response, auth }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    const result = await this.retryStoryGenerationUseCase.execute(
+      params.id,
+      String(user.id)
+    )
+
+    return response.accepted({
+      message: 'Story generation retry queued successfully',
       data: result,
     })
   }

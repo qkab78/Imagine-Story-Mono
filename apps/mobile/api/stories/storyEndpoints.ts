@@ -15,6 +15,7 @@ export const STORY_ENDPOINTS = {
   STORY_BY_SLUG: (slug: string) => `${apiUrl}/stories/slug/${slug}`,
   STORY_BY_ID: (id: string) => `${apiUrl}/stories/${id}`,
   STORY_GENERATION_STATUS: (id: string) => `${apiUrl}/stories/${id}/status`,
+  STORY_RETRY: (id: string) => `${apiUrl}/stories/${id}/retry`,
   STORIES_SEARCH: (query: string) => `${apiUrl}/stories/search/suggestions?query=${encodeURIComponent(query)}`,
 
   // Settings
