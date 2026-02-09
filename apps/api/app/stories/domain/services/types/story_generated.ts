@@ -16,4 +16,6 @@ export interface StoryGenerated {
   coverImageUrl: string
   ownerId: string
   isPublic: boolean
+  /** Character Visual Lock for maintaining image consistency across the story */
+  characterVisualLock?: string
 }

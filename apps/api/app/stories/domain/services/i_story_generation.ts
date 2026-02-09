@@ -28,6 +28,7 @@ export interface StoryGenerationPayload {
   isPublic: boolean
   status: GenerationStatus
   appearancePreset?: string
+  illustrationStyle?: string
 }
 
 export interface StoryImagePayload {

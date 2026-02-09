@@ -13,6 +13,7 @@ export interface CompleteStoryCreationFormData {
   numberOfChapters: number
   theme: NonNullable<StoryCreationFormData['theme']>
   tone: NonNullable<StoryCreationFormData['tone']>
+  illustrationStyle?: StoryCreationFormData['illustrationStyle']
 }
 
 /**

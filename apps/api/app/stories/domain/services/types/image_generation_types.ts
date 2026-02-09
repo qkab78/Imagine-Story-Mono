@@ -41,6 +41,12 @@ export interface ImageGenerationContext {
 
   /** Preset d'apparence (teint de peau pour les humains) */
   appearancePreset?: string
+
+  /** Style d'illustration (japanese-soft, disney-pixar, watercolor, classic-book) */
+  illustrationStyle?: string
+
+  /** Character Visual Lock - description détaillée du personnage pour cohérence */
+  characterVisualLock?: string
 }
 
 /**
@@ -55,6 +61,18 @@ export interface ChapterContent {
 
   /** Index du chapitre (0-indexed) */
   index: number
+}
+
+/**
+ * Résultat de génération de l'image de couverture
+ * Contient le chemin de l'image et optionnellement le Character Visual Lock
+ */
+export interface CoverImageResult {
+  /** Chemin de l'image de couverture (path relatif dans le storage) */
+  imagePath: string
+
+  /** Character Visual Lock - description détaillée du personnage pour cohérence entre images */
+  characterVisualLock?: string
 }
 
 /**

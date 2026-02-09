@@ -156,8 +156,8 @@ export const SettingsScreen: React.FC = () => {
       numberOfChapters: chapters,
     });
 
-    // Navigate to theme selection
-    router.push('/stories/creation/theme-selection');
+    // Navigate to illustration style selection
+    router.push('/stories/creation/illustration-style');
   };
 
   return (
@@ -185,7 +185,7 @@ export const SettingsScreen: React.FC = () => {
 
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
-          <StepIndicator currentStep={2} totalSteps={4} />
+          <StepIndicator currentStep={2} totalSteps={5} />
         </View>
 
         {/* Settings Container */}

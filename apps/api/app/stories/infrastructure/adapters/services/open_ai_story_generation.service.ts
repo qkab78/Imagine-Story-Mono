@@ -357,6 +357,7 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
         species: payload.species,
         slug,
         appearancePreset: payload.appearancePreset,
+        illustrationStyle: payload.illustrationStyle,
       }
 
       // ÉTAPE 2: Générer la character reference (si le provider supporte)
@@ -382,13 +383,14 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
       // ÉTAPE 3: Générer cover image
       const parallelStartTime = Date.now()
       logger.info('🚀 Génération cover image...')
-      const coverImagePath = await this.imageGenerationService.generateCoverImage(
+      const coverResult = await this.imageGenerationService.generateCoverImage(
         imageContext,
         characterReference
       )
-      if (!coverImagePath) {
+      if (!coverResult.imagePath) {
         throw new Error('Cover image path est null')
       }
+      const coverImagePath = coverResult.imagePath
       const parallelEndTime = Date.now()
       logger.info(
         `✅ Cover image générée en ${((parallelEndTime - parallelStartTime) / 1000).toFixed(2)}s`
@@ -407,8 +409,14 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
         })
       )
 
+      // Ajouter le Character Visual Lock au contexte pour les chapitres (cohérence Gemini)
+      const imageContextWithLock: ImageGenerationContext = {
+        ...imageContext,
+        characterVisualLock: coverResult.characterVisualLock,
+      }
+
       const chapterImagesResponse = await this.imageGenerationService.generateChapterImages(
-        imageContext,
+        imageContextWithLock,
         chapterContents,
         characterReference
       )
@@ -453,6 +461,7 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
         coverImageUrl: coverImagePath,
         ownerId: payload.ownerId,
         isPublic: payload.isPublic,
+        characterVisualLock: coverResult.characterVisualLock,
       }
     } catch (error: any) {
       logger.error("💥 Erreur lors de la génération de l'histoire:", error)

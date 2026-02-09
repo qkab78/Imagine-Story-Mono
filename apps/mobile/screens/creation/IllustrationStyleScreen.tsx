@@ -1,113 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { colors } from '@/theme/colors';
-import { ToneCard } from '@/components/molecules/creation/ToneCard';
+import { StyleSelectionGrid } from '@/components/organisms/creation/StyleSelectionGrid';
 import { PrimaryButton } from '@/components/molecules/creation/PrimaryButton';
 import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
-import { getTones } from '@/api/stories/storyApi';
-import type { ToneDTO } from '@/api/stories/storyTypes';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
-
-// Emoji mapping for tones
-const TONE_EMOJIS: Record<string, string> = {
-  '1': '😊',
-  '2': '😂',
-  '3': '🥰',
-  '4': '🎭',
-  '5': '🌟',
-  '6': '😌',
-};
-
-// Mood mapping for tones
-const TONE_MOODS: Record<string, 'happy' | 'calm' | 'mysterious' | 'adventurous'> = {
-  '1': 'happy',
-  '2': 'happy',
-  '3': 'calm',
-  '4': 'mysterious',
-  '5': 'adventurous',
-  '6': 'calm',
-};
-
-interface ToneOption extends ToneDTO {
-  emoji: string;
-  mood: 'happy' | 'calm' | 'mysterious' | 'adventurous';
-}
+import { ILLUSTRATION_STYLES, type IllustrationStyle } from '@/types/creation';
 
 /**
- * ToneSelectionScreenNew - Écran de sélection du ton
+ * IllustrationStyleScreen - Illustration style selection screen
  *
- * Étape 4/4: Sélection du ton de l'histoire.
- * Design modernisé avec cartes blanches et animations.
+ * Step 3/5: Select the visual style for the story illustrations.
+ * Offers 4 distinct art styles for Gemini image generation.
  *
- * Route: /stories/creation/tone-selection
+ * Route: /stories/creation/illustration-style
  */
-export const ToneSelectionScreenNew: React.FC = () => {
+export const IllustrationStyleScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useAppTranslation('stories');
   const { createStoryPayload, setCreateStoryPayload } = useStoryStore();
 
-  const [selectedToneId, setSelectedToneId] = useState<string | null>(
-    createStoryPayload?.tone?.id || null
+  const [selectedStyle, setSelectedStyle] = useState<IllustrationStyle | undefined>(
+    createStoryPayload?.illustrationStyle || 'japanese-soft'
   );
-  const [tones, setTones] = useState<ToneOption[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Fetch tones from API
-  useEffect(() => {
-    const fetchTones = async () => {
-      try {
-        setIsLoading(true);
-        const tonesData = await getTones();
-
-        // Map ToneDTO to ToneOption with emojis and moods
-        const tonesWithEmojis: ToneOption[] = tonesData.map((tone) => ({
-          ...tone,
-          emoji: TONE_EMOJIS[tone.id] || '🎭',
-          mood: TONE_MOODS[tone.id] || 'happy',
-        }));
-
-        setTones(tonesWithEmojis);
-      } catch (error) {
-        console.error('Error fetching tones:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTones();
-  }, []);
 
   const handleBack = () => {
     router.back();
   };
 
   const handleContinue = () => {
-    if (!selectedToneId) {
-      return;
-    }
-
-    const selectedTone = tones.find((t) => t.id === selectedToneId);
-    if (!selectedTone) {
+    if (!selectedStyle) {
       return;
     }
 
     // Save to store
     setCreateStoryPayload({
-      tone: {
-        id: selectedTone.id,
-        title: selectedTone.name,
-        description: selectedTone.description,
-        emoji: selectedTone.emoji,
-        mood: selectedTone.mood,
-      },
+      illustrationStyle: selectedStyle,
     });
 
-    // Navigate to summary/generation
-    router.push('/stories/creation/summary');
+    // Navigate to theme selection
+    router.push('/stories/creation/theme-selection');
   };
 
   return (
@@ -134,37 +70,23 @@ export const ToneSelectionScreenNew: React.FC = () => {
 
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
-          <StepIndicator currentStep={5} totalSteps={5} />
+          <StepIndicator currentStep={3} totalSteps={5} />
         </View>
 
-        {/* Tones Container */}
-        <View style={styles.tonesContainer}>
+        {/* Styles Container */}
+        <View style={styles.stylesContainer}>
           <Text style={styles.pageTitle}>
-            {t('creation.toneSelection.title')}
+            {t('creation.illustrationStyle.title', { defaultValue: "Style d'illustration" })}
           </Text>
           <Text style={styles.pageHint}>
-            {t('creation.toneSelection.subtitle')}
+            {t('creation.illustrationStyle.subtitle', { defaultValue: 'Choisissez le style artistique de votre histoire' })}
           </Text>
 
-          {isLoading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={colors.forestGreen} />
-              <Text style={styles.loadingText}>{t('creation.toneSelection.loading')}</Text>
-            </View>
-          ) : (
-            <View style={styles.tonesList}>
-              {tones.map((tone) => (
-                <ToneCard
-                  key={tone.id}
-                  emoji={tone.emoji}
-                  name={tone.name}
-                  description={tone.description}
-                  isSelected={tone.id === selectedToneId}
-                  onPress={() => setSelectedToneId(tone.id)}
-                />
-              ))}
-            </View>
-          )}
+          <StyleSelectionGrid
+            options={ILLUSTRATION_STYLES}
+            selectedId={selectedStyle}
+            onSelect={setSelectedStyle}
+          />
         </View>
 
         {/* Navigation Footer */}
@@ -182,7 +104,7 @@ export const ToneSelectionScreenNew: React.FC = () => {
               title={t('creation.continue')}
               icon="→"
               onPress={handleContinue}
-              disabled={!selectedToneId}
+              disabled={!selectedStyle}
             />
           </View>
         </View>
@@ -233,7 +155,7 @@ const styles = StyleSheet.create({
   progressContainer: {
     marginBottom: 32,
   },
-  tonesContainer: {
+  stylesContainer: {
     flex: 1,
   },
   pageTitle: {
@@ -248,20 +170,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.textMuted,
     marginBottom: 32,
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
-  },
-  tonesList: {
-    gap: 12,
-  },
-  loadingContainer: {
-    paddingVertical: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  loadingText: {
-    fontSize: 14,
-    color: colors.textMuted,
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'Roboto',
   },
   footer: {
@@ -289,4 +197,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ToneSelectionScreenNew;
+export default IllustrationStyleScreen;

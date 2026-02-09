@@ -9,9 +9,56 @@ import type {
   ChapterImagesGenerationResponse,
   CharacterReferenceResult,
   ChapterImageResult,
+  CoverImageResult,
 } from '#stories/domain/services/types/image_generation_types'
 import { IStorageService } from '#stories/domain/services/i_storage_service'
 import { AppearancePresetService } from '#stories/domain/services/appearance_preset_service'
+import { IllustrationStyleService } from '#stories/domain/services/illustration_style_service'
+
+/**
+ * Style-specific color descriptions for character visual locks.
+ * Uses textual descriptions instead of hex codes to better match each illustration style.
+ */
+interface StyleColors {
+  dress: string
+  cardigan: string
+  shoes: string
+  hair: string
+  eyes: string
+  top?: string
+  bottom?: string
+  accessory?: string
+}
+
+/**
+ * Costume variant for girls
+ */
+interface GirlOutfitVariant {
+  dress: string
+  cardigan: string
+  shoes: string
+  accessory: string
+}
+
+/**
+ * Costume variant for boys
+ */
+interface BoyOutfitVariant {
+  top: string
+  bottom: string
+  shoes: string
+  accessory: string
+}
+
+/**
+ * Superhero costume variant
+ */
+interface SuperheroCostumeVariant {
+  primary: string
+  cape: string
+  emblem: string
+  accentColor: string
+}
 
 /**
  * Service de génération d'images utilisant Google Gemini Imagen 3 (Nano Banana)
@@ -33,6 +80,139 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
   private readonly MAX_RETRIES = 3
   private readonly RETRY_DELAY_MS = 2000
 
+  // Cover image data stored for subject reference in chapter images
+  private coverImageData: string | null = null
+
+  // Costume variants for variety - very specific descriptions to ensure consistency
+  private readonly SUPERHERO_COSTUME_VARIANTS: SuperheroCostumeVariant[] = [
+    {
+      primary: 'royal blue spandex with subtle darker blue seams',
+      cape: 'long crimson red flowing cape reaching mid-calf, attached at shoulders with gold clasps',
+      emblem: 'golden yellow lightning bolt pointing downward, 15cm tall, centered on chest',
+      accentColor: 'gold trim on gloves and boots',
+    },
+    {
+      primary: 'emerald green metallic bodysuit with diamond pattern texture',
+      cape: 'short silver cape to waist level, scalloped edges, attached at collar',
+      emblem: 'white shield shape with green border, 12cm wide, on left chest',
+      accentColor: 'white belt with silver buckle',
+    },
+    {
+      primary: 'deep purple velvet-look suit with black side panels',
+      cape: 'floor-length gold cape with purple lining, hood down, jeweled clasp',
+      emblem: 'silver 5-pointed star, 10cm, glowing effect, centered on chest',
+      accentColor: 'silver wrist cuffs and ankle bands',
+    },
+    {
+      primary: 'midnight black matte bodysuit with subtle armor plates',
+      cape: 'mid-back electric blue cape, torn edges style, no clasp',
+      emblem: 'white crescent moon facing right, 8cm, on right chest',
+      accentColor: 'electric blue glowing lines on arms and legs',
+    },
+    {
+      primary: 'fiery orange gradient suit, darker at extremities',
+      cape: 'short black cape to shoulders only, flame-shaped edges',
+      emblem: 'yellow-orange flame with 3 tongues, 12cm tall, centered',
+      accentColor: 'black gloves up to elbows, black boots to knees',
+    },
+    {
+      primary: 'ruby red glossy suit with gold muscle lines',
+      cape: 'asymmetric dark gray cape, long on left side only',
+      emblem: 'orange phoenix with spread wings, 15cm wide, on chest',
+      accentColor: 'gold belt and shoulder pads',
+    },
+    {
+      primary: 'sky blue suit with white cloud pattern on torso',
+      cape: 'long flowing white cape, transparent edges, angel-wing shape',
+      emblem: 'fluffy white cloud with silver lining, 10cm, centered',
+      accentColor: 'white boots with small wings at ankles',
+    },
+    {
+      primary: 'forest green suit with bark texture on arms and legs',
+      cape: 'brown hooded cloak, leaf-shaped clasp, earth tones',
+      emblem: 'golden oak leaf, detailed veins, 8cm, on left chest',
+      accentColor: 'brown leather belt with pouches',
+    },
+  ]
+
+  private readonly GIRL_OUTFIT_VARIANTS: GirlOutfitVariant[] = [
+    {
+      dress: 'pink dress with white polka dots',
+      cardigan: 'lavender',
+      shoes: 'white Mary Jane',
+      accessory: 'butterfly hair clip',
+    },
+    {
+      dress: 'yellow sundress with daisies',
+      cardigan: 'light blue',
+      shoes: 'white sandals',
+      accessory: 'flower crown',
+    },
+    {
+      dress: 'mint green dress',
+      cardigan: 'cream white',
+      shoes: 'pink ballet flats',
+      accessory: 'pearl headband',
+    },
+    {
+      dress: 'coral dress with ruffles',
+      cardigan: 'beige',
+      shoes: 'tan sandals',
+      accessory: 'seashell necklace',
+    },
+    {
+      dress: 'sky blue dress with clouds',
+      cardigan: 'white',
+      shoes: 'silver shoes',
+      accessory: 'star hair pins',
+    },
+    {
+      dress: 'peach dress with lace',
+      cardigan: 'dusty rose',
+      shoes: 'cream ballet shoes',
+      accessory: 'ribbon bow',
+    },
+  ]
+
+  private readonly BOY_OUTFIT_VARIANTS: BoyOutfitVariant[] = [
+    {
+      top: 'red and white striped t-shirt',
+      bottom: 'blue overalls',
+      shoes: 'red sneakers',
+      accessory: 'yellow star badge',
+    },
+    {
+      top: 'green dinosaur t-shirt',
+      bottom: 'khaki shorts',
+      shoes: 'brown boots',
+      accessory: 'explorer hat',
+    },
+    {
+      top: 'navy blue polo',
+      bottom: 'beige chinos',
+      shoes: 'white sneakers',
+      accessory: 'wristwatch',
+    },
+    {
+      top: 'orange hoodie',
+      bottom: 'dark jeans',
+      shoes: 'gray sneakers',
+      accessory: 'backpack',
+    },
+    {
+      top: 'yellow t-shirt with rocket',
+      bottom: 'blue shorts',
+      shoes: 'blue sneakers',
+      accessory: 'astronaut patch',
+    },
+    {
+      top: 'light blue button shirt',
+      bottom: 'navy pants',
+      shoes: 'brown loafers',
+      accessory: 'bow tie',
+    },
+  ]
+
   constructor(private readonly storageService: IStorageService) {
     super()
     this.client = new GoogleGenAI({
@@ -42,19 +222,27 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
 
   /**
    * Génère l'image de couverture avec Gemini Imagen 3
+   * Retourne également le Character Visual Lock pour assurer la cohérence avec les chapitres
    */
   async generateCoverImage(
     context: ImageGenerationContext,
     _characterReference?: CharacterReferenceResult
-  ): Promise<string> {
+  ): Promise<CoverImageResult> {
     try {
       logger.info('🖼️ Génération image de couverture avec Gemini Imagen 3 (Nano Banana)...')
+
+      // Générer le Character Visual Lock pour la cohérence entre images
+      const characterVisualLock = this.buildCharacterVisualLock(context)
 
       const coverPrompt = this.buildCoverPrompt(context)
       logger.info(`🎨 Génération couverture pour: ${context.title}`)
 
       // Générer l'image avec Gemini
       const imageData = await this.generateImageWithRetry(coverPrompt)
+
+      // Stocker l'image pour la réutiliser comme référence sujet dans les chapitres
+      this.coverImageData = imageData
+      logger.info('📌 Image de couverture stockée comme référence sujet pour les chapitres')
 
       // Sauvegarder l'image
       const coverFileName = `${context.slug}.png`
@@ -65,7 +253,10 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
       )
 
       logger.info('✅ Image de couverture Gemini Imagen créée')
-      return coverPath
+      return {
+        imagePath: coverPath,
+        characterVisualLock,
+      }
     } catch (error: any) {
       logger.error('❌ Erreur génération couverture Gemini:', error)
       throw new Error(`Cover image generation failed: ${error.message}`)
@@ -125,6 +316,9 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
 
     logger.info(`✅ ${successfulGeneration}/${chapters.length} images de chapitres générées`)
 
+    // Réinitialiser l'image de couverture après génération des chapitres
+    this.coverImageData = null
+
     return {
       images: chapterImages,
       metadata: {
@@ -174,6 +368,7 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
 
   /**
    * Génère une image pour un seul chapitre
+   * Utilise l'image de couverture comme référence multimodale si disponible
    * @private
    */
   private async generateSingleChapterImage(
@@ -184,9 +379,20 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
       logger.info(`📋 Génération image chapitre ${chapter.index + 1}: ${chapter.title}`)
 
       const chapterPrompt = this.buildChapterPrompt(context, chapter)
+      let imageData: string
 
-      // Générer l'image
-      const imageData = await this.generateImageWithRetry(chapterPrompt)
+      // Utiliser l'image de couverture comme référence si disponible
+      if (this.coverImageData) {
+        try {
+          logger.info(`🔗 Utilisation de l'image de couverture comme référence multimodale`)
+          imageData = await this.generateImageWithReference(chapterPrompt, this.coverImageData)
+        } catch (error: any) {
+          logger.warn(`⚠️ Génération avec référence échouée, fallback sur text-to-image: ${error.message}`)
+          imageData = await this.generateImageWithRetry(chapterPrompt)
+        }
+      } else {
+        imageData = await this.generateImageWithRetry(chapterPrompt)
+      }
 
       // Sauvegarder l'image
       const chapterFileName = `${context.slug}_chapter_${chapter.index + 1}.png`
@@ -266,6 +472,74 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
   }
 
   /**
+   * Génère une image en utilisant une image de référence pour le personnage
+   * Utilise generateContent avec l'image de couverture comme référence multimodale
+   * @private
+   */
+  private async generateImageWithReference(
+    prompt: string,
+    referenceImageBase64: string,
+    retries = this.MAX_RETRIES
+  ): Promise<string> {
+    let lastError: Error | null = null
+
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const response = await this.client.models.generateContent({
+          model: this.MODEL_NAME,
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                // Image de référence du personnage
+                {
+                  inlineData: {
+                    mimeType: 'image/png',
+                    data: referenceImageBase64,
+                  },
+                },
+                // Instruction de cohérence + prompt de la scène
+                {
+                  text: `REFERENCE IMAGE ABOVE: This is the main character. Generate a NEW image of this EXACT SAME character with identical costume, emblem, cape, colors, and all accessories.
+
+${prompt}`,
+                },
+              ],
+            },
+          ],
+          config: {
+            responseModalities: ['IMAGE'],
+            imageConfig: {
+              aspectRatio: this.ASPECT_RATIO,
+              imageSize: this.IMAGE_SIZE,
+            },
+          },
+        })
+
+        // Extraire l'image base64 de la réponse
+        if (response.candidates?.[0]?.content?.parts) {
+          for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData?.data) {
+              return part.inlineData.data
+            }
+          }
+        }
+
+        throw new Error('Aucune image trouvée dans la réponse Gemini')
+      } catch (error: any) {
+        lastError = error
+        logger.warn(`⚠️ generateImageWithReference tentative ${attempt}/${retries} échouée:`, error.message)
+
+        if (attempt < retries) {
+          await new Promise((resolve) => setTimeout(resolve, this.RETRY_DELAY_MS))
+        }
+      }
+    }
+
+    throw new Error(`generateImageWithReference failed after ${retries} attempts: ${lastError?.message}`)
+  }
+
+  /**
    * Sauvegarde une image base64 via le storage service
    * @private
    */
@@ -295,782 +569,404 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
 
   /**
    * Construit le prompt pour l'image de couverture
+   * Utilise des prompts courts et focalisés (~30 lignes) avec Character Visual Lock
    * @private
    */
   private buildCoverPrompt(context: ImageGenerationContext): string {
-    const characterDescription = this.getCharacterDescription(context)
-    const skinTonePreset = AppearancePresetService.getPreset(context.appearancePreset)
-    const skinToneDescription = `${skinTonePreset.description} (${skinTonePreset.color})`
-    const isHumanCharacter = ['human', 'girl', 'boy', 'superhero', 'superheroine'].includes(
-      context.species.toLowerCase()
-    )
+    const stylePrompt = IllustrationStyleService.getStylePrompt(context.illustrationStyle)
+    const characterLock = this.buildCharacterVisualLock(context)
+    const styleName = context.illustrationStyle || 'classic-book'
 
-    return `🚫 CRITICAL TEXT RESTRICTION - READ FIRST:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ABSOLUTELY NO TEXT, WORDS, LETTERS, OR WRITTEN CONTENT OF ANY KIND
-- NO title text anywhere in the image
-- NO speech bubbles or dialogue
-- NO labels, captions, or annotations
-- NO visible letters, numbers, or symbols
-- NO written words in any language
-- NO book spines with text, signs, or posters with writing
-PURE VISUAL ILLUSTRATION ONLY - TEXT-FREE CHILDREN'S BOOK ART
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    return `${stylePrompt}
 
-Create a professional children's book cover illustration with the following details:
+NO TEXT IN IMAGE - PURE VISUAL ILLUSTRATION ONLY
 
-═══════════════════════════════════════════════════════════════
-SECTION 1: MAIN CHARACTER DESIGN (CANONICAL REFERENCE)
-═══════════════════════════════════════════════════════════════
+═══════════════════════════════════════
+STYLE ARTISTIQUE: ${styleName.toUpperCase()}
+═══════════════════════════════════════
 
-${characterDescription}
-${isHumanCharacter ? `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ CRITICAL SKIN TONE ENFORCEMENT - MANDATORY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-The character's skin MUST be ${skinToneDescription}.
-This skin tone is REQUIRED on face, hands, and all exposed skin.
-Any deviation from this skin tone is UNACCEPTABLE.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-` : ''}
-⚠️ CHARACTER DESIGN IMPORTANCE:
-This character design is ICONIC and must be INSTANTLY RECOGNIZABLE. Every visual detail described above is essential and must appear EXACTLY as specified in all future illustrations. This is the MASTER REFERENCE that defines the character's appearance for the entire story.
+═══════════════════════════════════════
+CHARACTER VISUAL LOCK (IMAGE DE RÉFÉRENCE)
+═══════════════════════════════════════
+${characterLock}
 
-═══════════════════════════════════════════════════════════════
-SECTION 2: COVER SCENE COMPOSITION
-═══════════════════════════════════════════════════════════════
+═══════════════════════════════════════
+COMPOSITION COUVERTURE
+═══════════════════════════════════════
+- Personnage au centre, 60-70% de l'image, corps entier visible
+- Expression accueillante, regard vers le spectateur
+- Décor: ${context.theme}, détaillé mais pas distrayant
+- Laisser 20% en haut pour le titre (zone simple)
+- Éclairage doux et chaleureux, ambiance ${context.tone}
+- Public cible: enfants de ${context.childAge} ans
 
-Main Scene Layout:
-- The character is prominently featured in the center of the composition, taking up 60-70% of the image
-- Full-body view showing all distinctive features, clothing, and accessories
-- The character should have a welcoming, engaging expression directly facing the viewer
-- Character positioned with feet visible, showing complete outfit and accessories
-- Background: Beautiful ${context.theme} environment that sets the story's atmosphere
-- Background should be detailed but not distracting from the main character
+════════════════════════════════════════════════════════════════
+IMAGE DE RÉFÉRENCE POUR TOUTE L'HISTOIRE
+════════════════════════════════════════════════════════════════
+Cette image définit le personnage pour TOUTE l'histoire.
+Chaque détail du costume doit être clairement visible et identifiable:
+- Emblème bien visible et détaillé
+- Cape avec sa forme et longueur exactes
+- Couleurs vives et distinctes
+- Accessoires bien positionnés
 
-Story Context Integration:
-- Title theme: "${context.title}"
-- Story synopsis: ${context.synopsis}
-- Emotional tone: ${context.tone}
-- Target audience: ${context.childAge}-year-old children
-
-═══════════════════════════════════════════════════════════════
-SECTION 3: VISUAL STYLE & ARTISTIC SPECIFICATIONS
-═══════════════════════════════════════════════════════════════
-
-Art Style Requirements:
-- Art style: Modern children's book illustration with soft painted textures
-- Rendering: Slightly stylized but with realistic proportions and lighting
-- Color palette: Warm, vibrant colors with high saturation - avoid muted or pastel tones
-- Lighting: Soft, even front lighting (like golden hour sunlight) that illuminates the character clearly
-- Perspective: Straight-on view at eye level with the character
-- Texture: Smooth digital painting style with subtle brushwork visible
-- Line quality: Clean outlines with consistent thickness
-- Shadow style: Soft, natural shadows that enhance depth without darkening the mood
-- Overall mood: Inviting, warm, and age-appropriate for ${context.childAge}-year-old children
-
-Composition Technical Guidelines:
-- Main character in foreground (sharp focus, maximum detail, crisp edges)
-- Background elements slightly softer but still detailed and atmospheric
-- Leave clear space at the top 20% for future title text overlay (keep this area simple)
-- Ensure character's distinctive features (clothing, colors, accessories) are clearly visible
-- Frame the character to show personality and approachability
-- Rule of thirds composition with character's face in upper third
-- Balanced visual weight with breathing room around the character
-
-═══════════════════════════════════════════════════════════════
-SECTION 4: CONSISTENCY & QUALITY REQUIREMENTS
-═══════════════════════════════════════════════════════════════
-
-Character Consistency Rules (CRITICAL):
-✓ This is the REFERENCE IMAGE for the entire story series
-✓ The character's appearance established here is CANONICAL and UNCHANGEABLE
-✓ All distinctive features must be clearly visible and well-defined
-✓ Clothing, colors, accessories MUST remain identical in all future illustrations
-✓ Character proportions and style must be consistent and memorable
-✓ Every detail matters - this image defines the character forever
-
-Image Quality Standards:
-✓ High resolution with crisp, clean details
-✓ Professional children's book illustration quality
-✓ Colors should be vibrant and appealing to young children
-✓ Character should be immediately recognizable and memorable
-✓ Background should support but not overwhelm the character
-✓ Overall composition should be balanced and visually appealing
-
-═══════════════════════════════════════════════════════════════
-🚫 FINAL REMINDER: ABSOLUTELY NO TEXT IN THE IMAGE
-═══════════════════════════════════════════════════════════════
-
-Generate ONLY the pure visual illustration without any text, titles, words, letters, or written content.
-This is a TEXT-FREE children's book illustration - focus on creating an engaging, memorable character design that will be instantly recognizable throughout the story.`
+Style ${styleName} appliqué uniformément sur toute l'image.`
   }
 
   /**
    * Construit le prompt pour une image de chapitre
+   * Utilise des prompts courts et focalisés (~30 lignes) avec Character Visual Lock
    * @private
    */
   private buildChapterPrompt(context: ImageGenerationContext, chapter: ChapterContent): string {
-    const characterDescription = this.getCharacterDescription(context)
-    const contentPreview = chapter.content.substring(0, 500)
-    const skinTonePreset = AppearancePresetService.getPreset(context.appearancePreset)
-    const skinToneDescription = `${skinTonePreset.description} (${skinTonePreset.color})`
-    const isHumanCharacter = ['human', 'girl', 'boy', 'superhero', 'superheroine'].includes(
-      context.species.toLowerCase()
+    const stylePrompt = IllustrationStyleService.getStylePrompt(context.illustrationStyle)
+    const characterLock = context.characterVisualLock || this.buildCharacterVisualLock(context)
+    const scene = chapter.content.substring(0, 300)
+    const styleName = context.illustrationStyle || 'classic-book'
+    const isLastChapter = chapter.index + 1 === context.numberOfChapters
+
+    // Extra emphasis for last chapter to prevent style drift
+    const styleEmphasis = isLastChapter
+      ? `\n⚠️ DERNIER CHAPITRE - MAINTENIR LE STYLE ${styleName.toUpperCase()} EXACTEMENT COMME LES CHAPITRES PRÉCÉDENTS`
+      : ''
+
+    return `${stylePrompt}
+
+NO TEXT IN IMAGE - PURE VISUAL ILLUSTRATION ONLY
+
+═══════════════════════════════════════
+STYLE ARTISTIQUE: ${styleName.toUpperCase()}
+═══════════════════════════════════════
+${styleEmphasis}
+
+═══════════════════════════════════════
+CHARACTER VISUAL LOCK (COPIE EXACTE DE LA COUVERTURE)
+═══════════════════════════════════════
+${characterLock}
+
+═══════════════════════════════════════
+SCÈNE CHAPITRE ${chapter.index + 1}/${context.numberOfChapters}
+═══════════════════════════════════════
+Titre (ne pas écrire): "${chapter.title}"
+
+Contexte de la scène:
+${scene}
+
+Composition:
+- Personnage visible et reconnaissable (min 40% de l'image)
+- Action ou émotion correspondant au contenu
+- Décor: ${context.theme}
+- Ton: ${context.tone}
+- Public: ${context.childAge} ans
+
+════════════════════════════════════════════════════════════════
+RÈGLES DE COHÉRENCE ABSOLUES - NE JAMAIS DÉVIER
+════════════════════════════════════════════════════════════════
+✓ Personnage STRICTEMENT identique à la couverture
+✓ Même costume avec TOUS les détails (emblème, cape, accessoires)
+✓ Mêmes couleurs EXACTES sur chaque élément
+✓ Même style artistique ${styleName} sur TOUTE l'image
+
+✗ NE PAS changer la forme ou position de l'emblème
+✗ NE PAS modifier la longueur ou forme de la cape
+✗ NE PAS altérer les couleurs du costume
+✗ NE PAS changer le style d'illustration`
+  }
+
+  /**
+   * Construit le Character Visual Lock - description concise mais précise du personnage
+   * Ce lock est utilisé pour maintenir la cohérence entre toutes les images
+   * @private
+   */
+  private buildCharacterVisualLock(context: ImageGenerationContext): string {
+    const { protagonist, species, childAge, appearancePreset, illustrationStyle } = context
+    const skinTone = AppearancePresetService.getPreset(appearancePreset)
+    const isHuman = ['human', 'girl', 'boy', 'superhero', 'superheroine'].includes(
+      species.toLowerCase()
     )
 
-    return `🚫 CRITICAL TEXT RESTRICTION - READ FIRST:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ABSOLUTELY NO TEXT, WORDS, LETTERS, OR WRITTEN CONTENT OF ANY KIND
-- NO chapter titles or page numbers
-- NO speech bubbles, dialogue, or captions
-- NO labels or annotations
-- NO visible letters, numbers, or symbols
-- NO written words in any language
-- NO signs, posters, book text, or environmental text
-PURE VISUAL ILLUSTRATION ONLY - TEXT-FREE CHILDREN'S BOOK ART
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    if (isHuman) {
+      return this.buildHumanCharacterLock(context, species, protagonist, childAge, skinTone)
+    }
 
-Create a children's book illustration for chapter ${chapter.index + 1} of ${context.numberOfChapters}:
-
-Chapter Title Reference (DO NOT WRITE IN IMAGE): "${chapter.title}"
-
-═══════════════════════════════════════════════════════════════
-SECTION 1: CHARACTER CONSISTENCY (CRITICAL - EXACT MATCH REQUIRED)
-═══════════════════════════════════════════════════════════════
-
-${characterDescription}
-${isHumanCharacter ? `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ CRITICAL SKIN TONE ENFORCEMENT - MANDATORY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-The character's skin MUST be ${skinToneDescription}.
-This skin tone is REQUIRED on face, hands, and all exposed skin.
-Any deviation from this skin tone is UNACCEPTABLE.
-This MUST match exactly the cover and all previous chapters.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-` : ''}
-⚠️ ABSOLUTE CHARACTER CONSISTENCY REQUIREMENTS:
-The character MUST have EXACTLY the same appearance as in the cover and all previous chapter illustrations:
-
-CRITICAL CHECKLIST (EVERY ITEM MUST MATCH EXACTLY):
-✓ IDENTICAL facial features, eye color, and expression style
-✓ EXACT SAME clothing items, colors (use same hex codes), and patterns
-✓ EXACT SAME accessories in the same positions
-✓ SAME proportions, height, and body shape
-✓ SAME distinctive features and unique characteristics
-✓ SAME fur/skin/metal colors and textures${isHumanCharacter ? ` - SKIN TONE MUST BE ${skinToneDescription}` : ''}
-✓ SAME art style and rendering technique
-✓ The character should be INSTANTLY recognizable as the same character from the cover
-
-DO NOT ALTER:
-✗ NO changes to outfit or clothing colors
-✗ NO different accessories or missing accessories
-✗ NO variations in proportions or features${isHumanCharacter ? `
-✗ NO changes to skin tone - MUST remain ${skinToneDescription}` : ''}
-✗ NO style changes or artistic reinterpretation
-This is chapter ${chapter.index + 1} - the character is already established and CANNOT change.
-
-═══════════════════════════════════════════════════════════════
-SECTION 2: CHAPTER SCENE & NARRATIVE MOMENT
-═══════════════════════════════════════════════════════════════
-
-Chapter Story Context:
-${contentPreview}
-
-Scene Composition Requirements:
-- The main character is clearly visible and central to the action (minimum 40% of image)
-- Show the character actively participating in this chapter's key narrative moment
-- Character should be engaged with the scene (action, emotion, or interaction)
-- Background: ${context.theme} environment matching this specific chapter's setting
-- Camera angle: Eye-level perspective with the character (child's viewpoint)
-- Ensure the character's distinctive clothing and features are clearly visible
-- Frame the action to tell the story visually without text
-
-Environmental Setting:
-- Background should support the chapter's narrative without overwhelming the character
-- Include setting details that match the chapter content
-- Maintain ${context.theme} atmosphere consistent with the overall story
-- Create depth with foreground, midground, and background elements
-
-═══════════════════════════════════════════════════════════════
-SECTION 3: VISUAL STYLE CONSISTENCY (MUST MATCH COVER)
-═══════════════════════════════════════════════════════════════
-
-Art Style Requirements (IDENTICAL TO COVER):
-- Art style: Modern children's book illustration with soft painted textures
-- Rendering: Slightly stylized but with realistic proportions and lighting
-- Color palette: Warm, vibrant colors with high saturation - MUST match cover palette
-- Lighting: Soft, even lighting that keeps the scene bright and inviting
-- Perspective: Consistent with cover and previous chapters
-- Texture: Smooth digital painting style with subtle brushwork visible
-- Line quality: Clean outlines with consistent thickness (same as cover)
-- Shadow style: Soft, natural shadows that enhance depth
-- Emotional tone: ${context.tone}
-- Age-appropriate: Designed specifically for ${context.childAge}-year-old children
-
-Technical Consistency Standards:
-- Character rendering quality must match the cover illustration exactly
-- Color saturation and vibrancy consistent across all images
-- Same level of detail and finish quality
-- Same artistic techniques and visual treatment
-- Professional children's book illustration standard maintained
-
-═══════════════════════════════════════════════════════════════
-SECTION 4: STORY CONTINUITY & QUALITY ASSURANCE
-═══════════════════════════════════════════════════════════════
-
-Story Context:
-- This is chapter ${chapter.index + 1} of ${context.numberOfChapters} in the story "${context.title}"
-- This chapter continues the visual narrative established in the cover
-- Character appearance is LOCKED from the cover illustration
-- Overall theme: ${context.theme}
-- Maintain the same artistic technique and rendering quality throughout
-
-Visual Continuity Checklist:
-✓ Character appearance matches cover image exactly (clothing, colors, features)
-✓ Art style is consistent with cover and previous chapters
-✓ Color palette harmonizes with the established visual language
-✓ Line quality and rendering technique match previous illustrations
-✓ Character proportions are identical to cover illustration
-✓ All distinctive accessories and features are present
-✓ Background style complements character rendering
-✓ Overall quality and finish match the cover standard
-
-Quality Standards:
-✓ High resolution with crisp, clean details
-✓ Professional children's book illustration quality
-✓ Character is clearly recognizable as the same character from cover
-✓ Scene tells the chapter story visually without needing text
-✓ Composition is balanced and age-appropriate
-✓ Colors are vibrant and appealing to ${context.childAge}-year-old children
-✓ Image works as part of a cohesive visual story sequence
-
-═══════════════════════════════════════════════════════════════
-🚫 FINAL REMINDER: ABSOLUTELY NO TEXT IN THE IMAGE
-═══════════════════════════════════════════════════════════════
-
-Generate ONLY the pure visual illustration without any text, words, letters, or written content.
-This is a TEXT-FREE children's book illustration.
-The character must look EXACTLY the same as in the cover and previous chapters - this is absolutely critical for story continuity.
-Focus on telling this chapter's story visually while maintaining perfect consistency with the established character design.`
+    return this.getSpeciesCharacterLock(species, protagonist, childAge, illustrationStyle)
   }
 
   /**
-   * Construit une description détaillée du personnage pour garantir la cohérence visuelle
-   * Cette description ULTRA-DÉTAILLÉE garantit que le personnage reste identique sur toutes les images
+   * Get style-specific color descriptions for clothing and features.
+   * Uses textual descriptions that match each illustration style instead of hex codes.
    * @private
    */
-  private buildDetailedCharacterDescription(context: ImageGenerationContext): string {
-    const { protagonist, species, childAge, theme, tone, appearancePreset } = context
-
-    // Get skin tone preset for human characters
-    const skinTonePreset = AppearancePresetService.getPreset(appearancePreset)
-    const skinToneDescription = `${skinTonePreset.description} (${skinTonePreset.color})`
-
-    // Templates de description ULTRA-DÉTAILLÉE par espèce avec spécifications visuelles précises
-    const speciesTemplates: Record<string, string> = {
-      human: `
-═══════════════════════════════════════════════════════════════
-⚠️ MANDATORY SKIN TONE - THIS IS CRITICAL - READ FIRST
-═══════════════════════════════════════════════════════════════
-This character MUST have: ${skinToneDescription}
-The skin tone is LOCKED and CANNOT be changed in any image.
-This skin tone MUST be clearly visible on face, hands, and all exposed skin.
-DO NOT use any other skin tone - this is the DEFINING characteristic.
-═══════════════════════════════════════════════════════════════
-
-${protagonist}, a ${childAge}-year-old child character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Face shape: Round with soft cheeks and a small chin
-- Eyes: Large round bright blue eyes with long black eyelashes, positioned wide apart
-- Iris color: Bright sapphire blue (#0066CC) with small white highlights
-- Eyebrows: Thin, arched, dark brown eyebrows
-- Nose: Small button nose with a subtle upward tilt
-- Mouth: Wide friendly smile showing small white teeth, pink lips
-- Skin tone: ${skinToneDescription} with rosy pink cheeks ← MANDATORY - DO NOT CHANGE
-- Hair: Shoulder-length wavy brown hair (#8B4513) with natural highlights, parted on the left side
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height: Average for ${childAge} years old (head = 1/5 of total body height)
-- Build: Slim but healthy proportions, slightly rounded belly
-- Hands: Small with 4 visible fingers, ${skinToneDescription} palms
-- Posture: Upright, confident stance with slight forward lean
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Top: Bright red and white horizontal striped t-shirt (5 stripes visible, each 3cm wide)
-- Overalls: Classic blue denim overalls (#4682B4) with silver metal buttons and adjustable straps
-- Pockets: Two front pockets on the overalls with visible stitching
-- Shoes: Red sneakers with white laces and white rubber toe caps
-- Accessories: Small yellow star badge pinned on the left overall strap
-
-DISTINCTIVE MARKS:
-- One small freckle on the right cheek
-- Cowlick in hair on the top left side of head
-
-⚠️ FINAL SKIN TONE REMINDER: The character's skin MUST be ${skinToneDescription}. This is absolute and non-negotiable.`,
-
-      cat: `${protagonist}, a ${childAge}-year-old anthropomorphic cat character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Face shape: Rounded feline face with soft fur texture
-- Fur pattern: Orange tabby stripes (#FF8C00) on white base fur (#FFFFFF), classic "M" marking on forehead
-- Eyes: Large almond-shaped emerald green eyes (#50C878) with vertical slit pupils
-- Eye size: Eyes are 1.5x larger than typical cat proportions for expressiveness
-- Nose: Small triangular pink nose (#FFB6C1), always visible
-- Whiskers: 6 white whiskers on each side (12 total), each 4cm long
-- Ears: Pointed triangular ears with white fur tufts inside, pink inner ear visible
-- Muzzle: White fur around mouth and chin area
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height: 80cm tall when standing upright
-- Build: Slender anthropomorphic cat body standing on two legs
-- Tail: Long striped tail (same orange/white pattern), always curved upward with white tip
-- Paws: Four-toed paws with pink paw pads visible, capable of grasping objects
-- Posture: Stands upright on two legs like a human
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Vest: Royal blue vest (#4169E1) with three gold buttons down the front
-- Shirt: White cotton shirt underneath with collar visible above vest
-- No pants: Anthropomorphic style - only vest and shirt on upper body
-- Accessories: Small silver bell on a red collar around neck
-
-DISTINCTIVE MARKS:
-- White diamond shape on chest
-- Orange stripe pattern is asymmetrical - left side has one more stripe than right`,
-
-      dog: `${protagonist}, a ${childAge}-year-old anthropomorphic dog character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Breed characteristics: Golden Retriever features
-- Face shape: Friendly rounded snout with soft features
-- Fur color: Golden-brown fur (#DAA520) with lighter cream patches around eyes
-- Eyes: Large warm brown eyes (#8B4513) with friendly expression, always slightly squinting in happiness
-- Nose: Large black button nose, always shiny
-- Ears: Long floppy ears that hang down to chin level, darker brown at tips
-- Tongue: Often visible, pink tongue hanging slightly out on left side of mouth
-- Muzzle: Cream-colored fur around mouth area
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height: 90cm tall when standing upright
-- Build: Slightly stocky, friendly proportions
-- Tail: Medium-length fluffy tail, always wagging (curved to the right)
-- Paws: Four-toed paws with black paw pads, capable of grasping
-- Posture: Stands upright with slight forward lean, friendly stance
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Jacket: Forest green jacket (#228B22) with brown leather elbow patches
-- Collar: Red collar with a gold circular tag showing a paw print
-- Pockets: Two front pockets on jacket with visible buttons
-- No pants: Anthropomorphic style - jacket only
-- Accessories: Small blue bandana tied around neck under the collar
-
-DISTINCTIVE MARKS:
-- One white spot above the left eye
-- Tail has a white tip at the very end`,
-
-      rabbit: `${protagonist}, a ${childAge}-year-old anthropomorphic rabbit character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Face shape: Round with soft features and fluffy cheeks
-- Fur color: Pure white fluffy fur (#FFFFFF) with subtle gray shading
-- Eyes: Large bright blue eyes (#87CEEB) with long eyelashes, very expressive
-- Nose: Small pink twitching nose (#FFB6C1), triangular shape
-- Whiskers: 8 white whiskers on each side (16 total), each 3cm long
-- Ears: Very long upright ears (15cm tall) with pink inner lining, tips slightly curved
-- Teeth: Two front teeth always slightly visible even when mouth closed
-- Cheeks: Extra fluffy white cheeks
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height: 70cm tall when standing upright
-- Build: Small and nimble with fluffy appearance
-- Tail: Small fluffy cotton-ball tail, pure white, always visible from back
-- Paws: Small pink paws with 4 visible toes, soft paw pads
-- Posture: Stands upright with good posture, slightly bouncy stance
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Vest: Purple vest (#9370DB) with four golden buttons arranged in two rows
-- Bow tie: Small red bow tie at the collar
-- Pocket watch: Small golden pocket watch visible in vest pocket with chain
-- No pants: Anthropomorphic style - vest only on upper body
-- Accessories: Small carrot-shaped pin on the vest lapel
-
-DISTINCTIVE MARKS:
-- One ear is slightly longer than the other (right ear is 1cm taller)
-- Small gray spot behind left ear`,
-
-      bear: `${protagonist}, a ${childAge}-year-old anthropomorphic bear character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Face shape: Round friendly bear face
-- Fur color: Thick brown fur (#8B4513) with lighter cream-colored snout
-- Snout: Distinctive cream-colored (#F5DEB3) rounded snout area
-- Eyes: Small gentle dark brown eyes (#3E2723), warm and friendly
-- Nose: Large black nose, rounded triangle shape, always shiny
-- Ears: Small round ears positioned on top of head
-- Muzzle: Cream-colored fur extends from nose to chin
-- Expression: Always has a gentle, warm smile
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height: 100cm tall when standing upright
-- Build: Slightly chubby, cuddly proportions with rounded belly
-- Arms: Thick arms with visible brown fur
-- Paws: Large paws with five visible claws, dark brown paw pads
-- Posture: Stands upright with slight belly protrusion, warm stance
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Sweater: Cozy red knitted sweater (#DC143C) with visible knit texture
-- Collar: White ribbed collar visible at the neck
-- Cuffs: White ribbed cuffs at the wrists
-- Pattern: Small white snowflake pattern on the chest area of sweater
-- No pants: Anthropomorphic style - sweater only
-- Accessories: Small honey pot icon embroidered on the left chest
-
-DISTINCTIVE MARKS:
-- One patch of lighter brown fur on the right shoulder
-- Belly is slightly more cream-colored than rest of body`,
-
-      mouse: `${protagonist}, a ${childAge}-year-old anthropomorphic mouse character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Face shape: Small pointed face with soft features
-- Fur color: Soft gray fur (#A9A9A9) with lighter gray on belly
-- Eyes: Very large expressive brown eyes (#654321), proportionally oversized for cuteness
-- Nose: Tiny pink nose (#FFB6C1), always twitching
-- Whiskers: 10 delicate whiskers on each side (20 total), each 2cm long
-- Ears: Very large round ears (proportionally 1/3 of head size), pink inside with visible veins
-- Teeth: Two small white front teeth visible when smiling
-- Cheeks: Slightly puffy cheeks
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height: 60cm tall when standing upright (smallest protagonist)
-- Build: Small, nimble, and delicate proportions
-- Tail: Long thin tail (30cm length), same gray color as body, slightly curved
-- Paws: Very small pink paws with 4 tiny fingers, delicate
-- Posture: Stands upright, alert stance with hands often clasped
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Raincoat: Bright yellow raincoat (#FFD700) that reaches knees
-- Buttons: Four red buttons (#FF0000) down the front
-- Hood: Yellow hood with red inner lining, usually down
-- Pockets: Two side pockets with red button closures
-- No pants: Anthropomorphic style - raincoat only
-- Accessories: Small blue umbrella attached to a belt loop (when not raining, folded)
-
-DISTINCTIVE MARKS:
-- White spot on the tip of the tail
-- Left ear has a tiny notch at the top edge`,
-
-      // Human species variants with dynamic skin tone
-      girl: `
-═══════════════════════════════════════════════════════════════
-⚠️ MANDATORY SKIN TONE - THIS IS CRITICAL - READ FIRST
-═══════════════════════════════════════════════════════════════
-This character MUST have: ${skinToneDescription}
-The skin tone is LOCKED and CANNOT be changed in any image.
-This skin tone MUST be clearly visible on face, hands, and all exposed skin.
-DO NOT use any other skin tone - this is the DEFINING characteristic.
-═══════════════════════════════════════════════════════════════
-
-${protagonist}, a ${childAge}-year-old girl character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Face shape: Round with soft cheeks and a small chin
-- Eyes: Large round bright brown eyes with long black eyelashes, positioned wide apart
-- Iris color: Warm chocolate brown (#6B4423) with small golden highlights
-- Eyebrows: Thin, arched, dark brown eyebrows
-- Nose: Small button nose with a subtle upward tilt
-- Mouth: Wide friendly smile showing small white teeth, pink lips
-- Skin tone: ${skinToneDescription} with rosy pink cheeks ← MANDATORY - DO NOT CHANGE
-- Hair: Long flowing dark brown hair (#3D2314) with natural waves, reaching mid-back
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height: Average for ${childAge} years old (head = 1/5 of total body height)
-- Build: Slim but healthy proportions, slightly rounded belly
-- Hands: Small with 4 visible fingers, ${skinToneDescription} palms
-- Posture: Upright, confident stance with slight forward lean
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Dress: Bright pink and white polka dot dress (#FF69B4) with short puffy sleeves
-- Cardigan: Light lavender cardigan (#E6E6FA) worn open over the dress
-- Shoes: White mary jane shoes with small pink bows
-- Accessories: Small sparkly hair clip shaped like a butterfly on the right side
-
-DISTINCTIVE MARKS:
-- Two small freckles on the nose bridge
-- Natural curl in hair that frames the face
-
-⚠️ FINAL SKIN TONE REMINDER: The character's skin MUST be ${skinToneDescription}. This is absolute and non-negotiable.`,
-
-      boy: `
-═══════════════════════════════════════════════════════════════
-⚠️ MANDATORY SKIN TONE - THIS IS CRITICAL - READ FIRST
-═══════════════════════════════════════════════════════════════
-This character MUST have: ${skinToneDescription}
-The skin tone is LOCKED and CANNOT be changed in any image.
-This skin tone MUST be clearly visible on face, hands, and all exposed skin.
-DO NOT use any other skin tone - this is the DEFINING characteristic.
-═══════════════════════════════════════════════════════════════
-
-${protagonist}, a ${childAge}-year-old boy character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Face shape: Round with soft cheeks and a small chin
-- Eyes: Large round bright blue eyes with long black eyelashes, positioned wide apart
-- Iris color: Bright sapphire blue (#0066CC) with small white highlights
-- Eyebrows: Thin, arched, dark brown eyebrows
-- Nose: Small button nose with a subtle upward tilt
-- Mouth: Wide friendly smile showing small white teeth, pink lips
-- Skin tone: ${skinToneDescription} with rosy pink cheeks ← MANDATORY - DO NOT CHANGE
-- Hair: Short messy brown hair (#8B4513) with natural highlights, slightly spiked at front
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height: Average for ${childAge} years old (head = 1/5 of total body height)
-- Build: Slim but healthy proportions, slightly rounded belly
-- Hands: Small with 4 visible fingers, ${skinToneDescription} palms
-- Posture: Upright, confident stance with slight forward lean
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Top: Bright red and white horizontal striped t-shirt (5 stripes visible, each 3cm wide)
-- Overalls: Classic blue denim overalls (#4682B4) with silver metal buttons and adjustable straps
-- Pockets: Two front pockets on the overalls with visible stitching
-- Shoes: Red sneakers with white laces and white rubber toe caps
-- Accessories: Small yellow star badge pinned on the left overall strap
-
-DISTINCTIVE MARKS:
-- One small freckle on the right cheek
-- Cowlick in hair on the top left side of head
-
-⚠️ FINAL SKIN TONE REMINDER: The character's skin MUST be ${skinToneDescription}. This is absolute and non-negotiable.`,
-
-      superhero: `
-═══════════════════════════════════════════════════════════════
-⚠️ MANDATORY SKIN TONE - THIS IS CRITICAL - READ FIRST
-═══════════════════════════════════════════════════════════════
-This character MUST have: ${skinToneDescription}
-The skin tone is LOCKED and CANNOT be changed in any image.
-This skin tone MUST be clearly visible on face and all exposed skin.
-DO NOT use any other skin tone - this is the DEFINING characteristic.
-═══════════════════════════════════════════════════════════════
-
-${protagonist}, a ${childAge}-year-old boy superhero character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Face shape: Strong but youthful, with defined jaw for a child
-- Eyes: Large determined bright green eyes with confident expression
-- Iris color: Emerald green (#50C878) with heroic sparkle
-- Eyebrows: Strong, slightly angled showing determination
-- Nose: Small straight nose
-- Mouth: Confident smile showing courage, pink lips
-- Skin tone: ${skinToneDescription} with healthy glow ← MANDATORY - DO NOT CHANGE
-- Hair: Short spiky black hair (#1A1A1A) styled heroically upward
-- Mask: Small red domino mask (#FF0000) covering eye area
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height: Average for ${childAge} years old, standing tall and proud
-- Build: Athletic child proportions, confident posture
-- Hands: Small but strong-looking with ${skinToneDescription}
-- Posture: Heroic stance, chest out, hands on hips
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Suit: Bright blue superhero bodysuit (#1E90FF) with red accents
-- Cape: Flowing red cape (#FF0000) attached at shoulders
-- Emblem: Yellow lightning bolt (#FFD700) on chest
-- Belt: Gold utility belt with small pouches
-- Boots: Red boots matching the cape
-- Gloves: Blue gloves matching the suit
-
-DISTINCTIVE MARKS:
-- Small star-shaped birthmark on right wrist (visible when gloves removed)
-- Cape has a subtle shimmer effect
-
-⚠️ FINAL SKIN TONE REMINDER: The character's skin MUST be ${skinToneDescription}. This is absolute and non-negotiable.`,
-
-      superheroine: `
-═══════════════════════════════════════════════════════════════
-⚠️ MANDATORY SKIN TONE - THIS IS CRITICAL - READ FIRST
-═══════════════════════════════════════════════════════════════
-This character MUST have: ${skinToneDescription}
-The skin tone is LOCKED and CANNOT be changed in any image.
-This skin tone MUST be clearly visible on face and all exposed skin.
-DO NOT use any other skin tone - this is the DEFINING characteristic.
-═══════════════════════════════════════════════════════════════
-
-${protagonist}, a ${childAge}-year-old girl superhero character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Face shape: Strong but youthful, with soft feminine features
-- Eyes: Large determined bright purple eyes with confident expression
-- Iris color: Vibrant violet (#8A2BE2) with heroic sparkle
-- Eyebrows: Elegant, slightly angled showing determination
-- Nose: Small button nose
-- Mouth: Confident smile showing courage, pink lips
-- Skin tone: ${skinToneDescription} with healthy glow ← MANDATORY - DO NOT CHANGE
-- Hair: Long flowing auburn hair (#8B4513) in a high ponytail, reaching mid-back
-- Mask: Small purple domino mask (#8A2BE2) covering eye area
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height: Average for ${childAge} years old, standing tall and proud
-- Build: Athletic child proportions, confident posture
-- Hands: Small but strong-looking with ${skinToneDescription}
-- Posture: Heroic stance, confident and ready for action
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Suit: Bright purple superhero bodysuit (#8A2BE2) with gold accents
-- Cape: Flowing gold cape (#FFD700) attached at shoulders
-- Emblem: Silver star (#C0C0C0) on chest
-- Belt: Silver utility belt with small pouches
-- Boots: Purple boots matching the suit
-- Gloves: Purple gloves with gold trim
-
-DISTINCTIVE MARKS:
-- Small crescent moon charm on a thin silver chain around neck
-- Hair tie has a small star-shaped decoration
-
-⚠️ FINAL SKIN TONE REMINDER: The character's skin MUST be ${skinToneDescription}. This is absolute and non-negotiable.`,
-
-      robot: `${protagonist}, a ${childAge}-year-old small robot character with the following EXACT physical characteristics:
-
-BODY STRUCTURE (CRITICAL - MUST BE IDENTICAL):
-- Head: Rounded dome-shaped head made of shiny silver metal (#C0C0C0)
-- Head size: Perfectly spherical, 20cm diameter
-- Body: Rectangular torso (25cm tall, 18cm wide) made of white metal (#F5F5F5)
-- Body panels: Visible panel lines with small screws at corners
-- Proportions: Head-to-body ratio is 1:1.25
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Eyes: Two large circular LED eyes, bright cyan blue (#00FFFF), always glowing
-- Eye size: 4cm diameter each, positioned 6cm apart
-- Eyelids: Mechanical eyelids that open/close with visible hinge mechanism
-- Mouth: LED light strip display showing simple emotions (^_^ happy face most common)
-- Antenna: Single antenna on top of head (10cm tall) with small red blinking light at tip
-- Expression display: Digital screen on forehead showing battery level (always 85%)
-
-LIMBS & EXTREMITIES (CRITICAL - MUST BE IDENTICAL):
-- Arms: Thin robotic arms (15cm long) made of silver segmented metal tubes
-- Arm joints: Visible ball joints at shoulders and elbows (black rubber connectors)
-- Hands: Three-fingered mechanical hands with orange rubber fingertips
-- Legs: Short sturdy legs (12cm tall) made of white metal matching body
-- Feet: Rounded base feet with small black rubber treads, small blue LED lights on sides
-
-COLOR SCHEME (CRITICAL - MUST BE IDENTICAL):
-- Primary body: White metal (#F5F5F5)
-- Head: Silver metal (#C0C0C0)
-- Accent panels: Bright orange panels (#FF6600) on chest and back
-- LED lights: Cyan blue eyes, red antenna light, blue foot lights
-- Joint connectors: Black rubber (#2C2C2C)
-
-CLOTHING & ACCESSORIES (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Chest panel: Orange rectangular panel with a heart symbol (♥) in white
-- Back panel: Orange with small exhaust vent details
-- Cape: Small red fabric cape (#FF0000) attached to shoulders with magnetic clips
-- Badge: Small star-shaped gold badge on the left chest panel
-- Utility belt: Thin black belt around waist with small tool pouches
-
-DISTINCTIVE MARKS & DETAILS:
-- Small dent on the upper right side of the head (looks like a dimple)
-- Serial number "RBT-${childAge}00" printed in small black text on the back of the neck
-- One antenna light blinks every 3 seconds
-- Slight scratch on the left leg (vertical line, 2cm long)
-- Small yellow caution stripe pattern on the back of each hand
-
-MECHANICAL DETAILS:
-- Visible spring mechanism in neck allowing head rotation
-- Small vents on the sides of the body (4 on each side)
-- Power button on the back (blue circular button)
-- Charging port on the lower back (looks like a small circular socket)
-
-PROPORTIONS REFERENCE:
-- Total height: 65cm when standing upright
-- Head: 20cm diameter
-- Torso: 25cm tall × 18cm wide
-- Arms: 15cm long each
-- Legs: 12cm tall
-- Cape length: 20cm from shoulders`,
+  private getStyleColorDescriptions(style?: string): StyleColors {
+    switch (style) {
+      case 'watercolor':
+        return {
+          dress: 'soft pink watercolor wash',
+          cardigan: 'pale lavender with visible brushstrokes',
+          shoes: 'cream white with soft edges',
+          hair: 'warm brown with watercolor texture',
+          eyes: 'soft hazel with wet-on-wet effect',
+          top: 'red and cream striped with watercolor bleeding',
+          bottom: 'soft blue wash overalls',
+          accessory: 'delicate pastel tones',
+        }
+      case 'japanese-soft':
+        return {
+          dress: 'pastel pink with delicate pattern',
+          cardigan: 'soft lavender, kawaii style',
+          shoes: 'white Mary Jane, rounded cute style',
+          hair: 'rich brown, shiny anime style',
+          eyes: 'large sparkling brown, manga style',
+          top: 'soft pastel striped, rounded collar',
+          bottom: 'light blue overalls, kawaii style',
+          accessory: 'sparkly and cute',
+        }
+      case 'disney-pixar':
+        return {
+          dress: 'vibrant pink, 3D rendered look',
+          cardigan: 'bright lavender, soft fabric texture',
+          shoes: 'glossy white patent leather',
+          hair: 'rich chocolate brown, volumetric',
+          eyes: 'expressive brown, Pixar-style large pupils',
+          top: 'saturated red and white, soft fabric folds',
+          bottom: 'vibrant blue, 3D cloth simulation look',
+          accessory: 'shiny and detailed',
+        }
+      default: // classic-book
+        return {
+          dress: 'rose pink, classic illustration style',
+          cardigan: 'lavender, traditional book art',
+          shoes: 'ivory white, vintage style',
+          hair: 'chestnut brown, detailed strokes',
+          eyes: 'warm brown, classic children book style',
+          top: 'traditional red and white striped',
+          bottom: 'classic blue overalls, vintage feel',
+          accessory: 'timeless and detailed',
+        }
     }
-
-    // Obtenir le template de base ou créer une description générique ultra-détaillée
-    const baseDescription =
-      speciesTemplates[species.toLowerCase()] ||
-      `${protagonist}, a ${childAge}-year-old ${species} character with the following EXACT physical characteristics:
-
-FACIAL FEATURES (CRITICAL - MUST BE IDENTICAL):
-- Large expressive eyes with bright irises
-- Distinctive facial features unique to ${species}
-- Warm, friendly expression with gentle smile
-- Specific markings or patterns that make them instantly recognizable
-
-BODY & PROPORTIONS (CRITICAL - MUST BE IDENTICAL):
-- Height appropriate for ${childAge}-year-old ${species}
-- Characteristic body shape and proportions
-- Distinctive posture and stance
-- Unique physical attributes
-
-CLOTHING (CRITICAL - MUST BE IDENTICAL IN EVERY IMAGE):
-- Signature outfit with specific colors and patterns
-- Distinctive accessories that are always present
-- Recognizable style elements
-
-DISTINCTIVE MARKS:
-- Unique identifying features
-- Specific color patterns or markings`
-
-    // Ajuster la description selon le ton et le thème avec des détails visuels précis
-    let enhancedDescription = baseDescription
-
-    // Ajout de détails visuels basés sur le ton
-    if (tone.toLowerCase().includes('adventurous') || tone.toLowerCase().includes('exciting')) {
-      enhancedDescription += `\n\nEXPRESSION & PERSONALITY VISUAL CUES:
-- Eyes: Sparkle with curiosity, slightly wider with excitement
-- Posture: Leaning forward eagerly, one foot slightly ahead
-- Facial expression: Bright, enthusiastic smile with raised eyebrows`
-    } else if (tone.toLowerCase().includes('calm') || tone.toLowerCase().includes('peaceful')) {
-      enhancedDescription += `\n\nEXPRESSION & PERSONALITY VISUAL CUES:
-- Eyes: Gentle, serene gaze with soft eyelids
-- Posture: Relaxed, balanced stance with shoulders at ease
-- Facial expression: Soft, peaceful smile with calm demeanor`
-    } else if (tone.toLowerCase().includes('joyful') || tone.toLowerCase().includes('happy')) {
-      enhancedDescription += `\n\nEXPRESSION & PERSONALITY VISUAL CUES:
-- Eyes: Bright and cheerful with visible joy
-- Posture: Upright and energetic, possibly with slight bounce
-- Facial expression: Wide, infectious smile radiating warmth and happiness`
-    }
-
-    // Ajout d'accessoires thématiques avec détails précis
-    if (theme.toLowerCase().includes('magic') || theme.toLowerCase().includes('fantasy')) {
-      enhancedDescription += `\n\nTHEMATIC ACCESSORY (ALWAYS VISIBLE):
-- Magic charm: Small glowing crystal pendant on a silver chain around neck
-- Crystal color: Soft purple glow (#9370DB) with sparkle effect
-- Position: Hangs at chest level, always visible over clothing`
-    } else if (theme.toLowerCase().includes('nature') || theme.toLowerCase().includes('forest')) {
-      enhancedDescription += `\n\nTHEMATIC ACCESSORY (ALWAYS VISIBLE):
-- Nature crown: Small crown made of green leaves and tiny white flowers
-- Crown details: 5 oak leaves with 3 small daisies interspersed
-- Position: Sits on top of head, slightly tilted to the right`
-    } else if (theme.toLowerCase().includes('space') || theme.toLowerCase().includes('cosmic')) {
-      enhancedDescription += `\n\nTHEMATIC ACCESSORY (ALWAYS VISIBLE):
-- Star badge: Five-pointed golden star pin with shimmering effect
-- Badge details: Gold color (#FFD700) with subtle sparkle, 3cm diameter
-- Position: Pinned to the left chest area, always clearly visible`
-    }
-
-    // Ajouter les règles de cohérence strictes
-    enhancedDescription += `\n\n⚠️ ABSOLUTE CONSISTENCY RULES:
-1. This character description is CANONICAL and IMMUTABLE
-2. EVERY detail specified above MUST appear in EVERY image
-3. NO variations in clothing, colors, or physical features are allowed
-4. The character must be INSTANTLY recognizable from image to image
-5. Maintain EXACT proportions and visual characteristics across all illustrations`
-
-    return enhancedDescription
   }
 
   /**
-   * Retourne la description cohérente du personnage
+   * Generate a deterministic hash from a string for variant selection
    * @private
    */
-  private getCharacterDescription(context: ImageGenerationContext): string {
-    return this.buildDetailedCharacterDescription(context)
+  private hashString(str: string): number {
+    let hash = 0
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash = hash & hash // Convert to 32bit integer
+    }
+    return hash
+  }
+
+  /**
+   * Get a superhero costume variant based on context for variety
+   * @private
+   */
+  private getSuperheroVariant(context: ImageGenerationContext): SuperheroCostumeVariant {
+    const seed = `${context.protagonist}-${context.title}-${context.theme}`
+    const hash = this.hashString(seed)
+    const index = Math.abs(hash) % this.SUPERHERO_COSTUME_VARIANTS.length
+    return this.SUPERHERO_COSTUME_VARIANTS[index]
+  }
+
+  /**
+   * Get a girl outfit variant based on context for variety
+   * @private
+   */
+  private getGirlOutfitVariant(context: ImageGenerationContext): GirlOutfitVariant {
+    const seed = `${context.protagonist}-${context.title}-${context.theme}`
+    const hash = this.hashString(seed)
+    const index = Math.abs(hash) % this.GIRL_OUTFIT_VARIANTS.length
+    return this.GIRL_OUTFIT_VARIANTS[index]
+  }
+
+  /**
+   * Get a boy outfit variant based on context for variety
+   * @private
+   */
+  private getBoyOutfitVariant(context: ImageGenerationContext): BoyOutfitVariant {
+    const seed = `${context.protagonist}-${context.title}-${context.theme}`
+    const hash = this.hashString(seed)
+    const index = Math.abs(hash) % this.BOY_OUTFIT_VARIANTS.length
+    return this.BOY_OUTFIT_VARIANTS[index]
+  }
+
+  /**
+   * Construit le Character Visual Lock pour les personnages humains
+   * Uses style-aware color descriptions and costume variants for variety
+   * @private
+   */
+  private buildHumanCharacterLock(
+    context: ImageGenerationContext,
+    species: string,
+    protagonist: string,
+    childAge: number,
+    skinTone: { description: string; color: string }
+  ): string {
+    const isFemale = species === 'girl' || species === 'superheroine'
+    const isSuperHero = species === 'superhero' || species === 'superheroine'
+    const styleColors = this.getStyleColorDescriptions(context.illustrationStyle)
+
+    if (isSuperHero) {
+      const costume = this.getSuperheroVariant(context)
+      const hairDesc = isFemale
+        ? 'Longs cheveux auburn en haute queue de cheval, mèches encadrant le visage'
+        : 'Courts cheveux noirs hérissés vers le haut, style dynamique'
+      return `Personnage: ${isFemale ? 'Super-héroïne' : 'Super-héros'} de ${childAge} ans, ${protagonist}
+
+APPARENCE PHYSIQUE (NE JAMAIS CHANGER):
+- Peau: ${skinTone.description}
+- Cheveux: ${hairDesc}
+- Yeux: Grands, ${isFemale ? 'violets' : 'verts'}, expressifs avec détermination
+- Visage: Joues rondes enfantines, menton déterminé, petit nez
+
+COSTUME EXACT (REPRODUIRE À L'IDENTIQUE):
+- COMBINAISON: ${costume.primary}
+- CAPE: ${costume.cape}
+- EMBLÈME: ${costume.emblem}
+- ACCENTS: ${costume.accentColor}
+- MASQUE: Masque loup couvrant les yeux, même couleur que la combinaison principale
+- GANTS: Gants montant aux poignets, même couleur que la combinaison
+- BOTTES: Bottes montantes aux genoux, même couleur que la combinaison
+
+⚠️ ATTENTION: Chaque détail ci-dessus doit être EXACTEMENT identique sur TOUTES les images.
+L'emblème, la cape, les couleurs ne doivent JAMAIS varier.`
+    }
+
+    if (isFemale) {
+      const outfit = this.getGirlOutfitVariant(context)
+      return `Personnage: Fille de ${childAge} ans, ${protagonist}
+Peau: ${skinTone.description}
+Cheveux: Longs ondulés mi-dos, ${styleColors.hair}
+Yeux: Grands, ${styleColors.eyes}
+Visage: Joues rondes rosées, petit nez, sourire doux
+
+Vêtements (IDENTIQUES partout):
+- ${outfit.dress}, style ${context.illustrationStyle || 'classic-book'}
+- Cardigan ${outfit.cardigan}
+- Chaussures ${outfit.shoes}
+- ${outfit.accessory}`
+    }
+
+    const outfit = this.getBoyOutfitVariant(context)
+    return `Personnage: Garçon de ${childAge} ans, ${protagonist}
+Peau: ${skinTone.description}
+Cheveux: Courts ondulés, ${styleColors.hair}
+Yeux: Grands, ${styleColors.eyes}
+Visage: Joues rondes, petit nez, sourire amical
+
+Vêtements (IDENTIQUES partout):
+- ${outfit.top}, style ${context.illustrationStyle || 'classic-book'}
+- ${outfit.bottom}
+- ${outfit.shoes}
+- ${outfit.accessory}`
+  }
+
+  /**
+   * Construit le Character Visual Lock pour les espèces non-humaines
+   * Uses style-aware descriptions instead of hardcoded hex codes
+   * @private
+   */
+  private getSpeciesCharacterLock(
+    species: string,
+    protagonist: string,
+    childAge: number,
+    style?: string
+  ): string {
+    const styleNote = style ? `, style ${style}` : ''
+    const templates: Record<string, string> = {
+      cat: `Personnage: Chat anthropomorphe ${childAge} ans, ${protagonist}${styleNote}
+Fourrure: Tigré orange sur base blanche, marque "M" front
+Yeux: Grands amandes émeraude, pupilles verticales
+Nez: Petit rose triangulaire
+Moustaches: 6 blanches chaque côté
+
+Tenue (IDENTIQUE partout):
+- Gilet bleu royal, 3 boutons dorés
+- Chemise blanche col visible
+- Clochette argentée sur collier rouge
+- Queue rayée orange/blanc, pointe blanche`,
+
+      dog: `Personnage: Chien Golden Retriever anthropomorphe ${childAge} ans, ${protagonist}${styleNote}
+Fourrure: Dorée, patches crème autour yeux
+Yeux: Grands bruns chaleureux, expression amicale
+Nez: Grand noir brillant
+Oreilles: Longues tombantes, pointes plus foncées
+
+Tenue (IDENTIQUE partout):
+- Veste vert forêt, coudières cuir marron
+- Collier rouge, médaille dorée patte
+- Bandana bleu sous le collier
+- Queue touffue, pointe blanche`,
+
+      rabbit: `Personnage: Lapin anthropomorphe ${childAge} ans, ${protagonist}${styleNote}
+Fourrure: Blanc pur, joues extra duveteuses
+Yeux: Très grands bleus, longs cils
+Nez: Petit rose, frémissant
+Oreilles: Très longues (15cm), intérieur rose
+
+Tenue (IDENTIQUE partout):
+- Gilet violet, 4 boutons dorés
+- Nœud papillon rouge
+- Montre à gousset dorée visible
+- Épingle carotte sur revers`,
+
+      bear: `Personnage: Ourson anthropomorphe ${childAge} ans, ${protagonist}${styleNote}
+Fourrure: Brun épais, museau crème
+Yeux: Petits bruns doux, bienveillants
+Nez: Grand noir arrondi, brillant
+Oreilles: Petites rondes sur le sommet
+
+Tenue (IDENTIQUE partout):
+- Pull rouge tricoté, col blanc
+- Poignets blancs côtelés
+- Motif flocon neige blanc poitrine
+- Icône pot miel brodée gauche`,
+
+      mouse: `Personnage: Souris anthropomorphe ${childAge} ans, ${protagonist}${styleNote}
+Fourrure: Grise douce, ventre plus clair
+Yeux: Très grands bruns, démesurés
+Nez: Minuscule rose
+Oreilles: Énormes rondes (1/3 tête), rose intérieur
+
+Tenue (IDENTIQUE partout):
+- Ciré jaune vif aux genoux
+- 4 boutons rouges
+- Capuche jaune doublée rouge
+- Petit parapluie bleu à la ceinture`,
+
+      robot: `Personnage: Petit robot ${childAge} ans, ${protagonist}${styleNote}
+Corps: Blanc, tête argentée sphérique
+Yeux: 2 grands LED cyan, toujours brillants
+Bouche: Écran LED affichant ^_^
+Antenne: Sommet tête, lumière rouge clignotante
+
+Équipement (IDENTIQUE partout):
+- Panneau orange poitrine avec cœur blanc
+- Cape rouge courte aux épaules
+- Badge étoile dorée gauche
+- Pieds avec LED bleues latérales`,
+
+      animal: `Personnage: Renard anthropomorphe ${childAge} ans, ${protagonist}${styleNote}
+Fourrure: Orange roux, ventre crème, bout queue blanc
+Yeux: Grands ambrés, malicieux mais gentils
+Nez: Petit noir triangulaire
+Oreilles: Pointues noires aux pointes
+
+Tenue (IDENTIQUE partout):
+- Écharpe verte tricotée
+- Sac à dos brun clair
+- Foulard rouge noué autour du cou`,
+    }
+
+    return (
+      templates[species.toLowerCase()] ||
+      `Personnage: ${species} anthropomorphe ${childAge} ans, ${protagonist}${styleNote}
+Style chibi mignon, grands yeux expressifs
+Tenue distinctive et reconnaissable
+Accessoire caractéristique visible`
+    )
   }
 }

@@ -68,6 +68,7 @@ export default class StoriesController {
       toneId: payload.tone || '',
       numberOfChapters: payload.numberOfChapters || 3,
       appearancePreset: payload.appearancePreset,
+      illustrationStyle: payload.illustrationStyle,
     })
 
     return response.accepted({

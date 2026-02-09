@@ -83,8 +83,10 @@ export interface SocialAccounts {
 }
 
 export interface Stories {
+  appearance_preset: Generated<string | null>;
   chapter_images: Generated<Json | null>;
   chapters: number;
+  character_visual_lock: string | null;
   child_age: Generated<number>;
   conclusion: Generated<string>;
   content: string;
@@ -95,6 +97,7 @@ export interface Stories {
   generation_started_at: Timestamp | null;
   generation_status: Generated<string>;
   id: Generated<string>;
+  illustration_style: Generated<string | null>;
   job_id: string | null;
   language_id: string | null;
   protagonist: Generated<string>;

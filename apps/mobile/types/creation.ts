@@ -106,6 +106,7 @@ export interface StoryCreationFormData {
   numberOfChapters?: number;
   theme?: Theme;
   tone?: Tone;
+  illustrationStyle?: IllustrationStyle;
 }
 
 // Types pour l'API
@@ -150,4 +151,50 @@ export const CHAPTERS_OPTIONS = [
   { label: '3 chapitres 📗', value: 3 },
   { label: '4 chapitres 📘', value: 4 },
   { label: '5 chapitres 📙', value: 5 },
+];
+
+// Illustration Style Types
+export type IllustrationStyle =
+  | 'japanese-soft'    // Style japonais doux (défaut)
+  | 'disney-pixar'     // Style Pixar/Disney
+  | 'watercolor'       // Aquarelle
+  | 'classic-book';    // Livre classique
+
+export interface IllustrationStyleOption {
+  id: IllustrationStyle;
+  name: string;
+  description: string;
+  emoji: string;          // Emoji fallback when image not available
+  gradientColors: string[]; // Gradient colors for the preview
+}
+
+export const ILLUSTRATION_STYLES: IllustrationStyleOption[] = [
+  {
+    id: 'japanese-soft',
+    name: 'Doux & Magique',
+    description: 'Style japonais doux, couleurs pastel, personnages chibi',
+    emoji: '🌸',
+    gradientColors: ['#FFE5EC', '#FFC4D6', '#FFAEC9'],
+  },
+  {
+    id: 'disney-pixar',
+    name: 'Disney / Pixar',
+    description: 'Style moderne 3D, couleurs vibrantes, personnages expressifs',
+    emoji: '✨',
+    gradientColors: ['#4FC3F7', '#29B6F6', '#03A9F4'],
+  },
+  {
+    id: 'watercolor',
+    name: 'Aquarelle',
+    description: 'Style peinture délicate, couleurs douces, atmosphère poétique',
+    emoji: '🎨',
+    gradientColors: ['#E1BEE7', '#CE93D8', '#BA68C8'],
+  },
+  {
+    id: 'classic-book',
+    name: 'Classique',
+    description: 'Style livre traditionnel, couleurs riches, détails soignés',
+    emoji: '📚',
+    gradientColors: ['#FFE0B2', '#FFCC80', '#FFB74D'],
+  },
 ];

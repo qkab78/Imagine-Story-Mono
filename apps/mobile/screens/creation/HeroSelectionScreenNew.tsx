@@ -122,7 +122,7 @@ export const HeroSelectionScreenNew: React.FC = () => {
 
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
-          <StepIndicator currentStep={1} totalSteps={4} />
+          <StepIndicator currentStep={1} totalSteps={5} />
         </View>
 
         {/* Question Container */}
