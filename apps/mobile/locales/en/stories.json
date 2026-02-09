@@ -172,6 +172,12 @@
       "tones": "Moods",
       "reset": "Reset",
       "apply": "Apply filters"
+    },
+    "failed": {
+      "overlay": "ERROR",
+      "retry": "Retry",
+      "retrySuccess": "Generation has been restarted!",
+      "retryError": "Unable to restart generation"
     }
   },
   "explore": {

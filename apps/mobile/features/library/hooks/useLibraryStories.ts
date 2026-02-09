@@ -19,12 +19,19 @@ const transformToLibraryStory = (dto: StoryListItemDTO): LibraryStory => {
   // Use generationStatus from API directly
   const apiStatus = dto.generationStatus || 'completed';
   const isGenerating = apiStatus === 'pending' || apiStatus === 'processing';
+  const isFailed = apiStatus === 'failed';
 
   // Calculate progress based on status
   let progress: number | undefined;
   if (apiStatus === 'pending') progress = 10;
   else if (apiStatus === 'processing') progress = 50;
   else if (apiStatus === 'completed') progress = 100;
+
+  // Map API status to library status
+  let generationStatus: LibraryStory['generationStatus'];
+  if (isFailed) generationStatus = 'failed';
+  else if (isGenerating) generationStatus = 'generating';
+  else generationStatus = 'completed';
 
   return {
     id: dto.id,
@@ -42,7 +49,7 @@ const transformToLibraryStory = (dto: StoryListItemDTO): LibraryStory => {
       name: dto.theme.name,
       emoji: dto.theme.description,
     },
-    generationStatus: isGenerating ? 'generating' : 'completed',
+    generationStatus,
     generationProgress: progress,
   };
 };
@@ -78,6 +85,11 @@ export const useLibraryStories = () => {
   // Check if there are any generating stories
   const hasGeneratingStories = useMemo(() => {
     return stories.some((s) => s.generationStatus === 'generating');
+  }, [stories]);
+
+  // Check if there are any failed stories
+  const hasFailedStories = useMemo(() => {
+    return stories.some((s) => s.generationStatus === 'failed');
   }, [stories]);
 
   // Set up polling when there are generating stories
@@ -158,6 +170,8 @@ export const useLibraryStories = () => {
     totalCount: stories.length,
     generatingCount: stories.filter((s) => s.generationStatus === 'generating').length,
     completedCount: stories.filter((s) => s.generationStatus === 'completed').length,
+    failedCount: stories.filter((s) => s.generationStatus === 'failed').length,
+    hasFailedStories,
   };
 };
 
