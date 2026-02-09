@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Image, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -17,7 +17,30 @@ export const ChapterImage: React.FC<ChapterImageProps> = ({
   chapterIndex = 0,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [showIndicator, setShowIndicator] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const loadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Delay showing the ActivityIndicator by 300ms to avoid flashing for cached images
+  useEffect(() => {
+    if (isLoading) {
+      loadingTimerRef.current = setTimeout(() => {
+        setShowIndicator(true);
+      }, 300);
+    } else {
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current);
+        loadingTimerRef.current = null;
+      }
+      setShowIndicator(false);
+    }
+
+    return () => {
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current);
+      }
+    };
+  }, [isLoading]);
 
   const placeholderEmoji =
     CHAPTER_PLACEHOLDER_EMOJIS[chapterIndex % CHAPTER_PLACEHOLDER_EMOJIS.length];
@@ -49,7 +72,7 @@ export const ChapterImage: React.FC<ChapterImageProps> = ({
               setIsLoading(false);
             }}
           />
-          {isLoading && (
+          {showIndicator && (
             <View style={styles.loadingOverlay}>
               <ActivityIndicator size="large" color={READER_COLORS.primary} />
             </View>
