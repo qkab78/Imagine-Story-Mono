@@ -28,6 +28,7 @@ export interface QueueStoryCreationPayload {
   toneId: string
   numberOfChapters: number
   appearancePreset?: string
+  illustrationStyle?: string
 }
 
 @inject()
@@ -109,6 +110,7 @@ export class QueueStoryCreationUseCase {
       toneId: tone.id.getValue(),
       numberOfChapters: payload.numberOfChapters,
       appearancePreset: payload.appearancePreset,
+      illustrationStyle: payload.illustrationStyle,
     })
 
     if (!job.id) {

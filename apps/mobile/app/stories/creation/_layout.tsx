@@ -20,6 +20,7 @@ export default function CreationLayout() {
       <Stack.Screen name="welcome" />
       <Stack.Screen name="hero-selection" />
       <Stack.Screen name="settings" />
+      <Stack.Screen name="illustration-style" />
       <Stack.Screen name="theme-selection" />
       <Stack.Screen name="tone-selection" />
       <Stack.Screen name="summary" />

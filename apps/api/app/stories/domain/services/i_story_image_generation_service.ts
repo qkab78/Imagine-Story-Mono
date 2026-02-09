@@ -3,6 +3,7 @@ import type {
   ChapterContent,
   ChapterImagesGenerationResponse,
   CharacterReferenceResult,
+  CoverImageResult,
 } from './types/image_generation_types.js'
 
 /**
@@ -27,14 +28,14 @@ export abstract class IStoryImageGenerationService {
    *
    * @param context - Contexte de génération contenant les informations de l'histoire
    * @param characterReference - Référence optionnelle du personnage pour cohérence visuelle
-   * @returns Le chemin de l'image de couverture générée (relatif au storage)
+   * @returns Résultat avec le chemin de l'image et optionnellement le Character Visual Lock
    *
    * @throws Error si la génération échoue
    */
   abstract generateCoverImage(
     context: ImageGenerationContext,
     characterReference?: CharacterReferenceResult
-  ): Promise<string>
+  ): Promise<CoverImageResult>
 
   /**
    * Génère toutes les images des chapitres

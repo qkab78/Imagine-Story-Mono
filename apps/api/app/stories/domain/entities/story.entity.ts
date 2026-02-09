@@ -69,7 +69,8 @@ export class Story {
     private _generationStartedAt: Date | null = null,
     private _generationCompletedAt: Date | null = null,
     private _generationError: string | null = null,
-    private _isGenerated: boolean = false
+    private _isGenerated: boolean = false,
+    private readonly _characterVisualLock: string | null = null
   ) {
     if (this._isGenerated) {
       this.validate()
@@ -101,7 +102,8 @@ export class Story {
     generationStartedAt: Date | null = null,
     generationCompletedAt: Date | null = null,
     generationError: string | null = null,
-    isGenerated: boolean = false
+    isGenerated: boolean = false,
+    characterVisualLock: string | null = null
   ): Story {
     return new Story(
       id,
@@ -125,7 +127,8 @@ export class Story {
       generationStartedAt,
       generationCompletedAt,
       generationError,
-      isGenerated
+      isGenerated,
+      characterVisualLock
     )
   }
 
@@ -233,6 +236,13 @@ export class Story {
   }
 
   /**
+   * Get character visual lock (description for image consistency)
+   */
+  public get characterVisualLock(): string | null {
+    return this._characterVisualLock
+  }
+
+  /**
    * Get all chapters
    */
   public get chapters(): Chapter[] {
@@ -291,7 +301,8 @@ export class Story {
       this._generationStartedAt,
       this._generationCompletedAt,
       this._generationError,
-      this._isGenerated
+      this._isGenerated,
+      this._characterVisualLock
     )
   }
 
@@ -321,7 +332,8 @@ export class Story {
       this._generationStartedAt,
       this._generationCompletedAt,
       this._generationError,
-      this._isGenerated
+      this._isGenerated,
+      this._characterVisualLock
     )
   }
 
@@ -358,7 +370,8 @@ export class Story {
       this._generationStartedAt,
       this._generationCompletedAt,
       this._generationError,
-      this._isGenerated
+      this._isGenerated,
+      this._characterVisualLock
     )
   }
 
@@ -399,7 +412,8 @@ export class Story {
     coverImageUrl: ImageUrl,
     conclusion: string,
     title: string,
-    slug: Slug
+    slug: Slug,
+    characterVisualLock?: string
   ): Story {
     if (!this._generationStatus.isProcessing()) {
       throw new InvariantViolationException(
@@ -429,7 +443,8 @@ export class Story {
       this._generationStartedAt,
       new Date(),
       null,
-      true
+      true,
+      characterVisualLock ?? this._characterVisualLock
     )
   }
 
@@ -485,7 +500,8 @@ export class Story {
       this._generationStartedAt,
       this._generationCompletedAt,
       this._generationError,
-      false
+      false,
+      this._characterVisualLock
     )
   }
 

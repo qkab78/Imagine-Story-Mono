@@ -37,6 +37,7 @@ interface StoryRow {
   generation_started_at?: Date | null
   generation_completed_at?: Date | null
   generation_error?: string | null
+  character_visual_lock?: string | null
 }
 
 interface ThemeRow {
@@ -144,7 +145,9 @@ export class StoryMapper {
       storyRow.job_id ?? null,
       storyRow.generation_started_at ?? null,
       storyRow.generation_completed_at ?? null,
-      storyRow.generation_error ?? null
+      storyRow.generation_error ?? null,
+      undefined, // isGenerated - will be determined by Story.create
+      storyRow.character_visual_lock ?? null
     )
   }
 
@@ -177,6 +180,7 @@ export class StoryMapper {
     generation_started_at: Date | null
     generation_completed_at: Date | null
     generation_error: string | null
+    character_visual_lock: string | null
   } {
     // Map chapters
     const storyChapters: StoryChapter[] = story.getAllChapters().map((chapter) => ({
@@ -224,6 +228,7 @@ export class StoryMapper {
       generation_started_at: story.generationStartedAt,
       generation_completed_at: story.generationCompletedAt,
       generation_error: story.generationError,
+      character_visual_lock: story.characterVisualLock,
     }
   }
 }

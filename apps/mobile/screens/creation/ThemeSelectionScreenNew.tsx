@@ -134,7 +134,7 @@ export const ThemeSelectionScreenNew: React.FC = () => {
 
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
-          <StepIndicator currentStep={3} totalSteps={4} />
+          <StepIndicator currentStep={4} totalSteps={5} />
         </View>
 
         {/* Themes Container */}

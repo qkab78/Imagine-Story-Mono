@@ -9,6 +9,7 @@ import type {
   ChapterImagesGenerationResponse,
   CharacterReferenceResult,
   ChapterImageResult,
+  CoverImageResult,
 } from '#stories/domain/services/types/image_generation_types'
 import { IStorageService } from '#stories/domain/services/i_storage_service'
 import { AppearancePresetService } from '#stories/domain/services/appearance_preset_service'
@@ -46,11 +47,12 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
 
   /**
    * Génère l'image de couverture avec Leonardo AI
+   * Leonardo AI utilise les init images pour la cohérence, pas de Character Visual Lock
    */
   async generateCoverImage(
     context: ImageGenerationContext,
     characterReference?: CharacterReferenceResult
-  ): Promise<string> {
+  ): Promise<CoverImageResult> {
     try {
       logger.info('🖼️ Génération image de couverture avec Leonardo AI...')
 
@@ -111,7 +113,8 @@ export class LeonardoAiImageGenerationService extends IStoryImageGenerationServi
       )
 
       logger.info('✅ Image de couverture Leonardo AI créée')
-      return coverPath
+      // Leonardo AI utilise les init images pour la cohérence, pas de Character Visual Lock
+      return { imagePath: coverPath }
     } catch (error: any) {
       const errorMessage = error?.message || JSON.stringify(error) || 'Unknown error'
       logger.error('❌ Erreur génération couverture Leonardo AI:', errorMessage)

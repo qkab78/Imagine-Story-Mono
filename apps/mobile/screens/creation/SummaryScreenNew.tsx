@@ -187,7 +187,7 @@ export const SummaryScreenNew: React.FC = () => {
 
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
-          <StepIndicator currentStep={4} totalSteps={4} />
+          <StepIndicator currentStep={5} totalSteps={5} />
         </View>
 
         {/* Quota Badge */}

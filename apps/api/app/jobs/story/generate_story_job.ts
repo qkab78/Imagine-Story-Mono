@@ -19,6 +19,7 @@ export interface GenerateStoryJobPayload {
   toneId: string
   numberOfChapters: number
   appearancePreset?: string
+  illustrationStyle?: string
 }
 
 export default class GenerateStoryJob extends Job {
@@ -82,6 +83,7 @@ export default class GenerateStoryJob extends Job {
         tone: tone.name,
         species: payload.species,
         appearancePreset: payload.appearancePreset,
+        illustrationStyle: payload.illustrationStyle,
       })
 
       const endTime = Date.now()

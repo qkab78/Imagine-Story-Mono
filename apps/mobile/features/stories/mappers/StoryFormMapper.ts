@@ -19,6 +19,7 @@ export interface CreateStoryPayload {
   ownerId?: string
   isPublic?: boolean
   appearancePreset?: string
+  illustrationStyle?: string
 }
 
 /**
@@ -48,6 +49,7 @@ export class StoryFormMapper {
       tone: formData.tone.id, // UUID from backend
       species: formData.hero.species || formData.hero.id, // Map hero species (girl, boy, robot, etc.) with fallback to id
       appearancePreset: formData.hero.skinTone, // Map skin tone to appearance preset
+      illustrationStyle: formData.illustrationStyle || 'japanese-soft', // Map illustration style with default
       // Optional fields
       ownerId,
       title: undefined,
