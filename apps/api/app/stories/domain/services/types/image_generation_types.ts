@@ -47,6 +47,9 @@ export interface ImageGenerationContext {
 
   /** Character Visual Lock - description détaillée du personnage pour cohérence */
   characterVisualLock?: string
+
+  /** Données base64 de l'image de couverture (pour référence multimodale dans les chapitres) */
+  coverImageData?: string
 }
 
 /**
@@ -73,6 +76,9 @@ export interface CoverImageResult {
 
   /** Character Visual Lock - description détaillée du personnage pour cohérence entre images */
   characterVisualLock?: string
+
+  /** Données base64 de l'image de couverture (pour référence dans les chapitres) */
+  coverImageData?: string
 }
 
 /**

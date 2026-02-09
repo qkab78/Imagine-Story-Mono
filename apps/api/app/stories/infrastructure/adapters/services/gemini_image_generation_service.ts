@@ -80,9 +80,6 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
   private readonly MAX_RETRIES = 3
   private readonly RETRY_DELAY_MS = 2000
 
-  // Cover image data stored for subject reference in chapter images
-  private coverImageData: string | null = null
-
   // Costume variants for variety - very specific descriptions to ensure consistency
   private readonly SUPERHERO_COSTUME_VARIANTS: SuperheroCostumeVariant[] = [
     {
@@ -240,10 +237,6 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
       // Générer l'image avec Gemini
       const imageData = await this.generateImageWithRetry(coverPrompt)
 
-      // Stocker l'image pour la réutiliser comme référence sujet dans les chapitres
-      this.coverImageData = imageData
-      logger.info('📌 Image de couverture stockée comme référence sujet pour les chapitres')
-
       // Sauvegarder l'image
       const coverFileName = `${context.slug}.png`
       const coverPath = await this.saveImageFromBase64(
@@ -253,9 +246,12 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
       )
 
       logger.info('✅ Image de couverture Gemini Imagen créée')
+      logger.info('📌 Image de couverture retournée comme référence pour les chapitres')
+
       return {
         imagePath: coverPath,
         characterVisualLock,
+        coverImageData: imageData, // Retourner pour utilisation dans les chapitres (thread-safe)
       }
     } catch (error: any) {
       logger.error('❌ Erreur génération couverture Gemini:', error)
@@ -315,9 +311,6 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
     const generationTimeMs = parallelEndTime - parallelStartTime
 
     logger.info(`✅ ${successfulGeneration}/${chapters.length} images de chapitres générées`)
-
-    // Réinitialiser l'image de couverture après génération des chapitres
-    this.coverImageData = null
 
     return {
       images: chapterImages,
@@ -381,11 +374,11 @@ export class GeminiImageGenerationService extends IStoryImageGenerationService {
       const chapterPrompt = this.buildChapterPrompt(context, chapter)
       let imageData: string
 
-      // Utiliser l'image de couverture comme référence si disponible
-      if (this.coverImageData) {
+      // Utiliser l'image de couverture comme référence si disponible (passée via context pour thread-safety)
+      if (context.coverImageData) {
         try {
           logger.info(`🔗 Utilisation de l'image de couverture comme référence multimodale`)
-          imageData = await this.generateImageWithReference(chapterPrompt, this.coverImageData)
+          imageData = await this.generateImageWithReference(chapterPrompt, context.coverImageData)
         } catch (error: any) {
           logger.warn(`⚠️ Génération avec référence échouée, fallback sur text-to-image: ${error.message}`)
           imageData = await this.generateImageWithRetry(chapterPrompt)

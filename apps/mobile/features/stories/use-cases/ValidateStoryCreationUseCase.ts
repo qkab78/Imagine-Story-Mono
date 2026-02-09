@@ -129,6 +129,12 @@ export class ValidateStoryCreationUseCase {
       throw new InvalidValueObjectException('Tone must have a title')
     }
 
+    // Validate illustration style if provided
+    const validStyles = ['japanese-soft', 'disney-pixar', 'watercolor', 'classic-book']
+    if (completeData.illustrationStyle && !validStyles.includes(completeData.illustrationStyle)) {
+      throw new InvalidValueObjectException('Invalid illustration style')
+    }
+
     // All validations passed, return the validated complete data
     return completeData
   }

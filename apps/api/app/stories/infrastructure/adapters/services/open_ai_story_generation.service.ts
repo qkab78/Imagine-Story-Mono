@@ -409,10 +409,11 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
         })
       )
 
-      // Ajouter le Character Visual Lock au contexte pour les chapitres (cohérence Gemini)
+      // Ajouter le Character Visual Lock et cover image data au contexte pour les chapitres (cohérence Gemini)
       const imageContextWithLock: ImageGenerationContext = {
         ...imageContext,
         characterVisualLock: coverResult.characterVisualLock,
+        coverImageData: coverResult.coverImageData, // Thread-safe: passé via context au lieu de propriété d'instance
       }
 
       const chapterImagesResponse = await this.imageGenerationService.generateChapterImages(
