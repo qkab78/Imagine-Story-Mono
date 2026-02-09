@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 
-import HomeScreen from '../../../app/(protected)/home';
+import HomeScreen from '../HomeScreen';
 import { Stack } from 'expo-router';
 
 // Mock des dépendances

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack, useRouter } from 'expo-router';
-import HomeScreen from '@/app/(protected)/home';
+import HomeScreen from '@/components/home/HomeScreen';
 import { useSearchContext } from '@/hooks/useSearchContext';
 
 export default function TabHomeScreen() {

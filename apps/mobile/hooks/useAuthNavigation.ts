@@ -12,7 +12,7 @@ export function useAuthNavigation() {
   const router = useRouter();
 
   useEffect(() => {
-    const isInProtectedArea = ['(protected)', '(tabs)', 'stories'].includes(segments[0]);
+    const isInProtectedArea = ['(tabs)', 'stories'].includes(segments[0]);
     const isAuthenticated = !!token;
 
     const shouldRedirectToLogin = !isAuthenticated && isInProtectedArea;
