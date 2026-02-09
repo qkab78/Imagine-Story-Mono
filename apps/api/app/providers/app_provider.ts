@@ -12,6 +12,7 @@ import { ILanguageRepository } from '#stories/domain/repositories/language_repos
 import { IToneRepository } from '#stories/domain/repositories/tone_repository'
 import { IDomainEventPublisher } from '#stories/domain/events/i_domain_event_publisher'
 import { IStorageService } from '#stories/domain/services/i_storage_service'
+import { IJobDispatcher } from '#stories/domain/services/i_job_dispatcher'
 import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositories/kysely_tone_repository'
 import { IUserRepository } from '#users/domain/repositories/user_repository'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/i_subscription_repository'
@@ -150,6 +151,13 @@ export default class AppProvider {
     })
     this.app.container.singleton(ISocialAuthService, () => {
       return this.app.container.make(AllySocialAuthService)
+    })
+
+    // Job dispatcher binding
+    const { BullJobDispatcher } =
+      await import('#stories/infrastructure/adapters/services/bull_job_dispatcher')
+    this.app.container.singleton(IJobDispatcher, () => {
+      return new BullJobDispatcher()
     })
 
     // Translation service binding

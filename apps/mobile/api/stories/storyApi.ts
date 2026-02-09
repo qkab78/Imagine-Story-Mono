@@ -119,6 +119,31 @@ export const createStory = async (payload: CreateStoryPayload, token: string): P
 }
 
 /**
+ * Retry a failed story generation
+ */
+export const retryStoryGeneration = async (storyId: string, token: string): Promise<StoryCreatedResponse> => {
+  if (!token) {
+    throw new Error('No token provided')
+  }
+
+  const response = await fetch(STORY_ENDPOINTS.STORY_RETRY(storyId), {
+    method: 'POST',
+    headers: {
+      Authorization: token,
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    const error: ApiErrorResponse = await response.json().catch(() => ({}))
+    throw new Error(error.message || `Failed to retry story generation: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  return data as StoryCreatedResponse
+}
+
+/**
  * Get story by slug
  */
 export const getStoryBySlug = async (slug: string): Promise<StoryDetailDTO> => {

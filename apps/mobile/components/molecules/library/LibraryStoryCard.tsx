@@ -7,6 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StoryCoverPlaceholder, StoryBadge } from '@/components/atoms/library';
 import { GeneratingOverlay } from './GeneratingOverlay';
+import { FailedOverlay } from './FailedOverlay';
 import { LibraryStory } from '@/types/library';
 import { LIBRARY_COLORS, LIBRARY_DIMENSIONS, LIBRARY_TYPOGRAPHY, LIBRARY_SPACING } from '@/constants/library';
 import { formatRelativeDate } from '@/utils/date';
@@ -14,8 +15,11 @@ import { formatRelativeDate } from '@/utils/date';
 interface LibraryStoryCardProps {
   story: LibraryStory;
   onPress: () => void;
+  onRetry?: (storyId: string) => void;
   isHighlighted?: boolean;
   isNew?: boolean;
+  isRetrying?: boolean;
+  retryLabel?: string;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -23,12 +27,16 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export const LibraryStoryCard: React.FC<LibraryStoryCardProps> = ({
   story,
   onPress,
+  onRetry,
   isHighlighted = false,
   isNew = false,
+  isRetrying = false,
+  retryLabel = 'Retry',
 }) => {
   const scale = useSharedValue(1);
 
   const isGenerating = story.generationStatus === 'generating';
+  const isFailed = story.generationStatus === 'failed';
   const hasCoverImage = !!story.coverImageUrl;
 
   const handlePressIn = () => {
@@ -43,7 +51,11 @@ export const LibraryStoryCard: React.FC<LibraryStoryCardProps> = ({
     transform: [{ scale: scale.value }],
   }));
 
-  const metaText = isGenerating
+  const handleRetry = () => {
+    onRetry?.(story.id);
+  };
+
+  const metaText = isGenerating || isFailed
     ? formatRelativeDate(story.publicationDate)
     : `${story.numberOfChapters} chap. · ${formatRelativeDate(story.publicationDate)}`;
 
@@ -53,12 +65,13 @@ export const LibraryStoryCard: React.FC<LibraryStoryCardProps> = ({
         styles.container,
         animatedStyle,
         isGenerating && styles.generatingBorder,
+        isFailed && styles.failedBorder,
         isHighlighted && styles.highlighted,
       ]}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       onPress={onPress}
-      disabled={isGenerating}
+      disabled={isGenerating || isFailed}
     >
       {/* Cover */}
       <View style={styles.coverContainer}>
@@ -71,10 +84,26 @@ export const LibraryStoryCard: React.FC<LibraryStoryCardProps> = ({
         {/* Generating overlay */}
         {isGenerating && <GeneratingOverlay progress={story.generationProgress || 0} />}
 
+        {/* Failed overlay */}
+        {isFailed && (
+          <FailedOverlay
+            retryLabel={retryLabel}
+            onRetry={handleRetry}
+            isRetrying={isRetrying}
+          />
+        )}
+
         {/* New badge */}
-        {isNew && !isGenerating && (
+        {isNew && !isGenerating && !isFailed && (
           <View style={styles.badgeContainer}>
             <StoryBadge variant="new" />
+          </View>
+        )}
+
+        {/* Error badge */}
+        {isFailed && (
+          <View style={styles.badgeContainer}>
+            <StoryBadge variant="error" />
           </View>
         )}
       </View>
@@ -104,6 +133,10 @@ const styles = StyleSheet.create({
   generatingBorder: {
     borderWidth: 2,
     borderColor: LIBRARY_COLORS.accent,
+  },
+  failedBorder: {
+    borderWidth: 2,
+    borderColor: LIBRARY_COLORS.error,
   },
   highlighted: {
     borderWidth: 2,

@@ -16,8 +16,11 @@ interface LibraryStoryGridProps {
   highlightedStoryId?: string | null;
   newStoryIds?: string[];
   onStoryPress: (storyId: string) => void;
+  onRetryStory?: (storyId: string) => void;
   onCreateStoryPress: () => void;
   isLoading?: boolean;
+  retryingStoryId?: string | null;
+  retryLabel?: string;
 }
 
 export const LibraryStoryGrid: React.FC<LibraryStoryGridProps> = ({
@@ -25,8 +28,11 @@ export const LibraryStoryGrid: React.FC<LibraryStoryGridProps> = ({
   highlightedStoryId,
   newStoryIds = [],
   onStoryPress,
+  onRetryStory,
   onCreateStoryPress,
   isLoading = false,
+  retryingStoryId,
+  retryLabel,
 }) => {
   const renderItem = useCallback(
     ({ item }: { item: LibraryStory }) => {
@@ -38,13 +44,16 @@ export const LibraryStoryGrid: React.FC<LibraryStoryGridProps> = ({
           <LibraryStoryCard
             story={item}
             onPress={() => onStoryPress(item.id)}
+            onRetry={onRetryStory}
             isHighlighted={isHighlighted}
             isNew={isNew}
+            isRetrying={retryingStoryId === item.id}
+            retryLabel={retryLabel}
           />
         </View>
       );
     },
-    [highlightedStoryId, newStoryIds, onStoryPress]
+    [highlightedStoryId, newStoryIds, onStoryPress, onRetryStory, retryingStoryId, retryLabel]
   );
 
   const keyExtractor = useCallback((item: LibraryStory) => item.id, []);

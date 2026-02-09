@@ -172,6 +172,12 @@
       "tones": "Ambiances",
       "reset": "Réinitialiser",
       "apply": "Appliquer les filtres"
+    },
+    "failed": {
+      "overlay": "ERREUR",
+      "retry": "Réessayer",
+      "retrySuccess": "La génération a été relancée !",
+      "retryError": "Impossible de relancer la génération"
     }
   },
   "explore": {

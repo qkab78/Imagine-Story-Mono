@@ -1,12 +1,16 @@
 import { Job } from '@rlanz/bull-queue'
 import app from '@adonisjs/core/services/app'
+import queue from '@rlanz/bull-queue/services/main'
 import { GenerateStoryContentUseCase } from '#stories/application/use-cases/generate_story_content_use_case'
+import { IStoryRepository } from '#stories/domain/repositories/story_repository'
+import { IUserRepository } from '#users/domain/repositories/user_repository'
 import { IThemeRepository } from '#stories/domain/repositories/theme_repository'
 import { ILanguageRepository } from '#stories/domain/repositories/language_repository'
 import { IToneRepository } from '#stories/domain/repositories/tone_repository'
 import { ThemeId } from '#stories/domain/value-objects/ids/theme_id.vo'
 import { LanguageId } from '#stories/domain/value-objects/ids/language_id.vo'
 import { ToneId } from '#stories/domain/value-objects/ids/tone_id.vo'
+import SendStoryGenerationFailedEmailJob from '#jobs/story/send_story_generation_failed_email_job'
 
 export interface GenerateStoryJobPayload {
   storyId: string
@@ -105,7 +109,54 @@ export default class GenerateStoryJob extends Job {
       error.message
     )
 
-    // Le use case a déjà marqué la story comme "failed"
-    // On pourrait envoyer une notification à l'utilisateur ici
+    try {
+      const storyRepository = await app.container.make(IStoryRepository)
+      const userRepository = await app.container.make(IUserRepository)
+
+      const story = await storyRepository.findById(payload.storyId)
+      if (!story) {
+        console.error(`Story not found: ${payload.storyId}`)
+        return
+      }
+
+      // Marquer la story comme failed
+      if (story.generationStatus.isProcessing()) {
+        story.failGeneration(error.message)
+        await storyRepository.save(story)
+      }
+
+      // Envoyer l'email d'échec
+      const user = await userRepository.findById(story.ownerId.getValue())
+      if (user) {
+        const userFriendlyError = this.simplifyErrorMessage(error.message)
+        await queue.dispatch(SendStoryGenerationFailedEmailJob, {
+          recipientEmail: user.email.getValue(),
+          recipientName: user.getFullName(),
+          storyId: story.id.getValue(),
+          errorMessage: userFriendlyError,
+        })
+      }
+    } catch (rescueError: any) {
+      console.error(`Failed to handle rescue for story ${payload.storyId}:`, rescueError.message)
+    }
+  }
+
+  /**
+   * Simplify technical error messages for end users
+   */
+  private simplifyErrorMessage(technicalError: string): string {
+    if (technicalError.includes('quota') || technicalError.includes('rate limit')) {
+      return 'Limite de requêtes atteinte. Veuillez réessayer dans quelques instants.'
+    }
+
+    if (technicalError.includes('timeout') || technicalError.includes('timed out')) {
+      return 'Le serveur a mis trop de temps à répondre. Veuillez réessayer.'
+    }
+
+    if (technicalError.includes('API') || technicalError.includes('OpenAI')) {
+      return 'Service de génération temporairement indisponible. Veuillez réessayer.'
+    }
+
+    return 'Une erreur technique est survenue. Notre équipe a été notifiée.'
   }
 }

@@ -220,6 +220,26 @@ export class KyselyStoryRepository implements IStoryRepository {
   }
 
   /**
+   * Find an active story (pending or processing) by owner ID
+   */
+  async findActiveByOwnerId(ownerId: OwnerId): Promise<Story | null> {
+    const storyRow = await db
+      .selectFrom('stories')
+      .where('user_id', '=', ownerId.getValue())
+      .where('generation_status', 'in', ['pending', 'processing'])
+      .selectAll()
+      .orderBy('created_at', 'desc')
+      .limit(1)
+      .executeTakeFirst()
+
+    if (!storyRow) {
+      return null
+    }
+
+    return this.mapRowToStory(storyRow)
+  }
+
+  /**
    * Find story by job ID
    */
   async findByJobId(jobId: string): Promise<Story | null> {

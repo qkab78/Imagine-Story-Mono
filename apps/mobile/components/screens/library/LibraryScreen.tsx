@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -7,12 +7,17 @@ import { LibraryHeader, LibraryStoryGrid } from '@/components/organisms/library'
 import { FilterSheet } from '@/components/organisms/filters';
 import { useLibraryStories } from '@/features/library/hooks';
 import { useStoryFilters } from '@/features/filters';
+import { useStoryRetry } from '@/features/stories/hooks/useStoryRetry';
+import { addPendingGeneration } from '@/store/library/libraryStorage';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { LIBRARY_COLORS } from '@/constants/library';
 
 export const LibraryScreen = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { t } = useAppTranslation('stories');
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [retryingStoryId, setRetryingStoryId] = useState<string | null>(null);
 
   const {
     stories,
@@ -20,6 +25,7 @@ export const LibraryScreen = () => {
     highlightedStoryId,
     newStoryIds,
     clearHighlight,
+    invalidateStories,
     totalCount,
   } = useLibraryStories();
 
@@ -31,6 +37,8 @@ export const LibraryScreen = () => {
     applyFilters,
     activeFiltersCount,
   } = useStoryFilters();
+
+  const { mutate: retryStory } = useStoryRetry();
 
   // Clear highlight when leaving screen
   useEffect(() => {
@@ -67,6 +75,25 @@ export const LibraryScreen = () => {
     router.push('/stories/creation/welcome');
   }, [router]);
 
+  const handleRetryStory = useCallback((storyId: string) => {
+    setRetryingStoryId(storyId);
+    retryStory(storyId, {
+      onSuccess: (response) => {
+        if (response.data?.id && response.data?.jobId) {
+          addPendingGeneration(response.data.jobId, response.data.id);
+        }
+        invalidateStories();
+        setRetryingStoryId(null);
+      },
+      onError: () => {
+        Alert.alert(
+          t('library.failed.retryError'),
+        );
+        setRetryingStoryId(null);
+      },
+    });
+  }, [retryStory, invalidateStories, t]);
+
   return (
     <LinearGradient
       colors={[LIBRARY_COLORS.backgroundTop, LIBRARY_COLORS.backgroundBottom]}
@@ -89,8 +116,11 @@ export const LibraryScreen = () => {
             highlightedStoryId={highlightedStoryId}
             newStoryIds={newStoryIds}
             onStoryPress={handleStoryPress}
+            onRetryStory={handleRetryStory}
             onCreateStoryPress={handleCreateStoryPress}
             isLoading={isLoading}
+            retryingStoryId={retryingStoryId}
+            retryLabel={t('library.failed.retry')}
           />
         )}
       </View>

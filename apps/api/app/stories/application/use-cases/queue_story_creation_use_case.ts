@@ -1,6 +1,5 @@
 import { inject } from '@adonisjs/core'
 import logger from '@adonisjs/core/services/logger'
-import queue from '@rlanz/bull-queue/services/main'
 import { IStoryRepository } from '#stories/domain/repositories/story_repository'
 import { IThemeRepository } from '#stories/domain/repositories/theme_repository'
 import { ILanguageRepository } from '#stories/domain/repositories/language_repository'
@@ -8,7 +7,11 @@ import { IToneRepository } from '#stories/domain/repositories/tone_repository'
 import { StoryFactory } from '#stories/domain/factories/story_factory'
 import { IDateService } from '#stories/domain/services/i_date_service'
 import { IRandomService } from '#stories/domain/services/i_random_service'
+import { IJobDispatcher } from '#stories/domain/services/i_job_dispatcher'
+import { IDomainEventPublisher } from '#stories/domain/events/i_domain_event_publisher'
+import { StoryCreatedEvent } from '#stories/domain/events/story_created_event'
 import GenerateStoryJob from '#jobs/story/generate_story_job'
+import { OwnerId } from '#stories/domain/value-objects/ids/owner_id.vo'
 import { ThemeId } from '#stories/domain/value-objects/ids/theme_id.vo'
 import { LanguageId } from '#stories/domain/value-objects/ids/language_id.vo'
 import { ToneId } from '#stories/domain/value-objects/ids/tone_id.vo'
@@ -40,7 +43,9 @@ export class QueueStoryCreationUseCase {
     private readonly toneRepository: IToneRepository,
     private readonly dateService: IDateService,
     private readonly randomService: IRandomService,
-    private readonly getStoryQuotaUseCase: GetStoryQuotaUseCase
+    private readonly getStoryQuotaUseCase: GetStoryQuotaUseCase,
+    private readonly jobDispatcher: IJobDispatcher,
+    private readonly eventPublisher: IDomainEventPublisher
   ) {}
 
   async execute(payload: QueueStoryCreationPayload) {
@@ -60,6 +65,19 @@ export class QueueStoryCreationUseCase {
         quota.limit!,
         quota.resetDate!
       )
+    }
+
+    // Check for existing active story (deduplication)
+    const activeStory = await this.storyRepository.findActiveByOwnerId(
+      OwnerId.create(payload.ownerId)
+    )
+    if (activeStory) {
+      logger.info(`♻️ Active story already exists for user ${payload.ownerId}: ${activeStory.id.getValue()}`)
+      return {
+        id: activeStory.id.getValue(),
+        jobId: activeStory.jobId,
+        status: activeStory.generationStatus.getValue(),
+      }
     }
 
     logger.info('📝 Queuing story creation...')
@@ -99,7 +117,7 @@ export class QueueStoryCreationUseCase {
     await this.storyRepository.create(story)
 
     // 4. Dispatcher le job de génération
-    const job = await queue.dispatch(GenerateStoryJob, {
+    const job = await this.jobDispatcher.dispatch(GenerateStoryJob, {
       storyId: story.id.getValue(),
       synopsis: story.synopsis,
       protagonist: story.protagonist,
@@ -122,6 +140,11 @@ export class QueueStoryCreationUseCase {
     // 5. Mettre à jour le jobId
     story.startGeneration(job.id)
     await this.storyRepository.save(story)
+
+    // 6. Publier l'événement de création
+    await this.eventPublisher.publish(
+      StoryCreatedEvent.create(story.id, story.ownerId, story.slug, story.title)
+    )
 
     logger.info(`✅ Story queued: ${story.id.getValue()}, Job ID: ${job.id}`)
 
