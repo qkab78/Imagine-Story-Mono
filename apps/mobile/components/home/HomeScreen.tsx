@@ -75,19 +75,19 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar 
-        barStyle="dark-content" 
-        backgroundColor="transparent" 
-        translucent={Platform.OS === 'android'} 
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent={Platform.OS === 'android'}
       />
-      
+
       {/* @ts-ignore */}
       <LinearGradient
         colors={['#FFF8F0', '#FFE5E5']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-      > 
+      >
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}

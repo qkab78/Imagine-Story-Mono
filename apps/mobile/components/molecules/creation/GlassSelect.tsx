@@ -3,9 +3,11 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
+  Pressable,
   Modal,
   ScrollView,
   Platform,
+  Dimensions,
 } from 'react-native';
 import { Text } from 'react-native';
 import Animated, {
@@ -142,11 +144,8 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
         animationType="fade"
         onRequestClose={handleClose}
       >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={handleClose}
-        >
+        <View style={styles.modalOverlay}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
           <View style={styles.modalContent}>
             <BlurView intensity={80} tint="light" style={styles.modalBlur}>
               <View style={styles.modalHeader}>
@@ -190,7 +189,7 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
               </ScrollView>
             </BlurView>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
     </View>
   );
@@ -287,7 +286,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(127, 184, 160, 0.2)',
   },
@@ -311,7 +310,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   optionsList: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255)',
+    maxHeight: Dimensions.get('window').height * 0.6,
   },
   option: {
     flexDirection: 'row',

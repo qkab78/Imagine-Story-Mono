@@ -7,6 +7,3 @@
 
 export { GlassView } from './GlassView';
 export type { GlassViewProps } from './GlassView';
-
-export { GlassBadge } from './GlassBadge';
-export type { GlassBadgeProps } from './GlassBadge';

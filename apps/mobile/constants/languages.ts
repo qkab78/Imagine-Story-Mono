@@ -40,13 +40,3 @@ export const LANGUAGE_LABELS: Record<LanguageCode, { label: string; icon: string
   LI: { label: 'Lingala', icon: '🇨🇩' },
 };
 
-/**
- * Options pour le select de langue
- */
-export const getLanguageOptions = () => {
-  return Object.entries(LANGUAGE_LABELS).map(([code, { label, icon }]) => ({
-    label: `${label} ${icon}`,
-    value: code,
-    icon,
-  }));
-};

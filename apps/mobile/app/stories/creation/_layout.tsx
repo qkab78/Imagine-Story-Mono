@@ -24,7 +24,6 @@ export default function CreationLayout() {
       <Stack.Screen name="theme-selection" />
       <Stack.Screen name="tone-selection" />
       <Stack.Screen name="summary" />
-      <Stack.Screen name="story-generation" />
     </Stack>
   );
 }
