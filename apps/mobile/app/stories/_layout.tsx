@@ -1,10 +1,4 @@
-import { Slot, Stack } from "expo-router";
-import { theme } from "@/config/theme";
-
-const defaultScreenOptions = {
-  headerShown: false,
-  headerTintColor: theme.colors.textPrimary,
-}
+import { Slot } from "expo-router";
 
 export default function StoriesLayout() {
   return (

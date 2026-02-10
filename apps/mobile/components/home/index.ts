@@ -5,4 +5,3 @@ export { default as RecentStoriesSection } from './RecentStoriesSection';
 
 // Re-export existing components for consistency
 export { default as MagicalButton } from './MagicalButton';
-export { default as StoryCategoryCard } from './StoryCategoryCard';

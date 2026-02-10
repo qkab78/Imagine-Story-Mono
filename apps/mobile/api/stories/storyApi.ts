@@ -79,24 +79,6 @@ export const getStories = async (token: string): Promise<StoryListItemDTO[]> => 
 }
 
 /**
- * Get suggested stories based on search query
- */
-export const getSuggestedStories = async (token: string, query: string): Promise<Pick<StoryListItemDTO, 'id' | 'slug' | 'title' | 'coverImageUrl'>[]> => {
-  const response = await fetch(STORY_ENDPOINTS.STORIES_SEARCH(query), {
-    headers: {
-      Authorization: token,
-    },
-  })
-
-  if (!response.ok) {
-    const error: ApiErrorResponse = await response.json().catch(() => ({}))
-    throw new Error(error.message || `Failed to fetch suggested stories: ${response.statusText}`)
-  }
-
-  return response.json()
-}
-
-/**
  * Create a new story
  */
 export const createStory = async (payload: CreateStoryPayload, token: string): Promise<StoryCreatedResponse> => {

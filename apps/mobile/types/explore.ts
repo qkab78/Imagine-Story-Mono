@@ -94,10 +94,3 @@ export interface SearchResult {
   emoji: string;
 }
 
-/**
- * Search history item
- */
-export interface SearchHistoryItem {
-  query: string;
-  timestamp: number;
-}

@@ -25,14 +25,4 @@ export class StoryFormatterService {
     }
   }
 
-  /**
-   * Format date to locale string
-   * @param date Date string or Date object
-   * @param locale Locale string (default: 'fr-FR')
-   * @returns Formatted date string
-   */
-  public static formatDate(date: string | Date, locale: string = 'fr-FR'): string {
-    const dateObj = typeof date === 'string' ? new Date(date) : date
-    return dateObj.toLocaleDateString(locale)
-  }
 }
