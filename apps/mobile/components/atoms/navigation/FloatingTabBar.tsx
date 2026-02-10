@@ -9,12 +9,7 @@ import {
   PlusIcon,
 } from 'lucide-react-native';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  FadeIn,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 const ACTIVE_COLOR = '#2F6B4F';
 const INACTIVE_COLOR = '#A0A0A0';
@@ -28,29 +23,20 @@ const TAB_ICONS: Record<string, { icon: typeof HouseIcon; isCenter?: boolean }> 
   settings: { icon: CircleUserRoundIcon },
 };
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+function triggerHaptic() {
+  if (Platform.OS === 'ios') Haptics.selectionAsync();
+}
 
 function CenterButton({ isActive, onPress }: { isActive: boolean; onPress: () => void }) {
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
   return (
-    <AnimatedPressable
-      onPress={onPress}
-      onPressIn={() => {
-        scale.value = withSpring(0.92, { damping: 15 });
-        if (Platform.OS === 'ios') Haptics.selectionAsync();
-      }}
-      onPressOut={() => {
-        scale.value = withSpring(1, { damping: 15 });
+    <Pressable
+      onPress={() => {
+        triggerHaptic();
+        onPress();
       }}
       style={[
         styles.centerButton,
         isActive ? styles.centerButtonActive : styles.centerButtonInactive,
-        animatedStyle,
       ]}
     >
       <PlusIcon
@@ -58,7 +44,7 @@ function CenterButton({ isActive, onPress }: { isActive: boolean; onPress: () =>
         color={isActive ? '#FFFFFF' : '#999999'}
         strokeWidth={2.8}
       />
-    </AnimatedPressable>
+    </Pressable>
   );
 }
 
@@ -77,41 +63,22 @@ function TabButton({
   label: string;
   accessibilityState: { selected: boolean };
 }) {
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
   return (
-    <AnimatedPressable
+    <Pressable
       onPress={() => {
-        if (Platform.OS === 'ios') Haptics.selectionAsync();
+        triggerHaptic();
         onPress();
       }}
       onLongPress={onLongPress}
-      onPressIn={() => {
-        scale.value = withSpring(0.9, { damping: 15 });
-      }}
-      onPressOut={() => {
-        scale.value = withSpring(1, { damping: 15 });
-      }}
       accessibilityRole="button"
       accessibilityState={accessibilityState}
-      style={[styles.tabButton, animatedStyle]}
+      style={styles.tabButton}
     >
-      <Animated.View
-        style={[
-          animatedStyle,
-          { transform: [{ scale: isActive ? 1.12 : 1 }] },
-        ]}
-      >
-        <IconComponent
-          size={24}
-          color={isActive ? ACTIVE_COLOR : INACTIVE_COLOR}
-          strokeWidth={1.8}
-        />
-      </Animated.View>
+      <IconComponent
+        size={24}
+        color={isActive ? ACTIVE_COLOR : INACTIVE_COLOR}
+        strokeWidth={1.8}
+      />
       <Text
         style={[
           styles.tabLabel,
@@ -127,7 +94,7 @@ function TabButton({
           style={styles.activeDot}
         />
       )}
-    </AnimatedPressable>
+    </Pressable>
   );
 }
 
@@ -233,7 +200,6 @@ const styles = StyleSheet.create({
     gap: 2,
     paddingVertical: 4,
     paddingHorizontal: 10,
-    position: 'relative',
   },
   tabLabel: {
     fontSize: 9.5,
