@@ -83,6 +83,7 @@ function CustomTabBarTabs() {
         name="settings"
         options={{
           title: t('navigation.profile'),
+          headerShown: false,
           tabBarIcon: ({ color }) => <CircleUserRoundIcon color={color} />,
         }}
       />
