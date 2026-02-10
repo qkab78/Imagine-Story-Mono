@@ -22,6 +22,7 @@ import { useUserStories } from '@/features/stories/hooks/useStoryList';
 import { formatLongDate } from '@/utils/dateFormatter';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_ICONS } from '@/constants/profile';
+import useTabBarDesignStore, { type TabBarDesign } from '@/store/tabbar/tabBarDesignStore';
 
 /**
  * Labels des langues pour l'affichage
@@ -29,6 +30,11 @@ import { PROFILE_COLORS, PROFILE_SPACING, PROFILE_ICONS } from '@/constants/prof
 const LANGUAGE_DISPLAY: Record<string, string> = {
   fr: 'Francais',
   en: 'English',
+};
+
+const TAB_BAR_DESIGN_LABELS: Record<TabBarDesign, string> = {
+  glassmorphism: 'Glassmorphism',
+  floating: 'Barre flottante',
 };
 
 export const ProfileContent: React.FC = () => {
@@ -63,6 +69,8 @@ export const ProfileContent: React.FC = () => {
   } = useSubscription();
 
   const { data: userStories = [] } = useUserStories();
+
+  const { design: tabBarDesign, toggleDesign: toggleTabBarDesign } = useTabBarDesignStore();
 
   // Sheet visibility states
   const [showPersonalInfo, setShowPersonalInfo] = useState(false);
@@ -211,6 +219,13 @@ export const ProfileContent: React.FC = () => {
             label={t('settings.language')}
             value={LANGUAGE_DISPLAY[language] || language}
             onPress={handleLanguage}
+          />
+          <View style={styles.separator} />
+          <SettingsItem
+            icon={PROFILE_ICONS.tabBarDesign}
+            label="Design Tab Bar"
+            value={TAB_BAR_DESIGN_LABELS[tabBarDesign]}
+            onPress={toggleTabBarDesign}
           />
         </SettingsSection>
 
