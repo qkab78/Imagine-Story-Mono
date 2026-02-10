@@ -98,7 +98,6 @@ export const PROFILE_ICONS = {
   // Preferences
   notifications: { sfSymbol: 'bell.fill', lucide: 'Bell' },
   language: { sfSymbol: 'globe', lucide: 'Globe' },
-  tabBarDesign: { sfSymbol: 'dock.rectangle', lucide: 'LayoutDashboard' },
 
   // Support
   help: { sfSymbol: 'message.fill', lucide: 'MessageCircle' },

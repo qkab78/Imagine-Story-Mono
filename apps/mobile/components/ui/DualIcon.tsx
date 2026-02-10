@@ -48,8 +48,6 @@ import {
   Clock,
   // Subscription icons
   Calendar,
-  // Tab bar design icon
-  LayoutDashboard,
   // Offline icons
   Download,
   CheckCircle,
@@ -111,8 +109,6 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<{ size: number; color: st
   Clock,
   // Subscription icons
   Calendar,
-  // Tab bar design icon
-  LayoutDashboard,
   // Offline icons
   Download,
   CheckCircle,
