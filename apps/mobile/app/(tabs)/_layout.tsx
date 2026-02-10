@@ -45,6 +45,7 @@ function CustomTabBarTabs() {
         tabBarInactiveTintColor: '#A0A0A0',
         ...(design === 'floating' && {
           tabBarStyle: {
+            position: 'absolute',
             backgroundColor: 'transparent',
             borderTopWidth: 0,
             elevation: 0,
