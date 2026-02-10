@@ -109,7 +109,6 @@ function TabButton({
         <IconComponent
           size={24}
           color={isActive ? ACTIVE_COLOR : INACTIVE_COLOR}
-          fill={isActive ? ACTIVE_COLOR : 'none'}
           strokeWidth={1.8}
         />
       </Animated.View>
@@ -200,10 +199,13 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
 
 const styles = StyleSheet.create({
   outerContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     paddingHorizontal: 16,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 12,
     paddingTop: 8,
-    backgroundColor: 'transparent',
   },
   blurContainer: {
     borderRadius: 28,

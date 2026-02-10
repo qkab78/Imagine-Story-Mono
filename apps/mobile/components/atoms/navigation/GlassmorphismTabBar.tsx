@@ -105,7 +105,6 @@ function TabButton({
         <IconComponent
           size={24}
           color={isActive ? ACTIVE_COLOR : INACTIVE_COLOR}
-          fill={isActive ? ACTIVE_COLOR : 'none'}
           strokeWidth={1.8}
         />
       </Animated.View>
