@@ -23,9 +23,9 @@ test.group(GetAllThemesUseCase.name, () => {
 
   test('should return all themes', async ({ assert }) => {
     const themes = [
-      Theme.create('123e4567-e89b-12d3-a456-426614174001', 'Adventure', 'An adventure theme'),
-      Theme.create('123e4567-e89b-12d3-a456-426614174002', 'Fantasy', 'A fantasy theme'),
-      Theme.create('123e4567-e89b-12d3-a456-426614174003', 'Science Fiction', 'A sci-fi theme'),
+      Theme.create('123e4567-e89b-12d3-a456-426614174001', 'Adventure', 'An adventure theme', 'adventure'),
+      Theme.create('123e4567-e89b-12d3-a456-426614174002', 'Fantasy', 'A fantasy theme', 'magic'),
+      Theme.create('123e4567-e89b-12d3-a456-426614174003', 'Science Fiction', 'A sci-fi theme', 'adventure'),
     ]
 
     const themeRepository = new TestThemeRepository(themes)

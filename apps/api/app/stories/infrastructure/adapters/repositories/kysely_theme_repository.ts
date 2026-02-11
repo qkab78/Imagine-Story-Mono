@@ -20,12 +20,12 @@ export class KyselyThemeRepository implements IThemeRepository {
       return null
     }
 
-    return Theme.create(themeRow.id, themeRow.name, themeRow.description)
+    return Theme.create(themeRow.id, themeRow.name, themeRow.description, themeRow.key)
   }
 
   async findAll(): Promise<Theme[]> {
     const themeRows = await db.selectFrom('themes').selectAll().execute()
 
-    return themeRows.map((row) => Theme.create(row.id, row.name, row.description))
+    return themeRows.map((row) => Theme.create(row.id, row.name, row.description, row.key))
   }
 }

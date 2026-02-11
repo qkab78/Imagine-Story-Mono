@@ -7,6 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { colors } from '@/theme/colors';
 import { SPECIES_IMAGES } from '@/constants/speciesImages';
 import { TONE_IMAGES } from '@/constants/toneImages';
+import { THEME_IMAGES } from '@/constants/themeImages';
 import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
 import { CreateStoryUseCase } from '@/features/stories/use-cases/CreateStoryUseCase';
@@ -263,8 +264,16 @@ export const SummaryScreenNew: React.FC = () => {
               {/* Theme Row */}
               {createStoryPayload.theme && (
                 <View style={styles.detailRow}>
-                  <View style={styles.detailIcon}>
-                    <Text style={styles.detailIconText}>{createStoryPayload.theme.emoji}</Text>
+                  <View style={[styles.detailIcon, createStoryPayload.theme.key && THEME_IMAGES[createStoryPayload.theme.key] ? styles.detailIconImage : undefined]}>
+                    {createStoryPayload.theme.key && THEME_IMAGES[createStoryPayload.theme.key] ? (
+                      <Image
+                        source={THEME_IMAGES[createStoryPayload.theme.key]}
+                        style={styles.detailIconImg}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <Text style={styles.detailIconText}>{createStoryPayload.theme.emoji}</Text>
+                    )}
                   </View>
                   <View style={styles.detailContent}>
                     <Text style={styles.detailLabel}>Thème</Text>

@@ -7,7 +7,8 @@ test.group('Theme Value Object', () => {
     const theme = Theme.create(
       '123e4567-e89b-12d3-a456-426614174000',
       'Adventure',
-      'An exciting adventure story'
+      'An exciting adventure story',
+      'adventure'
     )
 
     assert.equal(theme.name, 'Adventure')
@@ -17,7 +18,7 @@ test.group('Theme Value Object', () => {
 
   test('should throw error for invalid UUID', ({ assert }) => {
     assert.throws(
-      () => Theme.create('invalid-uuid', 'Adventure', 'Description'),
+      () => Theme.create('invalid-uuid', 'Adventure', 'Description', 'adventure'),
       InvalidValueObjectException
     )
   })
@@ -26,17 +27,20 @@ test.group('Theme Value Object', () => {
     const theme1 = Theme.create(
       '123e4567-e89b-12d3-a456-426614174000',
       'Adventure',
-      'Description 1'
+      'Description 1',
+      'adventure'
     )
     const theme2 = Theme.create(
       '123e4567-e89b-12d3-a456-426614174000',
       'Different Name',
-      'Description 2'
+      'Description 2',
+      'adventure'
     )
     const theme3 = Theme.create(
       '223e4567-e89b-12d3-a456-426614174000',
       'Adventure',
-      'Description 1'
+      'Description 1',
+      'adventure'
     )
 
     assert.isTrue(theme1.equals(theme2))
@@ -44,7 +48,7 @@ test.group('Theme Value Object', () => {
   })
 
   test('should return false when comparing with null or undefined', ({ assert }) => {
-    const theme = Theme.create('123e4567-e89b-12d3-a456-426614174000', 'Adventure', 'Description')
+    const theme = Theme.create('123e4567-e89b-12d3-a456-426614174000', 'Adventure', 'Description', 'adventure')
 
     assert.isFalse(theme.equals(null as any))
     assert.isFalse(theme.equals(undefined as any))
@@ -52,7 +56,7 @@ test.group('Theme Value Object', () => {
 
   test('should return UUID string via getIdValue', ({ assert }) => {
     const themeId = '123e4567-e89b-12d3-a456-426614174000'
-    const theme = Theme.create(themeId, 'Adventure', 'Description')
+    const theme = Theme.create(themeId, 'Adventure', 'Description', 'adventure')
 
     assert.equal(theme.getIdValue(), themeId)
     assert.typeOf(theme.getIdValue(), 'string')

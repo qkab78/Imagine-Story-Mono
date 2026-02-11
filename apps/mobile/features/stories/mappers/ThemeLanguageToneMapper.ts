@@ -9,6 +9,7 @@ export interface ThemeDTO {
   id: string
   name: string
   description: string
+  key: string
 }
 
 export interface LanguageDTO {
@@ -36,7 +37,7 @@ export class ThemeLanguageToneMapper {
    * @returns Frontend Theme value object
    */
   public static themeDTOToDomain(dto: ThemeDTO): Theme {
-    return Theme.create(dto.id, dto.name, dto.description)
+    return Theme.create(dto.id, dto.name, dto.description, dto.key)
   }
 
   /**

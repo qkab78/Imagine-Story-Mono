@@ -11,6 +11,7 @@ import useStoryStore from '@/store/stories/storyStore';
 import { getThemes } from '@/api/stories/storyApi';
 import type { ThemeDTO } from '@/api/stories/storyTypes';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
+import { THEME_IMAGES } from '@/constants/themeImages';
 
 // Emoji mapping for themes
 const THEME_EMOJIS: Record<string, string> = {
@@ -101,6 +102,7 @@ export const ThemeSelectionScreenNew: React.FC = () => {
         id: selectedTheme.id,
         name: selectedTheme.name,
         description: selectedTheme.description,
+        key: selectedTheme.key,
         emoji: selectedTheme.emoji,
         color: selectedTheme.color,
       },
@@ -162,6 +164,7 @@ export const ThemeSelectionScreenNew: React.FC = () => {
                     color={theme.color}
                     isSelected={theme.id === selectedThemeId}
                     onPress={() => setSelectedThemeId(theme.id)}
+                    imageSource={THEME_IMAGES[theme.key]}
                   />
                 </View>
               ))}
