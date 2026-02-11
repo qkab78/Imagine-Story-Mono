@@ -15,6 +15,7 @@ export class ThemePresenter {
       id: theme.id.getValue(),
       name: theme.name,
       description: theme.description,
+      key: theme.key,
     }
   }
 

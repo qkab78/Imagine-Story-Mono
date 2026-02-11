@@ -35,6 +35,9 @@ test.group(GetLatestPublicStoriesUseCase.name, () => {
   }
 
   class TestStoryRepository implements IStoryRepository {
+    findActiveByOwnerId(ownerId: OwnerId): Promise<Story | null> {
+      throw new Error('Method not implemented.')
+    }
     public readonly stories: Map<string, Story> = new Map()
 
     findById(id: StoryId | string): Promise<Story | null> {
@@ -141,7 +144,8 @@ test.group(GetLatestPublicStoriesUseCase.name, () => {
       theme: Theme.create(
         '123e4567-e89b-12d3-a456-426614174000',
         'Adventure',
-        'An adventure theme'
+        'An adventure theme',
+        'adventure'
       ),
       language: Language.create('123e4567-e89b-12d3-a456-426614174000', 'English', 'en', true),
       tone: Tone.create('123e4567-e89b-12d3-a456-426614174000', 'Happy', 'A happy tone'),

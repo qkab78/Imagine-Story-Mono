@@ -13,7 +13,8 @@ export class Theme {
   private constructor(
     public readonly id: ThemeId,
     public readonly name: string,
-    public readonly description: string
+    public readonly description: string,
+    public readonly key: string
   ) {}
 
   /**
@@ -21,9 +22,10 @@ export class Theme {
    * @param id Theme UUID
    * @param name Theme name
    * @param description Theme description
+   * @param key Theme key (english slug)
    */
-  public static create(id: string, name: string, description: string): Theme {
-    return new Theme(ThemeId.create(id), name, description)
+  public static create(id: string, name: string, description: string, key: string): Theme {
+    return new Theme(ThemeId.create(id), name, description, key)
   }
 
   /**

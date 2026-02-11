@@ -51,6 +51,9 @@ test.group(CreateStoryUseCase.name, () => {
     }
   }
   class TestStoryRepository implements IStoryRepository {
+    findActiveByOwnerId(ownerId: OwnerId): Promise<Story | null> {
+      throw new Error('Method not implemented.')
+    }
     public readonly stories: Story[] = []
     findById(_id: StoryIdVO | string): Promise<Story | null> {
       throw new Error('Method not implemented.')
@@ -165,7 +168,7 @@ test.group(CreateStoryUseCase.name, () => {
   class TestThemeRepository implements IThemeRepository {
     findById(id: ThemeId): Promise<Theme | null> {
       return Promise.resolve(
-        Theme.create(id.getValue(), 'The name of the theme', 'The description of the theme')
+        Theme.create(id.getValue(), 'The name of the theme', 'The description of the theme', 'adventure')
       )
     }
     findAll(): Promise<Theme[]> {
@@ -173,7 +176,8 @@ test.group(CreateStoryUseCase.name, () => {
         Theme.create(
           '1720955b-4474-4a1d-bf99-3907a000ba65',
           'The name of the theme',
-          'The description of the theme'
+          'The description of the theme',
+          'adventure'
         ),
       ])
     }

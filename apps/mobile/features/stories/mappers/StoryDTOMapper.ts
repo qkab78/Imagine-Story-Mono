@@ -34,6 +34,7 @@ export interface StoryDetailDTO {
     id: string
     name: string
     description: string
+    key: string
   }
   language: {
     id: string
@@ -75,6 +76,7 @@ export interface StoryListItemDTO {
     id: string
     name: string
     description: string
+    key: string
   }
   language: {
     id: string
@@ -126,7 +128,7 @@ export class StoryDTOMapper {
       dto.protagonist,
       dto.species,
       dto.conclusion,
-      Theme.create(dto.theme.id, dto.theme.name, dto.theme.description),
+      Theme.create(dto.theme.id, dto.theme.name, dto.theme.description, dto.theme.key),
       Language.create(
         dto.language.id,
         dto.language.name,
@@ -177,7 +179,7 @@ export class StoryDTOMapper {
       OwnerId.create(dto.ownerId),
       PublicationDate.fromString(publicationDateString),
       PublicationStatus.fromBoolean(dto.isPublic),
-      Theme.create(dto.theme.id, dto.theme.name, dto.theme.description),
+      Theme.create(dto.theme.id, dto.theme.name, dto.theme.description, dto.theme.key),
       Language.create(
         dto.language.id,
         dto.language.name,

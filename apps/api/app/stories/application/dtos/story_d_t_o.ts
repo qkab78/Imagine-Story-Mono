@@ -36,6 +36,7 @@ export interface StoryListItemDTO {
     id: string
     name: string
     description: string
+    key: string
   }
   language: {
     id: string
@@ -74,6 +75,7 @@ export interface StoryDetailDTO {
     id: string
     name: string
     description: string
+    key: string
   }
   language: {
     id: string
@@ -110,6 +112,7 @@ export interface ThemeDTO {
   id: string
   name: string
   description: string
+  key: string
 }
 
 /**

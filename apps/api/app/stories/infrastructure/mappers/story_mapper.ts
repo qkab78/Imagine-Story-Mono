@@ -44,6 +44,7 @@ interface ThemeRow {
   id: string
   name: string
   description: string | null
+  key: string
 }
 
 interface LanguageRow {
@@ -110,7 +111,7 @@ export class StoryMapper {
     })
 
     // Map value objects
-    const theme = Theme.create(themeRow.id, themeRow.name, themeRow.description || '')
+    const theme = Theme.create(themeRow.id, themeRow.name, themeRow.description || '', themeRow.key)
     const language = Language.create(
       languageRow.id,
       languageRow.name,

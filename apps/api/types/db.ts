@@ -117,6 +117,7 @@ export interface Themes {
   created_at: Generated<Timestamp>;
   description: string;
   id: Generated<string>;
+  key: Generated<string>;
   name: string;
   updated_at: Generated<Timestamp>;
 }

@@ -19,7 +19,7 @@ class TestRandomService implements IRandomService {
 }
 test.group('Story Entity', () => {
   const createValidTheme = () =>
-    Theme.create('123e4567-e89b-12d3-a456-426614174000', 'Adventure', 'An adventure theme')
+    Theme.create('123e4567-e89b-12d3-a456-426614174000', 'Adventure', 'An adventure theme', 'adventure')
 
   const createValidLanguage = () =>
     Language.create('223e4567-e89b-12d3-a456-426614174000', 'English', 'en', true)

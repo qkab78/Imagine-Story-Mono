@@ -32,7 +32,8 @@ test.group(StoryBuilder.name, () => {
     const theme = Theme.create(
       '1720955b-4474-4a1d-bf99-3907a000ba65',
       'The name of the theme',
-      'The description of the theme'
+      'The description of the theme',
+      'adventure'
     )
     const language = Language.create(
       '1720955b-4474-4a1d-bf99-3907a000ba65',
@@ -206,7 +207,8 @@ test.group(StoryBuilder.name, () => {
     const theme = Theme.create(
       '1720955b-4474-4a1d-bf99-3907a000ba65',
       'The name of the theme',
-      'The description of the theme'
+      'The description of the theme',
+      'adventure'
     )
     const tone = Tone.create(
       '1720955b-4474-4a1d-bf99-3907a000ba65',
@@ -235,7 +237,8 @@ test.group(StoryBuilder.name, () => {
     const theme = Theme.create(
       '1720955b-4474-4a1d-bf99-3907a000ba65',
       'The name of the theme',
-      'The description of the theme'
+      'The description of the theme',
+      'adventure'
     )
     const language = Language.create(
       '1720955b-4474-4a1d-bf99-3907a000ba65',
@@ -265,7 +268,8 @@ test.group(StoryBuilder.name, () => {
     const theme = Theme.create(
       '1720955b-4474-4a1d-bf99-3907a000ba65',
       'The name of the theme',
-      'The description of the theme'
+      'The description of the theme',
+      'adventure'
     )
     const language = Language.create(
       '1720955b-4474-4a1d-bf99-3907a000ba65',

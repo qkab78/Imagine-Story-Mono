@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Platform, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, Platform, View, Image, ImageSourcePropType } from 'react-native';
 import { Text } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -27,6 +27,9 @@ export interface ThemeCardProps {
 
   /** Callback lors de la sélection */
   onPress: () => void;
+
+  /** Image source optionnelle (remplace l'emoji) */
+  imageSource?: ImageSourcePropType;
 }
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
@@ -55,6 +58,7 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({
   description,
   isSelected,
   onPress,
+  imageSource,
 }) => {
   const scale = useSharedValue(1);
 
@@ -92,7 +96,11 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({
           end={{ x: 1, y: 1 }}
           style={styles.iconCircle}
         >
-          <Text style={styles.emoji}>{emoji}</Text>
+          {imageSource ? (
+            <Image source={imageSource} style={styles.themeImage} resizeMode="cover" />
+          ) : (
+            <Text style={styles.emoji}>{emoji}</Text>
+          )}
         </LinearGradient>
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.description}>{description}</Text>
@@ -139,6 +147,12 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  themeImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
   },
   emoji: {
     fontSize: 28,

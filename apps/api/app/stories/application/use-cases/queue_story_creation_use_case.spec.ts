@@ -109,7 +109,7 @@ test.group(QueueStoryCreationUseCase.name, () => {
 
   class TestThemeRepository implements IThemeRepository {
     findById(id: ThemeId): Promise<Theme | null> {
-      return Promise.resolve(Theme.create(id.getValue(), 'Adventure', 'An adventure theme'))
+      return Promise.resolve(Theme.create(id.getValue(), 'Adventure', 'An adventure theme', 'adventure'))
     }
     findAll(): Promise<Theme[]> {
       return Promise.resolve([])
@@ -244,7 +244,7 @@ test.group(QueueStoryCreationUseCase.name, () => {
       childAge: 8,
       species: 'Human',
       ownerId: OWNER_ID,
-      theme: Theme.create(THEME_ID, 'Adventure', 'An adventure theme'),
+      theme: Theme.create(THEME_ID, 'Adventure', 'An adventure theme', 'adventure'),
       language: Language.create(LANGUAGE_ID, 'French', 'FR', true),
       tone: Tone.create(TONE_ID, 'Happy', 'A happy tone'),
       isPublic: false,
