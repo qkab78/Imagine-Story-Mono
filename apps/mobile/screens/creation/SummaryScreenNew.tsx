@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Platform, ActivityIndicator, Image } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { colors } from '@/theme/colors';
+import { SPECIES_IMAGES } from '@/constants/speciesImages';
 import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
 import { CreateStoryUseCase } from '@/features/stories/use-cases/CreateStoryUseCase';
@@ -213,7 +214,15 @@ export const SummaryScreenNew: React.FC = () => {
             {createStoryPayload.hero && createStoryPayload.heroName && (
               <View style={styles.summaryHeader}>
                 <View style={styles.heroAvatar}>
-                  <Text style={styles.heroAvatarEmoji}>{createStoryPayload.hero.emoji}</Text>
+                  {createStoryPayload.hero.species && SPECIES_IMAGES[createStoryPayload.hero.species] ? (
+                    <Image
+                      source={SPECIES_IMAGES[createStoryPayload.hero.species]}
+                      style={styles.heroAvatarImage}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Text style={styles.heroAvatarEmoji}>{createStoryPayload.hero.emoji}</Text>
+                  )}
                 </View>
                 <View style={styles.heroInfo}>
                   <Text style={styles.heroName}>{createStoryPayload.heroName}</Text>
@@ -453,6 +462,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.warmAmber,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
     shadowColor: colors.warmAmber,
     shadowOffset: {
       width: 0,
@@ -461,6 +471,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 24,
     elevation: 8,
+  },
+  heroAvatarImage: {
+    width: 72,
+    height: 72,
   },
   heroAvatarEmoji: {
     fontSize: 36,
