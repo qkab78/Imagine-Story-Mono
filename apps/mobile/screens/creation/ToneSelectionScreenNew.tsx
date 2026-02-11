@@ -11,6 +11,7 @@ import useStoryStore from '@/store/stories/storyStore';
 import { getTones } from '@/api/stories/storyApi';
 import type { ToneDTO } from '@/api/stories/storyTypes';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
+import { TONE_IMAGES } from '@/constants/toneImages';
 
 // Emoji mapping for tones
 const TONE_EMOJIS: Record<string, string> = {
@@ -161,6 +162,7 @@ export const ToneSelectionScreenNew: React.FC = () => {
                   description={tone.description}
                   isSelected={tone.id === selectedToneId}
                   onPress={() => setSelectedToneId(tone.id)}
+                  imageSource={TONE_IMAGES[tone.name.toLowerCase()]}
                 />
               ))}
             </View>

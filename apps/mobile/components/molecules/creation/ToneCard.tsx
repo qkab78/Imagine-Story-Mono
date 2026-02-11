@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Platform, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, Platform, View, Image, ImageSourcePropType } from 'react-native';
 import { Text } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -23,6 +23,9 @@ export interface ToneCardProps {
 
   /** Callback lors de la sélection */
   onPress: () => void;
+
+  /** Image source optionnelle (remplace l'emoji) */
+  imageSource?: ImageSourcePropType;
 }
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
@@ -50,6 +53,7 @@ export const ToneCard: React.FC<ToneCardProps> = ({
   description,
   isSelected,
   onPress,
+  imageSource,
 }) => {
   const scale = useSharedValue(1);
 
@@ -82,8 +86,12 @@ export const ToneCard: React.FC<ToneCardProps> = ({
     >
       <View style={styles.background}>
         <View style={styles.content}>
-          <View style={styles.emojiContainer}>
-            <Text style={styles.emoji}>{emoji}</Text>
+          <View style={[styles.emojiContainer, imageSource ? styles.imageContainer : undefined]}>
+            {imageSource ? (
+              <Image source={imageSource} style={styles.toneImage} resizeMode="cover" />
+            ) : (
+              <Text style={styles.emoji}>{emoji}</Text>
+            )}
           </View>
           <View style={styles.textContent}>
             <Text style={styles.name}>{name}</Text>
@@ -142,6 +150,14 @@ const styles = StyleSheet.create({
   },
   emoji: {
     fontSize: 26,
+  },
+  imageContainer: {
+    overflow: 'hidden',
+  },
+  toneImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
   },
   textContent: {
     flex: 1,
