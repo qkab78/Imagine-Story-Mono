@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { colors } from '@/theme/colors';
 import { SPECIES_IMAGES } from '@/constants/speciesImages';
+import { TONE_IMAGES } from '@/constants/toneImages';
 import StepIndicator from '@/components/creation/StepIndicator';
 import useStoryStore from '@/store/stories/storyStore';
 import { CreateStoryUseCase } from '@/features/stories/use-cases/CreateStoryUseCase';
@@ -275,8 +276,16 @@ export const SummaryScreenNew: React.FC = () => {
               {/* Tone Row */}
               {createStoryPayload.tone && (
                 <View style={styles.detailRow}>
-                  <View style={styles.detailIcon}>
-                    <Text style={styles.detailIconText}>{createStoryPayload.tone.emoji}</Text>
+                  <View style={[styles.detailIcon, TONE_IMAGES[createStoryPayload.tone.title?.toLowerCase()] ? styles.detailIconImage : undefined]}>
+                    {TONE_IMAGES[createStoryPayload.tone.title?.toLowerCase()] ? (
+                      <Image
+                        source={TONE_IMAGES[createStoryPayload.tone.title.toLowerCase()]}
+                        style={styles.detailIconImg}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <Text style={styles.detailIconText}>{createStoryPayload.tone.emoji}</Text>
+                    )}
                   </View>
                   <View style={styles.detailContent}>
                     <Text style={styles.detailLabel}>Ambiance</Text>
@@ -512,6 +521,14 @@ const styles = StyleSheet.create({
   },
   detailIconText: {
     fontSize: 18,
+  },
+  detailIconImage: {
+    overflow: 'hidden',
+  },
+  detailIconImg: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
   },
   detailContent: {
     flex: 1,
