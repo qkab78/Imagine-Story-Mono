@@ -9,6 +9,10 @@ import Animated, {
 import { SymbolView } from 'expo-symbols';
 import { colors } from '@/theme/colors';
 import { useNativeTabsSupport } from '@/hooks/useNativeTabsSupport';
+import { getSpeciesDesign } from '@/constants/speciesImages';
+import { AvatarSelectorCards } from './AvatarSelectorCards';
+import { AvatarSelectorCircles } from './AvatarSelectorCircles';
+import { AvatarSelectorShowcase } from './AvatarSelectorShowcase';
 
 export interface Avatar {
   id: string;
@@ -34,25 +38,32 @@ const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpaci
 /**
  * AvatarSelector - Organism pour sélectionner un avatar
  *
- * Sélecteur horizontal d'avatars avec animations.
- * Utilise SF Symbols sur iOS avec liquid glass, emojis en fallback.
- * Utilisé dans l'écran Hero Selection.
- *
- * @example
- * ```tsx
- * const avatars = [
- *   { id: 'girl', species: 'girl', emoji: '👧', sfSymbol: 'figure.dress.line.vertical.figure', label: 'Fille' },
- *   { id: 'boy', species: 'boy', emoji: '👦', sfSymbol: 'figure.arms.open', label: 'Garçon' },
- * ];
- *
- * <AvatarSelector
- *   avatars={avatars}
- *   selectedId={selectedAvatar}
- *   onSelect={setSelectedAvatar}
- * />
- * ```
+ * Sélecteur d'avatars avec animations.
+ * Le design est contrôlé par la variable d'environnement EXPO_PUBLIC_SPECIES_DESIGN:
+ * - 'default': Design original avec emojis/SF Symbols
+ * - 'cards': Grille 3x2 avec cards arrondies et images mascot
+ * - 'circles': Cercles avatars style sélecteur de teint
+ * - 'showcase': Grandes cartes avec badge doré "CHOISI"
  */
-export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
+export const AvatarSelector: React.FC<AvatarSelectorProps> = (props) => {
+  const design = getSpeciesDesign();
+
+  switch (design) {
+    case 'cards':
+      return <AvatarSelectorCards {...props} />;
+    case 'circles':
+      return <AvatarSelectorCircles {...props} />;
+    case 'showcase':
+      return <AvatarSelectorShowcase {...props} />;
+    default:
+      return <DefaultAvatarSelector {...props} />;
+  }
+};
+
+/**
+ * DefaultAvatarSelector - Design original avec emojis/SF Symbols
+ */
+const DefaultAvatarSelector: React.FC<AvatarSelectorProps> = ({
   avatars,
   selectedId,
   onSelect,
