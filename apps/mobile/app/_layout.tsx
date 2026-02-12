@@ -94,6 +94,7 @@ function AppContent() {
         <Stack.Screen name="register" />
         <Stack.Screen name="signup" />
         <Stack.Screen name="notification-permission" />
+        <Stack.Screen name="email-verified" />
       </Stack>
 
       <SubscriptionExpiredModal
