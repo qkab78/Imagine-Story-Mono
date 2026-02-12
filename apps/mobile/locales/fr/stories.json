@@ -283,5 +283,16 @@
     "storiesRemainingPlural": "{{count}} histoires restantes",
     "storiesUsed": "{{count}} utilisée",
     "storiesUsedPlural": "{{count}} utilisées"
+  },
+  "widgets": {
+    "storyOfTheDay": "Histoire du Jour",
+    "storyOfTheDayDescription": "Découvre une nouvelle histoire magique chaque jour.",
+    "quickCreate": "Nouvelle Histoire",
+    "quickCreateDescription": "Crée une nouvelle histoire magique en un tap.",
+    "storySmall": "Histoire Rapide",
+    "storySmallDescription": "Un aperçu de l'histoire du jour.",
+    "tapToRead": "Tap pour lire",
+    "tapToCreate": "Tap pour créer",
+    "todayLabel": "Du jour"
   }
 }
