@@ -158,8 +158,8 @@ export const ToneSelectionScreenNew: React.FC = () => {
                 <ToneCard
                   key={tone.id}
                   emoji={tone.emoji}
-                  name={tone.name}
-                  description={tone.description}
+                  name={t(`creation.toneSelection.tones.${tone.name.toLowerCase()}.name`, { defaultValue: tone.name })}
+                  description={t(`creation.toneSelection.tones.${tone.name.toLowerCase()}.description`, { defaultValue: tone.description })}
                   isSelected={tone.id === selectedToneId}
                   onPress={() => setSelectedToneId(tone.id)}
                   imageSource={TONE_IMAGES[tone.name.toLowerCase()]}

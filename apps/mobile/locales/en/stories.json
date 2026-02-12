@@ -133,7 +133,33 @@
       "title": "What will be the story's tone?",
       "subtitle": "Choose the atmosphere that fits best",
       "loading": "Loading tones...",
-      "createButton": "Create my magical story! ✨"
+      "createButton": "Create my magical story! ✨",
+      "tones": {
+        "happy": {
+          "name": "Happy",
+          "description": "Joyful and positive, perfect for heartwarming stories"
+        },
+        "calm": {
+          "name": "Calm",
+          "description": "Soothing and gentle, ideal for relaxing bedtime stories"
+        },
+        "adventurous": {
+          "name": "Adventurous",
+          "description": "Exciting and thrilling, for exploration and discovery stories"
+        },
+        "magical": {
+          "name": "Magical",
+          "description": "Wonderful and fantastic, for imaginative fairy tales"
+        },
+        "educational": {
+          "name": "Educational",
+          "description": "Instructive and enriching, for learning while having fun"
+        },
+        "playful": {
+          "name": "Playful",
+          "description": "Funny and light-hearted, for humorous stories"
+        }
+      }
     },
     "languages": {
       "fr": "🇫🇷 French",

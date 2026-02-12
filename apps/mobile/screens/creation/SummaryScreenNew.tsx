@@ -16,6 +16,7 @@ import { addPendingGeneration, setLastCreatedStoryId } from '@/store/library/lib
 import { QuotaBadge } from '@/components/molecules/creation/QuotaBadge';
 import { QuotaExceededModal } from '@/components/organisms/creation/QuotaExceededModal';
 import { useStoryQuota } from '@/hooks/useStoryQuota';
+import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 // Configure notification handler
 Notifications.setNotificationHandler({
@@ -38,6 +39,7 @@ Notifications.setNotificationHandler({
  */
 export const SummaryScreenNew: React.FC = () => {
   const router = useRouter();
+  const { t } = useAppTranslation('stories');
   const { token, user } = useAuthStore();
   const { createStoryPayload, resetCreateStoryPayload } = useStoryStore();
   const { canCreateStory, storiesCreatedThisMonth, limit, remaining, isUnlimited, resetDate, onStoryCreated } = useStoryQuota();
@@ -298,7 +300,9 @@ export const SummaryScreenNew: React.FC = () => {
                   </View>
                   <View style={styles.detailContent}>
                     <Text style={styles.detailLabel}>Ambiance</Text>
-                    <Text style={styles.detailValue}>{createStoryPayload.tone.title}</Text>
+                    <Text style={styles.detailValue}>
+                      {t(`creation.toneSelection.tones.${createStoryPayload.tone.title?.toLowerCase()}.name`, { defaultValue: createStoryPayload.tone.title })}
+                    </Text>
                   </View>
                 </View>
               )}
