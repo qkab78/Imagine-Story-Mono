@@ -13,7 +13,11 @@ export function useAuthNavigation() {
 
   useEffect(() => {
     const isInProtectedArea = ['(tabs)', 'stories'].includes(segments[0]);
+    const isOnStandalonePage = segments[0] === 'email-verified';
     const isAuthenticated = !!token;
+
+    // Don't redirect if user is on a standalone page (e.g. deep link landing pages)
+    if (isOnStandalonePage) return;
 
     const shouldRedirectToLogin = !isAuthenticated && isInProtectedArea;
     const shouldRedirectToHome = isAuthenticated && !isInProtectedArea;

@@ -3,7 +3,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { IEmailVerificationTokenRepository } from '../../domain/repositories/i_email_verification_token_repository.js'
 import { IAuthUserRepository } from '../../domain/repositories/i_auth_user_repository.js'
 import { Role } from '#users/models/role'
-import env from '#start/env'
 
 @inject()
 export default class VerifyEmailController {
@@ -44,11 +43,8 @@ export default class VerifyEmailController {
     // Delete the used token
     await this.tokenRepository.deleteByToken(token)
 
-    // Redirect to a success page or mobile deep link
-    const appUrl = env.get('APP_URL', 'https://imaginestory.app')
-    const successUrl = `${appUrl}/email-verified`
-
-    return response.redirect(successUrl)
+    // Redirect to the mobile app via deep link
+    return response.redirect('myapp://email-verified')
   }
 
   /**
