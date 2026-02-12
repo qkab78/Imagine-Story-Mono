@@ -133,7 +133,33 @@
       "title": "Quel sera le ton de l'histoire ?",
       "subtitle": "Choisis l'ambiance qui convient le mieux",
       "loading": "Chargement des tons...",
-      "createButton": "Créer mon histoire magique ! ✨"
+      "createButton": "Créer mon histoire magique ! ✨",
+      "tones": {
+        "happy": {
+          "name": "Joyeux",
+          "description": "Tonalité joyeuse et positive, parfaite pour des histoires réconfortantes"
+        },
+        "calm": {
+          "name": "Calme",
+          "description": "Tonalité apaisante et douce, idéale pour des histoires relaxantes"
+        },
+        "adventurous": {
+          "name": "Aventurier",
+          "description": "Tonalité aventureuse et excitante, pour des histoires d'exploration"
+        },
+        "magical": {
+          "name": "Magique",
+          "description": "Tonalité merveilleuse et fantastique, pour des contes imaginaires"
+        },
+        "educational": {
+          "name": "Éducatif",
+          "description": "Tonalité instructive et enrichissante, pour apprendre en s'amusant"
+        },
+        "playful": {
+          "name": "Amusant",
+          "description": "Tonalité humoristique et légère, pour des histoires drôles"
+        }
+      }
     },
     "languages": {
       "fr": "🇫🇷 Français",
