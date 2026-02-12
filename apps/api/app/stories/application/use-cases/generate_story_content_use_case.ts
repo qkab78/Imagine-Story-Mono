@@ -26,6 +26,7 @@ export interface GenerateStoryContentPayload {
   species: string
   appearancePreset?: string
   illustrationStyle?: string
+  onProgress?: (progress: number) => Promise<void>
 }
 
 @inject()
@@ -75,12 +76,14 @@ export class GenerateStoryContentUseCase {
         status: story.generationStatus,
         appearancePreset: payload.appearancePreset,
         illustrationStyle: payload.illustrationStyle,
+        onProgress: payload.onProgress,
       })
 
       // 4. Traduire si nécessaire
       if (needsTranslation) {
         logger.info(`🔄 Translating story to ${payload.language}...`)
         storyGenerated = await this.translateStory(storyGenerated, payload.languageCode)
+        await payload.onProgress?.(95)
         logger.info(`✅ Translation completed`)
       }
 

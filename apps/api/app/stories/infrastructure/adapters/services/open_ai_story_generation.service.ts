@@ -298,6 +298,8 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
     const startTime = Date.now()
 
     try {
+      await payload.onProgress?.(5)
+
       let storyTextJson: any
       let slug!: string
       let existingStory: Story | null = null
@@ -316,6 +318,7 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
           storyTextJson = this.storyToTextJson(existingStory)
           slug = existingStory.slug.getValue()
           textWasReused = true
+          await payload.onProgress?.(25)
           logger.info(`📖 ${storyTextJson.chapters.length} chapitre(s) récupéré(s) de la base de données`)
         }
       }
@@ -334,6 +337,8 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
         const storyEndTime = Date.now()
         logger.info(`✅ Texte généré en ${((storyEndTime - storyStartTime) / 1000).toFixed(2)}s`)
         logger.info(`📖 ${storyTextJson.chapters.length} chapitre(s) généré(s)`)
+
+        await payload.onProgress?.(25)
 
         // SAUVEGARDER immédiatement le texte généré (only if we have an existing story)
         if (existingStory) {
@@ -372,6 +377,7 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
         logger.info(
           `✅ Character reference créée en ${((referenceEndTime - referenceStartTime) / 1000).toFixed(2)}s`
         )
+        await payload.onProgress?.(40)
       } catch (error: any) {
         logger.warn(
           '⚠️ Échec création character reference, fallback vers text-to-image:',
@@ -395,6 +401,7 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
       logger.info(
         `✅ Cover image générée en ${((parallelEndTime - parallelStartTime) / 1000).toFixed(2)}s`
       )
+      await payload.onProgress?.(60)
 
       // ÉTAPE 4: Générer les images des chapitres avec character reference
       const chaptersStartTime = Date.now()
@@ -426,6 +433,7 @@ Start writing now. Include ALL ${numberOfChapters} chapters with full content.`,
       logger.info(
         `✅ ${chapterImagesResponse.metadata.successfulGeneration}/${storyTextJson.chapters.length} images de chapitres générées en ${((chaptersEndTime - chaptersStartTime) / 1000).toFixed(2)}s`
       )
+      await payload.onProgress?.(90)
 
       // ÉTAPE 5: Construire le résultat StoryGenerated
       // Créer les Chapter entities avec ChapterFactory

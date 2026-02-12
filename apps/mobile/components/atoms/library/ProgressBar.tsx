@@ -19,7 +19,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ progress, animated = t
   useEffect(() => {
     if (animated) {
       animatedProgress.value = withTiming(progress, {
-        duration: 300,
+        duration: 4500,
         easing: Easing.out(Easing.ease),
       });
     } else {

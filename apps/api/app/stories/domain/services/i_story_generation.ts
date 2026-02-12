@@ -29,6 +29,7 @@ export interface StoryGenerationPayload {
   status: GenerationStatus
   appearancePreset?: string
   illustrationStyle?: string
+  onProgress?: (progress: number) => Promise<void>
 }
 
 export interface StoryImagePayload {

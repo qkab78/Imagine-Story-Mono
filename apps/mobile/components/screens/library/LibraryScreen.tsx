@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LibraryHeader, LibraryStoryGrid } from '@/components/organisms/library';
 import { FilterSheet } from '@/components/organisms/filters';
-import { useLibraryStories } from '@/features/library/hooks';
+import { useLibraryStories, useGenerationPolling } from '@/features/library/hooks';
 import { useStoryFilters } from '@/features/filters';
 import { useStoryRetry } from '@/features/stories/hooks/useStoryRetry';
 import { addPendingGeneration } from '@/store/library/libraryStorage';
@@ -28,6 +28,8 @@ export const LibraryScreen = () => {
     invalidateStories,
     totalCount,
   } = useLibraryStories();
+
+  const { generationStates } = useGenerationPolling();
 
   const {
     filters,
@@ -52,6 +54,17 @@ export const LibraryScreen = () => {
     () => applyFilters(stories),
     [stories, applyFilters]
   );
+
+  // Merge real-time progress from polling into stories
+  const storiesWithProgress = useMemo(() => {
+    return filteredStories.map(story => {
+      const genState = generationStates[story.id];
+      if (genState?.progress && genState.progress > 0) {
+        return { ...story, generationProgress: genState.progress };
+      }
+      return story;
+    });
+  }, [filteredStories, generationStates]);
 
   const handleStoryPress = useCallback(
     (storyId: string) => {
@@ -112,7 +125,7 @@ export const LibraryScreen = () => {
           </View>
         ) : (
           <LibraryStoryGrid
-            stories={filteredStories}
+            stories={storiesWithProgress}
             highlightedStoryId={highlightedStoryId}
             newStoryIds={newStoryIds}
             onStoryPress={handleStoryPress}
