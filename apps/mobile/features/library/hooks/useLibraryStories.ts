@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import * as Notifications from 'expo-notifications';
 import useAuthStore from '@/store/auth/authStore';
 import { getStoriesByAuthenticatedUserId } from '@/api/stories/storyApi';
 import { StoryListItemDTO } from '@/api/stories/storyTypes';
@@ -54,6 +55,21 @@ const transformToLibraryStory = (dto: StoryListItemDTO): LibraryStory => {
   };
 };
 
+const sendCompletionNotification = async (storyTitle: string) => {
+  try {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Histoire terminée ! ✨',
+        body: `"${storyTitle}" est prête à lire !`,
+        sound: true,
+      },
+      trigger: null,
+    });
+  } catch (error) {
+    console.error('Error sending completion notification:', error);
+  }
+};
+
 /**
  * Hook for fetching and managing library stories with automatic polling
  */
@@ -81,6 +97,21 @@ export const useLibraryStories = () => {
     if (!storiesData) return [];
     return storiesData.map(transformToLibraryStory);
   }, [storiesData]);
+
+  // Detect generation completion and send notification
+  const previousStatusesRef = useRef<Record<string, string>>({});
+
+  useEffect(() => {
+    const prev = previousStatusesRef.current;
+    const next: Record<string, string> = {};
+    stories.forEach((story) => {
+      next[story.id] = story.generationStatus;
+      if (prev[story.id] === 'generating' && story.generationStatus === 'completed') {
+        sendCompletionNotification(story.title);
+      }
+    });
+    previousStatusesRef.current = next;
+  }, [stories]);
 
   // Check if there are any generating stories
   const hasGeneratingStories = useMemo(() => {

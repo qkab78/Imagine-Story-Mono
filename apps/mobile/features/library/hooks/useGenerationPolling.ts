@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '@/store/auth/authStore';
 import { getStoryGenerationStatus, GenerationStatusResponse } from '@/api/stories/storyApi';
@@ -29,40 +29,47 @@ export const useGenerationPolling = (): UseGenerationPollingResult => {
   const { token } = useAuthStore();
   const queryClient = useQueryClient();
   const pollingRef = useRef<number | null>(null);
-  const generationStatesRef = useRef<GenerationState>({});
-  const isPollingRef = useRef(false);
+  const [generationStates, setGenerationStates] = useState<GenerationState>({});
+  const [isPolling, setIsPolling] = useState(false);
 
   const checkGenerationStatus = useCallback(async () => {
     if (!token) return;
 
     const pendingGenerations = getPendingGenerations();
     if (pendingGenerations.length === 0) {
-      isPollingRef.current = false;
+      setIsPolling(false);
       return;
     }
 
-    isPollingRef.current = true;
+    setIsPolling(true);
 
     // Check status for each pending generation
     const statusPromises = pendingGenerations.map(async (pending: PendingGeneration) => {
       try {
         const status = await getStoryGenerationStatus(pending.storyId, token);
 
-        // Update state
-        generationStatesRef.current[pending.storyId] = {
-          status: status.status,
-          progress: status.isProcessing ? 50 : status.isCompleted ? 100 : 0,
-        };
-
         // If completed or failed, remove from pending and invalidate queries
         if (status.isCompleted || status.isFailed) {
-          removePendingGeneration(pending.storyId);
+          removePendingGeneration(pending.jobId);
 
           // Invalidate library stories to refresh the list
           queryClient.invalidateQueries({ queryKey: ['library', 'stories'] });
 
           // Remove from local state
-          delete generationStatesRef.current[pending.storyId];
+          setGenerationStates(prev => {
+            const next = { ...prev };
+            delete next[pending.storyId];
+            return next;
+          });
+        } else {
+          // Update state with progress from backend
+          setGenerationStates(prev => ({
+            ...prev,
+            [pending.storyId]: {
+              status: status.status,
+              progress: status.progressPercentage || (status.isProcessing ? 10 : status.isPending ? 5 : 0),
+            },
+          }));
         }
 
         return { storyId: pending.storyId, status };
@@ -94,8 +101,8 @@ export const useGenerationPolling = (): UseGenerationPollingResult => {
   }, [checkGenerationStatus]);
 
   return {
-    generationStates: generationStatesRef.current,
-    isPolling: isPollingRef.current,
+    generationStates,
+    isPolling,
   };
 };
 

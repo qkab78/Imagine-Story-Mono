@@ -55,6 +55,11 @@ export default class GenerateStoryJob extends Job {
     const startTime = Date.now()
 
     try {
+      const bullJob = this.getJob()
+      const onProgress = async (progress: number) => {
+        await bullJob.updateProgress(progress)
+      }
+
       // Récupérer les repositories depuis le container
       const themeRepository = await app.container.make(IThemeRepository)
       const languageRepository = await app.container.make(ILanguageRepository)
@@ -88,6 +93,7 @@ export default class GenerateStoryJob extends Job {
         species: payload.species,
         appearancePreset: payload.appearancePreset,
         illustrationStyle: payload.illustrationStyle,
+        onProgress,
       })
 
       const endTime = Date.now()

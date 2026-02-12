@@ -18,17 +18,6 @@ import { QuotaExceededModal } from '@/components/organisms/creation/QuotaExceede
 import { useStoryQuota } from '@/hooks/useStoryQuota';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 
-// Configure notification handler
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
-
 /**
  * SummaryScreenNew - Écran récapitulatif avant génération
  *

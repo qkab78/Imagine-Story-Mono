@@ -167,6 +167,7 @@ export interface GenerationStatusResponse {
   isFailed: boolean
   isPending: boolean
   isProcessing: boolean
+  progressPercentage?: number
 }
 
 /**
