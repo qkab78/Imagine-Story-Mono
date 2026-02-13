@@ -41,3 +41,8 @@ app-example
 
 android/
 ios/
+
+# iOS widget target generated files (@bacons/apple-targets)
+targets/*/generated.entitlements
+targets/*/Info.plist
+targets/*/Assets.xcassets/
