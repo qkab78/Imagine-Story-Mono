@@ -3,6 +3,7 @@ import { IllustrationType } from '@/components/Onboarding/kidSlides';
 import { BooksStack } from './illustrations/BooksStack';
 import { MagicWand } from './illustrations/MagicWand';
 import { ShieldBadge } from './illustrations/ShieldBadge';
+import { PhoneWidget } from './illustrations/PhoneWidget';
 
 interface OnboardingIllustrationProps {
   type: IllustrationType;
@@ -19,6 +20,8 @@ export const OnboardingIllustration: React.FC<OnboardingIllustrationProps> = ({
         return <MagicWand />;
       case 'shield':
         return <ShieldBadge />;
+      case 'widget':
+        return <PhoneWidget />;
       default:
         return null;
     }

@@ -13,6 +13,11 @@
     "security": {
       "title": "100% Secure",
       "description": "Age-appropriate content, full parental controls and offline mode for total peace of mind",
+      "button": "Next"
+    },
+    "widget": {
+      "title": "Stories at a Glance",
+      "description": "📖 Today's story right on your home screen\n✨ Create a new story with a single tap\n🎨 Magical themes that change with each adventure",
       "button": "Let's Go!"
     }
   }

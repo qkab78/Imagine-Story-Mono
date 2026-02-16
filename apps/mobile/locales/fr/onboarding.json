@@ -13,6 +13,11 @@
     "security": {
       "title": "100% sécurisé",
       "description": "Contenu adapté à l'âge, contrôle parental complet et mode hors-ligne pour une tranquillité d'esprit totale",
+      "button": "Suivant"
+    },
+    "widget": {
+      "title": "Vos histoires en un coup d'œil",
+      "description": "📖 L'histoire du jour directement sur votre écran\n✨ Créez une nouvelle histoire en un seul tap\n🎨 Des thèmes magiques qui changent à chaque aventure",
       "button": "C'est parti !"
     }
   }
