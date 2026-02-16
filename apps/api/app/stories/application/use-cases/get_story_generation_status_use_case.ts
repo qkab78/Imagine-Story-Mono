@@ -1,22 +1,10 @@
 import { inject } from '@adonisjs/core'
 import { IStoryRepository } from '#stories/domain/repositories/story_repository'
-import { Queue } from 'bullmq'
-import env from '#start/env'
+import queue from '@rlanz/bull-queue/services/main'
 
 @inject()
 export class GetStoryGenerationStatusUseCase {
-  private queue: Queue
-
-  constructor(private readonly storyRepository: IStoryRepository) {
-    const redisPassword = env.get('QUEUE_REDIS_PASSWORD')
-    this.queue = new Queue('default', {
-      connection: {
-        host: env.get('QUEUE_REDIS_HOST'),
-        port: env.get('QUEUE_REDIS_PORT'),
-        ...(redisPassword && { password: redisPassword }),
-      },
-    })
-  }
+  constructor(private readonly storyRepository: IStoryRepository) {}
 
   async execute(storyId: string) {
     const story = await this.storyRepository.findById(storyId)
@@ -28,9 +16,12 @@ export class GetStoryGenerationStatusUseCase {
     let progressPercentage = 0
     if (story.generationStatus.isProcessing() && story.jobId) {
       try {
-        const job = await this.queue.getJob(story.jobId)
-        if (job) {
-          progressPercentage = typeof job.progress === 'number' ? job.progress : 0
+        const bullQueue = queue.get('default')
+        if (bullQueue) {
+          const job = await bullQueue.getJob(story.jobId)
+          if (job) {
+            progressPercentage = typeof job.progress === 'number' ? job.progress : 0
+          }
         }
       } catch {
         progressPercentage = 0

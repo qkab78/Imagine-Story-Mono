@@ -19,6 +19,7 @@ import Text from '@/components/ui/Text';
 // Hooks
 import { useLatestStories } from '@/features/stories/hooks/useStoryList';
 import useAuthStore from '@/store/auth/authStore';
+import { useWidgetSync } from '@/hooks/useWidgetSync';
 
 // Types
 import { useRouter } from 'expo-router';
@@ -32,6 +33,9 @@ const HomeScreen = () => {
 
   // Fetch stories using clean architecture hook
   const { data: stories = [], isLoading, refetch } = useLatestStories();
+
+  // Sync stories to iOS widget (App Groups / UserDefaults)
+  useWidgetSync(stories);
 
   // Refresh handler
   const refreshData = useCallback(async () => {

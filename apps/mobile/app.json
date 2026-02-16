@@ -13,7 +13,13 @@
       "bundleIdentifier": "com.qkab78.mobile",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.qkab78.mobile.widget"
+        ]
+      },
+      "teamID": ""
     },
     "android": {
       "adaptiveIcon": {
@@ -28,6 +34,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "@bacons/apple-targets",
       "expo-router",
       [
         "expo-splash-screen",
