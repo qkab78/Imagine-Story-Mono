@@ -18,7 +18,8 @@
         "com.apple.security.application-groups": [
           "group.com.qkab78.mobile.widget"
         ]
-      }
+      },
+      "teamID": ""
     },
     "android": {
       "adaptiveIcon": {

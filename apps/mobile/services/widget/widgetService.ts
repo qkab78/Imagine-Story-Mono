@@ -9,7 +9,7 @@ import { Platform } from 'react-native'
 import type { StoryListItem } from '@/domain/stories/value-objects/StoryListItem'
 
 /** Shared App Group identifier (must match widget entitlements). */
-const GROUP_ID = 'group.com.qkab78.mobile.widget'
+const GROUP_ID = process.env.EXPO_PUBLIC_WIDGET_GROUP_ID || 'group.com.qkab78.mobile.widget';
 const STORIES_KEY = 'stories'
 
 /** Lightweight story shape written to UserDefaults. */
