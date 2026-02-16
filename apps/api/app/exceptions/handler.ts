@@ -6,6 +6,7 @@ import { DomainException } from '#stories/domain/exceptions/domain_exception'
 import { InvalidValueObjectException } from '#stories/domain/exceptions/invalid_value_object_exception'
 import { InvariantViolationException } from '#stories/domain/exceptions/invariant_violation_exception'
 import { OAuthException } from '#auth/domain/exceptions/o_auth_exception'
+import { SubscriptionDomainException } from '#subscription/domain/exceptions/subscription_domain_exception'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -84,6 +85,16 @@ export default class HttpExceptionHandler extends ExceptionHandler {
           code: error.code,
           message: error.message,
           provider: error.provider,
+        },
+      })
+    }
+
+    // Handle SubscriptionDomainException (subscription errors)
+    if (error instanceof SubscriptionDomainException) {
+      return ctx.response.status(400).json({
+        error: {
+          code: error.code,
+          message: error.message,
         },
       })
     }

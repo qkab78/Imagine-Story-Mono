@@ -1,8 +1,11 @@
 import { inject } from '@adonisjs/core'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/i_subscription_repository'
+import { Subscription } from '#subscription/domain/entities/subscription.entity'
+import { SubscriptionStatus } from '#subscription/domain/value-objects/subscription_status.vo'
 import { Role } from '#users/models/role'
 import {
   RevenueCatEventType,
+  type RevenueCatEvent,
   type RevenueCatWebhookPayload,
   type ProcessedWebhookResult,
 } from '#subscription/types/revenuecat_webhook'
@@ -64,6 +67,9 @@ export class ProcessRevenueCatWebhookUseCase {
       await this.subscriptionRepository.updateUserRole(userEmail, newRole)
       const updateTime = Date.now() - updateStartTime
       console.log(`[ProcessRevenueCatWebhookUseCase] Role update completed in ${updateTime}ms`)
+
+      // Upsert subscription entity
+      await this.upsertSubscription(event, userEmail)
 
       // Mark event as successfully processed
       await this.subscriptionRepository.trackWebhookEvent(
@@ -152,24 +158,105 @@ export class ProcessRevenueCatWebhookUseCase {
     switch (eventType) {
       case RevenueCatEventType.INITIAL_PURCHASE:
         return isPremium ? 'User upgraded to premium' : 'Purchase processed'
-      
+
       case RevenueCatEventType.RENEWAL:
         return 'Subscription renewed'
-      
+
       case RevenueCatEventType.EXPIRATION:
         return 'Subscription expired - user downgraded to free'
-      
+
       case RevenueCatEventType.CANCELLATION:
         return 'Subscription cancelled - user downgraded to free'
-      
+
       case RevenueCatEventType.BILLING_ISSUE:
         return 'Billing issue detected'
-      
+
       case RevenueCatEventType.PRODUCT_CHANGE:
         return isPremium ? 'Product changed - premium maintained' : 'Product changed - downgraded to free'
-      
+
       default:
         return `Event ${eventType} processed`
+    }
+  }
+
+  /**
+   * Upsert subscription entity from webhook event data.
+   * Looks up the user by RevenueCat app_user_id (email), then creates or updates
+   * the subscription record in the subscriptions table.
+   */
+  private async upsertSubscription(event: RevenueCatEvent, userEmail: string): Promise<void> {
+    try {
+      let subscription = await this.subscriptionRepository.findByRevenuecatAppUserId(
+        event.app_user_id
+      )
+
+      if (!subscription) {
+        // Try to find user_id from users table via the repository's existing methods
+        // For now, create with empty userId - the upsert will match on revenuecat_app_user_id
+        subscription = Subscription.createFree('')
+      }
+
+      const newStatus = this.mapEventToStatus(event.type, event.entitlement_ids || [])
+      const willRenew =
+        event.type === RevenueCatEventType.INITIAL_PURCHASE ||
+        event.type === RevenueCatEventType.RENEWAL
+
+      subscription = subscription.applyWebhookEvent({
+        status: newStatus,
+        productId: event.product_id ?? null,
+        entitlementId: event.entitlement_id ?? (event.entitlement_ids?.[0] ?? null),
+        store: event.store ?? null,
+        expirationDate: event.expiration_at_ms
+          ? new Date(event.expiration_at_ms)
+          : null,
+        willRenew,
+        webhookEventId: event.id,
+        revenuecatAppUserId: event.app_user_id,
+      })
+
+      await this.subscriptionRepository.upsert(subscription)
+      console.log(
+        `[ProcessRevenueCatWebhookUseCase] Subscription upserted for ${userEmail} with status: ${newStatus.getValue()}`
+      )
+    } catch (upsertError) {
+      // Log but don't fail the whole webhook processing if subscription upsert fails
+      console.error(
+        `[ProcessRevenueCatWebhookUseCase] Failed to upsert subscription for ${userEmail}:`,
+        upsertError
+      )
+    }
+  }
+
+  /**
+   * Map a RevenueCat event type to a SubscriptionStatus value object
+   */
+  private mapEventToStatus(
+    eventType: RevenueCatEventType,
+    entitlementIds: string[]
+  ): SubscriptionStatus {
+    switch (eventType) {
+      case RevenueCatEventType.INITIAL_PURCHASE:
+      case RevenueCatEventType.RENEWAL:
+        return entitlementIds.length > 0
+          ? SubscriptionStatus.premium()
+          : SubscriptionStatus.free()
+
+      case RevenueCatEventType.EXPIRATION:
+        return SubscriptionStatus.expired()
+
+      case RevenueCatEventType.CANCELLATION:
+        return SubscriptionStatus.cancelled()
+
+      case RevenueCatEventType.BILLING_ISSUE:
+        return SubscriptionStatus.billingIssue()
+
+      case RevenueCatEventType.PRODUCT_CHANGE:
+        return entitlementIds.length > 0
+          ? SubscriptionStatus.premium()
+          : SubscriptionStatus.free()
+
+      default:
+        return SubscriptionStatus.free()
     }
   }
 }
