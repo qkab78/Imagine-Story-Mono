@@ -1,6 +1,8 @@
-export type IllustrationType = 'books' | 'wand' | 'shield';
+import { Platform } from 'react-native';
 
-export type KidSlideKey = 'welcome' | 'create' | 'security';
+export type IllustrationType = 'books' | 'wand' | 'shield' | 'widget';
+
+export type KidSlideKey = 'welcome' | 'create' | 'security' | 'widget';
 
 export type KidSlide = {
   id: number;
@@ -9,7 +11,7 @@ export type KidSlide = {
   isLast?: boolean;
 }
 
-export const kidSlides: KidSlide[] = [
+const allSlides: KidSlide[] = [
   {
     id: 1,
     illustrationType: 'books',
@@ -24,6 +26,22 @@ export const kidSlides: KidSlide[] = [
     id: 3,
     illustrationType: 'shield',
     slideKey: 'security',
-    isLast: true,
+  },
+  {
+    id: 4,
+    illustrationType: 'widget',
+    slideKey: 'widget',
   },
 ];
+
+// On Android, exclude the widget slide (iOS widgets only).
+// Re-index ids and compute isLast dynamically.
+const platformSlides = Platform.OS === 'ios'
+  ? allSlides
+  : allSlides.filter(s => s.slideKey !== 'widget');
+
+export const kidSlides: KidSlide[] = platformSlides.map((slide, index, arr) => ({
+  ...slide,
+  id: index + 1,
+  isLast: index === arr.length - 1 ? true : undefined,
+}));

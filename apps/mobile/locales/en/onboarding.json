@@ -13,7 +13,16 @@
     "security": {
       "title": "100% Secure",
       "description": "Age-appropriate content, full parental controls and offline mode for total peace of mind",
-      "button": "Let's Go!"
+      "button": "Next"
+    },
+    "widget": {
+      "title": "Stories at a Glance",
+      "description": "📖 Today's story right on your home screen\n✨ Create a new story with a single tap\n🎨 Magical themes that change with each adventure",
+      "button": "Add Widget",
+      "skip": "Skip",
+      "alertTitle": "How to Add the Widget",
+      "alertMessage": "1. Long press on your home screen\n2. Tap the + button at the top\n3. Search for \"My Little Storyteller\"\n4. Choose your favorite widget and tap \"Add Widget\"",
+      "alertButton": "Got it!"
     }
   }
 }

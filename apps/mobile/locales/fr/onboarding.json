@@ -13,7 +13,16 @@
     "security": {
       "title": "100% sécurisé",
       "description": "Contenu adapté à l'âge, contrôle parental complet et mode hors-ligne pour une tranquillité d'esprit totale",
-      "button": "C'est parti !"
+      "button": "Suivant"
+    },
+    "widget": {
+      "title": "Vos histoires en un coup d'œil",
+      "description": "📖 L'histoire du jour directement sur votre écran\n✨ Créez une nouvelle histoire en un seul tap\n🎨 Des thèmes magiques qui changent à chaque aventure",
+      "button": "Ajouter le widget",
+      "skip": "Passer",
+      "alertTitle": "Comment ajouter le widget",
+      "alertMessage": "1. Restez appuyé sur l'écran d'accueil\n2. Appuyez sur le bouton + en haut\n3. Recherchez « Mon Petit Conteur »\n4. Choisissez votre widget préféré et appuyez sur « Ajouter »",
+      "alertButton": "C'est compris !"
     }
   }
 }

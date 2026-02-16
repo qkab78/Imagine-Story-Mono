@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   animatedContainer: {
     flex: 1,
     flexDirection: 'row',
-    width: width * 3,
+    width: width * kidSlides.length,
   },
 });
 

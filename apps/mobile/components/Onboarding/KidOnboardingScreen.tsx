@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StyleSheet, Dimensions, View } from 'react-native';
+import { StyleSheet, Dimensions, View, Text, TouchableOpacity, Alert } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -57,8 +57,20 @@ const KidOnboardingScreen: React.FC<KidOnboardingScreenProps> = ({
     transform: [{ translateY: contentTranslateY.value }],
   }));
 
+  const isWidgetSlide = slide.slideKey === 'widget';
+
+  const showWidgetInstructions = () => {
+    Alert.alert(
+      t('slides.widget.alertTitle'),
+      t('slides.widget.alertMessage'),
+      [{ text: t('slides.widget.alertButton'), onPress: onComplete }],
+    );
+  };
+
   const handlePrimaryPress = () => {
-    if (isLastSlide) {
+    if (isWidgetSlide) {
+      showWidgetInstructions();
+    } else if (isLastSlide) {
       onComplete();
     } else {
       onNext();
@@ -84,12 +96,22 @@ const KidOnboardingScreen: React.FC<KidOnboardingScreenProps> = ({
             currentStep={currentSlide}
             totalSteps={totalSlides}
             onBack={!isFirstSlide ? onBack : undefined}
-            onNext={!isLastSlide ? onNext : undefined}
+            onNext={!isLastSlide && !isWidgetSlide ? onNext : undefined}
             onPrimary={handlePrimaryPress}
             primaryLabel={t(`slides.${slide.slideKey}.button`)}
             showBackButton={!isFirstSlide}
-            showNextButton={!isLastSlide}
+            showNextButton={!isLastSlide && !isWidgetSlide}
           />
+
+          {isWidgetSlide && (
+            <TouchableOpacity
+              style={styles.skipButton}
+              onPress={onComplete}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.skipText}>{t('slides.widget.skip')}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </Animated.View>
     </View>
@@ -113,6 +135,16 @@ const styles = StyleSheet.create({
   },
   contentSection: {
     paddingBottom: 32,
+  },
+  skipButton: {
+    alignSelf: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+  },
+  skipText: {
+    fontSize: 15,
+    color: '#4A6B5A',
+    fontWeight: '500',
   },
 });
 
