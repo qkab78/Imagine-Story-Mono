@@ -63,7 +63,7 @@ test.group('VerifySubscriptionUseCase', () => {
           purchaseDate: '2025-01-01T00:00:00Z',
         },
       ],
-      managementUrl: 'https://apps.apple.com/account/subscriptions',
+      managementUrl: null,
       activeSubscriptions: ['mpc_monthly'],
       firstSeen: '2025-01-01T00:00:00Z',
     }
@@ -76,7 +76,7 @@ test.group('VerifySubscriptionUseCase', () => {
     assert.equal(result.status, 'premium')
     assert.isTrue(result.hasAccess)
     assert.isTrue(result.willRenew)
-    assert.equal(result.managementUrl, 'https://apps.apple.com/account/subscriptions')
+    assert.isNull(result.managementUrl)
     assert.isNotNull(mockRepo.upsertedSubscription)
     assert.isTrue(mockRepo.upsertedSubscription!.status.isPremium())
   })
