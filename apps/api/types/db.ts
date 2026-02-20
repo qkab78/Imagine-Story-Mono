@@ -113,6 +113,25 @@ export interface Stories {
   user_id: string;
 }
 
+export interface Subscriptions {
+  created_at: Generated<Timestamp>;
+  entitlement_id: string | null;
+  expiration_date: Timestamp | null;
+  grace_period_expires_date: Timestamp | null;
+  id: Generated<string>;
+  last_verified_at: Timestamp | null;
+  last_webhook_event_id: string | null;
+  management_url: string | null;
+  original_purchase_date: Timestamp | null;
+  product_id: string | null;
+  revenuecat_app_user_id: string | null;
+  status: Generated<string>;
+  store: string | null;
+  updated_at: Generated<Timestamp>;
+  user_id: string;
+  will_renew: Generated<boolean>;
+}
+
 export interface Themes {
   created_at: Generated<Timestamp>;
   description: string;
@@ -164,6 +183,7 @@ export interface DB {
   languages: Languages;
   social_accounts: SocialAccounts;
   stories: Stories;
+  subscriptions: Subscriptions;
   themes: Themes;
   tones: Tones;
   users: Users;

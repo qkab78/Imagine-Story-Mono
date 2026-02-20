@@ -114,8 +114,10 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
-  | Variables for configuring RevenueCat webhook
+  | Variables for configuring RevenueCat
   |----------------------------------------------------------
   */
   REVENUECAT_WEBHOOK_AUTH_HEADER: Env.schema.string(),
+  REVENUECAT_API_KEY: Env.schema.string(),
+  REVENUECAT_PROJECT_ID: Env.schema.string(),
 })

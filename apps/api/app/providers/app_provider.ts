@@ -17,6 +17,7 @@ import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositor
 import { IUserRepository } from '#users/domain/repositories/user_repository'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/i_subscription_repository'
 import { KyselySubscriptionRepository } from '#subscription/infrastructure/repositories/kysely_subscription_repository'
+import { IRevenueCatService } from '#subscription/domain/services/i_revenuecat_service'
 import { ISocialAccountRepository } from '#auth/domain/repositories/i_social_account_repository'
 import { IAuthUserRepository } from '#auth/domain/repositories/i_auth_user_repository'
 import { IEmailVerificationTokenRepository } from '#auth/domain/repositories/i_email_verification_token_repository'
@@ -138,6 +139,12 @@ export default class AppProvider {
 
     this.app.container.singleton(ISubscriptionRepository, () => {
       return this.app.container.make(KyselySubscriptionRepository)
+    })
+
+    const { RevenueCatApiService } =
+      await import('#subscription/infrastructure/services/revenuecat_api_service')
+    this.app.container.singleton(IRevenueCatService, () => {
+      return this.app.container.make(RevenueCatApiService)
     })
 
     this.app.container.singleton(ISocialAccountRepository, () => {

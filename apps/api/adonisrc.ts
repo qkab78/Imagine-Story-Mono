@@ -73,6 +73,11 @@ export default defineConfig({
         timeout: 2000,
       },
       {
+        files: ['app/**/subscription/**/*.spec(.ts|.js)'],
+        name: 'subscription',
+        timeout: 2000,
+      },
+      {
         files: ['tests/unit/**/*.spec(.ts|.js)'],
         name: 'unit',
         timeout: 2000,

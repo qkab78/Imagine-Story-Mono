@@ -1,7 +1,56 @@
 import { db } from '#services/db'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/i_subscription_repository'
+import type { Subscription } from '#subscription/domain/entities/subscription.entity'
+import { SubscriptionMapper } from '../mappers/subscription_mapper.js'
 
 export class KyselySubscriptionRepository extends ISubscriptionRepository {
+  async findByUserId(userId: string): Promise<Subscription | null> {
+    const row = await db
+      .selectFrom('subscriptions')
+      .selectAll()
+      .where('user_id', '=', userId)
+      .executeTakeFirst()
+
+    if (!row) return null
+    return SubscriptionMapper.toDomain(row as any)
+  }
+
+  async findByRevenuecatAppUserId(appUserId: string): Promise<Subscription | null> {
+    const row = await db
+      .selectFrom('subscriptions')
+      .selectAll()
+      .where('revenuecat_app_user_id', '=', appUserId)
+      .executeTakeFirst()
+
+    if (!row) return null
+    return SubscriptionMapper.toDomain(row as any)
+  }
+
+  async upsert(subscription: Subscription): Promise<void> {
+    const data = SubscriptionMapper.toPersistence(subscription)
+
+    await db
+      .insertInto('subscriptions')
+      .values(data)
+      .onConflict((oc) =>
+        oc.column('user_id').doUpdateSet({
+          status: data.status,
+          revenuecat_app_user_id: data.revenuecat_app_user_id,
+          product_id: data.product_id,
+          entitlement_id: data.entitlement_id,
+          store: data.store,
+          expiration_date: data.expiration_date,
+          will_renew: data.will_renew,
+          grace_period_expires_date: data.grace_period_expires_date,
+          management_url: data.management_url,
+          last_verified_at: data.last_verified_at,
+          last_webhook_event_id: data.last_webhook_event_id,
+          updated_at: new Date(),
+        })
+      )
+      .execute()
+  }
+
   async updateUserRole(userEmail: string, role: number): Promise<void> {
     console.log(`[KyselySubscriptionRepository] Updating user ${userEmail} role to ${role}`)
 
