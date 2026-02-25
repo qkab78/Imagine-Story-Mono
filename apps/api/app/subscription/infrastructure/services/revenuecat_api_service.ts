@@ -48,7 +48,7 @@ export class RevenueCatApiService extends IRevenueCatService {
       id: entitlement.entitlement_id,
       isActive: true,
       expirationDate: entitlement.expires_at || null,
-      willRenew: true,
+      willRenew: entitlement.auto_renewal_status === 'will_renew',
       productIdentifier: entitlement.product_identifier,
       purchaseDate: entitlement.purchase_date,
     }))
