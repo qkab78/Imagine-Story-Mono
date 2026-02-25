@@ -1,11 +1,18 @@
 import { inject } from '@adonisjs/core'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/i_subscription_repository'
-import { IRevenueCatService } from '#subscription/domain/services/i_revenuecat_service'
+import {
+  IRevenueCatService,
+  type RevenueCatEntitlementInfo,
+} from '#subscription/domain/services/i_revenuecat_service'
 import { SubscriptionPresenter } from '#subscription/application/presenters/subscription_presenter'
 import { Subscription } from '#subscription/domain/entities/subscription.entity'
 import { SubscriptionStatus } from '#subscription/domain/value-objects/subscription_status.vo'
 import { Role } from '#users/models/role'
 import type { SubscriptionStatusDTO } from '#subscription/application/dtos/subscription_status_d_t_o'
+
+function isEntitlementExpired(entitlement: RevenueCatEntitlementInfo | undefined): boolean {
+  return !!entitlement?.expirationDate && new Date(entitlement.expirationDate) < new Date()
+}
 
 export interface VerifySubscriptionInputDTO {
   userId: string
@@ -35,10 +42,7 @@ export class VerifySubscriptionUseCase {
       status = SubscriptionStatus.premium()
     } else {
       const anyEntitlement = customerInfo.entitlements[0]
-      if (
-        anyEntitlement?.expirationDate &&
-        new Date(anyEntitlement.expirationDate) < new Date()
-      ) {
+      if (isEntitlementExpired(anyEntitlement)) {
         status = SubscriptionStatus.expired()
       } else {
         status = SubscriptionStatus.free()
