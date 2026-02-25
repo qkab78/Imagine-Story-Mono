@@ -167,6 +167,8 @@ router
 router
   .group(() => {
     router.post('/sync', [SubscriptionController, 'syncSubscription'])
+    router.get('/status', [SubscriptionController, 'getStatus'])
+    router.post('/verify', [SubscriptionController, 'verifySubscription'])
   })
   .middleware(middleware.auth())
   .prefix('/subscription')

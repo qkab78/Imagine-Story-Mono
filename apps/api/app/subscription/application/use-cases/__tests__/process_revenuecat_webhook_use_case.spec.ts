@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 import { ProcessRevenueCatWebhookUseCase } from '#subscription/application/use-cases/process_revenuecat_webhook_use_case'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/i_subscription_repository'
+import type { Subscription } from '#subscription/domain/entities/subscription.entity'
 import { RevenueCatEventType, type RevenueCatWebhookPayload } from '#subscription/types/revenuecat_webhook'
 import { Role } from '#users/models/role'
 
@@ -8,7 +9,22 @@ import { Role } from '#users/models/role'
 class MockSubscriptionRepository extends ISubscriptionRepository {
   public updateUserRoleCalled = false
   public trackWebhookEventCalled = false
+  public upsertCalled = false
   public isProcessedReturn = false
+  public lastUpsertedSubscription: Subscription | null = null
+
+  async findByUserId(_userId: string): Promise<Subscription | null> {
+    return null
+  }
+
+  async findByRevenuecatAppUserId(_appUserId: string): Promise<Subscription | null> {
+    return null
+  }
+
+  async upsert(subscription: Subscription): Promise<void> {
+    this.upsertCalled = true
+    this.lastUpsertedSubscription = subscription
+  }
 
   async updateUserRole(_userEmail: string, _role: number): Promise<void> {
     this.updateUserRoleCalled = true
@@ -26,7 +42,9 @@ class MockSubscriptionRepository extends ISubscriptionRepository {
   reset() {
     this.updateUserRoleCalled = false
     this.trackWebhookEventCalled = false
+    this.upsertCalled = false
     this.isProcessedReturn = false
+    this.lastUpsertedSubscription = null
   }
 }
 
@@ -95,7 +113,7 @@ test.group(ProcessRevenueCatWebhookUseCase.name, (group) => {
 
     // Assert
     assert.isTrue(result.success)
-    assert.isFalse(result.processed)
+    assert.isTrue(result.processed) // Event IS in processed state (was already processed)
     assert.include(result.message, 'already processed')
     assert.isFalse(mockRepository.updateUserRoleCalled)
   })
@@ -154,5 +172,53 @@ test.group(ProcessRevenueCatWebhookUseCase.name, (group) => {
     // Assert
     assert.isTrue(result.success)
     assert.isTrue(mockRepository.updateUserRoleCalled)
+  })
+
+  test('should upsert subscription entity on INITIAL_PURCHASE', async ({ assert }) => {
+    // Arrange
+    const payload = createMockPayload()
+    payload.event.product_id = 'mpc_premium_monthly'
+    payload.event.store = 'APP_STORE'
+
+    // Act
+    const result = await useCase.execute({ payload })
+
+    // Assert
+    assert.isTrue(result.success)
+    assert.isTrue(mockRepository.upsertCalled)
+    assert.isNotNull(mockRepository.lastUpsertedSubscription)
+    assert.isTrue(mockRepository.lastUpsertedSubscription!.status.isPremium())
+  })
+
+  test('should upsert subscription entity on EXPIRATION', async ({ assert }) => {
+    // Arrange
+    const payload = createMockPayload()
+    payload.event.type = RevenueCatEventType.EXPIRATION
+    payload.event.entitlement_ids = []
+
+    // Act
+    const result = await useCase.execute({ payload })
+
+    // Assert
+    assert.isTrue(result.success)
+    assert.isTrue(mockRepository.upsertCalled)
+    assert.isNotNull(mockRepository.lastUpsertedSubscription)
+    assert.isTrue(mockRepository.lastUpsertedSubscription!.status.isExpired())
+  })
+
+  test('should upsert subscription entity on CANCELLATION', async ({ assert }) => {
+    // Arrange
+    const payload = createMockPayload()
+    payload.event.type = RevenueCatEventType.CANCELLATION
+    payload.event.entitlement_ids = []
+
+    // Act
+    const result = await useCase.execute({ payload })
+
+    // Assert
+    assert.isTrue(result.success)
+    assert.isTrue(mockRepository.upsertCalled)
+    assert.isNotNull(mockRepository.lastUpsertedSubscription)
+    assert.isTrue(mockRepository.lastUpsertedSubscription!.status.isCancelled())
   })
 })

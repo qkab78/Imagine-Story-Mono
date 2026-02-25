@@ -1,12 +1,30 @@
 import type { CustomerInfo, PurchasesOffering, PurchasesPackage } from 'react-native-purchases';
 
-export type SubscriptionStatus = 'free' | 'premium' | 'expired' | 'cancelled';
+export type SubscriptionStatus = 'free' | 'premium' | 'expired' | 'cancelled' | 'billing_issue';
 
 export type ExpirationWarningLevel = 'none' | 'info' | 'warning' | 'urgent';
+
+/**
+ * DTO returned by the backend API (GET /subscription/status, POST /subscription/verify).
+ * The backend is the source of truth for subscription state.
+ */
+export interface SubscriptionStatusDTO {
+  status: SubscriptionStatus;
+  isSubscribed: boolean;
+  hasAccess: boolean;
+  expirationDate: string | null;
+  daysUntilExpiration: number | null;
+  expirationWarningLevel: ExpirationWarningLevel;
+  willRenew: boolean;
+  productId: string | null;
+  store: string | null;
+  managementUrl: string | null;
+}
 
 export interface SubscriptionState {
   status: SubscriptionStatus;
   isSubscribed: boolean;
+  hasAccess: boolean;
   customerInfo: CustomerInfo | null;
   offerings: PurchasesOffering | null;
   monthlyPackage: PurchasesPackage | null;
@@ -14,12 +32,14 @@ export interface SubscriptionState {
   willRenew: boolean;
   isLoading: boolean;
   error: string | null;
+  managementUrl: string | null;
   // Expiration warning
   daysUntilExpiration: number | null;
   expirationWarningLevel: ExpirationWarningLevel;
 }
 
 export interface SubscriptionStore extends SubscriptionState {
+  setSubscriptionStatus: (dto: SubscriptionStatusDTO) => void;
   setCustomerInfo: (customerInfo: CustomerInfo | null) => void;
   setOfferings: (offerings: PurchasesOffering | null) => void;
   setLoading: (isLoading: boolean) => void;
