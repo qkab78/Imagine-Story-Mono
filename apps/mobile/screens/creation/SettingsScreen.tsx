@@ -31,6 +31,25 @@ const CHAPTER_ICONS: Record<number, string> = {
   4: '📘',
   5: '📙',
 };
+// Helper function to get flag emoji from language code
+const getLanguageFlag = (code: string): string => {
+  const flags: Record<string, string> = {
+    FR: '🇫🇷',
+    EN: '🇬🇧',
+    ES: '🇪🇸',
+    PT: '🇵🇹',
+    DE: '🇩🇪',
+    IT: '🇮🇹',
+    NL: '🇳🇱',
+    PL: '🇵🇱',
+    RU: '🇷🇺',
+    TR: '🇹🇷',
+    AR: '🇸🇦',
+    JA: '🇯🇵',
+    LI: '🇨🇩',
+  };
+  return flags[code] || '🌍';
+};
 
 /**
  * SettingsScreen - Écran de configuration de l'histoire
@@ -87,26 +106,6 @@ export const SettingsScreen: React.FC = () => {
     { label: t('creation.chapters.4'), value: 4, icon: CHAPTER_ICONS[4] },
     { label: t('creation.chapters.5'), value: 5, icon: CHAPTER_ICONS[5] },
   ], [t]);
-
-  // Helper function to get flag emoji from language code
-  const getLanguageFlag = (code: string): string => {
-    const flags: Record<string, string> = {
-      FR: '🇫🇷',
-      EN: '🇬🇧',
-      ES: '🇪🇸',
-      PT: '🇵🇹',
-      DE: '🇩🇪',
-      IT: '🇮🇹',
-      NL: '🇳🇱',
-      PL: '🇵🇱',
-      RU: '🇷🇺',
-      TR: '🇹🇷',
-      AR: '🇸🇦',
-      JA: '🇯🇵',
-      LI: '🇨🇩',
-    };
-    return flags[code] || '🌍';
-  };
 
   const handleBack = () => {
     router.back();
