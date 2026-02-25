@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { colors } from '@/theme/colors';
 import { ThemeCard } from '@/components/molecules/creation/ThemeCard';
 import { PrimaryButton } from '@/components/molecules/creation/PrimaryButton';
@@ -54,33 +55,21 @@ export const ThemeSelectionScreenNew: React.FC = () => {
   const [selectedThemeId, setSelectedThemeId] = useState<string | null>(
     createStoryPayload?.theme?.id || null
   );
-  const [themes, setThemes] = useState<ThemeOption[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch themes from API
-  useEffect(() => {
-    const fetchThemes = async () => {
-      try {
-        setIsLoading(true);
-        const themesData = await getThemes();
+  // Fetch themes from API with React Query
+  const { data: themesData = [], isLoading } = useQuery<ThemeDTO[]>({
+    queryKey: ['themes'],
+    queryFn: getThemes,
+  });
 
-        // Map ThemeDTO to ThemeOption with emojis and colors
-        const themesWithVisuals: ThemeOption[] = themesData.map((theme) => ({
-          ...theme,
-          emoji: THEME_EMOJIS[theme.id] || '🎭',
-          color: THEME_COLORS[theme.id] || '#FF6B9D',
-        }));
-
-        setThemes(themesWithVisuals);
-      } catch (error) {
-        console.error('Error fetching themes:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchThemes();
-  }, []);
+  const themes: ThemeOption[] = useMemo(() =>
+    themesData.map((theme) => ({
+      ...theme,
+      emoji: THEME_EMOJIS[theme.id] || '🎭',
+      color: THEME_COLORS[theme.id] || '#FF6B9D',
+    })),
+    [themesData]
+  );
 
   const handleBack = () => {
     router.back();

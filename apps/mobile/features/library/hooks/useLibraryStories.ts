@@ -12,6 +12,7 @@ import {
 import { isRecentDate } from '@/utils/date';
 
 const POLLING_INTERVAL = 5000; // 5 seconds
+const STALE_TIME = 1000 * 30; // 30 seconds
 
 /**
  * Transforms API story to LibraryStory format
@@ -76,9 +77,8 @@ const sendCompletionNotification = async (storyTitle: string) => {
 export const useLibraryStories = () => {
   const { token } = useAuthStore();
   const queryClient = useQueryClient();
-  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Fetch user stories
+  // Fetch user stories with automatic polling when stories are generating
   const {
     data: storiesData,
     isLoading,
@@ -89,7 +89,16 @@ export const useLibraryStories = () => {
     queryKey: ['library', 'stories', token],
     queryFn: () => getStoriesByAuthenticatedUserId(token || ''),
     enabled: !!token,
-    staleTime: 1000 * 30, // 30 seconds
+    staleTime: STALE_TIME,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (!data) return false;
+      const hasGenerating = data.some(
+        (dto) => dto.generationStatus === 'pending' || dto.generationStatus === 'processing'
+      );
+      return hasGenerating ? POLLING_INTERVAL : false;
+    },
+    refetchIntervalInBackground: false,
   });
 
   // Transform stories to LibraryStory format
@@ -122,29 +131,6 @@ export const useLibraryStories = () => {
   const hasFailedStories = useMemo(() => {
     return stories.some((s) => s.generationStatus === 'failed');
   }, [stories]);
-
-  // Set up polling when there are generating stories
-  useEffect(() => {
-    // Clear any existing interval
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current);
-      pollingRef.current = null;
-    }
-
-    // Only poll if there are generating stories
-    if (hasGeneratingStories) {
-      pollingRef.current = setInterval(() => {
-        refetch();
-      }, POLLING_INTERVAL);
-    }
-
-    return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-        pollingRef.current = null;
-      }
-    };
-  }, [hasGeneratingStories, refetch]);
 
   // Get highlighted story ID (last created)
   const highlightedStoryId = useMemo(() => getLastCreatedStoryId(), []);
