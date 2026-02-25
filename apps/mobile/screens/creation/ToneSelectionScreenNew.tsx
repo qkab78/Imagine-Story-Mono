@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { colors } from '@/theme/colors';
 import { ToneCard } from '@/components/molecules/creation/ToneCard';
 import { PrimaryButton } from '@/components/molecules/creation/PrimaryButton';
@@ -54,33 +55,21 @@ export const ToneSelectionScreenNew: React.FC = () => {
   const [selectedToneId, setSelectedToneId] = useState<string | null>(
     createStoryPayload?.tone?.id || null
   );
-  const [tones, setTones] = useState<ToneOption[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch tones from API
-  useEffect(() => {
-    const fetchTones = async () => {
-      try {
-        setIsLoading(true);
-        const tonesData = await getTones();
+  // Fetch tones from API with React Query
+  const { data: tonesData = [], isLoading } = useQuery<ToneDTO[]>({
+    queryKey: ['tones'],
+    queryFn: getTones,
+  });
 
-        // Map ToneDTO to ToneOption with emojis and moods
-        const tonesWithEmojis: ToneOption[] = tonesData.map((tone) => ({
-          ...tone,
-          emoji: TONE_EMOJIS[tone.id] || '🎭',
-          mood: TONE_MOODS[tone.id] || 'happy',
-        }));
-
-        setTones(tonesWithEmojis);
-      } catch (error) {
-        console.error('Error fetching tones:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTones();
-  }, []);
+  const tones: ToneOption[] = useMemo(() =>
+    tonesData.map((tone) => ({
+      ...tone,
+      emoji: TONE_EMOJIS[tone.id] || '🎭',
+      mood: TONE_MOODS[tone.id] || 'happy',
+    })),
+    [tonesData]
+  );
 
   const handleBack = () => {
     router.back();

@@ -97,31 +97,32 @@ export const useOfflineLibrary = (): UseOfflineLibraryReturn => {
     },
   })
 
-  // Sync les stories locales avec le store
+  // Sync stories to store for other consumers
   useEffect(() => {
     if (localStories) {
       setStories(localStories)
     }
   }, [localStories, setStories])
 
-  // Sync la config avec le store
+  // Sync config to store, using query data for counts to avoid circular dependency
   useEffect(() => {
     if (configData) {
       setConfig({
         maxStories: configData.maxStories,
         maxSizeBytes: configData.maxSizeBytes,
-        currentCount: Object.keys(storiesMap).length,
+        currentCount: localStories?.length ?? 0,
         currentSizeBytes: totalSizeBytes,
       })
     }
-  }, [configData, storiesMap, totalSizeBytes, setConfig])
+  }, [configData, localStories, totalSizeBytes, setConfig])
 
-  // Convertir le map en array trié par date de téléchargement
+  // Derive stories directly from query data (avoids store round-trip)
   const stories = useMemo(() => {
-    return Object.values(storiesMap).sort((a, b) => {
+    if (!localStories) return []
+    return [...localStories].sort((a, b) => {
       return new Date(b.downloadedAt).getTime() - new Date(a.downloadedAt).getTime()
     })
-  }, [storiesMap])
+  }, [localStories])
 
   const effectiveConfig = configData
     ? { ...DEFAULT_CONFIG, maxStories: configData.maxStories, maxSizeBytes: configData.maxSizeBytes }

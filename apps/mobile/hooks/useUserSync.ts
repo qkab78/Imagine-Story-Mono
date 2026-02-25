@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import useAuthStore from '@/store/auth/authStore';
 import { authenticate } from '@/api/auth';
 import { transformApiUserToAuthUser } from '@/utils/userTransform';
@@ -7,18 +8,16 @@ export function useUserSync() {
   const token = useAuthStore(state => state.token);
   const setUser = useAuthStore(state => state.setUser);
 
+  const { data } = useQuery({
+    queryKey: ['user', 'sync', token],
+    queryFn: () => authenticate(token!),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
   useEffect(() => {
-    const syncUser = async () => {
-      if (!token) return;
-
-      try {
-        const { user } = await authenticate(token);
-        setUser(transformApiUserToAuthUser(user));
-      } catch (error) {
-        console.error('[useUserSync] Failed to sync user:', error);
-      }
-    };
-
-    syncUser();
-  }, [token, setUser]);
+    if (data?.user) {
+      setUser(transformApiUserToAuthUser(data.user));
+    }
+  }, [data, setUser]);
 }

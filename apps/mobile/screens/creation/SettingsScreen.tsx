@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { colors } from '@/theme/colors';
 import { GlassSelect, SelectOption } from '@/components/molecules/creation/GlassSelect';
 import { PrimaryButton } from '@/components/molecules/creation/PrimaryButton';
@@ -54,10 +55,20 @@ export const SettingsScreen: React.FC = () => {
     createStoryPayload?.numberOfChapters || null
   );
 
-  // Languages from API
-  const [languages, setLanguages] = useState<LanguageDTO[]>([]);
-  const [languageOptions, setLanguageOptions] = useState<SelectOption[]>([]);
-  const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
+  // Fetch languages from API with React Query
+  const { data: languages = [], isLoading: isLoadingLanguages } = useQuery<LanguageDTO[]>({
+    queryKey: ['languages'],
+    queryFn: getLanguages,
+  });
+
+  const languageOptions: SelectOption[] = useMemo(() =>
+    languages.map((lang: LanguageDTO) => ({
+      label: `${lang.name}`,
+      value: lang.id,
+      icon: getLanguageFlag(lang.code),
+    })),
+    [languages]
+  );
 
   // Generate translated options
   const ageOptions: SelectOption[] = useMemo(() => [
@@ -76,37 +87,6 @@ export const SettingsScreen: React.FC = () => {
     { label: t('creation.chapters.4'), value: 4, icon: CHAPTER_ICONS[4] },
     { label: t('creation.chapters.5'), value: 5, icon: CHAPTER_ICONS[5] },
   ], [t]);
-
-  // Fetch languages from API on mount
-  useEffect(() => {
-    const fetchLanguages = async () => {
-      try {
-        setIsLoadingLanguages(true);
-        const languagesData = await getLanguages();
-
-        // Store the full language data
-        setLanguages(languagesData);
-
-        // Map LanguageDTO to SelectOption
-        const options: SelectOption[] = languagesData.map((lang: LanguageDTO) => ({
-          label: `${lang.name}`,
-          value: lang.id,
-          icon: getLanguageFlag(lang.code),
-        }));
-
-        setLanguageOptions(options);
-      } catch (error) {
-        console.error('Error fetching languages:', error);
-        // Fallback to empty - user must select a language
-        setLanguages([]);
-        setLanguageOptions([]);
-      } finally {
-        setIsLoadingLanguages(false);
-      }
-    };
-
-    fetchLanguages();
-  }, []);
 
   // Helper function to get flag emoji from language code
   const getLanguageFlag = (code: string): string => {
