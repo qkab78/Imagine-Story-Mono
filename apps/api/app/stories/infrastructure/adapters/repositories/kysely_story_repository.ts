@@ -1,5 +1,6 @@
 import { IStoryRepository } from '#stories/domain/repositories/story_repository'
 import { db } from '#services/db'
+import { sql } from 'kysely'
 import { Story } from '#stories/domain/entities/story.entity'
 import { StoryMapper } from '#stories/infrastructure/mappers/story_mapper'
 import { StoryId } from '#stories/domain/value-objects/ids/story_id.vo'
@@ -300,6 +301,29 @@ export class KyselyStoryRepository implements IStoryRepository {
       .executeTakeFirst()
 
     return Number(result?.count || 0)
+  }
+
+  /**
+   * Find a deterministic "story of the day" based on the given date.
+   * Uses md5 hash of date + story ID for consistent daily selection among completed public stories.
+   */
+  async findStoryOfTheDay(date: Date): Promise<Story | null> {
+    const dateString = date.toISOString().split('T')[0]
+
+    const storyRow = await db
+      .selectFrom('stories')
+      .where('public', '=', true)
+      .where('generation_status', '=', 'completed')
+      .orderBy(sql`md5(id::text || ${dateString})`)
+      .selectAll()
+      .limit(1)
+      .executeTakeFirst()
+
+    if (!storyRow) {
+      return null
+    }
+
+    return this.mapRowToStory(storyRow)
   }
 
   /**

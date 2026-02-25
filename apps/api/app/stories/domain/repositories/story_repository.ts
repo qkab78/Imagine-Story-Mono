@@ -41,6 +41,9 @@ export abstract class IStoryRepository {
     endDate: Date
   ): Promise<number>
 
+  // Widget queries
+  abstract findStoryOfTheDay(date: Date): Promise<Story | null>
+
   // Search queries
   abstract searchByTitle(query: string, limit?: number): Promise<Story[]>
 

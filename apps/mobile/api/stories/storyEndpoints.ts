@@ -18,6 +18,9 @@ export const STORY_ENDPOINTS = {
   STORY_RETRY: (id: string) => `${apiUrl}/stories/${id}/retry`,
   STORIES_SEARCH: (query: string) => `${apiUrl}/stories/search/suggestions?query=${encodeURIComponent(query)}`,
 
+  // Widgets
+  WIDGET_STORY_OF_THE_DAY: `${apiUrl}/widgets/story-of-the-day`,
+
   // Settings
   THEMES: `${apiUrl}/stories/all/themes`,
   TONES: `${apiUrl}/stories/all/tones`,

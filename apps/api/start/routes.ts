@@ -24,6 +24,7 @@ const SubscriptionController = () => import('#subscription/controllers/subscript
 const WebhookController = () => import('#subscription/controllers/webhook_controller')
 
 const StoriesControllerPresenter = () => import('#stories/presenters/stories.controller')
+const WidgetControllerPresenter = () => import('#stories/presenters/widget.controller')
 const GoogleAuthController = () => import('#auth/controllers/social/google_auth_controller')
 const VerifyEmailController = () => import('#auth/controllers/verify_email/verify_email_controller')
 const ResendVerificationController = () => import('#auth/controllers/verify_email/resend_verification_controller')
@@ -128,6 +129,13 @@ router
     router.get('/:id/status', [StoriesControllerPresenter, 'getGenerationStatus'])
   })
   .prefix('/stories')
+
+// Widgets
+router
+  .group(() => {
+    router.get('/story-of-the-day', [WidgetControllerPresenter, 'getStoryOfTheDay'])
+  })
+  .prefix('/widgets')
 
 // Auth
 router
