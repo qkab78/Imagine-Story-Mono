@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/i_subscription_repository'
 import { Subscription } from '#subscription/domain/entities/subscription.entity'
 import { SubscriptionStatus } from '#subscription/domain/value-objects/subscription_status.vo'
@@ -29,13 +30,13 @@ export class ProcessRevenueCatWebhookUseCase {
     const { payload } = input
     const { event } = payload
 
-    console.log(`[ProcessRevenueCatWebhookUseCase] Processing event ${event.id} of type ${event.type}`)
+    logger.debug(`[ProcessRevenueCatWebhookUseCase] Processing event ${event.id} of type ${event.type}`)
 
     try {
       // Check if event was already processed (idempotency)
       const alreadyProcessed = await this.subscriptionRepository.isWebhookEventProcessed(event.id)
       if (alreadyProcessed) {
-        console.log(`[ProcessRevenueCatWebhookUseCase] Event ${event.id} already processed, skipping`)
+        logger.debug(`[ProcessRevenueCatWebhookUseCase] Event ${event.id} already processed, skipping`)
         return {
           success: true,
           message: 'Event already processed',
@@ -53,20 +54,20 @@ export class ProcessRevenueCatWebhookUseCase {
       )
 
       // Log environment for debugging
-      console.log(`[ProcessRevenueCatWebhookUseCase] Event environment: ${event.environment}`)
+      logger.debug(`[ProcessRevenueCatWebhookUseCase] Event environment: ${event.environment}`)
 
       // Determine if user should have premium based on event type
       const shouldBePremium = this.shouldUserBePremium(event.type, event.entitlement_ids || [])
       const newRole = shouldBePremium ? Role.PREMIUM : Role.CUSTOMER
       const userEmail = event.app_user_id
 
-      console.log(`[ProcessRevenueCatWebhookUseCase] User ${userEmail} should be premium: ${shouldBePremium}, new role: ${newRole}`)
+      logger.debug(`[ProcessRevenueCatWebhookUseCase] User ${userEmail} should be premium: ${shouldBePremium}, new role: ${newRole}`)
 
       // Performance optimization: only update if role might change
       const updateStartTime = Date.now()
       await this.subscriptionRepository.updateUserRole(userEmail, newRole)
       const updateTime = Date.now() - updateStartTime
-      console.log(`[ProcessRevenueCatWebhookUseCase] Role update completed in ${updateTime}ms`)
+      logger.debug(`[ProcessRevenueCatWebhookUseCase] Role update completed in ${updateTime}ms`)
 
       // Upsert subscription entity
       await this.upsertSubscription(event, userEmail)
@@ -82,7 +83,7 @@ export class ProcessRevenueCatWebhookUseCase {
 
       const message = this.getEventMessage(event.type, shouldBePremium)
 
-      console.log(`[ProcessRevenueCatWebhookUseCase] Successfully processed event ${event.id}`)
+      logger.debug(`[ProcessRevenueCatWebhookUseCase] Successfully processed event ${event.id}`)
 
       return {
         success: true,
@@ -94,7 +95,7 @@ export class ProcessRevenueCatWebhookUseCase {
       }
 
     } catch (error) {
-      console.error(`[ProcessRevenueCatWebhookUseCase] Error processing event ${event.id}:`, error)
+      logger.error({ err: error }, `[ProcessRevenueCatWebhookUseCase] Error processing event ${event.id}`)
       
       // Track failed event
       try {
@@ -107,7 +108,7 @@ export class ProcessRevenueCatWebhookUseCase {
           error instanceof Error ? error.message : 'Unknown error occurred'
         )
       } catch (trackingError) {
-        console.error(`[ProcessRevenueCatWebhookUseCase] Failed to track error for event ${event.id}:`, trackingError)
+        logger.error({ err: trackingError }, `[ProcessRevenueCatWebhookUseCase] Failed to track error for event ${event.id}`)
       }
 
       return {
@@ -123,7 +124,7 @@ export class ProcessRevenueCatWebhookUseCase {
    * Determine if user should have premium access based on event type and entitlements
    */
   private shouldUserBePremium(eventType: RevenueCatEventType, entitlementIds: string[]): boolean {
-    console.log(`[ProcessRevenueCatWebhookUseCase] Checking premium status for event ${eventType} with entitlements:`, entitlementIds)
+    logger.debug(`[ProcessRevenueCatWebhookUseCase] Checking premium status for event ${eventType} with entitlements: ${entitlementIds.join(', ')}`)
     
     switch (eventType) {
       case RevenueCatEventType.INITIAL_PURCHASE:
@@ -146,7 +147,7 @@ export class ProcessRevenueCatWebhookUseCase {
         return entitlementIds.length > 0
       
       default:
-        console.warn(`[ProcessRevenueCatWebhookUseCase] Unknown event type: ${eventType}`)
+        logger.warn(`[ProcessRevenueCatWebhookUseCase] Unknown event type: ${eventType}`)
         return false
     }
   }
@@ -215,14 +216,14 @@ export class ProcessRevenueCatWebhookUseCase {
       })
 
       await this.subscriptionRepository.upsert(subscription)
-      console.log(
+      logger.debug(
         `[ProcessRevenueCatWebhookUseCase] Subscription upserted for ${userEmail} with status: ${newStatus.getValue()}`
       )
     } catch (upsertError) {
       // Log but don't fail the whole webhook processing if subscription upsert fails
-      console.error(
-        `[ProcessRevenueCatWebhookUseCase] Failed to upsert subscription for ${userEmail}:`,
-        upsertError
+      logger.error(
+        { err: upsertError },
+        `[ProcessRevenueCatWebhookUseCase] Failed to upsert subscription for ${userEmail}`
       )
     }
   }

@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import type { HttpContext } from '@adonisjs/core/http'
 import { SyncSubscriptionUseCase } from '#subscription/application/use-cases/sync_subscription_use_case'
 import { GetSubscriptionStatusUseCase } from '#subscription/application/use-cases/get_subscription_status_use_case'
@@ -14,20 +15,19 @@ export default class SubscriptionController {
   ) {}
 
   public async syncSubscription({ request, auth, response }: HttpContext) {
-    console.log('[SubscriptionController] syncSubscription called')
+    logger.debug('[SubscriptionController] syncSubscription called')
 
     const user = await auth.getUserOrFail()
-    console.log('[SubscriptionController] User:', user.id)
+    logger.debug('[SubscriptionController] User: %s', user.id)
 
     const payload = await request.validateUsing(syncSubscriptionValidator)
-    console.log('[SubscriptionController] Payload:', payload)
 
     const result = await this.syncSubscriptionUseCase.execute({
       userId: user.id.toString(),
       isPremium: payload.isPremium,
     })
 
-    console.log('[SubscriptionController] Result:', result)
+    logger.debug('[SubscriptionController] syncSubscription completed')
     return response.json(result)
   }
 

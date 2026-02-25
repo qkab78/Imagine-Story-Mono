@@ -3,10 +3,11 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { ProcessRevenueCatWebhookUseCase } from '#subscription/application/use-cases/process_revenuecat_webhook_use_case'
 import { revenuecatWebhookValidator } from './validators/revenuecat_webhook_validator.js'
 import env from '#start/env'
+import logger from '@adonisjs/core/services/logger'
 
 /**
  * Webhook Controller
- * 
+ *
  * Handles incoming webhook events from external services like RevenueCat.
  * Implements security best practices including authorization header verification.
  */
@@ -18,35 +19,31 @@ export default class WebhookController {
 
   /**
    * Handle RevenueCat webhook events
-   * 
+   *
    * This endpoint processes subscription events from RevenueCat and updates
    * user subscription status accordingly. It implements idempotency to prevent
    * duplicate event processing.
    */
   public async revenueCat({ request, response }: HttpContext) {
     const startTime = Date.now()
-    console.log('[WebhookController] RevenueCat webhook received')
+    logger.debug('RevenueCat webhook received')
 
     try {
-      // Log raw payload for debugging validation issues
-      const rawPayload = request.body()
-      console.log('[WebhookController] Raw payload received:', JSON.stringify(rawPayload, null, 2))
-
-      // Verify authorization header for security (optional but recommended)
+      // Verify authorization header (always required)
       const authHeader = request.header('authorization')
       const expectedAuth = env.get('REVENUECAT_WEBHOOK_AUTH_HEADER')
-      
-      if (expectedAuth && authHeader !== expectedAuth) {
-        console.warn('[WebhookController] Invalid authorization header for RevenueCat webhook')
-        return response.status(401).json({ 
-          success: false, 
-          error: 'Unauthorized' 
+
+      if (!expectedAuth || authHeader !== expectedAuth) {
+        logger.warn('Invalid or missing authorization header for RevenueCat webhook')
+        return response.status(401).json({
+          success: false,
+          error: 'Unauthorized'
         })
       }
 
       // Validate webhook payload structure
       const payload = await request.validateUsing(revenuecatWebhookValidator)
-      console.log(`[WebhookController] Processing RevenueCat event ${payload.event.id} of type ${payload.event.type}`)
+      logger.debug({ eventId: payload.event.id, eventType: payload.event.type }, 'Processing RevenueCat event')
 
       // Process the webhook event
       const result = await this.processRevenueCatWebhookUseCase.execute({
@@ -55,7 +52,7 @@ export default class WebhookController {
       })
 
       const processingTime = Date.now() - startTime
-      console.log(`[WebhookController] RevenueCat webhook processed in ${processingTime}ms`)
+      logger.debug({ processingTime }, 'RevenueCat webhook processed')
 
       // RevenueCat expects a 200 response to consider the webhook delivered
       const statusCode = result.success ? 200 : 500
@@ -69,10 +66,7 @@ export default class WebhookController {
       })
 
     } catch (error) {
-      console.error('[WebhookController] Error processing RevenueCat webhook:', error)
-      
-      // Let the global exception handler deal with the error
-      // It will return appropriate HTTP status codes
+      logger.error({ err: error }, 'Error processing RevenueCat webhook')
       throw error
     }
   }

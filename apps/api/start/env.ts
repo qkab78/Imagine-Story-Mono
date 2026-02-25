@@ -87,6 +87,13 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Variables for configuring CORS
+  |----------------------------------------------------------
+  */
+  CORS_ALLOWED_ORIGINS: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring image provider
   |----------------------------------------------------------
   */

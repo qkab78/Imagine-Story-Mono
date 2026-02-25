@@ -115,6 +115,11 @@ export class AccessTokenUserProvider implements AccessTokensUserProviderContract
       return null
     }
 
+    // Check if token has expired
+    if (token.expires_at && new Date(token.expires_at) < new Date()) {
+      return null
+    }
+
     return new AccessToken({
       identifier: token.id,
       name: token.name,

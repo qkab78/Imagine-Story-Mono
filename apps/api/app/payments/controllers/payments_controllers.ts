@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import type { HttpContext } from '@adonisjs/core/http'
 import PaymentService from '../services/payment_service.js'
 
@@ -9,7 +10,7 @@ export default class PaymentsController {
   public async getPaymentServiceProviderInfos({ response }: HttpContext) {
     const paymentServiceProviderInfos = await this.paymentService.getPaymentServiceProviderInfos()
 
-    console.log(paymentServiceProviderInfos)
+    logger.debug('[PaymentsController] Retrieved payment service provider infos')
 
     return response.json({
       paymentServiceProviderInfos,

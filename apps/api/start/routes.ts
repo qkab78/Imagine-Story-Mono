@@ -110,11 +110,11 @@ router
 // Auth
 router
   .group(() => {
-    router.post('/login', [LoginController, 'login'])
-    router.post('/register', [RegisterController, 'register'])
+    router.post('/login', [LoginController, 'login']).middleware(middleware.throttle({ type: 'auth' }))
+    router.post('/register', [RegisterController, 'register']).middleware(middleware.throttle({ type: 'register' }))
 
     // Google OAuth
-    router.post('/google/redirect', [GoogleAuthController, 'redirect'])
+    router.post('/google/redirect', [GoogleAuthController, 'redirect']).middleware(middleware.throttle({ type: 'auth' }))
     router.get('/google/callback', [GoogleAuthController, 'callback'])
 
     // Email verification (public - accessed via email link)
@@ -156,4 +156,5 @@ router
   .group(() => {
     router.post('/revenuecat', [WebhookController, 'revenueCat'])
   })
+  .middleware(middleware.throttle({ type: 'webhook' }))
   .prefix('/webhooks')

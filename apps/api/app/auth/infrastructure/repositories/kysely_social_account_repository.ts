@@ -3,6 +3,46 @@ import { SocialAccount } from '../../domain/entities/social_account.entity.js'
 import { Provider } from '../../domain/value-objects/provider.vo.js'
 import { ProviderUserId } from '../../domain/value-objects/provider_user_id.vo.js'
 import { db } from '#services/db'
+import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'node:crypto'
+import env from '#start/env'
+
+const ALGORITHM = 'aes-256-gcm'
+
+function getEncryptionKey(): Buffer {
+  const appKey = env.get('APP_KEY')
+  return scryptSync(appKey, 'social-tokens-salt', 32)
+}
+
+function encrypt(text: string | null | undefined): string | null {
+  if (!text) return null
+  const key = getEncryptionKey()
+  const iv = randomBytes(16)
+  const cipher = createCipheriv(ALGORITHM, key, iv)
+  let encrypted = cipher.update(text, 'utf8', 'hex')
+  encrypted += cipher.final('hex')
+  const authTag = cipher.getAuthTag().toString('hex')
+  return `${iv.toString('hex')}:${authTag}:${encrypted}`
+}
+
+function decrypt(encryptedText: string | null | undefined): string | null {
+  if (!encryptedText) return null
+  // Handle unencrypted legacy values (no colons = not encrypted)
+  if (!encryptedText.includes(':')) return encryptedText
+  try {
+    const [ivHex, authTagHex, encrypted] = encryptedText.split(':')
+    const key = getEncryptionKey()
+    const iv = Buffer.from(ivHex, 'hex')
+    const authTag = Buffer.from(authTagHex, 'hex')
+    const decipher = createDecipheriv(ALGORITHM, key, iv)
+    decipher.setAuthTag(authTag)
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8')
+    decrypted += decipher.final('utf8')
+    return decrypted
+  } catch {
+    // If decryption fails, return null (corrupted or legacy data)
+    return null
+  }
+}
 
 export class KyselySocialAccountRepository implements ISocialAccountRepository {
   async findByProviderAndUserId(
@@ -43,8 +83,8 @@ export class KyselySocialAccountRepository implements ISocialAccountRepository {
         email: account.email,
         name: account.name,
         avatar_url: account.avatarUrl,
-        access_token: account.accessToken,
-        refresh_token: account.refreshToken,
+        access_token: encrypt(account.accessToken),
+        refresh_token: encrypt(account.refreshToken),
         token_expires_at: account.tokenExpiresAt?.toISOString() ?? null,
         created_at: account.createdAt.toISOString(),
         updated_at: account.updatedAt.toISOString(),
@@ -58,8 +98,8 @@ export class KyselySocialAccountRepository implements ISocialAccountRepository {
     await db
       .updateTable('social_accounts')
       .set({
-        access_token: account.accessToken,
-        refresh_token: account.refreshToken,
+        access_token: encrypt(account.accessToken),
+        refresh_token: encrypt(account.refreshToken),
         token_expires_at: account.tokenExpiresAt?.toISOString() ?? null,
         updated_at: new Date().toISOString(),
       })
@@ -80,8 +120,8 @@ export class KyselySocialAccountRepository implements ISocialAccountRepository {
       email: row.email,
       name: row.name,
       avatarUrl: row.avatar_url,
-      accessToken: row.access_token,
-      refreshToken: row.refresh_token,
+      accessToken: decrypt(row.access_token),
+      refreshToken: decrypt(row.refresh_token),
       tokenExpiresAt: row.token_expires_at ? new Date(row.token_expires_at) : null,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),

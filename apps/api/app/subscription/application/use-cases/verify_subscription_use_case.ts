@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/i_subscription_repository'
 import {
   IRevenueCatService,
@@ -27,7 +28,7 @@ export class VerifySubscriptionUseCase {
   ) {}
 
   async execute(input: VerifySubscriptionInputDTO): Promise<SubscriptionStatusDTO> {
-    console.log(
+    logger.debug(
       `[VerifySubscriptionUseCase] Verifying subscription for user ${input.userId} (RC: ${input.revenuecatAppUserId})`
     )
 
@@ -70,7 +71,7 @@ export class VerifySubscriptionUseCase {
     const newRole = subscription.hasAccess() ? Role.PREMIUM : Role.CUSTOMER
     await this.subscriptionRepository.updateUserRole(input.revenuecatAppUserId, newRole)
 
-    console.log(
+    logger.debug(
       `[VerifySubscriptionUseCase] Verification complete. Status: ${status.getValue()}, Role: ${newRole}`
     )
 

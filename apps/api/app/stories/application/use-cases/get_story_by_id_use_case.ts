@@ -11,10 +11,15 @@ export class GetStoryByIdUseCase {
     private readonly storageService: IStorageService
   ) {}
 
-  async execute(id: string): Promise<StoryDetailDTO> {
+  async execute(id: string, requestingUserId?: string): Promise<StoryDetailDTO> {
     const story = await this.storyRepository.findById(id)
 
     if (!story) {
+      throw new Error('Story not found')
+    }
+
+    // Private stories are only accessible by their owner
+    if (!story.isPublic() && story.ownerId !== requestingUserId) {
       throw new Error('Story not found')
     }
 

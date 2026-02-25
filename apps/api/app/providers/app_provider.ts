@@ -1,4 +1,5 @@
 import type { ApplicationService } from '@adonisjs/core/types'
+import logger from '@adonisjs/core/services/logger'
 import LemonSqueezyPaymentService from '#payments/services/lemonsqueezy/lemon_squeezy_payment_service'
 import PaymentService from '#payments/services/payment_service'
 import { IDateService } from '#stories/domain/services/i_date_service'
@@ -95,12 +96,12 @@ export default class AppProvider {
     const imageProvider = env.get('IMAGE_PROVIDER', 'gemini') // 'gemini' ou 'leonardo'
 
     if (imageProvider === 'leonardo') {
-      console.log('Using Leonardo AI for image generation')
+      logger.info('Using Leonardo AI for image generation')
       this.app.container.singleton(IStoryImageGenerationService, () => {
         return this.app.container.make(LeonardoAiImageGenerationService)
       })
     } else {
-      console.log('Using Gemini Imagen 3 (Nano Banana) for image generation')
+      logger.info('Using Gemini Imagen 3 (Nano Banana) for image generation')
       this.app.container.singleton(IStoryImageGenerationService, () => {
         return this.app.container.make(GeminiImageGenerationService)
       })

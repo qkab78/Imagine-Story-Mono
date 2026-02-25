@@ -43,9 +43,10 @@ export default class StoriesController {
     private readonly storageService: IStorageService
   ) {}
 
-  async getStoryById({ request, response }: HttpContext) {
+  async getStoryById({ request, response, auth }: HttpContext) {
     const payload = await getStoryByIdValidator.validate(request.params())
-    const story = await this.getStoryByIdUseCase.execute(payload.id)
+    const userId = auth.user ? String(auth.user.id) : undefined
+    const story = await this.getStoryByIdUseCase.execute(payload.id, userId)
     return response.json(story)
   }
 
@@ -104,13 +105,16 @@ export default class StoriesController {
   async getPublicStories({ request, response }: HttpContext) {
     const { themeId, languageId, toneId, childAge, page, limit } = request.qs()
 
+    const sanitizedLimit = limit ? Math.min(Math.max(1, Number(limit) || 20), 100) : undefined
+    const sanitizedPage = page ? Math.max(1, Number(page) || 1) : undefined
+
     const result = await this.listPublicStoriesUseCase.execute({
       themeId,
       languageId,
       toneId,
       childAge: childAge ? Number(childAge) : undefined,
-      page: page ? Number(page) : undefined,
-      limit: limit ? Number(limit) : undefined,
+      page: sanitizedPage,
+      limit: sanitizedLimit,
     })
 
     // Transform domain entities to DTOs
@@ -128,8 +132,10 @@ export default class StoriesController {
   async getLatestPublicStories({ request, response }: HttpContext) {
     const { limit } = request.qs()
 
+    const sanitizedLimit = limit ? Math.min(Math.max(1, Number(limit) || 20), 100) : undefined
+
     const result = await this.getLatestPublicStoriesUseCase.execute({
-      limit: limit ? Number(limit) : undefined,
+      limit: sanitizedLimit,
     })
 
     // Transform domain entities to DTOs
@@ -144,10 +150,13 @@ export default class StoriesController {
     const user = auth.getUserOrFail()
     const { page, limit } = request.qs()
 
+    const sanitizedLimit = limit ? Math.min(Math.max(1, Number(limit) || 20), 100) : undefined
+    const sanitizedPage = page ? Math.max(1, Number(page) || 1) : undefined
+
     const result = await this.listUserStoriesUseCase.execute({
       ownerId: String(user.id),
-      page: page ? Number(page) : undefined,
-      limit: limit ? Number(limit) : undefined,
+      page: sanitizedPage,
+      limit: sanitizedLimit,
     })
 
     // Transform domain entities to DTOs
