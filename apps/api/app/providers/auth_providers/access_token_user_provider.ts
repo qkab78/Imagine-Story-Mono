@@ -86,22 +86,30 @@ export class AccessTokenUserProvider implements AccessTokensUserProviderContract
       })
     }
 
-    const accessToken = new AccessToken({
+    await db
+      .updateTable('access_tokens')
+      .set({
+        hash: transientToken.hash,
+        expires_at: transientToken.expiresAt,
+        updated_at: new Date(),
+      })
+      .where('id', '=', token.id)
+      .execute()
+
+    return new AccessToken({
       identifier: token.id,
       name: token.name,
       tokenableId: transientToken.userId as string,
-      hash: token.hash,
+      hash: transientToken.hash,
       abilities: token.abilities.split(','),
       createdAt: token.created_at,
-      updatedAt: token.updated_at,
-      expiresAt: token.expires_at || null,
+      updatedAt: new Date(),
+      expiresAt: transientToken.expiresAt || null,
       lastUsedAt: token.last_used_at,
       type: token.type,
       secret: transientToken.secret,
       prefix: 'oat_',
     })
-
-    return accessToken
   }
   async verifyToken(tokenValue: Secret<string>): Promise<AccessToken | null> {
     const decodedToken = AccessToken.decode('oat_', tokenValue.release())
