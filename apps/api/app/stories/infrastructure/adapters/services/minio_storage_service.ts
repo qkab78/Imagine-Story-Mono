@@ -7,6 +7,7 @@ import {
   type StorageMetadata,
 } from '#stories/domain/services/i_storage_service'
 import * as Minio from 'minio'
+import logger from '@adonisjs/core/services/logger'
 import axios from 'axios'
 import env from '#start/env'
 
@@ -43,7 +44,7 @@ export class MinioStorageService extends IStorageService {
     const exists = await this.client.bucketExists(this.bucket)
     if (!exists) {
       await this.client.makeBucket(this.bucket, 'us-east-1')
-      console.log(`MinIO bucket created: ${this.bucket}`)
+      logger.info(`MinIO bucket created: ${this.bucket}`)
     }
   }
 

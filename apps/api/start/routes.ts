@@ -10,10 +10,10 @@
 import router from '@adonisjs/core/services/router'
 import type { HttpContext } from '@adonisjs/core/http'
 import { middleware } from './kernel.js'
-import queue from '@rlanz/bull-queue/services/main'
-import SendUserRegisterConfirmationEmailJob from '../app/jobs/send_user_register_confirmation_email_job.js'
 import app from '@adonisjs/core/services/app'
 import { existsSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import logger from '@adonisjs/core/services/logger'
 
 const LoginController = () => import('#auth/controllers/login/login_controller')
 const LogoutController = () => import('#auth/controllers/logout/logout_controller')
@@ -29,46 +29,14 @@ const VerifyEmailController = () => import('#auth/controllers/verify_email/verif
 const ResendVerificationController = () => import('#auth/controllers/verify_email/resend_verification_controller')
 
 router.get('/', async ({ response }: HttpContext) => {
-  console.log('[Route] GET / called')
-  try {
-    const data = { hello: 'world', version: 'v1' }
-    console.log('[Route] GET / preparing response:', data)
-    const result = response.json(data)
-    console.log('[Route] GET / response created')
-    return result
-  } catch (error) {
-    console.error('[Route] GET / error:', error)
-    throw error
-  }
+  return response.json({ hello: 'world', version: 'v1' })
 })
 
 router.get('/health', async ({ response }: HttpContext) => {
-  console.log('[Route] GET /health called - start')
-  try {
-    const data = { status: 'ok', timestamp: new Date().toISOString() }
-    console.log('[Route] GET /health preparing response:', JSON.stringify(data))
-
-    // Utiliser response.send avec Content-Type explicite
-    response.status(200)
-    response.header('Content-Type', 'application/json')
-    const result = response.send(JSON.stringify(data))
-
-    console.log('[Route] GET /health response sent, status:', response.response.statusCode)
-    return result
-  } catch (error) {
-    console.error('[Route] GET /health error:', error)
-    if (error instanceof Error) {
-      console.error('[Route] GET /health error stack:', error.stack)
-    }
-    throw error
-  }
-})
-
-router.get('/test-register-job', async ({ response }: HttpContext) => {
-  queue.dispatch(SendUserRegisterConfirmationEmailJob, {
-    email: 'test@test.com',
-  })
-  return response.json({ hello: 'world', version: 'v1' })
+  const data = { status: 'ok', timestamp: new Date().toISOString() }
+  response.status(200)
+  response.header('Content-Type', 'application/json')
+  return response.send(JSON.stringify(data))
 })
 
 router
@@ -77,30 +45,40 @@ router
   })
   .middleware(middleware.auth())
 
-router.get('/images/covers/:fileName', async ({ request, response }: HttpContext) => {
-  const fileName = request.param('fileName')
-  const imagePath = app.makePath(`uploads/stories/covers/${fileName}`)
-  if (existsSync(imagePath)) {
-    // Send the image to the client
-    return response.send(readFileSync(imagePath), {
-      'Content-Type': ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
-    } as any)
-  } else {
-    return response.status(404).json({ error: 'Image not found' })
-  }
-})
+/**
+ * Validate image file name to prevent path traversal attacks.
+ * Only allows alphanumeric characters, hyphens, underscores, and dots with image extensions.
+ */
+const SAFE_IMAGE_FILENAME_REGEX = /^[a-zA-Z0-9_-]+\.(jpg|jpeg|png|webp)$/
 
-router.get('/images/chapters/:fileName', async ({ request, response }: HttpContext) => {
-  const fileName = request.param('fileName')
-  const imagePath = app.makePath(`uploads/stories/chapters/${fileName}`)
-  if (existsSync(imagePath)) {
-    return response.send(readFileSync(imagePath), {
-      'Content-Type': ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
-    } as any)
-  } else {
-    return response.status(404).json({ error: 'Image not found' })
+function serveImage(subdir: string) {
+  return async ({ request, response }: HttpContext) => {
+    const fileName = request.param('fileName')
+
+    if (!SAFE_IMAGE_FILENAME_REGEX.test(fileName)) {
+      return response.status(400).json({ error: 'Invalid file name' })
+    }
+
+    const uploadsDir = resolve(app.makePath(`uploads/stories/${subdir}`))
+    const imagePath = resolve(uploadsDir, fileName)
+
+    // Double-check the resolved path is within the uploads directory
+    if (!imagePath.startsWith(uploadsDir)) {
+      return response.status(400).json({ error: 'Invalid file name' })
+    }
+
+    if (existsSync(imagePath)) {
+      return response.send(readFileSync(imagePath), {
+        'Content-Type': ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
+      } as any)
+    } else {
+      return response.status(404).json({ error: 'Image not found' })
+    }
   }
-})
+}
+
+router.get('/images/covers/:fileName', serveImage('covers'))
+router.get('/images/chapters/:fileName', serveImage('chapters'))
 
 // Stories
 router
@@ -132,11 +110,11 @@ router
 // Auth
 router
   .group(() => {
-    router.post('/login', [LoginController, 'login'])
-    router.post('/register', [RegisterController, 'register'])
+    router.post('/login', [LoginController, 'login']).middleware(middleware.throttle({ type: 'auth' }))
+    router.post('/register', [RegisterController, 'register']).middleware(middleware.throttle({ type: 'register' }))
 
     // Google OAuth
-    router.post('/google/redirect', [GoogleAuthController, 'redirect'])
+    router.post('/google/redirect', [GoogleAuthController, 'redirect']).middleware(middleware.throttle({ type: 'auth' }))
     router.get('/google/callback', [GoogleAuthController, 'callback'])
 
     // Email verification (public - accessed via email link)
@@ -178,4 +156,5 @@ router
   .group(() => {
     router.post('/revenuecat', [WebhookController, 'revenueCat'])
   })
+  .middleware(middleware.throttle({ type: 'webhook' }))
   .prefix('/webhooks')

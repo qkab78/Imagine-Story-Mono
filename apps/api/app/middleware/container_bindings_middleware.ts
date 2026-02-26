@@ -1,4 +1,5 @@
 import { Logger } from '@adonisjs/core/logger'
+import logger from '@adonisjs/core/services/logger'
 import { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 
@@ -11,20 +12,20 @@ import type { NextFn } from '@adonisjs/core/types/http'
  */
 export default class ContainerBindingsMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
-    console.log(`[Middleware] Request: ${ctx.request.method()} ${ctx.request.url()}`)
+    logger.debug(`[Middleware] Request: ${ctx.request.method()} ${ctx.request.url()}`)
     ctx.containerResolver.bindValue(HttpContext, ctx)
     ctx.containerResolver.bindValue(Logger, ctx.logger)
 
     try {
       const result = await next()
-      console.log(
+      logger.debug(
         `[Middleware] Request processed: ${ctx.request.method()} ${ctx.request.url()}, response status: ${ctx.response.response.statusCode || 'pending'}`
       )
       return result
     } catch (error) {
-      console.error(
-        `[Middleware] Error in request ${ctx.request.method()} ${ctx.request.url()}:`,
-        error
+      logger.error(
+        { err: error },
+        `[Middleware] Error in request ${ctx.request.method()} ${ctx.request.url()}`
       )
       throw error
     }

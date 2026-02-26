@@ -1,4 +1,5 @@
 import app from '@adonisjs/core/services/app'
+import logger from '@adonisjs/core/services/logger'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import PaymentErrors from './payment_errors.js'
 import { ApplicationException, TranslationException } from '#stories/application/exceptions/index'
@@ -20,10 +21,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
-    console.error('[ExceptionHandler] Error caught:', error)
-    if (error instanceof Error) {
-      console.error('[ExceptionHandler] Error stack:', error.stack)
-    }
+    logger.error({ err: error }, '[ExceptionHandler] Error caught')
 
     // Handle TranslationException (translation service errors)
     if (error instanceof TranslationException) {
