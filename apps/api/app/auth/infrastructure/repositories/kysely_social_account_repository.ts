@@ -82,8 +82,8 @@ export class KyselySocialAccountRepository implements ISocialAccountRepository {
         provider_user_id: account.providerUserId.getValue(),
         email: account.email,
         name: account.name,
-        avatar_url: account.avatarUrl,
-        access_token: encrypt(account.accessToken),
+        avatar_url: account.avatarUrl as string,
+        access_token: encrypt(account.accessToken) as string,
         refresh_token: encrypt(account.refreshToken),
         token_expires_at: account.tokenExpiresAt?.toISOString() ?? null,
         created_at: account.createdAt.toISOString(),
@@ -98,7 +98,7 @@ export class KyselySocialAccountRepository implements ISocialAccountRepository {
     await db
       .updateTable('social_accounts')
       .set({
-        access_token: encrypt(account.accessToken),
+        access_token: encrypt(account.accessToken) as string,
         refresh_token: encrypt(account.refreshToken),
         token_expires_at: account.tokenExpiresAt?.toISOString() ?? null,
         updated_at: new Date().toISOString(),
@@ -119,8 +119,8 @@ export class KyselySocialAccountRepository implements ISocialAccountRepository {
       providerUserId: ProviderUserId.create(row.provider_user_id),
       email: row.email,
       name: row.name,
-      avatarUrl: row.avatar_url,
-      accessToken: decrypt(row.access_token),
+      avatarUrl: row.avatar_url ?? null,
+      accessToken: decrypt(row.access_token) ?? '',
       refreshToken: decrypt(row.refresh_token),
       tokenExpiresAt: row.token_expires_at ? new Date(row.token_expires_at) : null,
       createdAt: new Date(row.created_at),
