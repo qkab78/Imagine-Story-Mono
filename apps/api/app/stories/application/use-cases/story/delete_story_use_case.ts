@@ -27,7 +27,7 @@ export class DeleteStoryUseCase {
     }
 
     // 2. Verify the user is the owner of the story
-    if (story.ownerId !== userId) {
+    if (story.ownerId.getValue() !== userId) {
       throw new Error('You are not authorized to delete this story')
     }
 
