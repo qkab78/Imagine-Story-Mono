@@ -6,7 +6,7 @@ import useAuthStore from '@/store/auth/authStore';
 import useQuotaStore from '@/store/quota/quotaStore';
 import { subscriptionService } from '@/services/subscription';
 import { getSubscriptionStatus, verifySubscription } from '@/api/subscription';
-import { OFFERING_ID } from '@/types/subscription';
+import { OFFERING_ID, SUBSCRIPTION_ERRORS } from '@/types/subscription';
 
 export const useSubscription = () => {
   const queryClient = useQueryClient();
@@ -35,7 +35,7 @@ export const useSubscription = () => {
       try {
         await subscriptionService.initialize(user?.email);
       } catch (err) {
-        console.error('[useSubscription] Failed to initialize:', err);
+        console.warn('[useSubscription] Failed to initialize:', err);
       }
     }
   }, [user?.email]);
@@ -91,14 +91,15 @@ export const useSubscription = () => {
       resetQuota();
       await queryClient.invalidateQueries({ queryKey: ['story-quota'] });
     } catch (err) {
-      console.error('[useSubscription] Failed to verify with backend:', err);
+      console.warn('[useSubscription] Failed to verify with backend:', err);
     }
   }, [token, setSubscriptionStatus, queryClient, resetQuota]);
 
-  const purchase = useCallback(async (): Promise<boolean> => {
+  const purchase = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
     if (!monthlyPackage) {
-      setError('Aucun plan disponible');
-      return false;
+      const errorMessage = 'Aucun plan disponible';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     }
 
     setLoading(true);
@@ -111,11 +112,17 @@ export const useSubscription = () => {
       // Verify with backend (source of truth)
       await syncWithBackend();
 
-      return useSubscriptionStore.getState().hasAccess;
+      return { success: useSubscriptionStore.getState().hasAccess };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'L\'achat a échoué';
+
+      // User cancellation: silent, no error feedback
+      if (errorMessage === SUBSCRIPTION_ERRORS.PURCHASE_CANCELLED) {
+        return { success: false };
+      }
+
       setError(errorMessage);
-      return false;
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
@@ -174,7 +181,7 @@ export const useSubscription = () => {
     try {
       await Linking.openURL(url);
     } catch (err) {
-      console.error('[useSubscription] Failed to open management URL:', err);
+      console.warn('[useSubscription] Failed to open management URL:', err);
       setError('Impossible d\'ouvrir la page de gestion');
     }
   }, [managementUrl, setError]);

@@ -24,7 +24,6 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
   const {
     isSubscribed,
     isLoading: isSubscriptionLoading,
-    error: subscriptionError,
     willRenew,
     getFormattedPrice,
     getFormattedExpirationDate,
@@ -54,15 +53,15 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({
   }, []);
 
   const handlePurchase = useCallback(async () => {
-    const success = await purchase();
-    if (success) {
+    const result = await purchase();
+    if (result.success) {
       await refreshQuota();
       Alert.alert(tProfile('alerts.upgradeSuccess'), tProfile('alerts.upgradeSuccessMessage'));
       setShowSubscriptionSheet(false);
-    } else if (subscriptionError) {
-      Alert.alert(tProfile('alerts.error'), subscriptionError);
+    } else if (result.error) {
+      Alert.alert(tProfile('alerts.error'), result.error);
     }
-  }, [purchase, subscriptionError, refreshQuota, tProfile]);
+  }, [purchase, refreshQuota, tProfile]);
 
   const handleRestore = useCallback(async () => {
     const success = await restore();

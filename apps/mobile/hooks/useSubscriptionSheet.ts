@@ -42,10 +42,12 @@ export const useSubscriptionSheet = (): UseSubscriptionSheetReturn => {
   }, [])
 
   const handlePurchase = useCallback(async () => {
-    const success = await purchase()
-    if (success) {
+    const result = await purchase()
+    if (result.success) {
       Alert.alert('Succès', 'Bienvenue dans la famille Premium !')
       close()
+    } else if (result.error) {
+      Alert.alert('Erreur', result.error)
     }
   }, [purchase, close])
 

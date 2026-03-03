@@ -59,6 +59,20 @@ class SubscriptionService {
     try {
       const { Purchases, LOG_LEVEL } = await getPurchases();
       Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+
+      // Custom log handler: route error-level SDK logs through console.warn
+      // instead of console.error to prevent React Native's red error overlay
+      // from triggering on expected purchase failures.
+      Purchases.setLogHandler((logLevel: typeof LOG_LEVEL[keyof typeof LOG_LEVEL], message: string) => {
+        switch (logLevel) {
+          case LOG_LEVEL.DEBUG:  console.debug(`[RevenueCat] ${message}`); break;
+          case LOG_LEVEL.INFO:   console.info(`[RevenueCat] ${message}`);  break;
+          case LOG_LEVEL.WARN:   console.warn(`[RevenueCat] ${message}`);  break;
+          case LOG_LEVEL.ERROR:  console.warn(`[RevenueCat][ERROR] ${message}`); break;
+          default:               console.log(`[RevenueCat] ${message}`);
+        }
+      });
+
       Purchases.configure({ apiKey });
       this.isConfigured = true;
 
@@ -66,7 +80,7 @@ class SubscriptionService {
         await this.login(userId);
       }
     } catch (error) {
-      console.error('[SubscriptionService] Failed to initialize:', error);
+      console.warn('[SubscriptionService] Failed to initialize:', error);
       throw error;
     }
   }
@@ -81,7 +95,7 @@ class SubscriptionService {
       const { customerInfo } = await Purchases.logIn(userId);
       return customerInfo;
     } catch (error) {
-      console.error('[SubscriptionService] Failed to login:', error);
+      console.warn('[SubscriptionService] Failed to login:', error);
       throw error;
     }
   }
@@ -93,7 +107,7 @@ class SubscriptionService {
       const { Purchases } = await getPurchases();
       await Purchases.logOut();
     } catch (error) {
-      console.error('[SubscriptionService] Failed to logout:', error);
+      console.warn('[SubscriptionService] Failed to logout:', error);
     }
   }
 
@@ -107,7 +121,7 @@ class SubscriptionService {
       const customerInfo = await Purchases.getCustomerInfo();
       return customerInfo;
     } catch (error) {
-      console.error('[SubscriptionService] Failed to get customer info:', error);
+      console.warn('[SubscriptionService] Failed to get customer info:', error);
       throw error;
     }
   }
@@ -129,7 +143,7 @@ class SubscriptionService {
       // Sinon retourner l'offering par défaut
       return offerings.current;
     } catch (error) {
-      console.error('[SubscriptionService] Failed to get offerings:', error);
+      console.warn('[SubscriptionService] Failed to get offerings:', error);
       throw error;
     }
   }
@@ -148,10 +162,11 @@ class SubscriptionService {
       const purchaseError = error as { code?: typeof PURCHASES_ERROR_CODE[keyof typeof PURCHASES_ERROR_CODE] };
 
       if (purchaseError.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
+        console.info('[SubscriptionService] Purchase cancelled by user');
         throw new Error(SUBSCRIPTION_ERRORS.PURCHASE_CANCELLED);
       }
 
-      console.error('[SubscriptionService] Purchase failed:', error);
+      console.warn('[SubscriptionService] Purchase failed:', error);
       throw new Error(SUBSCRIPTION_ERRORS.PURCHASE_FAILED);
     }
   }
@@ -166,7 +181,7 @@ class SubscriptionService {
       const customerInfo = await Purchases.restorePurchases();
       return customerInfo;
     } catch (error) {
-      console.error('[SubscriptionService] Failed to restore purchases:', error);
+      console.warn('[SubscriptionService] Failed to restore purchases:', error);
       throw new Error(SUBSCRIPTION_ERRORS.RESTORE_FAILED);
     }
   }

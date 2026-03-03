@@ -29,7 +29,6 @@ export const WelcomeScreen: React.FC = () => {
   const {
     isSubscribed,
     isLoading: isSubscriptionLoading,
-    error: subscriptionError,
     willRenew,
     getFormattedPrice,
     getFormattedExpirationDate,
@@ -64,15 +63,15 @@ export const WelcomeScreen: React.FC = () => {
   }, []);
 
   const handlePurchase = useCallback(async () => {
-    const success = await purchase();
-    if (success) {
+    const result = await purchase();
+    if (result.success) {
       await refreshQuota();
       Alert.alert(t('creation.alerts.success'), t('creation.alerts.purchaseSuccess'));
       setShowSubscriptionSheet(false);
-    } else if (subscriptionError) {
-      Alert.alert(t('creation.alerts.error'), subscriptionError);
+    } else if (result.error) {
+      Alert.alert(t('creation.alerts.error'), result.error);
     }
-  }, [purchase, subscriptionError, refreshQuota, t]);
+  }, [purchase, refreshQuota, t]);
 
   const handleRestore = useCallback(async () => {
     const success = await restore();
