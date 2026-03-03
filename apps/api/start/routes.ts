@@ -10,6 +10,7 @@
 import router from '@adonisjs/core/services/router'
 import type { HttpContext } from '@adonisjs/core/http'
 import { middleware } from './kernel.js'
+import { authThrottle, registerThrottle, webhookThrottle } from '#start/limiter'
 import app from '@adonisjs/core/services/app'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -110,11 +111,11 @@ router
 // Auth
 router
   .group(() => {
-    router.post('/login', [LoginController, 'login']).middleware(middleware.throttle({ type: 'auth' }))
-    router.post('/register', [RegisterController, 'register']).middleware(middleware.throttle({ type: 'register' }))
+    router.post('/login', [LoginController, 'login']).use(authThrottle)
+    router.post('/register', [RegisterController, 'register']).use(registerThrottle)
 
     // Google OAuth
-    router.post('/google/redirect', [GoogleAuthController, 'redirect']).middleware(middleware.throttle({ type: 'auth' }))
+    router.post('/google/redirect', [GoogleAuthController, 'redirect']).use(authThrottle)
     router.get('/google/callback', [GoogleAuthController, 'callback'])
 
     // Email verification (public - accessed via email link)
@@ -156,5 +157,5 @@ router
   .group(() => {
     router.post('/revenuecat', [WebhookController, 'revenueCat'])
   })
-  .middleware(middleware.throttle({ type: 'webhook' }))
+  .use(webhookThrottle)
   .prefix('/webhooks')

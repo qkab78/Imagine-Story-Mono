@@ -39,6 +39,7 @@ export default defineConfig({
     () => import('@rlanz/bull-queue/queue_provider'),
     () => import('@adonisjs/mail/mail_provider'),
     () => import('@adonisjs/ally/ally_provider'),
+    () => import('@adonisjs/limiter/limiter_provider'),
   ],
 
   /*
@@ -49,7 +50,7 @@ export default defineConfig({
   | List of modules to import before starting the application.
   |
   */
-  preloads: [() => import('#start/routes'), () => import('#start/kernel')],
+  preloads: [() => import('#start/routes'), () => import('#start/kernel'), () => import('#start/limiter')],
 
   /*
   |--------------------------------------------------------------------------

@@ -78,6 +78,7 @@
     "@adonisjs/core": "^6.18.0",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/drive": "^3.4.1",
+    "@adonisjs/limiter": "2.4.0",
     "@adonisjs/lucid": "^21.6.1",
     "@adonisjs/mail": "^9.2.2",
     "@google-cloud/translate": "^9.3.0",
@@ -96,7 +97,6 @@
     "minio": "^8.0.6",
     "openai": "^5.1.1",
     "pg": "^8.16.0",
-    "rate-limiter-flexible": "^9.1.1",
     "reflect-metadata": "^0.2.2"
   },
   "hotHook": {

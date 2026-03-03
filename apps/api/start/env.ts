@@ -94,6 +94,13 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Variables for configuring rate limiting
+  |----------------------------------------------------------
+  */
+  LIMITER_STORE: Env.schema.enum(['memory'] as const),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring image provider
   |----------------------------------------------------------
   */

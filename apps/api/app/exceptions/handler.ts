@@ -1,6 +1,7 @@
 import app from '@adonisjs/core/services/app'
 import logger from '@adonisjs/core/services/logger'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import { errors as limiterErrors } from '@adonisjs/limiter'
 import PaymentErrors from './payment_errors.js'
 import { ApplicationException, TranslationException } from '#stories/application/exceptions/index'
 import { DomainException } from '#stories/domain/exceptions/domain_exception'
@@ -22,6 +23,17 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    */
   async handle(error: unknown, ctx: HttpContext) {
     logger.error({ err: error }, '[ExceptionHandler] Error caught')
+
+    // Handle rate limiting (backward-compatible response format)
+    if (error instanceof limiterErrors.E_TOO_MANY_REQUESTS) {
+      const headers = error.getDefaultHeaders()
+      for (const [key, value] of Object.entries(headers)) {
+        ctx.response.header(key, String(value))
+      }
+      return ctx.response.status(429).json({
+        error: 'Too many requests. Please try again later.',
+      })
+    }
 
     // Handle TranslationException (translation service errors)
     if (error instanceof TranslationException) {
