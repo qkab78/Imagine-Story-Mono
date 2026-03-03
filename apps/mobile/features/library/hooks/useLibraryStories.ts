@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import * as Notifications from 'expo-notifications';
 import useAuthStore from '@/store/auth/authStore';
 import { getStoriesByAuthenticatedUserId } from '@/api/stories/storyApi';
 import { StoryListItemDTO } from '@/api/stories/storyTypes';
@@ -10,6 +9,7 @@ import {
   clearLastCreatedStoryId,
 } from '@/store/library/libraryStorage';
 import { isRecentDate } from '@/utils/date';
+import { scheduleStoryReadyNotification } from '@/services/notifications/notificationService';
 
 const POLLING_INTERVAL = 5000; // 5 seconds
 const STALE_TIME = 1000 * 30; // 30 seconds
@@ -56,19 +56,12 @@ const transformToLibraryStory = (dto: StoryListItemDTO): LibraryStory => {
   };
 };
 
-const sendCompletionNotification = async (storyTitle: string) => {
-  try {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'Histoire terminée ! ✨',
-        body: `"${storyTitle}" est prête à lire !`,
-        sound: true,
-      },
-      trigger: null,
-    });
-  } catch (error) {
-    console.error('Error sending completion notification:', error);
-  }
+const sendCompletionNotification = async (story: LibraryStory) => {
+  await scheduleStoryReadyNotification(
+    story.title,
+    story.numberOfChapters,
+    story.theme.name
+  );
 };
 
 /**
@@ -116,7 +109,7 @@ export const useLibraryStories = () => {
     stories.forEach((story) => {
       next[story.id] = story.generationStatus;
       if (prev[story.id] === 'generating' && story.generationStatus === 'completed') {
-        sendCompletionNotification(story.title);
+        sendCompletionNotification(story);
       }
     });
     previousStatusesRef.current = next;

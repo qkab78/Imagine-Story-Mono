@@ -4,3 +4,4 @@ export { PersonalInfoSheet } from './PersonalInfoSheet';
 export { EditProfileSheet } from './EditProfileSheet';
 export { SubscriptionSheet } from './SubscriptionSheet';
 export { DownloadsSheet } from './DownloadsSheet';
+export { StoryTimePickerSheet } from './StoryTimePickerSheet';

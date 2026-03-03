@@ -15,7 +15,19 @@
   "notifications": {
     "title": "Enable notifications!",
     "subtitle": "Don't miss new chapters and personalized stories for your child",
-    "activateButton": "Enable notifications"
+    "activateButton": "Enable notifications",
+    "storyReady": {
+      "title": "✨ Your story is ready!",
+      "body": "\"{{storyTitle}}\" has been created with {{chapters}} chapters on the theme {{theme}}. Come discover it!"
+    },
+    "continueReading": {
+      "title": "📚 Continue your story!",
+      "body": "You were on chapter {{current}} of {{total}} in \"{{storyTitle}}\". Continue the adventure!"
+    },
+    "storyTime": {
+      "title": "🌙 It's story time!",
+      "body": "{{streak}} consecutive evenings of reading! The perfect moment for a new story."
+    }
   },
   "navigation": {
     "home": "Home",

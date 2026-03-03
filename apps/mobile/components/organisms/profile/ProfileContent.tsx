@@ -16,8 +16,10 @@ import { PersonalInfoSheet } from './PersonalInfoSheet';
 import { EditProfileSheet } from './EditProfileSheet';
 import { SubscriptionSheet } from './SubscriptionSheet';
 import { DownloadsSheet } from './DownloadsSheet';
+import { StoryTimePickerSheet } from './StoryTimePickerSheet';
 import { useProfileSettings } from '@/hooks/useProfileSettings';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useStoryTimeSettings } from '@/hooks/useStoryTimeSettings';
 import { useUserStories } from '@/features/stories/hooks/useStoryList';
 import { formatLongDate } from '@/utils/dateFormatter';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
@@ -63,12 +65,22 @@ export const ProfileContent: React.FC = () => {
 
   const { data: userStories = [] } = useUserStories();
 
+  const {
+    hour: storyTimeHour,
+    minute: storyTimeMinute,
+    enabled: storyTimeEnabled,
+    formattedTime: storyTimeFormatted,
+    updateTime: updateStoryTime,
+    toggleEnabled: toggleStoryTime,
+  } = useStoryTimeSettings();
+
   // Sheet visibility states
   const [showPersonalInfo, setShowPersonalInfo] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
   const [showDownloads, setShowDownloads] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [showStoryTimePicker, setShowStoryTimePicker] = useState(false);
 
   const handleEditProfile = () => {
     setShowEditProfile(true);
@@ -205,6 +217,24 @@ export const ProfileContent: React.FC = () => {
             onValueChange={toggleNotifications}
           />
           <View style={styles.separator} />
+          <SettingsToggleItem
+            icon={{ sfSymbol: 'moon.stars', lucide: 'Moon' }}
+            label={t('settings.storyTime')}
+            value={storyTimeEnabled}
+            onValueChange={toggleStoryTime}
+          />
+          {storyTimeEnabled && (
+            <>
+              <View style={styles.separator} />
+              <SettingsItem
+                icon={{ sfSymbol: 'clock.fill', lucide: 'Clock' }}
+                label={t('settings.storyTimeHour')}
+                value={storyTimeFormatted}
+                onPress={() => setShowStoryTimePicker(true)}
+              />
+            </>
+          )}
+          <View style={styles.separator} />
           <SettingsItem
             icon={PROFILE_ICONS.language}
             label={t('settings.language')}
@@ -288,6 +318,14 @@ export const ProfileContent: React.FC = () => {
       <LanguageSelector
         visible={showLanguageSelector}
         onClose={() => setShowLanguageSelector(false)}
+      />
+
+      <StoryTimePickerSheet
+        visible={showStoryTimePicker}
+        onClose={() => setShowStoryTimePicker(false)}
+        hour={storyTimeHour}
+        minute={storyTimeMinute}
+        onSave={updateStoryTime}
       />
     </>
   );

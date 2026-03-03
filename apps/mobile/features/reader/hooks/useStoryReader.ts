@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useStoryById } from '@/features/stories/hooks/useStoryById';
 import { useOfflineStory } from '@/hooks/useOfflineStory';
+import { useReadingProgress } from '@/hooks/useReadingProgress';
 import type { ReaderChapter, ReaderProgress } from '@/types/reader';
 
 interface OfflineChapter {
@@ -78,25 +79,46 @@ export const useStoryReader = (storyId: string, isOffline: boolean = false) => {
   // Story title (handles both online and offline)
   const storyTitle = isOffline ? (offlineContent?.title || '') : (story?.title || '');
 
+  // Reading progress tracking
+  const { trackChapterRead, markStoryCompleted } = useReadingProgress(
+    storyId,
+    storyTitle,
+    totalChapters
+  );
+
+  // Track initial chapter on mount
+  useEffect(() => {
+    if (totalChapters > 0) {
+      trackChapterRead(currentChapterIndex + 1);
+    }
+  }, [totalChapters]);
+
   // Navigation
   const goToNextChapter = useCallback(() => {
     if (currentChapterIndex < totalChapters - 1) {
-      setCurrentChapterIndex((prev) => prev + 1);
+      const nextIndex = currentChapterIndex + 1;
+      setCurrentChapterIndex(nextIndex);
+      trackChapterRead(nextIndex + 1);
+    } else if (currentChapterIndex === totalChapters - 1) {
+      markStoryCompleted();
     }
-  }, [currentChapterIndex, totalChapters]);
+  }, [currentChapterIndex, totalChapters, trackChapterRead, markStoryCompleted]);
 
   const goToPreviousChapter = useCallback(() => {
     if (currentChapterIndex > 0) {
-      setCurrentChapterIndex((prev) => prev - 1);
+      const prevIndex = currentChapterIndex - 1;
+      setCurrentChapterIndex(prevIndex);
+      trackChapterRead(prevIndex + 1);
     }
-  }, [currentChapterIndex]);
+  }, [currentChapterIndex, trackChapterRead]);
 
   const goToChapter = useCallback((index: number) => {
     if (index >= 0 && index < totalChapters) {
       setCurrentChapterIndex(index);
       setIsMenuOpen(false);
+      trackChapterRead(index + 1);
     }
-  }, [totalChapters]);
+  }, [totalChapters, trackChapterRead]);
 
   // Progress
   const progress: ReaderProgress = useMemo(

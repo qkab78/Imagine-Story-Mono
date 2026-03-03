@@ -34,6 +34,7 @@ import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { useEmailVerificationBanner } from '@/hooks/useEmailVerificationBanner';
 import { useSubscriptionInit } from '@/hooks/useSubscriptionInit';
 import { useUserSync } from '@/hooks/useUserSync';
+import { initStoryTimeNotification } from '@/services/notifications/notificationService';
 
 // Internationalisation
 import '@/locales';
@@ -60,6 +61,11 @@ function AppContent() {
 
   // Initialisation du service d'abonnement
   useSubscriptionInit();
+
+  // Initialisation de la notification quotidienne "Heure du conte"
+  useEffect(() => {
+    initStoryTimeNotification();
+  }, []);
 
   // Bannière de vérification email
   const emailBanner = useEmailVerificationBanner();

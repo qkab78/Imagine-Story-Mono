@@ -15,7 +15,19 @@
   "notifications": {
     "title": "Active les notifications !",
     "subtitle": "Ne rate pas les nouveaux chapitres et histoires personnalisées pour ton enfant",
-    "activateButton": "Activer les notifications"
+    "activateButton": "Activer les notifications",
+    "storyReady": {
+      "title": "✨ Ton histoire est prête !",
+      "body": "« {{storyTitle}} » vient d'être créée avec {{chapters}} chapitres sur le thème {{theme}}. Viens la découvrir !"
+    },
+    "continueReading": {
+      "title": "📚 Reprends ton histoire !",
+      "body": "Tu en étais au chapitre {{current}} sur {{total}} de « {{storyTitle}} ». Continue l'aventure !"
+    },
+    "storyTime": {
+      "title": "🌙 C'est l'heure du conte !",
+      "body": "{{streak}} soirs consécutifs de lecture ! Le moment parfait pour une nouvelle histoire."
+    }
   },
   "navigation": {
     "home": "Accueil",

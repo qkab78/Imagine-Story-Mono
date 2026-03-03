@@ -12,6 +12,8 @@
     "subscription": "Abonnement",
     "downloads": "Mes téléchargements",
     "notifications": "Notifications",
+    "storyTime": "Heure du conte",
+    "storyTimeHour": "Heure du rappel",
     "language": "Langue",
     "help": "Aide & Support",
     "rating": "Donner mon avis",
@@ -61,6 +63,13 @@
     "errorNewPassword": "Veuillez entrer un nouveau mot de passe",
     "errorPasswordMismatch": "Les mots de passe ne correspondent pas",
     "errorCurrentPassword": "Veuillez entrer votre mot de passe actuel"
+  },
+  "storyTime": {
+    "title": "Heure du conte",
+    "description": "Choisis l'heure à laquelle tu souhaites recevoir ton rappel quotidien pour la lecture du soir.",
+    "hours": "Heures",
+    "minutes": "Minutes",
+    "save": "Enregistrer"
   },
   "languageSelector": {
     "title": "Langue de l'application",
