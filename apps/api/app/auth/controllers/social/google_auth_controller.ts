@@ -1,6 +1,20 @@
 import { inject } from '@adonisjs/core'
 import { HttpContext } from '@adonisjs/core/http'
 import { GoogleAuthUseCase } from '../../application/use-cases/google_auth_use_case.js'
+import logger from '@adonisjs/core/services/logger'
+
+/**
+ * Allowed callback URL patterns to prevent open redirect attacks.
+ * Only the app's deep link scheme is permitted.
+ */
+const ALLOWED_CALLBACK_PATTERNS = [
+  /^myapp:\/\//,
+  /^imaginestory:\/\//,
+]
+
+function isAllowedCallbackUrl(url: string): boolean {
+  return ALLOWED_CALLBACK_PATTERNS.some((pattern) => pattern.test(url))
+}
 
 @inject()
 export default class GoogleAuthController {
@@ -16,6 +30,10 @@ export default class GoogleAuthController {
 
     if (!callbackUrl) {
       return ctx.response.badRequest({ error: 'callbackUrl is required' })
+    }
+
+    if (!isAllowedCallbackUrl(callbackUrl)) {
+      return ctx.response.badRequest({ error: 'Invalid callback URL' })
     }
 
     const redirectUrl = await this.googleAuthUseCase.getRedirectUrl(ctx, callbackUrl)
@@ -35,10 +53,11 @@ export default class GoogleAuthController {
     if (state) {
       try {
         const stateData = JSON.parse(state)
-        mobileCallbackUrl = stateData.callbackUrl
+        if (stateData.callbackUrl && isAllowedCallbackUrl(stateData.callbackUrl)) {
+          mobileCallbackUrl = stateData.callbackUrl
+        }
       } catch {
-        // State is not JSON, ignore
-        console.error('State is not JSON, ignoring')
+        logger.debug('OAuth state is not valid JSON, ignoring')
       }
     }
 

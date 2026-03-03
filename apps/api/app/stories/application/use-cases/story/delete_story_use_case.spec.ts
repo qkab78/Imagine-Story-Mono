@@ -162,7 +162,7 @@ test.group(DeleteStoryUseCase.name, () => {
 
     // Execute use case
     const useCase = new DeleteStoryUseCase(storyRepository, eventPublisher)
-    await useCase.execute(story.id.getValue())
+    await useCase.execute(story.id.getValue(), '223e4567-e89b-12d3-a456-426614174000')
 
     // Assertions
     assert.equal(storyRepository.deletedIds.length, 1)
@@ -178,7 +178,7 @@ test.group(DeleteStoryUseCase.name, () => {
 
     const useCase = new DeleteStoryUseCase(storyRepository, eventPublisher)
 
-    await assert.rejects(async () => await useCase.execute('non-existent-id'))
+    await assert.rejects(async () => await useCase.execute('non-existent-id', 'any-user-id'))
 
     // No deletion should have occurred
     assert.equal(storyRepository.deletedIds.length, 0)

@@ -1,4 +1,5 @@
 import { Job } from '@rlanz/bull-queue'
+import logger from '@adonisjs/core/services/logger'
 import app from '@adonisjs/core/services/app'
 import queue from '@rlanz/bull-queue/services/main'
 import { GenerateStoryContentUseCase } from '#stories/application/use-cases/generate_story_content_use_case'
@@ -50,7 +51,7 @@ export default class GenerateStoryJob extends Job {
    * Traite le job de génération d'histoire
    */
   async handle(payload: GenerateStoryJobPayload) {
-    console.log(`🎬 Starting story generation job for story: ${payload.storyId}`)
+    logger.debug(`Starting story generation job for story: ${payload.storyId}`)
 
     const startTime = Date.now()
 
@@ -99,9 +100,9 @@ export default class GenerateStoryJob extends Job {
       const endTime = Date.now()
       const duration = ((endTime - startTime) / 1000).toFixed(2)
 
-      console.log(`✅ Story generation completed in ${duration}s for story: ${payload.storyId}`)
+      logger.debug(`Story generation completed in ${duration}s for story: ${payload.storyId}`)
     } catch (error: any) {
-      console.error(`❌ Story generation failed for story ${payload.storyId}:`, error.message)
+      logger.error({ err: error }, `Story generation failed for story ${payload.storyId}`)
       throw error // Will trigger rescue() after retries exhausted
     }
   }
@@ -110,9 +111,9 @@ export default class GenerateStoryJob extends Job {
    * Appelé quand toutes les tentatives ont échoué
    */
   async rescue(payload: GenerateStoryJobPayload, error: Error) {
-    console.error(
-      `💀 Story generation permanently failed for story ${payload.storyId} after all retries:`,
-      error.message
+    logger.error(
+      { err: error },
+      `Story generation permanently failed for story ${payload.storyId} after all retries`
     )
 
     try {
@@ -121,7 +122,7 @@ export default class GenerateStoryJob extends Job {
 
       const story = await storyRepository.findById(payload.storyId)
       if (!story) {
-        console.error(`Story not found: ${payload.storyId}`)
+        logger.error(`Story not found: ${payload.storyId}`)
         return
       }
 
@@ -143,7 +144,7 @@ export default class GenerateStoryJob extends Job {
         })
       }
     } catch (rescueError: any) {
-      console.error(`Failed to handle rescue for story ${payload.storyId}:`, rescueError.message)
+      logger.error({ err: rescueError }, `Failed to handle rescue for story ${payload.storyId}`)
     }
   }
 

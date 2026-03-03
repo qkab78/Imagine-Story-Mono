@@ -18,7 +18,7 @@ export class DeleteStoryUseCase {
     private readonly eventPublisher: IDomainEventPublisher
   ) {}
 
-  async execute(storyId: string): Promise<void> {
+  async execute(storyId: string, userId: string): Promise<void> {
     // 1. Find story by ID to ensure it exists and get data for event
     const story = await this.storyRepository.findById(storyId)
 
@@ -26,7 +26,12 @@ export class DeleteStoryUseCase {
       throw StoryNotFoundException.byId(storyId)
     }
 
-    // 2. Delete the story
+    // 2. Verify the user is the owner of the story
+    if (story.ownerId.getValue() !== userId) {
+      throw new Error('You are not authorized to delete this story')
+    }
+
+    // 3. Delete the story
     await this.storyRepository.delete(StoryId.create(storyId))
 
     // 3. Publish domain event

@@ -95,12 +95,10 @@ export default class AppProvider {
     const imageProvider = env.get('IMAGE_PROVIDER', 'gemini') // 'gemini' ou 'leonardo'
 
     if (imageProvider === 'leonardo') {
-      console.log('Using Leonardo AI for image generation')
       this.app.container.singleton(IStoryImageGenerationService, () => {
         return this.app.container.make(LeonardoAiImageGenerationService)
       })
     } else {
-      console.log('Using Gemini Imagen 3 (Nano Banana) for image generation')
       this.app.container.singleton(IStoryImageGenerationService, () => {
         return this.app.container.make(GeminiImageGenerationService)
       })

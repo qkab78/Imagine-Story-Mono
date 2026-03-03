@@ -8,6 +8,7 @@ import {
   getProduct,
 } from '@lemonsqueezy/lemonsqueezy.js'
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import PaymentService from '../payment_service.js'
 import PaymentErrors from '#exceptions/payment_errors'
 import { db } from '#services/db'
@@ -24,7 +25,7 @@ export default class LemonSqueezyPaymentService implements PaymentService {
     lemonSqueezySetup({
       apiKey: process.env.PAYMENT_API_KEY,
       onError: (error) => {
-        console.error(error)
+        logger.error({ err: error }, '[LemonSqueezyPaymentService] LemonSqueezy setup error')
       },
     })
   }
@@ -36,7 +37,7 @@ export default class LemonSqueezyPaymentService implements PaymentService {
       throw new Error(error.message)
     }
 
-    console.log(data)
+    logger.debug('[LemonSqueezyPaymentService] Retrieved authenticated user info')
     return data
   }
 
@@ -81,7 +82,7 @@ export default class LemonSqueezyPaymentService implements PaymentService {
     }
 
     customer = response.data.data
-    console.log(customer)
+    logger.debug('[LemonSqueezyPaymentService] Retrieved customer info')
 
     const productResponse = await getProduct(
       process.env.PAYMENT_PREMIUM_ACCOUNT_PRODUCT_ID as string,

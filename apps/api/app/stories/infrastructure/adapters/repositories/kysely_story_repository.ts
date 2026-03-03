@@ -306,9 +306,11 @@ export class KyselyStoryRepository implements IStoryRepository {
    * Search stories by title using partial match
    */
   async searchByTitle(query: string, limit: number = 50): Promise<Story[]> {
+    // Escape LIKE metacharacters to prevent wildcard injection
+    const escapedQuery = query.replace(/[%_\\]/g, '\\$&')
     const storyRows = await db
       .selectFrom('stories')
-      .where('title', 'ilike', `%${query}%`)
+      .where('title', 'ilike', `%${escapedQuery}%`)
       .selectAll()
       .orderBy('created_at', 'desc')
       .limit(limit)

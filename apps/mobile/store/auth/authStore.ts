@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { MMKV } from 'react-native-mmkv';
+import { getTokenSync, setSecureToken, deleteSecureToken } from '../../utils/secureTokenStorage';
 
 const storage = new MMKV();
 
@@ -36,9 +37,9 @@ const getPersistedUser = (): AuthUser | undefined => {
   return undefined;
 };
 
-// Récupérer le token persisté au démarrage
+// Récupérer le token persisté au démarrage (sync pour l'hydratation initiale)
 const getPersistedToken = (): string | undefined => {
-  return storage.getString('user.token');
+  return getTokenSync();
 };
 
 export type AuthStore = {
@@ -58,7 +59,7 @@ const useAuthStore = create<AuthStore>((set, get) => ({
   user: getPersistedUser(),
   setToken: (token: string) => {
     set({ token });
-    storage.set('user.token', token);
+    setSecureToken(token);
   },
   setUser: (user: AuthUser | undefined) => {
     set({ user });
@@ -70,7 +71,7 @@ const useAuthStore = create<AuthStore>((set, get) => ({
   },
   clearAuth: () => {
     set({ token: undefined, user: undefined });
-    storage.delete('user.token');
+    deleteSecureToken();
     storage.delete('user.data');
   },
   getFirstname: () => {
