@@ -81,6 +81,7 @@
     "@adonisjs/limiter": "2.4.0",
     "@adonisjs/lucid": "^21.6.1",
     "@adonisjs/mail": "^9.2.2",
+    "@adonisjs/redis": "^9.2.0",
     "@google-cloud/translate": "^9.3.0",
     "@google/genai": "^1.34.0",
     "@kitajs/html": "^4.2.9",

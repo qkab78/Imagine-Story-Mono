@@ -25,7 +25,9 @@ const SubscriptionController = () => import('#subscription/controllers/subscript
 const WebhookController = () => import('#subscription/controllers/webhook_controller')
 
 const StoriesControllerPresenter = () => import('#stories/presenters/stories.controller')
+const StoryEventsController = () => import('#stories/presenters/story_events.controller')
 const WidgetControllerPresenter = () => import('#stories/presenters/widget.controller')
+const PushTokenController = () => import('#users/controllers/push_token_controller')
 const GoogleAuthController = () => import('#auth/controllers/social/google_auth_controller')
 const VerifyEmailController = () => import('#auth/controllers/verify_email/verify_email_controller')
 const ResendVerificationController = () => import('#auth/controllers/verify_email/resend_verification_controller')
@@ -101,6 +103,7 @@ router
         router.post('/', [StoriesControllerPresenter, 'createStory'])
         router.post('/:id/retry', [StoriesControllerPresenter, 'retryStoryGeneration'])
         router.get('/search/suggestions', [StoriesControllerPresenter, 'searchStories'])
+        router.get('/events', [StoryEventsController, 'stream'])
       })
       .middleware(middleware.auth())
 
@@ -136,6 +139,8 @@ router
         router.get('/authenticate', [AuthController, 'authenticate'])
         // Email verification (authenticated - for resending)
         router.post('/resend-verification', [ResendVerificationController, 'resend'])
+        // Push token registration
+        router.post('/push-token', [PushTokenController, 'store'])
       })
       .middleware(middleware.auth())
   })

@@ -21,8 +21,14 @@ export const STORY_ENDPOINTS = {
   // Widgets
   WIDGET_STORY_OF_THE_DAY: `${apiUrl}/widgets/story-of-the-day`,
 
+  // SSE
+  STORY_EVENTS: `${apiUrl}/stories/events`,
+
   // Settings
   THEMES: `${apiUrl}/stories/all/themes`,
   TONES: `${apiUrl}/stories/all/tones`,
   LANGUAGES: `${apiUrl}/stories/all/languages`,
+
+  // Push token
+  PUSH_TOKEN: `${apiUrl}/auth/push-token`,
 } as const

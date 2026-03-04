@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useEffect, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '@/store/auth/authStore';
 import { getStoriesByAuthenticatedUserId } from '@/api/stories/storyApi';
@@ -9,9 +9,7 @@ import {
   clearLastCreatedStoryId,
 } from '@/store/library/libraryStorage';
 import { isRecentDate } from '@/utils/date';
-import { scheduleStoryReadyNotification } from '@/services/notifications/notificationService';
 
-const POLLING_INTERVAL = 5000; // 5 seconds
 const STALE_TIME = 1000 * 30; // 30 seconds
 
 /**
@@ -56,22 +54,14 @@ const transformToLibraryStory = (dto: StoryListItemDTO): LibraryStory => {
   };
 };
 
-const sendCompletionNotification = async (story: LibraryStory) => {
-  await scheduleStoryReadyNotification(
-    story.title,
-    story.numberOfChapters,
-    story.theme.name
-  );
-};
-
 /**
- * Hook for fetching and managing library stories with automatic polling
+ * Hook for fetching and managing library stories.
+ * Real-time updates are handled by useStorySSE (no polling).
  */
 export const useLibraryStories = () => {
   const { token } = useAuthStore();
   const queryClient = useQueryClient();
 
-  // Fetch user stories with automatic polling when stories are generating
   const {
     data: storiesData,
     isLoading,
@@ -83,15 +73,6 @@ export const useLibraryStories = () => {
     queryFn: () => getStoriesByAuthenticatedUserId(token || ''),
     enabled: !!token,
     staleTime: STALE_TIME,
-    refetchInterval: (query) => {
-      const data = query.state.data;
-      if (!data) return false;
-      const hasGenerating = data.some(
-        (dto) => dto.generationStatus === 'pending' || dto.generationStatus === 'processing'
-      );
-      return hasGenerating ? POLLING_INTERVAL : false;
-    },
-    refetchIntervalInBackground: false,
   });
 
   // Transform stories to LibraryStory format
@@ -99,21 +80,6 @@ export const useLibraryStories = () => {
     if (!storiesData) return [];
     return storiesData.map(transformToLibraryStory);
   }, [storiesData]);
-
-  // Detect generation completion and send notification
-  const previousStatusesRef = useRef<Record<string, string>>({});
-
-  useEffect(() => {
-    const prev = previousStatusesRef.current;
-    const next: Record<string, string> = {};
-    stories.forEach((story) => {
-      next[story.id] = story.generationStatus;
-      if (prev[story.id] === 'generating' && story.generationStatus === 'completed') {
-        sendCompletionNotification(story);
-      }
-    });
-    previousStatusesRef.current = next;
-  }, [stories]);
 
   // Check if there are any generating stories
   const hasGeneratingStories = useMemo(() => {

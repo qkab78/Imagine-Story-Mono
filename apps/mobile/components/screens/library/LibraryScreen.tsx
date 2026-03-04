@@ -5,10 +5,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LibraryHeader, LibraryStoryGrid } from '@/components/organisms/library';
 import { FilterSheet } from '@/components/organisms/filters';
-import { useLibraryStories, useGenerationPolling } from '@/features/library/hooks';
+import { useLibraryStories } from '@/features/library/hooks';
 import { useStoryFilters } from '@/features/filters';
 import { useStoryRetry } from '@/features/stories/hooks/useStoryRetry';
-import { addPendingGeneration } from '@/store/library/libraryStorage';
+import { useStorySSE } from '@/hooks/useStorySSE';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { LIBRARY_COLORS } from '@/constants/library';
 
@@ -29,7 +29,8 @@ export const LibraryScreen = () => {
     totalCount,
   } = useLibraryStories();
 
-  const { generationStates } = useGenerationPolling();
+  // SSE for real-time story completion events (replaces polling)
+  useStorySSE();
 
   const {
     filters,
@@ -54,17 +55,6 @@ export const LibraryScreen = () => {
     () => applyFilters(stories),
     [stories, applyFilters]
   );
-
-  // Merge real-time progress from polling into stories
-  const storiesWithProgress = useMemo(() => {
-    return filteredStories.map(story => {
-      const genState = generationStates[story.id];
-      if (genState?.progress && genState.progress > 0) {
-        return { ...story, generationProgress: genState.progress };
-      }
-      return story;
-    });
-  }, [filteredStories, generationStates]);
 
   const handleStoryPress = useCallback(
     (storyId: string) => {
@@ -91,10 +81,7 @@ export const LibraryScreen = () => {
   const handleRetryStory = useCallback((storyId: string) => {
     setRetryingStoryId(storyId);
     retryStory(storyId, {
-      onSuccess: (response) => {
-        if (response.data?.id && response.data?.jobId) {
-          addPendingGeneration(response.data.jobId, response.data.id);
-        }
+      onSuccess: () => {
         invalidateStories();
         setRetryingStoryId(null);
       },
@@ -125,7 +112,7 @@ export const LibraryScreen = () => {
           </View>
         ) : (
           <LibraryStoryGrid
-            stories={storiesWithProgress}
+            stories={filteredStories}
             highlightedStoryId={highlightedStoryId}
             newStoryIds={newStoryIds}
             onStoryPress={handleStoryPress}
