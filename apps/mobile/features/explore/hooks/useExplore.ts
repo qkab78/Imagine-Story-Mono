@@ -131,58 +131,25 @@ export const useExplore = () => {
   const { data: allStories, isLoading: isLoadingAll } = useStoryList();
 
   // Transform and filter stories
-  const featuredStory = (() => {
-    if (!latestStories?.length) return null;
-    return transformToFeaturedStory(latestStories[0], 0);
-  })();
+  const featuredStory = latestStories?.length
+    ? transformToFeaturedStory(latestStories[0], 0)
+    : null;
 
-  const newReleases = (() => {
-    let stories = latestStories?.slice(0, 6).map(transformToExploreStory) || [];
+  const newReleases = (latestStories?.slice(0, 6).map(transformToExploreStory) || [])
+    .filter((story) => activeCategory === 'all' || story.theme === activeCategory)
+    .filter((s) => !selectedAgeGroup || isInAgeGroup(s.childAge, selectedAgeGroup));
 
-    // Filter by category
-    if (activeCategory !== 'all') {
-      stories = stories.filter((story) => story.theme === activeCategory);
-    }
-
-    // Filter by age group using childAge
-    if (selectedAgeGroup) {
-      stories = stories.filter((s) => isInAgeGroup(s.childAge, selectedAgeGroup));
-    }
-
-    return stories;
-  })();
-
-  const topStories = (() => {
-    let stories = allStories?.slice(0, 6).map(transformToTopStory) || [];
-
-    // Filter by category
-    if (activeCategory !== 'all') {
-      stories = stories.filter((story) => story.theme === activeCategory);
-    }
-
-    // Filter by age group using childAge
-    if (selectedAgeGroup) {
-      stories = stories.filter((story) => isInAgeGroup(story.childAge, selectedAgeGroup));
-    }
-
-    // Re-rank after filtering
-    return stories.map((story, index) => ({
+  const topStories = (allStories?.slice(0, 6).map(transformToTopStory) || [])
+    .filter((story) => activeCategory === 'all' || story.theme === activeCategory)
+    .filter((story) => !selectedAgeGroup || isInAgeGroup(story.childAge, selectedAgeGroup))
+    .map((story, index) => ({
       ...story,
       rank: index + 1,
       accentColor: RANK_COLORS[index] || RANK_COLORS[3],
     }));
-  })();
 
-  const recommendedStories = (() => {
-    let stories = allStories?.slice(0, 4).map(transformToExploreStory) || [];
-
-    // Filter by age group using childAge
-    if (selectedAgeGroup) {
-      stories = stories.filter((story) => isInAgeGroup(story.childAge, selectedAgeGroup));
-    }
-
-    return stories;
-  })();
+  const recommendedStories = (allStories?.slice(0, 4).map(transformToExploreStory) || [])
+    .filter((story) => !selectedAgeGroup || isInAgeGroup(story.childAge, selectedAgeGroup));
 
   const popularThemes = extractPopularThemes(allStories);
 

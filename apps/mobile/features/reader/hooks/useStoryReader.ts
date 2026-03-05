@@ -3,6 +3,7 @@ import { useStoryById } from '@/features/stories/hooks/useStoryById';
 import { useOfflineStory } from '@/hooks/useOfflineStory';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
 import { getReadingProgress } from '@/store/notifications/readingProgressStorage';
+import { Story } from '@/domain/stories/entities/Story';
 import type { ReaderChapter, ReaderProgress } from '@/types/reader';
 
 interface OfflineChapter {
@@ -10,6 +11,32 @@ interface OfflineChapter {
   title: string;
   content: string;
 }
+
+const getChapters = (
+  isOffline: boolean,
+  offlineContent: { title: string; chapters: OfflineChapter[] } | null,
+  story: Story | undefined,
+): ReaderChapter[] => {
+  if (isOffline) {
+    if (!offlineContent?.chapters) return [];
+    return offlineContent.chapters.map((chapter) => ({
+      id: chapter.id,
+      title: chapter.title,
+      content: chapter.content,
+      imageUrl: undefined,
+    }));
+  }
+  if (!story) return [];
+  return story.getAllChapters().map((chapter) => {
+    const rawImageUrl = chapter.image?.imageUrl?.getValue();
+    return {
+      id: chapter.id.getValue().toString(),
+      title: chapter.title,
+      content: chapter.content,
+      imageUrl: rawImageUrl,
+    };
+  });
+};
 
 export const useStoryReader = (storyId: string, isOffline: boolean = false) => {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
@@ -48,31 +75,7 @@ export const useStoryReader = (storyId: string, isOffline: boolean = false) => {
   const error = isOffline ? offlineError : onlineError?.message;
 
   // Transform chapters based on mode (online vs offline)
-  const chapters: ReaderChapter[] = (() => {
-    if (isOffline) {
-      // Offline mode: use stored chapters directly
-      if (!offlineContent?.chapters) return [];
-
-      return offlineContent.chapters.map((chapter) => ({
-        id: chapter.id,
-        title: chapter.title,
-        content: chapter.content,
-        imageUrl: undefined,
-      }));
-    }
-
-    // Online mode: use story chapters
-    if (!story) return [];
-    return story.getAllChapters().map((chapter) => {
-      const rawImageUrl = chapter.image?.imageUrl?.getValue();
-      return {
-        id: chapter.id.getValue().toString(),
-        title: chapter.title,
-        content: chapter.content,
-        imageUrl: rawImageUrl,
-      };
-    });
-  })();
+  const chapters: ReaderChapter[] = getChapters(isOffline, offlineContent, story);
 
   const currentChapter = chapters[currentChapterIndex];
   const totalChapters = chapters.length;

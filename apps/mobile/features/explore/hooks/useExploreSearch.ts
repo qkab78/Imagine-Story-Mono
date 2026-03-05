@@ -4,6 +4,30 @@ import useExploreStore from '@/store/explore/exploreStore';
 import { useStoryList } from '@/features/stories/hooks/useStoryList';
 import type { SearchResult } from '@/types/explore';
 import { STORY_EMOJIS } from '@/constants/explore';
+import type { StoryListItem } from '@/domain/stories/value-objects/StoryListItem';
+
+const filterSearchResults = (
+  query: string,
+  stories: StoryListItem[] | undefined,
+): SearchResult[] => {
+  if (!query || query.length < 2 || !stories) return [];
+  const q = query.toLowerCase();
+  return stories
+    .filter(
+      (story) =>
+        story.title.toLowerCase().includes(q) ||
+        story.protagonist.toLowerCase().includes(q) ||
+        story.synopsis.toLowerCase().includes(q)
+    )
+    .map((story, index) => ({
+      id: story.id.getValue().toString(),
+      title: story.title,
+      coverImageUrl: story.coverImageUrl?.getValue(),
+      ageRange: story.childAge.getValue().toString(),
+      chapters: story.numberOfChapters,
+      emoji: STORY_EMOJIS[index % STORY_EMOJIS.length],
+    }));
+};
 
 export const useExploreSearch = () => {
   const {
@@ -22,27 +46,7 @@ export const useExploreSearch = () => {
   const { data: allStories, isLoading } = useStoryList();
 
   // Filter stories by search query
-  const searchResults: SearchResult[] = (() => {
-    if (!debouncedQuery || debouncedQuery.length < 2) return [];
-    if (!allStories) return [];
-
-    const query = debouncedQuery.toLowerCase();
-    return allStories
-      .filter(
-        (story) =>
-          story.title.toLowerCase().includes(query) ||
-          story.protagonist.toLowerCase().includes(query) ||
-          story.synopsis.toLowerCase().includes(query)
-      )
-      .map((story, index) => ({
-        id: story.id.getValue().toString(),
-        title: story.title,
-        coverImageUrl: story.coverImageUrl?.getValue(),
-        ageRange: story.childAge.getValue().toString(),
-        chapters: story.numberOfChapters,
-        emoji: STORY_EMOJIS[index % STORY_EMOJIS.length],
-      }));
-  })();
+  const searchResults: SearchResult[] = filterSearchResults(debouncedQuery, allStories);
 
   // Update isSearching state
   useEffect(() => {

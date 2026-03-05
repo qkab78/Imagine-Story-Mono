@@ -117,12 +117,11 @@ export const useOfflineLibrary = (): UseOfflineLibraryReturn => {
   }, [configData, localStories, totalSizeBytes, setConfig])
 
   // Derive stories directly from query data (avoids store round-trip)
-  const stories = (() => {
-    if (!localStories) return []
-    return [...localStories].sort((a, b) => {
-      return new Date(b.downloadedAt).getTime() - new Date(a.downloadedAt).getTime()
-    })
-  })()
+  const stories = localStories
+    ? [...localStories].sort((a, b) =>
+        new Date(b.downloadedAt).getTime() - new Date(a.downloadedAt).getTime()
+      )
+    : []
 
   const effectiveConfig = configData
     ? { ...DEFAULT_CONFIG, maxStories: configData.maxStories, maxSizeBytes: configData.maxSizeBytes }
