@@ -10,6 +10,7 @@ import { kidSlides } from './kidSlides';
 import KidOnboardingScreen from './KidOnboardingScreen';
 import { router } from 'expo-router';
 import { hasCompletedNotificationOnboarding } from '@/store/notifications/notificationStorage';
+import { setOnboardingCompleted } from '@/store/onboarding/onboardingStorage';
 
 const { width } = Dimensions.get('window');
 
@@ -58,6 +59,7 @@ const KidOnboardingContainer: React.FC = () => {
   };
 
   const handleComplete = () => {
+    setOnboardingCompleted(true);
     const notificationOnboardingCompleted = hasCompletedNotificationOnboarding();
     console.log('[Onboarding] handleComplete - notificationOnboardingCompleted:', notificationOnboardingCompleted);
 
