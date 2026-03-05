@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -48,37 +48,32 @@ export const LibraryScreen = () => {
     return () => {
       clearHighlight();
     };
-  }, [clearHighlight]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Apply filters to stories
-  const filteredStories = useMemo(
-    () => applyFilters(stories),
-    [stories, applyFilters]
-  );
+  const filteredStories = applyFilters(stories);
 
-  const handleStoryPress = useCallback(
-    (storyId: string) => {
-      const story = stories.find((s) => s.id === storyId);
-      if (story) {
-        router.push(`/stories/${story.id}/reader`);
-      }
-    },
-    [stories, router]
-  );
+  const handleStoryPress = (storyId: string) => {
+    const story = stories.find((s) => s.id === storyId);
+    if (story) {
+      router.push(`/stories/${story.id}/reader`);
+    }
+  };
 
-  const handleFilterPress = useCallback(() => {
+  const handleFilterPress = () => {
     setIsFilterSheetOpen(true);
-  }, []);
+  };
 
-  const handleFilterSheetClose = useCallback(() => {
+  const handleFilterSheetClose = () => {
     setIsFilterSheetOpen(false);
-  }, []);
+  };
 
-  const handleCreateStoryPress = useCallback(() => {
+  const handleCreateStoryPress = () => {
     router.push('/stories/creation/welcome');
-  }, [router]);
+  };
 
-  const handleRetryStory = useCallback((storyId: string) => {
+  const handleRetryStory = (storyId: string) => {
     setRetryingStoryId(storyId);
     retryStory(storyId, {
       onSuccess: () => {
@@ -92,7 +87,7 @@ export const LibraryScreen = () => {
         setRetryingStoryId(null);
       },
     });
-  }, [retryStory, invalidateStories, t]);
+  };
 
   return (
     <LinearGradient

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { VersionBadge } from '@/components/atoms/profile';
@@ -94,10 +94,10 @@ export const ProfileContent: React.FC = () => {
     setShowPersonalInfo(true);
   };
 
-  const handleSubscription = useCallback(async () => {
+  const handleSubscription = async () => {
     await refresh();
     setShowSubscription(true);
-  }, [refresh]);
+  };
 
   const handleLanguage = () => {
     setShowLanguageSelector(true);
@@ -116,7 +116,7 @@ export const ProfileContent: React.FC = () => {
     setShowEditProfile(false);
   };
 
-  const handleUpgrade = useCallback(async () => {
+  const handleUpgrade = async () => {
     const result = await purchase();
     if (result.success) {
       Alert.alert(t('alerts.upgradeSuccess'), t('alerts.upgradeSuccessMessage'));
@@ -124,9 +124,9 @@ export const ProfileContent: React.FC = () => {
     } else if (result.error) {
       Alert.alert(t('alerts.error'), result.error);
     }
-  }, [purchase, t]);
+  };
 
-  const handleRestore = useCallback(async () => {
+  const handleRestore = async () => {
     const success = await restore();
     if (success) {
       Alert.alert(t('alerts.restoreSuccess'), t('alerts.restoreSuccessMessage'));
@@ -134,9 +134,9 @@ export const ProfileContent: React.FC = () => {
     } else {
       Alert.alert(t('alerts.restoreNoItems'), t('alerts.restoreNoItemsMessage'));
     }
-  }, [restore, t]);
+  };
 
-  const handleCancelSubscription = useCallback(() => {
+  const handleCancelSubscription = () => {
     Alert.alert(
       t('alerts.manageSubscriptionTitle'),
       t('alerts.manageSubscriptionMessage'),
@@ -150,12 +150,13 @@ export const ProfileContent: React.FC = () => {
         },
       ]
     );
-  }, [openManageSubscription, t, tCommon]);
+  };
 
   // Refresh subscription status on mount
   useEffect(() => {
     refresh();
-  }, [refresh]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
