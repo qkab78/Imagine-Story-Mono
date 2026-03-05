@@ -34,6 +34,7 @@ import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { useEmailVerificationBanner } from '@/hooks/useEmailVerificationBanner';
 import { useSubscriptionInit } from '@/hooks/useSubscriptionInit';
 import { useUserSync } from '@/hooks/useUserSync';
+import { useNotificationNavigation } from '@/hooks/useNotificationNavigation';
 import { initStoryTimeNotification } from '@/services/notifications/notificationService';
 
 // Internationalisation
@@ -55,6 +56,9 @@ function AppContent() {
 
   // Navigation basée sur l'authentification
   useAuthNavigation();
+
+  // Navigation depuis les notifications (tap)
+  useNotificationNavigation();
 
   // Synchronisation des données utilisateur avec le backend
   useUserSync();

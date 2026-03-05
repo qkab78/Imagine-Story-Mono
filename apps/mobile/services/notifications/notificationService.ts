@@ -28,6 +28,7 @@ const getRandomThemeSuggestion = (): string => {
  * Send an immediate notification when a story generation is completed.
  */
 export const scheduleStoryReadyNotification = async (
+  storyId: string,
   storyTitle: string,
   chaptersCount: number,
   themeName: string
@@ -38,7 +39,7 @@ export const scheduleStoryReadyNotification = async (
         title: '✨ Ton histoire est prête !',
         body: `« ${storyTitle} » vient d'être créée avec ${chaptersCount} chapitres sur le thème ${themeName}. Viens la découvrir !`,
         sound: true,
-        data: { type: 'story_ready' },
+        data: { type: 'story_ready', storyId },
       },
       trigger: null,
     });
@@ -52,6 +53,7 @@ export const scheduleStoryReadyNotification = async (
  * Cancels any previous continue-reading reminder first.
  */
 export const scheduleContinueReadingReminder = async (
+  storyId: string,
   storyTitle: string,
   currentChapter: number,
   totalChapters: number
@@ -66,7 +68,7 @@ export const scheduleContinueReadingReminder = async (
         title: '📚 Reprends ton histoire !',
         body: `Tu en étais au chapitre ${currentChapter} sur ${totalChapters} de « ${storyTitle} ». Continue l'aventure !`,
         sound: true,
-        data: { type: 'continue_reading' },
+        data: { type: 'continue_reading', storyId },
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,

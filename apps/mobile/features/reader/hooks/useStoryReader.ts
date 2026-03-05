@@ -1,7 +1,8 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useStoryById } from '@/features/stories/hooks/useStoryById';
 import { useOfflineStory } from '@/hooks/useOfflineStory';
 import { useReadingProgress } from '@/hooks/useReadingProgress';
+import { getReadingProgress } from '@/store/notifications/readingProgressStorage';
 import type { ReaderChapter, ReaderProgress } from '@/types/reader';
 
 interface OfflineChapter {
@@ -86,10 +87,19 @@ export const useStoryReader = (storyId: string, isOffline: boolean = false) => {
     totalChapters
   );
 
-  // Track initial chapter on mount
+  // Auto-resume at last read chapter + track initial chapter
+  const hasResumedRef = useRef(false);
   useEffect(() => {
-    if (totalChapters > 0) {
-      trackChapterRead(currentChapterIndex + 1);
+    if (totalChapters > 0 && !hasResumedRef.current) {
+      hasResumedRef.current = true;
+      const savedProgress = getReadingProgress(storyId);
+      if (savedProgress && savedProgress.currentChapter > 1) {
+        const resumeIndex = Math.min(savedProgress.currentChapter - 1, totalChapters - 1);
+        setCurrentChapterIndex(resumeIndex);
+        trackChapterRead(resumeIndex + 1);
+      } else {
+        trackChapterRead(1);
+      }
     }
   }, [totalChapters]);
 

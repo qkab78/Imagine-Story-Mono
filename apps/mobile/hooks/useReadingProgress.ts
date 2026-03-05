@@ -39,7 +39,7 @@ export const useReadingProgress = (storyId: string, storyTitle: string, totalCha
       updateReadingStreak();
 
       // Schedule a "continue reading" reminder for 24h later
-      await scheduleContinueReadingReminder(storyTitle, currentChapter, totalChapters);
+      await scheduleContinueReadingReminder(storyId, storyTitle, currentChapter, totalChapters);
     },
     [storyId, storyTitle, totalChapters]
   );

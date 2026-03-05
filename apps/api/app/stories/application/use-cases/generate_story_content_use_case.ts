@@ -193,7 +193,7 @@ export class GenerateStoryContentUseCase {
     try {
       const user = await this.userRepository.findById(userId)
       if (user?.pushToken) {
-        await this.sendExpoPushNotification(user.pushToken, story.title, chaptersCount)
+        await this.sendExpoPushNotification(user.pushToken, story.id.getValue(), story.title, chaptersCount)
       }
     } catch (error: any) {
       logger.error(`[Push] Error sending push notification: ${error.message}`)
@@ -205,6 +205,7 @@ export class GenerateStoryContentUseCase {
    */
   private async sendExpoPushNotification(
     pushToken: string,
+    storyId: string,
     storyTitle: string,
     chaptersCount: number
   ): Promise<void> {
@@ -220,7 +221,7 @@ export class GenerateStoryContentUseCase {
         sound: 'default',
         title: 'Ton histoire est prête !',
         body: `"${storyTitle}" — ${chaptersCount} chapitres t'attendent`,
-        data: { type: 'story_completed', storyTitle },
+        data: { type: 'story_completed', storyId, storyTitle },
       }),
     })
 
