@@ -12,6 +12,8 @@
     "subscription": "Subscription",
     "downloads": "My Downloads",
     "notifications": "Notifications",
+    "storyTime": "Story Time",
+    "storyTimeHour": "Reminder time",
     "language": "Language",
     "help": "Help & Support",
     "rating": "Rate the App",
@@ -61,6 +63,13 @@
     "errorNewPassword": "Please enter a new password",
     "errorPasswordMismatch": "Passwords do not match",
     "errorCurrentPassword": "Please enter your current password"
+  },
+  "storyTime": {
+    "title": "Story Time",
+    "description": "Choose when you'd like to receive your daily reminder for bedtime reading.",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "save": "Save"
   },
   "languageSelector": {
     "title": "App Language",

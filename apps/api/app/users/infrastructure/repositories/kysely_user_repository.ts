@@ -17,7 +17,7 @@ export class KyselyUserRepository implements IUserRepository {
     const userRow = await db
       .selectFrom('users')
       .where('id', '=', idValue)
-      .select(['id', 'email', 'firstname', 'lastname'])
+      .select(['id', 'email', 'firstname', 'lastname', 'push_token'])
       .executeTakeFirst()
 
     if (!userRow) {
@@ -28,7 +28,8 @@ export class KyselyUserRepository implements IUserRepository {
       UserId.create(userRow.id),
       Email.create(userRow.email),
       userRow.firstname,
-      userRow.lastname
+      userRow.lastname,
+      userRow.push_token
     )
   }
 }

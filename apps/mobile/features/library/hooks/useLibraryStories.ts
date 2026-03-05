@@ -1,6 +1,4 @@
-import { useCallback, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import * as Notifications from 'expo-notifications';
 import useAuthStore from '@/store/auth/authStore';
 import { getStoriesByAuthenticatedUserId } from '@/api/stories/storyApi';
 import { StoryListItemDTO } from '@/api/stories/storyTypes';
@@ -11,7 +9,6 @@ import {
 } from '@/store/library/libraryStorage';
 import { isRecentDate } from '@/utils/date';
 
-const POLLING_INTERVAL = 5000; // 5 seconds
 const STALE_TIME = 1000 * 30; // 30 seconds
 
 /**
@@ -56,29 +53,14 @@ const transformToLibraryStory = (dto: StoryListItemDTO): LibraryStory => {
   };
 };
 
-const sendCompletionNotification = async (storyTitle: string) => {
-  try {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'Histoire terminée ! ✨',
-        body: `"${storyTitle}" est prête à lire !`,
-        sound: true,
-      },
-      trigger: null,
-    });
-  } catch (error) {
-    console.error('Error sending completion notification:', error);
-  }
-};
-
 /**
- * Hook for fetching and managing library stories with automatic polling
+ * Hook for fetching and managing library stories.
+ * Real-time updates are handled by useStorySSE (no polling).
  */
 export const useLibraryStories = () => {
   const { token } = useAuthStore();
   const queryClient = useQueryClient();
 
-  // Fetch user stories with automatic polling when stories are generating
   const {
     data: storiesData,
     isLoading,
@@ -90,88 +72,54 @@ export const useLibraryStories = () => {
     queryFn: () => getStoriesByAuthenticatedUserId(token || ''),
     enabled: !!token,
     staleTime: STALE_TIME,
-    refetchInterval: (query) => {
-      const data = query.state.data;
-      if (!data) return false;
-      const hasGenerating = data.some(
-        (dto) => dto.generationStatus === 'pending' || dto.generationStatus === 'processing'
-      );
-      return hasGenerating ? POLLING_INTERVAL : false;
-    },
-    refetchIntervalInBackground: false,
   });
 
   // Transform stories to LibraryStory format
-  const stories = useMemo<LibraryStory[]>(() => {
-    if (!storiesData) return [];
-    return storiesData.map(transformToLibraryStory);
-  }, [storiesData]);
-
-  // Detect generation completion and send notification
-  const previousStatusesRef = useRef<Record<string, string>>({});
-
-  useEffect(() => {
-    const prev = previousStatusesRef.current;
-    const next: Record<string, string> = {};
-    stories.forEach((story) => {
-      next[story.id] = story.generationStatus;
-      if (prev[story.id] === 'generating' && story.generationStatus === 'completed') {
-        sendCompletionNotification(story.title);
-      }
-    });
-    previousStatusesRef.current = next;
-  }, [stories]);
+  const stories: LibraryStory[] = storiesData
+    ? storiesData.map(transformToLibraryStory)
+    : [];
 
   // Check if there are any generating stories
-  const hasGeneratingStories = useMemo(() => {
-    return stories.some((s) => s.generationStatus === 'generating');
-  }, [stories]);
+  const hasGeneratingStories = stories.some((s) => s.generationStatus === 'generating');
 
   // Check if there are any failed stories
-  const hasFailedStories = useMemo(() => {
-    return stories.some((s) => s.generationStatus === 'failed');
-  }, [stories]);
+  const hasFailedStories = stories.some((s) => s.generationStatus === 'failed');
 
   // Get highlighted story ID (last created)
-  const highlightedStoryId = useMemo(() => getLastCreatedStoryId(), []);
+  const highlightedStoryId = getLastCreatedStoryId();
 
   // Get new story IDs (created in last 24h)
-  const newStoryIds = useMemo(() => {
-    return stories
-      .filter((story) => isRecentDate(story.publicationDate, 24))
-      .map((story) => story.id);
-  }, [stories]);
+  const newStoryIds = stories
+    .filter((story) => isRecentDate(story.publicationDate, 24))
+    .map((story) => story.id);
 
   // Filter stories by type
-  const filterStories = useCallback(
-    (filter: LibraryFilterType): LibraryStory[] => {
-      switch (filter) {
-        case 'generating':
-          return stories.filter((s) => s.generationStatus === 'generating');
-        case 'completed':
-          return stories.filter((s) => s.generationStatus === 'completed');
-        case 'all':
-        default:
-          return stories;
-      }
-    },
-    [stories]
-  );
+  const filterStories = (filter: LibraryFilterType): LibraryStory[] => {
+    switch (filter) {
+      case 'generating':
+        return stories.filter((s) => s.generationStatus === 'generating');
+      case 'completed':
+        return stories.filter((s) => s.generationStatus === 'completed');
+      case 'all':
+      default:
+        return stories;
+    }
+  };
 
   // Clear highlight when navigating away
-  const clearHighlight = useCallback(() => {
+  const clearHighlight = () => {
     clearLastCreatedStoryId();
-  }, []);
+  };
 
   // Refresh stories
-  const refreshStories = useCallback(async () => {
+  const refreshStories = async () => {
     await refetch();
-  }, [refetch]);
+  };
 
   // Invalidate cache (useful after creating a new story)
-  const invalidateStories = useCallback(() => {
+  const invalidateStories = () => {
     queryClient.invalidateQueries({ queryKey: ['library', 'stories'] });
-  }, [queryClient]);
+  };
 
   return {
     stories,

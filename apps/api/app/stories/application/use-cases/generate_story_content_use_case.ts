@@ -8,6 +8,7 @@ import { ChapterFactory } from '#stories/domain/factories/chapter_factory'
 import { ImageUrl } from '#stories/domain/value-objects/media/image_url.vo'
 import { Slug } from '#stories/domain/value-objects/metadata/slug.vo'
 import { IUserRepository } from '#users/domain/repositories/user_repository'
+import redis from '@adonisjs/redis/services/main'
 import queue from '@rlanz/bull-queue/services/main'
 import SendStoryGeneratedSuccessEmailJob from '#jobs/story/send_story_generated_success_email_job'
 import type { Story } from '#stories/domain/entities/story.entity'
@@ -125,6 +126,11 @@ export class GenerateStoryContentUseCase {
         logger.error('⚠️ Failed to dispatch success email job:', error.message)
       })
 
+      // Publish SSE event + push notification (non-blocking)
+      this.notifyStoryCompleted(updatedStory, payload.numberOfChapters).catch((error) => {
+        logger.error('⚠️ Failed to notify story completion:', error.message)
+      })
+
       logger.info(`✅ Story generation completed: ${payload.storyId}`)
       logger.info(`📖 Generated title: "${storyGenerated.title}"`)
       logger.info(`🔗 Generated slug: "${storyGenerated.slug}"`)
@@ -165,6 +171,65 @@ export class GenerateStoryContentUseCase {
       logger.error('❌ Error dispatching success email:', error.message)
       // Don't throw - continue execution
     }
+  }
+
+  /**
+   * Notify story completion via SSE (Redis pub/sub) and push notification
+   */
+  private async notifyStoryCompleted(story: Story, chaptersCount: number): Promise<void> {
+    const userId = story.ownerId.getValue()
+
+    // Publish SSE event via Redis (per-user channel)
+    const ssePayload = JSON.stringify({
+      type: 'story_completed',
+      storyId: story.id.getValue(),
+      title: story.title,
+      chaptersCount,
+    })
+    await redis.publish(`story:events:${userId}`, ssePayload)
+    logger.info(`[SSE] Published story_completed event for user ${userId}`)
+
+    // Send push notification for background/closed app
+    try {
+      const user = await this.userRepository.findById(userId)
+      if (user?.pushToken) {
+        await this.sendExpoPushNotification(user.pushToken, story.id.getValue(), story.title, chaptersCount)
+      }
+    } catch (error: any) {
+      logger.error(`[Push] Error sending push notification: ${error.message}`)
+    }
+  }
+
+  /**
+   * Send push notification via Expo Push API
+   */
+  private async sendExpoPushNotification(
+    pushToken: string,
+    storyId: string,
+    storyTitle: string,
+    chaptersCount: number
+  ): Promise<void> {
+    const response = await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Accept-encoding': 'gzip, deflate',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: pushToken,
+        sound: 'default',
+        title: 'Ton histoire est prête !',
+        body: `"${storyTitle}" — ${chaptersCount} chapitres t'attendent`,
+        data: { type: 'story_completed', storyId, storyTitle },
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Expo Push API returned ${response.status}`)
+    }
+
+    logger.info(`[Push] Notification sent for "${storyTitle}"`)
   }
 
   /**

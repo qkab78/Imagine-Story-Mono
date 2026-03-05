@@ -158,6 +158,7 @@ export interface Users {
   id: Generated<string>;
   lastname: string;
   password: string | null;
+  push_token: string | null;
   role: Generated<number>;
   updated_at: Timestamp;
 }

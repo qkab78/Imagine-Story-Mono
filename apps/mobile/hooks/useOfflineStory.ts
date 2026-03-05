@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import useOfflineStore from '@/store/offline/offlineStore'
 import { offlineStorageService } from '@/services/offline'
 import { useOfflineAccess } from './useOfflineAccess'
@@ -56,37 +56,34 @@ export const useOfflineStory = (storyId: string): UseOfflineStoryReturn => {
 
   const canDownload = hasDownloadAccess && canDownloadMore && !isDownloaded
 
-  const download = useCallback(
-    async (story: StoryData): Promise<boolean> => {
-      if (!canDownload) {
-        setError('Impossible de télécharger cette histoire')
-        return false
-      }
+  const download = async (story: StoryData): Promise<boolean> => {
+    if (!canDownload) {
+      setError('Impossible de télécharger cette histoire')
+      return false
+    }
 
-      setError(null)
+    setError(null)
 
-      try {
-        const offlineStory = await offlineStorageService.downloadStory(
-          story,
-          (progress: DownloadProgress) => {
-            setDownloadProgress(storyId, progress)
-          }
-        )
+    try {
+      const offlineStory = await offlineStorageService.downloadStory(
+        story,
+        (progress: DownloadProgress) => {
+          setDownloadProgress(storyId, progress)
+        }
+      )
 
-        addStory(offlineStory)
-        clearDownloadProgress(storyId)
-        return true
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Erreur de téléchargement'
-        setError(errorMessage)
-        clearDownloadProgress(storyId)
-        return false
-      }
-    },
-    [storyId, canDownload, addStory, setDownloadProgress, clearDownloadProgress]
-  )
+      addStory(offlineStory)
+      clearDownloadProgress(storyId)
+      return true
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur de téléchargement'
+      setError(errorMessage)
+      clearDownloadProgress(storyId)
+      return false
+    }
+  }
 
-  const remove = useCallback(async (): Promise<void> => {
+  const remove = async (): Promise<void> => {
     try {
       await offlineStorageService.deleteStory(storyId)
       removeStory(storyId)
@@ -95,9 +92,9 @@ export const useOfflineStory = (storyId: string): UseOfflineStoryReturn => {
       const errorMessage = err instanceof Error ? err.message : 'Erreur de suppression'
       setError(errorMessage)
     }
-  }, [storyId, removeStory])
+  }
 
-  const readContent = useCallback(async (): Promise<{ title: string; chapters: OfflineChapter[] } | null> => {
+  const readContent = async (): Promise<{ title: string; chapters: OfflineChapter[] } | null> => {
     if (!canRead) {
       setError('Accès aux contenus hors ligne non disponible')
       return null
@@ -117,7 +114,7 @@ export const useOfflineStory = (storyId: string): UseOfflineStoryReturn => {
       setError(errorMessage)
       return null
     }
-  }, [storyId, canRead, isDownloaded])
+  }
 
   return {
     downloadStatus,

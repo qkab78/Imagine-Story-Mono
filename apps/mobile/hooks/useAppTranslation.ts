@@ -3,7 +3,7 @@
  * Fournit un accès type-safe aux traductions avec synchronisation du store
  */
 
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTranslation as useI18nTranslation } from 'react-i18next';
 import useLanguageStore from '@/store/language/languageStore';
 import type { SupportedLanguage, TranslationNamespace } from '@/locales/types';
@@ -33,13 +33,10 @@ export const useAppTranslation = (ns?: TranslationNamespace | TranslationNamespa
   }, [language, i18n]);
 
   // Fonction pour changer la langue qui met à jour le store et i18next
-  const changeLanguage = useCallback(
-    (newLanguage: SupportedLanguage) => {
-      setLanguage(newLanguage);
-      i18n.changeLanguage(newLanguage);
-    },
-    [setLanguage, i18n]
-  );
+  const changeLanguage = (newLanguage: SupportedLanguage) => {
+    setLanguage(newLanguage);
+    i18n.changeLanguage(newLanguage);
+  };
 
   return {
     /** Fonction de traduction */

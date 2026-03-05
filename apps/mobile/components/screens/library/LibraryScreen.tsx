@@ -1,14 +1,14 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LibraryHeader, LibraryStoryGrid } from '@/components/organisms/library';
 import { FilterSheet } from '@/components/organisms/filters';
-import { useLibraryStories, useGenerationPolling } from '@/features/library/hooks';
+import { useLibraryStories } from '@/features/library/hooks';
 import { useStoryFilters } from '@/features/filters';
 import { useStoryRetry } from '@/features/stories/hooks/useStoryRetry';
-import { addPendingGeneration } from '@/store/library/libraryStorage';
+import { useStorySSE } from '@/hooks/useStorySSE';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { LIBRARY_COLORS } from '@/constants/library';
 
@@ -29,7 +29,8 @@ export const LibraryScreen = () => {
     totalCount,
   } = useLibraryStories();
 
-  const { generationStates } = useGenerationPolling();
+  // SSE for real-time story completion events (replaces polling)
+  useStorySSE();
 
   const {
     filters,
@@ -47,54 +48,35 @@ export const LibraryScreen = () => {
     return () => {
       clearHighlight();
     };
-  }, [clearHighlight]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Apply filters to stories
-  const filteredStories = useMemo(
-    () => applyFilters(stories),
-    [stories, applyFilters]
-  );
+  const filteredStories = applyFilters(stories);
 
-  // Merge real-time progress from polling into stories
-  const storiesWithProgress = useMemo(() => {
-    return filteredStories.map(story => {
-      const genState = generationStates[story.id];
-      if (genState?.progress && genState.progress > 0) {
-        return { ...story, generationProgress: genState.progress };
-      }
-      return story;
-    });
-  }, [filteredStories, generationStates]);
+  const handleStoryPress = (storyId: string) => {
+    const story = stories.find((s) => s.id === storyId);
+    if (story) {
+      router.push(`/stories/${story.id}/reader`);
+    }
+  };
 
-  const handleStoryPress = useCallback(
-    (storyId: string) => {
-      const story = stories.find((s) => s.id === storyId);
-      if (story) {
-        router.push(`/stories/${story.id}/reader`);
-      }
-    },
-    [stories, router]
-  );
-
-  const handleFilterPress = useCallback(() => {
+  const handleFilterPress = () => {
     setIsFilterSheetOpen(true);
-  }, []);
+  };
 
-  const handleFilterSheetClose = useCallback(() => {
+  const handleFilterSheetClose = () => {
     setIsFilterSheetOpen(false);
-  }, []);
+  };
 
-  const handleCreateStoryPress = useCallback(() => {
+  const handleCreateStoryPress = () => {
     router.push('/stories/creation/welcome');
-  }, [router]);
+  };
 
-  const handleRetryStory = useCallback((storyId: string) => {
+  const handleRetryStory = (storyId: string) => {
     setRetryingStoryId(storyId);
     retryStory(storyId, {
-      onSuccess: (response) => {
-        if (response.data?.id && response.data?.jobId) {
-          addPendingGeneration(response.data.jobId, response.data.id);
-        }
+      onSuccess: () => {
         invalidateStories();
         setRetryingStoryId(null);
       },
@@ -105,7 +87,7 @@ export const LibraryScreen = () => {
         setRetryingStoryId(null);
       },
     });
-  }, [retryStory, invalidateStories, t]);
+  };
 
   return (
     <LinearGradient
@@ -125,7 +107,7 @@ export const LibraryScreen = () => {
           </View>
         ) : (
           <LibraryStoryGrid
-            stories={storiesWithProgress}
+            stories={filteredStories}
             highlightedStoryId={highlightedStoryId}
             newStoryIds={newStoryIds}
             onStoryPress={handleStoryPress}

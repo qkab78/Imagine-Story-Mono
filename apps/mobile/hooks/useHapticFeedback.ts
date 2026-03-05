@@ -1,5 +1,4 @@
 import * as Haptics from 'expo-haptics';
-import { useCallback } from 'react';
 import { Platform } from 'react-native';
 
 type HapticStyle = 'light' | 'medium' | 'heavy' | 'selection' | 'success' | 'warning' | 'error';
@@ -11,7 +10,7 @@ type HapticStyle = 'light' | 'medium' | 'heavy' | 'selection' | 'success' | 'war
  * Only triggers on iOS for native feel.
  */
 export const useHapticFeedback = () => {
-  const trigger = useCallback((style: HapticStyle = 'selection') => {
+  const trigger = (style: HapticStyle = 'selection') => {
     if (Platform.OS !== 'ios') return;
 
     switch (style) {
@@ -37,7 +36,7 @@ export const useHapticFeedback = () => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         break;
     }
-  }, []);
+  };
 
   return { trigger };
 };

@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 import { getStoryQuota } from '@/api/stories/storyApi'
 import useAuthStore from '@/store/auth/authStore'
 import useQuotaStore from '@/store/quota/quotaStore'
@@ -43,22 +43,22 @@ export const useStoryQuota = () => {
     }
   }, [data, setQuota])
 
-  const refreshQuota = useCallback(async () => {
+  const refreshQuota = async () => {
     // Invalidate cache first to ensure fresh data
     await queryClient.invalidateQueries({ queryKey: QUOTA_QUERY_KEY })
     const result = await refetch()
     return result.data
-  }, [refetch, queryClient])
+  }
 
-  const onStoryCreated = useCallback(() => {
+  const onStoryCreated = () => {
     decrementRemaining()
     queryClient.invalidateQueries({ queryKey: QUOTA_QUERY_KEY })
-  }, [decrementRemaining, queryClient])
+  }
 
-  const resetQuota = useCallback(() => {
+  const resetQuota = () => {
     reset()
     queryClient.removeQueries({ queryKey: QUOTA_QUERY_KEY })
-  }, [reset, queryClient])
+  }
 
   const quota = data ?? cachedQuota
 

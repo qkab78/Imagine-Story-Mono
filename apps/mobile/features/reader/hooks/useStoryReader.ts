@@ -1,6 +1,9 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useStoryById } from '@/features/stories/hooks/useStoryById';
 import { useOfflineStory } from '@/hooks/useOfflineStory';
+import { useReadingProgress } from '@/hooks/useReadingProgress';
+import { getReadingProgress } from '@/store/notifications/readingProgressStorage';
+import { Story } from '@/domain/stories/entities/Story';
 import type { ReaderChapter, ReaderProgress } from '@/types/reader';
 
 interface OfflineChapter {
@@ -8,6 +11,32 @@ interface OfflineChapter {
   title: string;
   content: string;
 }
+
+const getChapters = (
+  isOffline: boolean,
+  offlineContent: { title: string; chapters: OfflineChapter[] } | null,
+  story: Story | undefined,
+): ReaderChapter[] => {
+  if (isOffline) {
+    if (!offlineContent?.chapters) return [];
+    return offlineContent.chapters.map((chapter) => ({
+      id: chapter.id,
+      title: chapter.title,
+      content: chapter.content,
+      imageUrl: undefined,
+    }));
+  }
+  if (!story) return [];
+  return story.getAllChapters().map((chapter) => {
+    const rawImageUrl = chapter.image?.imageUrl?.getValue();
+    return {
+      id: chapter.id.getValue().toString(),
+      title: chapter.title,
+      content: chapter.content,
+      imageUrl: rawImageUrl,
+    };
+  });
+};
 
 export const useStoryReader = (storyId: string, isOffline: boolean = false) => {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
@@ -46,31 +75,7 @@ export const useStoryReader = (storyId: string, isOffline: boolean = false) => {
   const error = isOffline ? offlineError : onlineError?.message;
 
   // Transform chapters based on mode (online vs offline)
-  const chapters: ReaderChapter[] = useMemo(() => {
-    if (isOffline) {
-      // Offline mode: use stored chapters directly
-      if (!offlineContent?.chapters) return [];
-
-      return offlineContent.chapters.map((chapter) => ({
-        id: chapter.id,
-        title: chapter.title,
-        content: chapter.content,
-        imageUrl: undefined,
-      }));
-    }
-
-    // Online mode: use story chapters
-    if (!story) return [];
-    return story.getAllChapters().map((chapter) => {
-      const rawImageUrl = chapter.image?.imageUrl?.getValue();
-      return {
-        id: chapter.id.getValue().toString(),
-        title: chapter.title,
-        content: chapter.content,
-        imageUrl: rawImageUrl,
-      };
-    });
-  }, [isOffline, offlineContent, story]);
+  const chapters: ReaderChapter[] = getChapters(isOffline, offlineContent, story);
 
   const currentChapter = chapters[currentChapterIndex];
   const totalChapters = chapters.length;
@@ -78,44 +83,71 @@ export const useStoryReader = (storyId: string, isOffline: boolean = false) => {
   // Story title (handles both online and offline)
   const storyTitle = isOffline ? (offlineContent?.title || '') : (story?.title || '');
 
-  // Navigation
-  const goToNextChapter = useCallback(() => {
-    if (currentChapterIndex < totalChapters - 1) {
-      setCurrentChapterIndex((prev) => prev + 1);
-    }
-  }, [currentChapterIndex, totalChapters]);
+  // Reading progress tracking
+  const { trackChapterRead, markStoryCompleted } = useReadingProgress(
+    storyId,
+    storyTitle,
+    totalChapters
+  );
 
-  const goToPreviousChapter = useCallback(() => {
-    if (currentChapterIndex > 0) {
-      setCurrentChapterIndex((prev) => prev - 1);
-    }
-  }, [currentChapterIndex]);
-
-  const goToChapter = useCallback((index: number) => {
-    if (index >= 0 && index < totalChapters) {
-      setCurrentChapterIndex(index);
-      setIsMenuOpen(false);
+  // Auto-resume at last read chapter + track initial chapter
+  const hasResumedRef = useRef(false);
+  useEffect(() => {
+    if (totalChapters > 0 && !hasResumedRef.current) {
+      hasResumedRef.current = true;
+      const savedProgress = getReadingProgress(storyId);
+      if (savedProgress && savedProgress.currentChapter > 1) {
+        const resumeIndex = Math.min(savedProgress.currentChapter - 1, totalChapters - 1);
+        setCurrentChapterIndex(resumeIndex);
+        trackChapterRead(resumeIndex + 1);
+      } else {
+        trackChapterRead(1);
+      }
     }
   }, [totalChapters]);
 
+  // Navigation
+  const goToNextChapter = () => {
+    if (currentChapterIndex < totalChapters - 1) {
+      const nextIndex = currentChapterIndex + 1;
+      setCurrentChapterIndex(nextIndex);
+      trackChapterRead(nextIndex + 1);
+    } else if (currentChapterIndex === totalChapters - 1) {
+      markStoryCompleted();
+    }
+  };
+
+  const goToPreviousChapter = () => {
+    if (currentChapterIndex > 0) {
+      const prevIndex = currentChapterIndex - 1;
+      setCurrentChapterIndex(prevIndex);
+      trackChapterRead(prevIndex + 1);
+    }
+  };
+
+  const goToChapter = (index: number) => {
+    if (index >= 0 && index < totalChapters) {
+      setCurrentChapterIndex(index);
+      setIsMenuOpen(false);
+      trackChapterRead(index + 1);
+    }
+  };
+
   // Progress
-  const progress: ReaderProgress = useMemo(
-    () => ({
-      currentChapter: currentChapterIndex + 1,
-      totalChapters,
-      percentage: totalChapters > 0 ? ((currentChapterIndex + 1) / totalChapters) * 100 : 0,
-    }),
-    [currentChapterIndex, totalChapters]
-  );
+  const progress: ReaderProgress = {
+    currentChapter: currentChapterIndex + 1,
+    totalChapters,
+    percentage: totalChapters > 0 ? ((currentChapterIndex + 1) / totalChapters) * 100 : 0,
+  };
 
   // Menu
-  const toggleMenu = useCallback(() => {
+  const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
-  }, []);
+  };
 
-  const closeMenu = useCallback(() => {
+  const closeMenu = () => {
     setIsMenuOpen(false);
-  }, []);
+  };
 
   // Check if current chapter is the last one
   const isLastChapter = currentChapterIndex === totalChapters - 1;

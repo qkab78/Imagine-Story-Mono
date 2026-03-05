@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import useSubscriptionStore from '@/store/subscription/subscriptionStore'
 import useAuthStore from '@/store/auth/authStore'
 import type { SubscriptionStatus } from '@/types/subscription'
@@ -37,9 +37,9 @@ export const useSubscriptionExpiredModal = (): UseSubscriptionExpiredModalReturn
     expirationDate !== null &&
     !expiredModalDismissed
 
-  const dismissModal = useCallback(() => {
+  const dismissModal = () => {
     setExpiredModalDismissed(true)
-  }, [setExpiredModalDismissed])
+  }
 
   return {
     showModal: shouldShowModal,

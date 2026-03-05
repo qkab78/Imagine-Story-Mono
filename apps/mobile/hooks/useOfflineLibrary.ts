@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo } from 'react'
+import { useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import useOfflineStore from '@/store/offline/offlineStore'
 import useAuthStore from '@/store/auth/authStore'
@@ -117,12 +117,11 @@ export const useOfflineLibrary = (): UseOfflineLibraryReturn => {
   }, [configData, localStories, totalSizeBytes, setConfig])
 
   // Derive stories directly from query data (avoids store round-trip)
-  const stories = useMemo(() => {
-    if (!localStories) return []
-    return [...localStories].sort((a, b) => {
-      return new Date(b.downloadedAt).getTime() - new Date(a.downloadedAt).getTime()
-    })
-  }, [localStories])
+  const stories = localStories
+    ? [...localStories].sort((a, b) =>
+        new Date(b.downloadedAt).getTime() - new Date(a.downloadedAt).getTime()
+      )
+    : []
 
   const effectiveConfig = configData
     ? { ...DEFAULT_CONFIG, maxStories: configData.maxStories, maxSizeBytes: configData.maxSizeBytes }
@@ -135,20 +134,20 @@ export const useOfflineLibrary = (): UseOfflineLibraryReturn => {
   const isLoading = isConfigLoading || isStoriesLoading || deleteStoryMutation.isPending || deleteAllMutation.isPending
   const error = configError?.message || storiesError?.message || deleteStoryMutation.error?.message || deleteAllMutation.error?.message || null
 
-  const refresh = useCallback(async (): Promise<void> => {
+  const refresh = async (): Promise<void> => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: OFFLINE_QUERY_KEYS.config }),
       refetchStories(),
     ])
-  }, [queryClient, refetchStories])
+  }
 
-  const removeStory = useCallback((storyId: string) => {
+  const removeStory = (storyId: string) => {
     deleteStoryMutation.mutate(storyId)
-  }, [deleteStoryMutation])
+  }
 
-  const removeAll = useCallback(() => {
+  const removeAll = () => {
     deleteAllMutation.mutate()
-  }, [deleteAllMutation])
+  }
 
   return {
     stories,
