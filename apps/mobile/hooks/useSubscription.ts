@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Linking, Platform } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import useSubscriptionStore from '@/store/subscription/subscriptionStore';
@@ -75,6 +75,14 @@ export const useSubscription = () => {
       setLoading(false);
     }
   };
+
+  // Stable reference for refresh — prevents React Compiler from
+  // re-triggering useEffect in consumers when refresh is a dependency.
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
+  const stableRefresh = useRef(async () => {
+    await refreshRef.current();
+  }).current;
 
   /**
    * Verify subscription with the backend after a purchase or restore.
@@ -207,7 +215,7 @@ export const useSubscription = () => {
     managementUrl,
     // Actions
     initialize,
-    refresh,
+    refresh: stableRefresh,
     purchase,
     restore,
     reset,

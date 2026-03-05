@@ -155,8 +155,7 @@ export const ProfileContent: React.FC = () => {
   // Refresh subscription status on mount
   useEffect(() => {
     refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refresh]);
 
   return (
     <>
