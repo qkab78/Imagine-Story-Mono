@@ -38,8 +38,12 @@ export const useReadingProgress = (storyId: string, storyTitle: string, totalCha
       setReadingProgress(storyId, progress);
       updateReadingStreak();
 
-      // Schedule a "continue reading" reminder for 24h later
-      await scheduleContinueReadingReminder(storyId, storyTitle, currentChapter, totalChapters);
+      // Schedule a "continue reading" reminder only if not at last chapter
+      if (currentChapter < totalChapters) {
+        await scheduleContinueReadingReminder(storyId, storyTitle, currentChapter, totalChapters);
+      } else {
+        await cancelContinueReadingReminder();
+      }
     },
     [storyId, storyTitle, totalChapters]
   );
