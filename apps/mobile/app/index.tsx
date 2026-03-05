@@ -3,6 +3,7 @@ import Box from '@/components/ui/Box'
 import { theme } from '@/config/theme'
 import useAuthStore from '@/store/auth/authStore'
 import { transformApiUserToAuthUser } from '@/utils/userTransform'
+import { hasCompletedOnboarding } from '@/store/onboarding/onboardingStorage'
 import { useQuery } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import { useEffect } from 'react'
@@ -14,6 +15,8 @@ import KidOnboardingContainer from '@/components/Onboarding/KidOnboardingContain
 const Onboarding = () => {
   const { setToken, setUser } = useAuthStore((state) => state);
   const [userToken, setUserToken] = useMMKVString('user.token');
+  const onboardingCompleted = hasCompletedOnboarding();
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ['authenticate', userToken],
     queryFn: ({ queryKey }) => authenticate(queryKey[1]!),
@@ -27,22 +30,35 @@ const Onboarding = () => {
       setUserToken(undefined);
     }
   }, [isError, userToken, setUserToken])
-  
+
   useEffect(() => {
     if (data?.user) {
       setToken(`Bearer ${data.user.currentAccessToken.token}`);
       setUser(transformApiUserToAuthUser(data.user));
-      router.push("/(tabs)");
+      router.replace("/(tabs)");
     }
   }, [data?.user])
 
-  if (isLoading) {
+  // Onboarding déjà complété mais pas de token → aller au login
+  useEffect(() => {
+    if (onboardingCompleted && !userToken && !isLoading) {
+      router.replace('/login');
+    }
+  }, [onboardingCompleted, userToken, isLoading])
+
+  // Afficher le loading pendant l'auto-authentification
+  if (isLoading || (onboardingCompleted && userToken)) {
     return <Box flex={1} justifyContent="center" alignItems="center" backgroundColor="lavender">
       <ActivityIndicator size={'large'} color={theme.colors.primaryPink} />
     </Box>
   }
 
-  return <KidOnboardingContainer />
+  // Première utilisation : afficher l'onboarding
+  if (!onboardingCompleted) {
+    return <KidOnboardingContainer />
+  }
+
+  return null;
 }
 
 export default Onboarding

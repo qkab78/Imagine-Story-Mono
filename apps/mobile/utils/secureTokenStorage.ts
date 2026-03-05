@@ -17,7 +17,7 @@ async function migrateFromMmkv(): Promise<void> {
   const existingToken = storage.getString(MMKV_TOKEN_KEY)
   if (existingToken) {
     await SecureStore.setItemAsync(TOKEN_KEY, existingToken)
-    storage.delete(MMKV_TOKEN_KEY)
+    // Keep MMKV token so getTokenSync() still works on next app launch
   }
 }
 
@@ -37,11 +37,11 @@ export async function getSecureToken(): Promise<string | undefined> {
 }
 
 export async function setSecureToken(token: string): Promise<void> {
-  if (Platform.OS === 'web') {
-    storage.set(MMKV_TOKEN_KEY, token)
-    return
+  // Always write to MMKV so getTokenSync() finds the token on next app launch
+  storage.set(MMKV_TOKEN_KEY, token)
+  if (Platform.OS !== 'web') {
+    await SecureStore.setItemAsync(TOKEN_KEY, token)
   }
-  await SecureStore.setItemAsync(TOKEN_KEY, token)
 }
 
 export async function deleteSecureToken(): Promise<void> {
