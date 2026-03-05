@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
   getStoryTimeConfig,
   setStoryTimeConfig,
@@ -15,16 +15,16 @@ import {
 export const useStoryTimeSettings = () => {
   const [config, setConfig] = useState(getStoryTimeConfig);
 
-  const updateTime = useCallback(async (hour: number, minute: number) => {
+  const updateTime = async (hour: number, minute: number) => {
     setStoryTimeConfig(hour, minute);
     setConfig((prev) => ({ ...prev, hour, minute }));
 
     if (config.enabled) {
       await rescheduleStoryTimeNotification(hour, minute);
     }
-  }, [config.enabled]);
+  };
 
-  const toggleEnabled = useCallback(async (enabled: boolean) => {
+  const toggleEnabled = async (enabled: boolean) => {
     persistStoryTimeEnabled(enabled);
     setConfig((prev) => ({ ...prev, enabled }));
 
@@ -34,11 +34,11 @@ export const useStoryTimeSettings = () => {
     } else {
       await cancelStoryTimeNotification();
     }
-  }, []);
+  };
 
-  const formatTime = useCallback((hour: number, minute: number): string => {
+  const formatTime = (hour: number, minute: number): string => {
     return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-  }, []);
+  };
 
   return {
     hour: config.hour,

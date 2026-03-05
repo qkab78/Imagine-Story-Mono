@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Alert, Linking, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Application from 'expo-application';
@@ -22,7 +22,7 @@ export const useProfileSettings = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [appVersion, setAppVersion] = useState('1.0.0');
 
-  const clearAllUserData = useCallback(async () => {
+  const clearAllUserData = async () => {
     // 1. Cancel all in-flight queries FIRST to prevent requests with stale token
     await queryClient.cancelQueries();
 
@@ -38,7 +38,7 @@ export const useProfileSettings = () => {
 
     // 5. Logout from RevenueCat
     await subscriptionService.logout();
-  }, [resetSubscription, resetQuota, queryClient, clearAuth]);
+  };
 
   const logoutMutation = useMutation({
     mutationFn: (authToken: string) => logout(authToken),
@@ -64,7 +64,7 @@ export const useProfileSettings = () => {
     setAppVersion(version);
   }, []);
 
-  const toggleNotifications = useCallback(async (value: boolean) => {
+  const toggleNotifications = async (value: boolean) => {
     setNotificationsEnabled(value);
     storage.set('notifications_enabled', value);
 
@@ -83,9 +83,9 @@ export const useProfileSettings = () => {
         storage.set('notifications_enabled', false);
       }
     }
-  }, []);
+  };
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     Alert.alert(
       'Déconnexion',
       'Êtes-vous sûr de vouloir vous déconnecter ?',
@@ -102,9 +102,9 @@ export const useProfileSettings = () => {
         },
       ]
     );
-  }, [token, logoutMutation]);
+  };
 
-  const handleDeleteAccount = useCallback(() => {
+  const handleDeleteAccount = () => {
     Alert.alert(
       'Supprimer le compte',
       'Cette action est irréversible. Toutes vos données seront définitivement supprimées.',
@@ -139,13 +139,13 @@ export const useProfileSettings = () => {
         },
       ]
     );
-  }, [clearAllUserData]);
+  };
 
-  const openHelp = useCallback(() => {
+  const openHelp = () => {
     Linking.openURL(PROFILE_EXTERNAL_URLS.help);
-  }, []);
+  };
 
-  const openAppStore = useCallback(() => {
+  const openAppStore = () => {
     const url = Platform.select({
       ios: 'https://apps.apple.com/app/id...',
       android: 'https://play.google.com/store/apps/details?id=...',
@@ -153,15 +153,15 @@ export const useProfileSettings = () => {
     if (url) {
       Linking.openURL(url);
     }
-  }, []);
+  };
 
-  const openTerms = useCallback(() => {
+  const openTerms = () => {
     Linking.openURL(PROFILE_EXTERNAL_URLS.terms);
-  }, []);
+  };
 
-  const openPrivacy = useCallback(() => {
+  const openPrivacy = () => {
     Linking.openURL(PROFILE_EXTERNAL_URLS.privacy);
-  }, []);
+  };
 
   const isPremium = user?.role === 3;
 

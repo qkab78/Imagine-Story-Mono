@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { Alert } from 'react-native'
 import { useSubscription } from './useSubscription'
 
@@ -33,15 +33,15 @@ export const useSubscriptionSheet = (): UseSubscriptionSheetReturn => {
     openManageSubscription,
   } = useSubscription()
 
-  const open = useCallback(() => {
+  const open = () => {
     setVisible(true)
-  }, [])
+  }
 
-  const close = useCallback(() => {
+  const close = () => {
     setVisible(false)
-  }, [])
+  }
 
-  const handlePurchase = useCallback(async () => {
+  const handlePurchase = async () => {
     const result = await purchase()
     if (result.success) {
       Alert.alert('Succès', 'Bienvenue dans la famille Premium !')
@@ -49,9 +49,9 @@ export const useSubscriptionSheet = (): UseSubscriptionSheetReturn => {
     } else if (result.error) {
       Alert.alert('Erreur', result.error)
     }
-  }, [purchase, close])
+  }
 
-  const handleRestore = useCallback(async () => {
+  const handleRestore = async () => {
     const success = await restore()
     if (success) {
       Alert.alert('Succès', 'Vos achats ont été restaurés.')
@@ -59,9 +59,9 @@ export const useSubscriptionSheet = (): UseSubscriptionSheetReturn => {
     } else {
       Alert.alert('Information', 'Aucun achat précédent trouvé.')
     }
-  }, [restore, close])
+  }
 
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     Alert.alert(
       'Gérer l\'abonnement',
       'Vous allez être redirigé vers les paramètres de votre store.',
@@ -70,7 +70,7 @@ export const useSubscriptionSheet = (): UseSubscriptionSheetReturn => {
         { text: 'Continuer', onPress: () => openManageSubscription() },
       ]
     )
-  }, [openManageSubscription])
+  }
 
   return {
     visible,

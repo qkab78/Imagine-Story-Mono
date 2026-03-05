@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import useExploreStore from '@/store/explore/exploreStore';
 import { useLatestStories, useStoryList } from '@/features/stories/hooks/useStoryList';
 import type {
@@ -132,12 +131,12 @@ export const useExplore = () => {
   const { data: allStories, isLoading: isLoadingAll } = useStoryList();
 
   // Transform and filter stories
-  const featuredStory = useMemo(() => {
+  const featuredStory = (() => {
     if (!latestStories?.length) return null;
     return transformToFeaturedStory(latestStories[0], 0);
-  }, [latestStories]);
+  })();
 
-  const newReleases = useMemo(() => {
+  const newReleases = (() => {
     let stories = latestStories?.slice(0, 6).map(transformToExploreStory) || [];
 
     // Filter by category
@@ -151,9 +150,9 @@ export const useExplore = () => {
     }
 
     return stories;
-  }, [latestStories, activeCategory, selectedAgeGroup]);
+  })();
 
-  const topStories = useMemo(() => {
+  const topStories = (() => {
     let stories = allStories?.slice(0, 6).map(transformToTopStory) || [];
 
     // Filter by category
@@ -172,9 +171,9 @@ export const useExplore = () => {
       rank: index + 1,
       accentColor: RANK_COLORS[index] || RANK_COLORS[3],
     }));
-  }, [allStories, activeCategory, selectedAgeGroup]);
+  })();
 
-  const recommendedStories = useMemo(() => {
+  const recommendedStories = (() => {
     let stories = allStories?.slice(0, 4).map(transformToExploreStory) || [];
 
     // Filter by age group using childAge
@@ -183,11 +182,9 @@ export const useExplore = () => {
     }
 
     return stories;
-  }, [allStories, selectedAgeGroup]);
+  })();
 
-  const popularThemes = useMemo(() => {
-    return extractPopularThemes(allStories);
-  }, [allStories]);
+  const popularThemes = extractPopularThemes(allStories);
 
   return {
     featuredStory,

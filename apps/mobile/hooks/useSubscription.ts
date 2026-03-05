@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Linking, Platform } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import useSubscriptionStore from '@/store/subscription/subscriptionStore';
@@ -30,7 +30,7 @@ export const useSubscription = () => {
     reset,
   } = useSubscriptionStore();
 
-  const initialize = useCallback(async () => {
+  const initialize = async () => {
     if (!subscriptionService.isInitialized()) {
       try {
         await subscriptionService.initialize(user?.email);
@@ -38,13 +38,13 @@ export const useSubscription = () => {
         console.warn('[useSubscription] Failed to initialize:', err);
       }
     }
-  }, [user?.email]);
+  };
 
   /**
    * Refresh subscription status from the backend (source of truth)
    * and offerings from RevenueCat SDK (prices from Apple/Google).
    */
-  const refresh = useCallback(async () => {
+  const refresh = async () => {
     if (!subscriptionService.isInitialized()) {
       await initialize();
     }
@@ -74,13 +74,13 @@ export const useSubscription = () => {
     } finally {
       setLoading(false);
     }
-  }, [initialize, token, setSubscriptionStatus, setOfferings, setLoading, setError]);
+  };
 
   /**
    * Verify subscription with the backend after a purchase or restore.
    * The backend calls RevenueCat REST API to confirm and updates its database.
    */
-  const syncWithBackend = useCallback(async () => {
+  const syncWithBackend = async () => {
     if (!token) return;
 
     try {
@@ -93,9 +93,9 @@ export const useSubscription = () => {
     } catch (err) {
       console.warn('[useSubscription] Failed to verify with backend:', err);
     }
-  }, [token, setSubscriptionStatus, queryClient, resetQuota]);
+  };
 
-  const purchase = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
+  const purchase = async (): Promise<{ success: boolean; error?: string }> => {
     if (!monthlyPackage) {
       const errorMessage = 'Aucun plan disponible';
       setError(errorMessage);
@@ -126,9 +126,9 @@ export const useSubscription = () => {
     } finally {
       setLoading(false);
     }
-  }, [monthlyPackage, setLoading, setError, syncWithBackend]);
+  };
 
-  const restore = useCallback(async (): Promise<boolean> => {
+  const restore = async (): Promise<boolean> => {
     setLoading(true);
     setError(null);
 
@@ -147,27 +147,27 @@ export const useSubscription = () => {
     } finally {
       setLoading(false);
     }
-  }, [setLoading, setError, syncWithBackend]);
+  };
 
-  const getFormattedPrice = useCallback((): string => {
+  const getFormattedPrice = (): string => {
     if (!monthlyPackage) return '';
     return monthlyPackage.product.priceString;
-  }, [monthlyPackage]);
+  };
 
-  const getFormattedExpirationDate = useCallback((): string | null => {
+  const getFormattedExpirationDate = (): string | null => {
     if (!expirationDate) return null;
     return new Date(expirationDate).toLocaleDateString('fr-FR', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
     });
-  }, [expirationDate]);
+  };
 
   /**
    * Ouvre la page de gestion d'abonnement (App Store ou Google Play)
    * pour permettre à l'utilisateur de résilier son abonnement
    */
-  const openManageSubscription = useCallback(async (): Promise<void> => {
+  const openManageSubscription = async (): Promise<void> => {
     const url = managementUrl
       ?? (Platform.OS === 'ios'
         ? process.env.EXPO_PUBLIC_IAP_IOS_FALLBACK_URL
@@ -184,14 +184,14 @@ export const useSubscription = () => {
       console.warn('[useSubscription] Failed to open management URL:', err);
       setError('Impossible d\'ouvrir la page de gestion');
     }
-  }, [managementUrl, setError]);
+  };
 
   // Initialize on mount if user is logged in
   useEffect(() => {
     if (user?.email) {
       initialize();
     }
-  }, [user?.email, initialize]);
+  }, [user?.email]);
 
   return {
     // State

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import useAuthStore from '@/store/auth/authStore';
@@ -22,7 +22,7 @@ export function useStorySSE() {
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isConnectedRef = useRef(false);
 
-  const connect = useCallback(() => {
+  const connect = () => {
     if (!token || isConnectedRef.current) return;
 
     const abortController = new AbortController();
@@ -79,9 +79,9 @@ export function useStorySSE() {
     };
 
     processStream();
-  }, [token, queryClient]);
+  };
 
-  const disconnect = useCallback(() => {
+  const disconnect = () => {
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
@@ -91,7 +91,7 @@ export function useStorySSE() {
       abortControllerRef.current = null;
     }
     isConnectedRef.current = false;
-  }, []);
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -113,5 +113,5 @@ export function useStorySSE() {
       disconnect();
       subscription.remove();
     };
-  }, [token, connect, disconnect]);
+  }, [token]);
 }

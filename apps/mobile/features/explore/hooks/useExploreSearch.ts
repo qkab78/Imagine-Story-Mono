@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import useExploreStore from '@/store/explore/exploreStore';
 import { useStoryList } from '@/features/stories/hooks/useStoryList';
@@ -22,7 +22,7 @@ export const useExploreSearch = () => {
   const { data: allStories, isLoading } = useStoryList();
 
   // Filter stories by search query
-  const searchResults: SearchResult[] = useMemo(() => {
+  const searchResults: SearchResult[] = (() => {
     if (!debouncedQuery || debouncedQuery.length < 2) return [];
     if (!allStories) return [];
 
@@ -42,7 +42,7 @@ export const useExploreSearch = () => {
         chapters: story.numberOfChapters,
         emoji: STORY_EMOJIS[index % STORY_EMOJIS.length],
       }));
-  }, [debouncedQuery, allStories]);
+  })();
 
   // Update isSearching state
   useEffect(() => {

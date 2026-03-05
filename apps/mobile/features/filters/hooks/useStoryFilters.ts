@@ -1,5 +1,4 @@
-import { useMemo, useCallback } from 'react';
-import useFilterStore, { StoryFilters } from '@/store/filters/filterStore';
+import useFilterStore from '@/store/filters/filterStore';
 import { LibraryStory } from '@/types/library';
 
 /**
@@ -19,44 +18,35 @@ export const useStoryFilters = () => {
   /**
    * Filter stories based on current filter state
    */
-  const applyFilters = useCallback(
-    (stories: LibraryStory[]): LibraryStory[] => {
-      return stories.filter((story) => {
-        // Filter by themes
-        if (filters.themes.length > 0) {
-          if (!filters.themes.includes(story.theme.id)) {
-            return false;
-          }
+  const applyFilters = (stories: LibraryStory[]): LibraryStory[] => {
+    return stories.filter((story) => {
+      // Filter by themes
+      if (filters.themes.length > 0) {
+        if (!filters.themes.includes(story.theme.id)) {
+          return false;
         }
+      }
 
-        // Filter by completed only
-        if (filters.completedOnly) {
-          if (story.generationStatus !== 'completed') {
-            return false;
-          }
+      // Filter by completed only
+      if (filters.completedOnly) {
+        if (story.generationStatus !== 'completed') {
+          return false;
         }
+      }
 
-        return true;
-      });
-    },
-    [filters]
-  );
+      return true;
+    });
+  };
 
   /**
    * Get count of active filters
    */
-  const activeFiltersCount = useMemo(
-    () => getActiveFiltersCount(),
-    [filters, getActiveFiltersCount]
-  );
+  const activeFiltersCount = getActiveFiltersCount();
 
   /**
    * Check if any filters are active
    */
-  const isFiltering = useMemo(
-    () => hasActiveFilters(),
-    [filters, hasActiveFilters]
-  );
+  const isFiltering = hasActiveFilters();
 
   return {
     filters,

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import {
   getReadingProgress,
   setReadingProgress,
@@ -25,41 +25,38 @@ export const useReadingProgress = (storyId: string, storyTitle: string, totalCha
     cancelContinueReadingReminder();
   }, []);
 
-  const trackChapterRead = useCallback(
-    async (currentChapter: number) => {
-      const progress: ReadingProgress = {
-        storyId,
-        storyTitle,
-        currentChapter,
-        totalChapters,
-        lastReadAt: new Date().toISOString(),
-      };
+  const trackChapterRead = async (currentChapter: number) => {
+    const progress: ReadingProgress = {
+      storyId,
+      storyTitle,
+      currentChapter,
+      totalChapters,
+      lastReadAt: new Date().toISOString(),
+    };
 
-      setReadingProgress(storyId, progress);
-      updateReadingStreak();
+    setReadingProgress(storyId, progress);
+    updateReadingStreak();
 
-      // Schedule a "continue reading" reminder only if not at last chapter
-      if (currentChapter < totalChapters) {
-        await scheduleContinueReadingReminder(storyId, storyTitle, currentChapter, totalChapters);
-      } else {
-        await cancelContinueReadingReminder();
-      }
-    },
-    [storyId, storyTitle, totalChapters]
-  );
+    // Schedule a "continue reading" reminder only if not at last chapter
+    if (currentChapter < totalChapters) {
+      await scheduleContinueReadingReminder(storyId, storyTitle, currentChapter, totalChapters);
+    } else {
+      await cancelContinueReadingReminder();
+    }
+  };
 
-  const markStoryCompleted = useCallback(async () => {
+  const markStoryCompleted = async () => {
     if (completedRef.current) return;
     completedRef.current = true;
 
     incrementTotalStoriesRead();
     // No need for a "continue reading" reminder since the story is done
     await cancelContinueReadingReminder();
-  }, []);
+  };
 
-  const getSavedProgress = useCallback((): ReadingProgress | null => {
+  const getSavedProgress = (): ReadingProgress | null => {
     return getReadingProgress(storyId);
-  }, [storyId]);
+  };
 
   return {
     trackChapterRead,

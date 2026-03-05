@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
@@ -72,7 +72,7 @@ export const useGoogleSignIn = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const signInWithGoogle = useCallback(async () => {
+  const signInWithGoogle = async () => {
     try {
       setIsLoading(true);
 
@@ -111,7 +111,7 @@ export const useGoogleSignIn = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [setToken, setUser, router]);
+  };
 
   return {
     signInWithGoogle,
