@@ -63,6 +63,7 @@
     "@types/luxon": "^3.6.2",
     "@types/minio": "^7.1.1",
     "@types/node": "^22.15.30",
+    "@types/pdfkit": "^0.17.5",
     "@types/pg": "^8.15.4",
     "eslint": "^9.28.0",
     "hot-hook": "^0.4.0",
@@ -97,6 +98,7 @@
     "luxon": "^3.6.1",
     "minio": "^8.0.6",
     "openai": "^5.1.1",
+    "pdfkit": "^0.17.2",
     "pg": "^8.16.0",
     "reflect-metadata": "^0.2.2"
   },

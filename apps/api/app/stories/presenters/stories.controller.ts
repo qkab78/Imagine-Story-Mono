@@ -1,3 +1,4 @@
+import { ExportStoryPdfUseCase } from '#stories/application/use-cases/export_story_pdf_use_case'
 import { GetStoryByIdUseCase } from '#stories/application/use-cases/get_story_by_id_use_case'
 import { QueueStoryCreationUseCase } from '#stories/application/use-cases/queue_story_creation_use_case'
 import { RetryStoryGenerationUseCase } from '#stories/application/use-cases/retry_story_generation_use_case'
@@ -27,6 +28,7 @@ import { HttpContext } from '@adonisjs/core/http'
 @inject()
 export default class StoriesController {
   constructor(
+    private readonly exportStoryPdfUseCase: ExportStoryPdfUseCase,
     private readonly getStoryByIdUseCase: GetStoryByIdUseCase,
     private readonly queueStoryCreationUseCase: QueueStoryCreationUseCase,
     private readonly retryStoryGenerationUseCase: RetryStoryGenerationUseCase,
@@ -219,5 +221,21 @@ export default class StoriesController {
     })
     const storiesDTO = await StoryListItemPresenter.toDTOs(stories, this.storageService)
     return response.ok({ stories: storiesDTO })
+  }
+
+  async downloadPdf({ params, response, auth }: HttpContext) {
+    const user = auth.getUserOrFail()
+
+    const result = await this.exportStoryPdfUseCase.execute({
+      storyId: params.id,
+      userId: String(user.id),
+      userRole: Number(user.role),
+    })
+
+    response.header('Content-Type', 'application/pdf')
+    response.header('Content-Disposition', `attachment; filename="${result.fileName}"`)
+    response.header('Content-Length', String(result.buffer.length))
+
+    return response.send(result.buffer)
   }
 }

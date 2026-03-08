@@ -251,7 +251,12 @@
     "loadError": "Impossible de charger l'histoire",
     "startReading": "Commencer à lire",
     "close": "Fermer",
-    "chapterNumber": "Chapitre {{position}}"
+    "chapterNumber": "Chapitre {{position}}",
+    "saveOffline": "Sauvegarder hors ligne",
+    "exportPdf": "Exporter en PDF",
+    "downloadingPdf": "Téléchargement du PDF...",
+    "pdfError": "Erreur lors du téléchargement du PDF",
+    "alreadySaved": "Déjà sauvegardé hors ligne"
   },
   "detail": {
     "forAgeChapters": "Pour {{age}} ans • {{count}} chapitres",
