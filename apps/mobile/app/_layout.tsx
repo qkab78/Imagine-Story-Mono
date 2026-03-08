@@ -42,7 +42,28 @@ import '@/locales';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/locales';
 
-const queryClient = new QueryClient();
+const isNetworkError = (error: unknown): boolean => {
+  // fetch() throws TypeError with this message when offline (React Native)
+  if (error instanceof TypeError && error.message === 'Network request failed') {
+    return true;
+  }
+  // Custom NetworkError from authenticate() in auth.ts
+  if (error instanceof Error && error.name === 'NetworkError') {
+    return true;
+  }
+  return false;
+};
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        if (isNetworkError(error)) return false;
+        return failureCount < 3;
+      },
+    },
+  },
+});
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
