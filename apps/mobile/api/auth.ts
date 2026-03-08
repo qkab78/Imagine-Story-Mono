@@ -63,12 +63,24 @@ export const logout = async (token: string) => {
   });
 };
 
+export class NetworkError extends Error {
+  constructor() {
+    super('Network request failed');
+    this.name = 'NetworkError';
+  }
+}
+
 export const authenticate = async (token: string) => {
-  const response = await fetch(authenticateUrl, {
-    headers: {
-      'Authorization': token,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(authenticateUrl, {
+      headers: {
+        'Authorization': token,
+      },
+    });
+  } catch {
+    throw new NetworkError();
+  }
 
   if (!response.ok) {
     throw new Error('Authentication failed');
