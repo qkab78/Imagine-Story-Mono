@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReaderNavButton, ChapterIndicator } from '@/components/atoms/reader';
 import { DownloadButton } from '@/components/molecules/offline';
+import { DownloadActionSheet } from '@/components/molecules/reader/DownloadActionSheet';
 import { READER_COLORS, READER_SPACING, READER_ICONS } from '@/constants/reader';
 import type { DownloadStatus } from '@/types/offline';
+import type { PdfStatus } from '@/hooks/usePdfDownload';
 
 interface ReaderHeaderProps {
   currentChapter: number;
@@ -15,6 +18,10 @@ interface ReaderHeaderProps {
   downloadStatus?: DownloadStatus;
   onDownload?: () => void;
   downloadDisabled?: boolean;
+  // PDF props
+  pdfStatus?: PdfStatus;
+  pdfError?: string | null;
+  onPdfExport?: () => void;
 }
 
 export const ReaderHeader: React.FC<ReaderHeaderProps> = ({
@@ -26,8 +33,16 @@ export const ReaderHeader: React.FC<ReaderHeaderProps> = ({
   downloadStatus = 'idle',
   onDownload,
   downloadDisabled = false,
+  pdfStatus = 'idle',
+  pdfError,
+  onPdfExport,
 }) => {
   const insets = useSafeAreaInsets();
+  const [actionSheetVisible, setActionSheetVisible] = useState(false);
+
+  const handleDownloadPress = () => {
+    setActionSheetVisible(true);
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + READER_SPACING.md }]}>
@@ -41,12 +56,24 @@ export const ReaderHeader: React.FC<ReaderHeaderProps> = ({
       </View>
       <View style={styles.right}>
         {showDownload && onDownload && (
-          <DownloadButton
-            status={downloadStatus}
-            onPress={onDownload}
-            disabled={downloadDisabled}
-            size="medium"
-          />
+          <>
+            <DownloadButton
+              status={downloadStatus}
+              onPress={handleDownloadPress}
+              disabled={false}
+              size="medium"
+            />
+            <DownloadActionSheet
+              visible={actionSheetVisible}
+              onClose={() => setActionSheetVisible(false)}
+              offlineStatus={downloadStatus}
+              onOfflineDownload={onDownload}
+              offlineDisabled={downloadDisabled}
+              pdfStatus={pdfStatus}
+              pdfError={pdfError}
+              onPdfExport={onPdfExport || (() => {})}
+            />
+          </>
         )}
         <ReaderNavButton
           icon={READER_ICONS.close}

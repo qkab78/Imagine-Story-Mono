@@ -29,6 +29,9 @@ export const STORY_ENDPOINTS = {
   TONES: `${apiUrl}/stories/all/tones`,
   LANGUAGES: `${apiUrl}/stories/all/languages`,
 
+  // PDF export
+  STORY_PDF: (id: string) => `${apiUrl}/stories/${id}/pdf`,
+
   // Push token
   PUSH_TOKEN: `${apiUrl}/auth/push-token`,
 } as const

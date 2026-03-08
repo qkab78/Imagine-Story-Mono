@@ -103,6 +103,7 @@ router
         router.post('/', [StoriesControllerPresenter, 'createStory'])
         router.post('/:id/retry', [StoriesControllerPresenter, 'retryStoryGeneration'])
         router.get('/search/suggestions', [StoriesControllerPresenter, 'searchStories'])
+        router.get('/:id/pdf', [StoriesControllerPresenter, 'downloadPdf'])
         router.get('/events', [StoryEventsController, 'stream'])
       })
       .middleware(middleware.auth())

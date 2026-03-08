@@ -9,6 +9,7 @@ import {
 } from '@/components/organisms/reader';
 import { useStoryReader } from '@/features/reader/hooks';
 import { useOfflineStory } from '@/hooks/useOfflineStory';
+import { usePdfDownload } from '@/hooks/usePdfDownload';
 import useSubscriptionStore from '@/store/subscription/subscriptionStore';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 import { READER_COLORS, READER_SPACING } from '@/constants/reader';
@@ -61,6 +62,15 @@ export const StoryReaderScreen: React.FC = () => {
     }
   }, [canDownload, download, id, story, chapters]);
 
+  // PDF download
+  const { pdfStatus, error: pdfError, downloadAndShare } = usePdfDownload();
+
+  const handlePdfExport = useCallback(async () => {
+    if (id && storyTitle) {
+      await downloadAndShare(id, storyTitle);
+    }
+  }, [id, storyTitle, downloadAndShare]);
+
   const navigateBack = () => {
     if (router.canGoBack()) {
       router.back();
@@ -102,6 +112,9 @@ export const StoryReaderScreen: React.FC = () => {
         downloadStatus={downloadStatus}
         onDownload={handleDownload}
         downloadDisabled={!canDownload && !isDownloaded}
+        pdfStatus={pdfStatus}
+        pdfError={pdfError}
+        onPdfExport={handlePdfExport}
       />
 
       {/* Content */}

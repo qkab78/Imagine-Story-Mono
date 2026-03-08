@@ -251,7 +251,12 @@
     "loadError": "Unable to load story",
     "startReading": "Start reading",
     "close": "Close",
-    "chapterNumber": "Chapter {{position}}"
+    "chapterNumber": "Chapter {{position}}",
+    "saveOffline": "Save for Offline Reading",
+    "exportPdf": "Export as PDF",
+    "downloadingPdf": "Downloading PDF...",
+    "pdfError": "Failed to download PDF",
+    "alreadySaved": "Already saved offline"
   },
   "detail": {
     "forAgeChapters": "For {{age}} years old • {{count}} chapters",

@@ -13,6 +13,7 @@ import { IToneRepository } from '#stories/domain/repositories/tone_repository'
 import { IDomainEventPublisher } from '#stories/domain/events/i_domain_event_publisher'
 import { IStorageService } from '#stories/domain/services/i_storage_service'
 import { IJobDispatcher } from '#stories/domain/services/i_job_dispatcher'
+import { IPdfGeneratorService } from '#stories/domain/services/i_pdf_generator_service'
 import { KyselyToneRepository } from '#stories/infrastructure/adapters/repositories/kysely_tone_repository'
 import { IUserRepository } from '#users/domain/repositories/user_repository'
 import { ISubscriptionRepository } from '#subscription/domain/repositories/i_subscription_repository'
@@ -163,6 +164,13 @@ export default class AppProvider {
       await import('#stories/infrastructure/adapters/services/bull_job_dispatcher')
     this.app.container.singleton(IJobDispatcher, () => {
       return new BullJobDispatcher()
+    })
+
+    // PDF generator service binding
+    const { PdfkitPdfGeneratorService } =
+      await import('#stories/infrastructure/services/pdfkit_pdf_generator_service')
+    this.app.container.singleton(IPdfGeneratorService, () => {
+      return new PdfkitPdfGeneratorService()
     })
 
     // Translation service binding
