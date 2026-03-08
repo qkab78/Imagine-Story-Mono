@@ -1,4 +1,4 @@
-import { authenticate } from '@/api/auth'
+import { authenticate, NetworkError } from '@/api/auth'
 import Box from '@/components/ui/Box'
 import { theme } from '@/config/theme'
 import useAuthStore from '@/store/auth/authStore'
@@ -17,19 +17,29 @@ const Onboarding = () => {
   const [userToken, setUserToken] = useMMKVString('user.token');
   const onboardingCompleted = hasCompletedOnboarding();
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['authenticate', userToken],
     queryFn: ({ queryKey }) => authenticate(queryKey[1]!),
     enabled: !!userToken && userToken.length > 0,
     retry: false,
   })
 
-  // Nettoyer le token MMKV invalide en cas d'échec d'authentification
+  // Gérer les erreurs d'authentification
   useEffect(() => {
     if (isError && userToken) {
+      if (error instanceof NetworkError) {
+        // Hors ligne : utiliser les données cachées si disponibles
+        const cachedUser = useAuthStore.getState().user;
+        if (cachedUser) {
+          setToken(userToken);
+          router.replace("/(tabs)");
+          return;
+        }
+      }
+      // Token invalide ou pas de données cachées : déconnecter
       setUserToken(undefined);
     }
-  }, [isError, userToken, setUserToken])
+  }, [isError, error, userToken, setUserToken])
 
   useEffect(() => {
     if (data?.user) {
