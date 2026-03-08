@@ -20,7 +20,6 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     primary: '#2F6B4F',
     accent: '#F6C177',
     muted: '#8BA598',
-    background: '#FFF8F0',
   }
 
   private static readonly RTL_LANGUAGES = ['ar']

@@ -21,6 +21,7 @@ interface DownloadActionSheetProps {
   offlineDisabled: boolean;
   // PDF export
   pdfStatus: PdfStatus;
+  pdfError?: string | null;
   onPdfExport: () => void;
 }
 
@@ -31,6 +32,7 @@ export const DownloadActionSheet: React.FC<DownloadActionSheetProps> = ({
   onOfflineDownload,
   offlineDisabled,
   pdfStatus,
+  pdfError,
   onPdfExport,
 }) => {
   const { t } = useAppTranslation('stories');
@@ -39,6 +41,7 @@ export const DownloadActionSheet: React.FC<DownloadActionSheetProps> = ({
   const isOfflineDownloaded = offlineStatus === 'downloaded';
   const isOfflineDownloading = offlineStatus === 'downloading';
   const isPdfDownloading = pdfStatus === 'downloading';
+  const isPdfError = pdfStatus === 'error';
 
   const handleOfflinePress = () => {
     if (!offlineDisabled && !isOfflineDownloaded && !isOfflineDownloading) {
@@ -120,6 +123,9 @@ export const DownloadActionSheet: React.FC<DownloadActionSheetProps> = ({
               <Text style={styles.optionTitle}>
                 {isPdfDownloading ? t('reader.downloadingPdf') : t('reader.exportPdf')}
               </Text>
+              {isPdfError && (
+                <Text style={styles.optionError}>{pdfError || t('reader.pdfError')}</Text>
+              )}
             </View>
           </Pressable>
         </Pressable>
@@ -190,6 +196,10 @@ const styles = StyleSheet.create({
     color: READER_COLORS.textMuted,
     marginTop: 2,
   },
+  optionError: {
+    fontSize: 13,
+    fontFamily: 'Nunito',
+    color: '#D32F2F',
+    marginTop: 2,
+  },
 });
-
-export default DownloadActionSheet;

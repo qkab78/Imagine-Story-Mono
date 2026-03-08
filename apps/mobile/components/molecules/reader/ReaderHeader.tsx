@@ -20,6 +20,7 @@ interface ReaderHeaderProps {
   downloadDisabled?: boolean;
   // PDF props
   pdfStatus?: PdfStatus;
+  pdfError?: string | null;
   onPdfExport?: () => void;
 }
 
@@ -33,6 +34,7 @@ export const ReaderHeader: React.FC<ReaderHeaderProps> = ({
   onDownload,
   downloadDisabled = false,
   pdfStatus = 'idle',
+  pdfError,
   onPdfExport,
 }) => {
   const insets = useSafeAreaInsets();
@@ -68,6 +70,7 @@ export const ReaderHeader: React.FC<ReaderHeaderProps> = ({
               onOfflineDownload={onDownload}
               offlineDisabled={downloadDisabled}
               pdfStatus={pdfStatus}
+              pdfError={pdfError}
               onPdfExport={onPdfExport || (() => {})}
             />
           </>

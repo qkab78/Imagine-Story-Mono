@@ -63,7 +63,7 @@ export const StoryReaderScreen: React.FC = () => {
   }, [canDownload, download, id, story, chapters]);
 
   // PDF download
-  const { pdfStatus, downloadAndShare } = usePdfDownload();
+  const { pdfStatus, error: pdfError, downloadAndShare } = usePdfDownload();
 
   const handlePdfExport = useCallback(async () => {
     if (id && storyTitle) {
@@ -113,6 +113,7 @@ export const StoryReaderScreen: React.FC = () => {
         onDownload={handleDownload}
         downloadDisabled={!canDownload && !isDownloaded}
         pdfStatus={pdfStatus}
+        pdfError={pdfError}
         onPdfExport={handlePdfExport}
       />
 

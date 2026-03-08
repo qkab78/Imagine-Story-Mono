@@ -81,5 +81,3 @@ export const usePdfDownload = (): UsePdfDownloadReturn => {
     downloadAndShare,
   }
 }
-
-export default usePdfDownload
