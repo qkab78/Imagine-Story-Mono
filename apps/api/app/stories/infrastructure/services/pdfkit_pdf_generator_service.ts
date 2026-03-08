@@ -1,6 +1,11 @@
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
 import PDFDocument from 'pdfkit'
 import type { Story } from '#stories/domain/entities/story.entity'
 import { IPdfGeneratorService } from '#stories/domain/services/i_pdf_generator_service'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const FONTS_DIR = join(__dirname, '../../../../resources/fonts')
 
 /**
  * PDFKit-based PDF Generator Service
@@ -17,6 +22,8 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     muted: '#8BA598',
     background: '#FFF8F0',
   }
+
+  private static readonly RTL_LANGUAGES = ['ar']
 
   private static readonly MARGIN = 60
   private static readonly PAGE_WIDTH = 612 // US Letter
@@ -47,6 +54,14 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
       doc.on('end', () => resolve(Buffer.concat(chunks)))
       doc.on('error', reject)
 
+      // Register Noto Sans fonts for multi-script support
+      doc.registerFont('NotoSans', join(FONTS_DIR, 'NotoSans-Regular.ttf'))
+      doc.registerFont('NotoSans-Bold', join(FONTS_DIR, 'NotoSans-Bold.ttf'))
+      doc.registerFont('NotoSansArabic', join(FONTS_DIR, 'NotoSansArabic-Regular.ttf'))
+      doc.registerFont('NotoSansArabic-Bold', join(FONTS_DIR, 'NotoSansArabic-Bold.ttf'))
+      doc.registerFont('NotoSansJP', join(FONTS_DIR, 'NotoSansJP-Regular.ttf'))
+      doc.registerFont('NotoSansJP-Bold', join(FONTS_DIR, 'NotoSansJP-Bold.ttf'))
+
       // Cover page
       this.renderCoverPage(doc, story, coverImageBuffer)
 
@@ -56,6 +71,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
         doc.addPage()
         this.renderChapterPage(
           doc,
+          story,
           chapter.title,
           chapter.content,
           chapter.getPosition(),
@@ -66,11 +82,22 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
       // Conclusion page (if present)
       if (story.conclusion) {
         doc.addPage()
-        this.renderConclusionPage(doc, story.conclusion)
+        this.renderConclusionPage(doc, story, story.conclusion)
       }
 
       doc.end()
     })
+  }
+
+  private isRtl(story: Story): boolean {
+    return PdfkitPdfGeneratorService.RTL_LANGUAGES.includes(story.language.code.toLowerCase())
+  }
+
+  private getFontName(story: Story, bold: boolean): string {
+    const code = story.language.code.toLowerCase()
+    if (code === 'ar') return bold ? 'NotoSansArabic-Bold' : 'NotoSansArabic'
+    if (code === 'ja') return bold ? 'NotoSansJP-Bold' : 'NotoSansJP'
+    return bold ? 'NotoSans-Bold' : 'NotoSans'
   }
 
   private renderCoverPage(
@@ -107,7 +134,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     // Title
     const titleY = coverImageBottom > 0 ? coverImageBottom + 30 : PAGE_HEIGHT / 2 - 60
     doc
-      .font('Helvetica-Bold')
+      .font(this.getFontName(story, true))
       .fontSize(32)
       .fillColor(textPrimary)
       .text(story.title, MARGIN, titleY, {
@@ -129,7 +156,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     // Synopsis
     if (story.synopsis) {
       doc
-        .font('Helvetica')
+        .font(this.getFontName(story, false))
         .fontSize(14)
         .fillColor(primary)
         .text(story.synopsis, MARGIN, lineY + 30, {
@@ -140,7 +167,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
 
     // Footer
     doc
-      .font('Helvetica')
+      .font(this.getFontName(story, false))
       .fontSize(10)
       .fillColor(PdfkitPdfGeneratorService.COLORS.muted)
       .text('Imagine Story', MARGIN, PAGE_HEIGHT - MARGIN - 20, {
@@ -151,6 +178,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
 
   private renderChapterPage(
     doc: PDFKit.PDFDocument,
+    story: Story,
     title: string,
     content: string,
     position: number,
@@ -162,7 +190,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
 
     // Chapter number
     doc
-      .font('Helvetica')
+      .font(this.getFontName(story, false))
       .fontSize(12)
       .fillColor(muted)
       .text(`Chapter ${position}`, MARGIN, MARGIN, {
@@ -172,7 +200,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
 
     // Chapter title
     doc
-      .font('Helvetica-Bold')
+      .font(this.getFontName(story, true))
       .fontSize(22)
       .fillColor(primary)
       .text(title, MARGIN, MARGIN + 25, {
@@ -209,14 +237,15 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     // Content
     const paragraphs = content.split('\n\n').filter((p) => p.trim())
     currentY += 10
+    const textAlign = this.isRtl(story) ? 'right' : 'justify'
 
-    doc.font('Helvetica').fontSize(12).fillColor(textPrimary)
+    doc.font(this.getFontName(story, false)).fontSize(12).fillColor(textPrimary)
 
     for (const paragraph of paragraphs) {
       doc.text(paragraph.trim(), MARGIN, currentY, {
         width: contentWidth,
         lineGap: 6,
-        align: 'justify',
+        align: textAlign,
       })
       currentY = doc.y + 12
     }
@@ -230,7 +259,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     return { width: pdfImage.width, height: pdfImage.height }
   }
 
-  private renderConclusionPage(doc: PDFKit.PDFDocument, conclusion: string): void {
+  private renderConclusionPage(doc: PDFKit.PDFDocument, story: Story, conclusion: string): void {
     const { MARGIN, PAGE_WIDTH } = PdfkitPdfGeneratorService
     const { textPrimary, primary, accent } = PdfkitPdfGeneratorService.COLORS
     const contentWidth = PAGE_WIDTH - 2 * MARGIN
@@ -247,7 +276,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
 
     // "The End" title
     doc
-      .font('Helvetica-Bold')
+      .font(this.getFontName(story, true))
       .fontSize(24)
       .fillColor(primary)
       .text('The End', MARGIN, MARGIN + 40, {
@@ -257,7 +286,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
 
     // Conclusion text
     doc
-      .font('Helvetica')
+      .font(this.getFontName(story, false))
       .fontSize(13)
       .fillColor(textPrimary)
       .text(conclusion, MARGIN, doc.y + 30, {
