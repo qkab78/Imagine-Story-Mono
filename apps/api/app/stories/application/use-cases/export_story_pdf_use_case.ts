@@ -45,7 +45,7 @@ export class ExportStoryPdfUseCase {
     }
 
     // Check access: must be public or owned by the user
-    if (!story.isPublic() && story.ownerId !== payload.userId) {
+    if (!story.isPublic() && story.ownerId.getValue() !== payload.userId) {
       throw StoryNotFoundException.byId(payload.storyId)
     }
 
@@ -69,8 +69,37 @@ export class ExportStoryPdfUseCase {
       }
     }
 
+    // Download chapter images in parallel
+    const chapterImages = new Map<number, Buffer>()
+    const chapters = story.getAllChapters()
+    const chapterImagePromises = chapters
+      .filter((chapter) => chapter.hasImage())
+      .map(async (chapter) => {
+        const imageUrl = chapter.image!.imageUrl.getValue()
+        const accessibleUrl = imageUrl.startsWith('http')
+          ? imageUrl
+          : await this.storageService.getUrl(imageUrl)
+        const response = await fetch(accessibleUrl)
+        if (response.ok) {
+          const arrayBuffer = await response.arrayBuffer()
+          return { position: chapter.getPosition(), buffer: Buffer.from(arrayBuffer) }
+        }
+        return null
+      })
+
+    const results = await Promise.allSettled(chapterImagePromises)
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value) {
+        chapterImages.set(result.value.position, result.value.buffer)
+      }
+    }
+
     // Generate PDF
-    const buffer = await this.pdfGeneratorService.generatePdf(story, coverImageBuffer)
+    const buffer = await this.pdfGeneratorService.generatePdf(
+      story,
+      coverImageBuffer,
+      chapterImages
+    )
 
     // Build filename from story title
     const sanitizedTitle = story.title

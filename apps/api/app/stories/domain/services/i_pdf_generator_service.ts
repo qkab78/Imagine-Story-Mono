@@ -10,5 +10,9 @@ export abstract class IPdfGeneratorService {
   /**
    * Generate a PDF buffer from a story entity
    */
-  abstract generatePdf(story: Story, coverImageBuffer?: Buffer | null): Promise<Buffer>
+  abstract generatePdf(
+    story: Story,
+    coverImageBuffer?: Buffer | null,
+    chapterImages?: Map<number, Buffer>
+  ): Promise<Buffer>
 }

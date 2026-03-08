@@ -22,7 +22,11 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
   private static readonly PAGE_WIDTH = 612 // US Letter
   private static readonly PAGE_HEIGHT = 792
 
-  async generatePdf(story: Story, coverImageBuffer?: Buffer | null): Promise<Buffer> {
+  async generatePdf(
+    story: Story,
+    coverImageBuffer?: Buffer | null,
+    chapterImages?: Map<number, Buffer>
+  ): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({
         size: 'LETTER',
@@ -50,7 +54,13 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
       const chapters = story.getAllChapters()
       for (const chapter of chapters) {
         doc.addPage()
-        this.renderChapterPage(doc, chapter.title, chapter.content, chapter.getPosition())
+        this.renderChapterPage(
+          doc,
+          chapter.title,
+          chapter.content,
+          chapter.getPosition(),
+          chapterImages?.get(chapter.getPosition())
+        )
       }
 
       // Conclusion page (if present)
@@ -73,21 +83,29 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     const contentWidth = PAGE_WIDTH - 2 * MARGIN
 
     // Cover image
+    let coverImageBottom = 0
     if (coverImageBuffer) {
       try {
         const imageMaxWidth = contentWidth * 0.7
-        const imageX = MARGIN + (contentWidth - imageMaxWidth) / 2
-        doc.image(coverImageBuffer, imageX, MARGIN + 40, {
-          fit: [imageMaxWidth, 300],
-          align: 'center',
+        const maxHeight = 300
+        const pdfImage = doc.openImage(coverImageBuffer)
+        const scale = Math.min(imageMaxWidth / pdfImage.width, maxHeight / pdfImage.height, 1)
+        const displayWidth = pdfImage.width * scale
+        const displayHeight = pdfImage.height * scale
+        const imageX = MARGIN + (contentWidth - displayWidth) / 2
+        const imageY = MARGIN + 40
+        doc.image(pdfImage, imageX, imageY, {
+          width: displayWidth,
+          height: displayHeight,
         })
+        coverImageBottom = imageY + displayHeight
       } catch {
         // Skip image if it can't be rendered
       }
     }
 
     // Title
-    const titleY = coverImageBuffer ? 400 : PAGE_HEIGHT / 2 - 60
+    const titleY = coverImageBottom > 0 ? coverImageBottom + 30 : PAGE_HEIGHT / 2 - 60
     doc
       .font('Helvetica-Bold')
       .fontSize(32)
@@ -135,7 +153,8 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     doc: PDFKit.PDFDocument,
     title: string,
     content: string,
-    position: number
+    position: number,
+    imageBuffer?: Buffer | null
   ): void {
     const { MARGIN, PAGE_WIDTH } = PdfkitPdfGeneratorService
     const { textPrimary, primary, muted } = PdfkitPdfGeneratorService.COLORS
@@ -161,9 +180,31 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
         width: contentWidth,
       })
 
+    let currentY = doc.y + 20
+
+    // Chapter image
+    if (imageBuffer) {
+      try {
+        const imageMaxWidth = contentWidth * 0.6
+        const maxHeight = 250
+        const pdfImage = doc.openImage(imageBuffer)
+        const scale = Math.min(imageMaxWidth / pdfImage.width, maxHeight / pdfImage.height, 1)
+        const displayWidth = pdfImage.width * scale
+        const displayHeight = pdfImage.height * scale
+        const imageX = MARGIN + (contentWidth - displayWidth) / 2
+        doc.image(pdfImage, imageX, currentY, {
+          width: displayWidth,
+          height: displayHeight,
+        })
+        currentY += displayHeight + 20
+      } catch {
+        // Skip image if it can't be rendered
+      }
+    }
+
     // Content
     const paragraphs = content.split('\n\n').filter((p) => p.trim())
-    let currentY = doc.y + 30
+    currentY += 10
 
     doc.font('Helvetica').fontSize(12).fillColor(textPrimary)
 
