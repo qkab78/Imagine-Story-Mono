@@ -82,7 +82,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
       // Conclusion page (if present)
       if (story.conclusion) {
         doc.addPage()
-        this.renderConclusionPage(doc, story, story.conclusion)
+        this.renderConclusionPage(doc, story.conclusion)
       }
 
       doc.end()
@@ -93,10 +93,11 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     return PdfkitPdfGeneratorService.RTL_LANGUAGES.includes(story.language.code.toLowerCase())
   }
 
-  private getFontName(story: Story, bold: boolean): string {
-    const code = story.language.code.toLowerCase()
-    if (code === 'ar') return bold ? 'NotoSansArabic-Bold' : 'NotoSansArabic'
-    if (code === 'ja') return bold ? 'NotoSansJP-Bold' : 'NotoSansJP'
+  private getContentFont(text: string, bold: boolean): string {
+    const hasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(text)
+    if (hasArabic) return bold ? 'NotoSansArabic-Bold' : 'NotoSansArabic'
+    const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/.test(text)
+    if (hasJapanese) return bold ? 'NotoSansJP-Bold' : 'NotoSansJP'
     return bold ? 'NotoSans-Bold' : 'NotoSans'
   }
 
@@ -134,7 +135,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     // Title
     const titleY = coverImageBottom > 0 ? coverImageBottom + 30 : PAGE_HEIGHT / 2 - 60
     doc
-      .font(this.getFontName(story, true))
+      .font(this.getContentFont(story.title, true))
       .fontSize(32)
       .fillColor(textPrimary)
       .text(story.title, MARGIN, titleY, {
@@ -142,8 +143,8 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
         width: contentWidth,
       })
 
-    // Decorative line
-    const lineY = titleY + 60
+    // Decorative line (positioned after title, accounting for multi-line wrapping)
+    const lineY = doc.y + 20
     const lineWidth = 80
     const lineX = PAGE_WIDTH / 2 - lineWidth / 2
     doc
@@ -155,19 +156,20 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
 
     // Synopsis
     if (story.synopsis) {
+      const synopsisAlign = this.isRtl(story) ? 'right' : 'center'
       doc
-        .font(this.getFontName(story, false))
+        .font(this.getContentFont(story.synopsis, false))
         .fontSize(14)
         .fillColor(primary)
         .text(story.synopsis, MARGIN, lineY + 30, {
-          align: 'center',
+          align: synopsisAlign,
           width: contentWidth,
         })
     }
 
-    // Footer
+    // Footer — always Latin
     doc
-      .font(this.getFontName(story, false))
+      .font('NotoSans')
       .fontSize(10)
       .fillColor(PdfkitPdfGeneratorService.COLORS.muted)
       .text('Imagine Story', MARGIN, PAGE_HEIGHT - MARGIN - 20, {
@@ -188,9 +190,9 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     const { textPrimary, primary, muted } = PdfkitPdfGeneratorService.COLORS
     const contentWidth = PAGE_WIDTH - 2 * MARGIN
 
-    // Chapter number
+    // Chapter number — always Latin
     doc
-      .font(this.getFontName(story, false))
+      .font('NotoSans')
       .fontSize(12)
       .fillColor(muted)
       .text(`Chapter ${position}`, MARGIN, MARGIN, {
@@ -200,7 +202,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
 
     // Chapter title
     doc
-      .font(this.getFontName(story, true))
+      .font(this.getContentFont(title, true))
       .fontSize(22)
       .fillColor(primary)
       .text(title, MARGIN, MARGIN + 25, {
@@ -239,7 +241,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     currentY += 10
     const textAlign = this.isRtl(story) ? 'right' : 'justify'
 
-    doc.font(this.getFontName(story, false)).fontSize(12).fillColor(textPrimary)
+    doc.font(this.getContentFont(content, false)).fontSize(12).fillColor(textPrimary)
 
     for (const paragraph of paragraphs) {
       doc.text(paragraph.trim(), MARGIN, currentY, {
@@ -259,7 +261,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
     return { width: pdfImage.width, height: pdfImage.height }
   }
 
-  private renderConclusionPage(doc: PDFKit.PDFDocument, story: Story, conclusion: string): void {
+  private renderConclusionPage(doc: PDFKit.PDFDocument, conclusion: string): void {
     const { MARGIN, PAGE_WIDTH } = PdfkitPdfGeneratorService
     const { textPrimary, primary, accent } = PdfkitPdfGeneratorService.COLORS
     const contentWidth = PAGE_WIDTH - 2 * MARGIN
@@ -274,9 +276,9 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
       .lineWidth(3)
       .stroke()
 
-    // "The End" title
+    // "The End" title — always Latin
     doc
-      .font(this.getFontName(story, true))
+      .font('NotoSans-Bold')
       .fontSize(24)
       .fillColor(primary)
       .text('The End', MARGIN, MARGIN + 40, {
@@ -286,7 +288,7 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
 
     // Conclusion text
     doc
-      .font(this.getFontName(story, false))
+      .font(this.getContentFont(conclusion, false))
       .fontSize(13)
       .fillColor(textPrimary)
       .text(conclusion, MARGIN, doc.y + 30, {
