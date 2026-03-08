@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react'
-import * as FileSystem from 'expo-file-system'
-import * as Sharing from 'expo-sharing'
+import { File, Paths } from 'expo-file-system'
 import useAuthStore from '@/store/auth/authStore'
 import { STORY_ENDPOINTS } from '@/api/stories/storyEndpoints'
 
@@ -38,29 +37,24 @@ export const usePdfDownload = (): UsePdfDownloadReturn => {
         .toLowerCase()
         .slice(0, 50)
       const fileName = `${safeTitle || 'story'}.pdf`
-      const fileUri = `${FileSystem.cacheDirectory}${fileName}`
 
       // Download PDF from backend
-      const result = await FileSystem.downloadAsync(
+      const file = await File.downloadFileAsync(
         STORY_ENDPOINTS.STORY_PDF(storyId),
-        fileUri,
+        new File(Paths.cache, fileName),
         {
-          headers: {
-            Authorization: token,
-          },
+          headers: { Authorization: token },
+          idempotent: true,
         }
       )
-
-      if (result.status !== 200) {
-        throw new Error(`Download failed with status ${result.status}`)
-      }
 
       setPdfStatus('ready')
 
       // Open native share sheet
+      const Sharing = await import('expo-sharing')
       const isAvailable = await Sharing.isAvailableAsync()
       if (isAvailable) {
-        await Sharing.shareAsync(fileUri, {
+        await Sharing.shareAsync(file.uri, {
           mimeType: 'application/pdf',
           dialogTitle: storyTitle,
         })
