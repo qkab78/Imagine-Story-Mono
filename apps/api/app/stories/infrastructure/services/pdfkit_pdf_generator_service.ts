@@ -88,13 +88,13 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
       try {
         const imageMaxWidth = contentWidth * 0.7
         const maxHeight = 300
-        const pdfImage = doc.openImage(coverImageBuffer)
-        const scale = Math.min(imageMaxWidth / pdfImage.width, maxHeight / pdfImage.height, 1)
-        const displayWidth = pdfImage.width * scale
-        const displayHeight = pdfImage.height * scale
+        const imgSize = this.getImageSize(doc, coverImageBuffer)
+        const scale = Math.min(imageMaxWidth / imgSize.width, maxHeight / imgSize.height, 1)
+        const displayWidth = imgSize.width * scale
+        const displayHeight = imgSize.height * scale
         const imageX = MARGIN + (contentWidth - displayWidth) / 2
         const imageY = MARGIN + 40
-        doc.image(pdfImage, imageX, imageY, {
+        doc.image(coverImageBuffer, imageX, imageY, {
           width: displayWidth,
           height: displayHeight,
         })
@@ -182,20 +182,24 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
 
     let currentY = doc.y + 20
 
-    // Chapter image
+    // Chapter image in rounded rectangle
     if (imageBuffer) {
       try {
-        const imageMaxWidth = contentWidth * 0.6
-        const maxHeight = 250
-        const pdfImage = doc.openImage(imageBuffer)
-        const scale = Math.min(imageMaxWidth / pdfImage.width, maxHeight / pdfImage.height, 1)
-        const displayWidth = pdfImage.width * scale
-        const displayHeight = pdfImage.height * scale
-        const imageX = MARGIN + (contentWidth - displayWidth) / 2
-        doc.image(pdfImage, imageX, currentY, {
+        const imgSize = this.getImageSize(doc, imageBuffer)
+        const displayWidth = contentWidth
+        const displayHeight = (imgSize.height / imgSize.width) * displayWidth
+        const imageX = MARGIN
+        const radius = 8
+
+        // Draw rounded clipping rectangle
+        doc.save()
+        doc.roundedRect(imageX, currentY, displayWidth, displayHeight, radius).clip()
+        doc.image(imageBuffer, imageX, currentY, {
           width: displayWidth,
           height: displayHeight,
         })
+        doc.restore()
+
         currentY += displayHeight + 20
       } catch {
         // Skip image if it can't be rendered
@@ -216,6 +220,14 @@ export class PdfkitPdfGeneratorService extends IPdfGeneratorService {
       })
       currentY = doc.y + 12
     }
+  }
+
+  private getImageSize(
+    doc: PDFKit.PDFDocument,
+    imageBuffer: Buffer
+  ): { width: number; height: number } {
+    const pdfImage = (doc as any).openImage(imageBuffer)
+    return { width: pdfImage.width, height: pdfImage.height }
   }
 
   private renderConclusionPage(doc: PDFKit.PDFDocument, conclusion: string): void {
