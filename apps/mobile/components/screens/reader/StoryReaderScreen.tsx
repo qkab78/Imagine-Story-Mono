@@ -61,12 +61,12 @@ export const StoryReaderScreen: React.FC = () => {
     }
   }, [canDownload, download, id, story, chapters]);
 
-  const handleBack = () => {
-    router.back();
-  };
-
-  const handleClose = () => {
-    router.back();
+  const navigateBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)');
+    }
   };
 
   // Loading state
@@ -96,8 +96,8 @@ export const StoryReaderScreen: React.FC = () => {
       <ReaderHeader
         currentChapter={progress.currentChapter}
         totalChapters={totalChapters}
-        onBack={handleBack}
-        onClose={handleClose}
+        onBack={navigateBack}
+        onClose={navigateBack}
         showDownload={isSubscribed && !isOffline}
         downloadStatus={downloadStatus}
         onDownload={handleDownload}
