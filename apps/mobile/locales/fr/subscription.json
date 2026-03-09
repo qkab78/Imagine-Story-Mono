@@ -98,5 +98,10 @@
     "upgradeButton": "🚀 Passer Premium",
     "freeTrial": "7 jours d'essai gratuit",
     "cancelAnytime": " • Annulable à tout moment"
+  },
+  "legal": {
+    "subscriptionTerms": "Le paiement sera débité sur votre compte Apple ID lors de la confirmation de l'achat. L'abonnement se renouvelle automatiquement sauf s'il est désactivé au moins 24 heures avant la fin de la période en cours. Votre compte sera débité pour le renouvellement dans les 24 heures précédant la fin de la période en cours. Vous pouvez gérer et annuler vos abonnements dans les réglages de votre compte sur l'App Store après l'achat.",
+    "privacyPolicy": "Politique de confidentialité",
+    "termsOfService": "Conditions d'utilisation"
   }
 }

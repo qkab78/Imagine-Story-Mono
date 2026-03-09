@@ -1,6 +1,7 @@
-import { View, ScrollView, Modal, Pressable, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Modal, Pressable, Text, StyleSheet, Alert, ActivityIndicator, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { PROFILE_EXTERNAL_URLS } from '@/constants/profile';
 import { SheetHeader, SectionTitle, InfoRow } from '@/components/atoms/profile';
 import {
   SubscriptionCard,
@@ -202,6 +203,22 @@ export const SubscriptionSheet: React.FC<SubscriptionSheetProps> = ({
               <Text style={styles.dangerButtonText}>{t('actions.cancel')}</Text>
             </Pressable>
           )}
+
+          {/* Apple-required legal text */}
+          <View style={styles.legalSection}>
+            <Text style={styles.legalText}>
+              {t('legal.subscriptionTerms')}
+            </Text>
+            <View style={styles.legalLinks}>
+              <Pressable onPress={() => Linking.openURL(PROFILE_EXTERNAL_URLS.privacy)}>
+                <Text style={styles.legalLink}>{t('legal.privacyPolicy')}</Text>
+              </Pressable>
+              <Text style={styles.legalSeparator}>|</Text>
+              <Pressable onPress={() => Linking.openURL(PROFILE_EXTERNAL_URLS.terms)}>
+                <Text style={styles.legalLink}>{t('legal.termsOfService')}</Text>
+              </Pressable>
+            </View>
+          </View>
         </ScrollView>
       </LinearGradient>
     </Modal>
@@ -327,6 +344,36 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: 'Nunito',
     color: PROFILE_COLORS.danger,
+  },
+  legalSection: {
+    marginTop: PROFILE_SPACING.xl,
+    paddingTop: PROFILE_SPACING.lg,
+    borderTopWidth: 1,
+    borderTopColor: PROFILE_COLORS.separator,
+  },
+  legalText: {
+    fontSize: 11,
+    fontFamily: 'Nunito',
+    color: PROFILE_COLORS.textSecondary,
+    lineHeight: 16,
+    textAlign: 'center',
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: PROFILE_SPACING.sm,
+    gap: 8,
+  },
+  legalLink: {
+    fontSize: 11,
+    fontFamily: 'Nunito',
+    color: PROFILE_COLORS.primary,
+    textDecorationLine: 'underline',
+  },
+  legalSeparator: {
+    fontSize: 11,
+    color: PROFILE_COLORS.textSecondary,
   },
 });
 

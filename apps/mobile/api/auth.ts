@@ -131,4 +131,32 @@ export const getGoogleRedirectUrl = async (mobileCallbackUrl: string): Promise<G
   return response.json();
 };
 
-export type { GoogleAuthResponse };
+// Apple OAuth
+type AppleAuthPayload = {
+  identityToken: string;
+  fullName?: { firstName?: string | null; lastName?: string | null } | null;
+  email?: string | null;
+};
+
+type AppleAuthResponse = { token: string; user: UserInfo; isNewUser: boolean };
+
+const appleAuthUrl = `${apiUrl}/auth/apple/callback`;
+
+export const authenticateWithApple = async (payload: AppleAuthPayload): Promise<AppleAuthResponse> => {
+  const response = await fetch(appleAuthUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || "Échec de l'authentification Apple");
+  }
+
+  return response.json();
+};
+
+export type { GoogleAuthResponse, AppleAuthResponse };

@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
-import { login as apiLogin, register as apiRegister, getGoogleRedirectUrl, type GoogleAuthResponse } from '@/api/auth';
+import { login as apiLogin, register as apiRegister, getGoogleRedirectUrl, authenticateWithApple, type GoogleAuthResponse } from '@/api/auth';
 import useAuthStore from '@/store/auth/authStore';
 import { transformApiUserToAuthUser } from '@/utils/userTransform';
 
@@ -116,5 +116,62 @@ export const useGoogleSignIn = () => {
   return {
     signInWithGoogle,
     isLoading,
+  };
+};
+
+export const useAppleSignIn = () => {
+  const { setToken, setUser } = useAuthStore();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const signInWithApple = async () => {
+    if (Platform.OS !== 'ios') return;
+
+    try {
+      setIsLoading(true);
+      const AppleAuthentication = await import('expo-apple-authentication');
+
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (!credential.identityToken) {
+        throw new Error('No identity token received from Apple');
+      }
+
+      const authData = await authenticateWithApple({
+        identityToken: credential.identityToken,
+        fullName: credential.fullName,
+        email: credential.email,
+      });
+
+      setToken(authData.token);
+      setUser(transformApiUserToAuthUser(authData.user));
+
+      if (authData.isNewUser) {
+        Alert.alert('Bienvenue !', 'Votre compte a été créé avec succès.');
+      }
+
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      if (error?.code === 'ERR_REQUEST_CANCELED') {
+        return;
+      }
+      Alert.alert(
+        'Erreur de connexion',
+        error instanceof Error ? error.message : 'Une erreur est survenue lors de la connexion avec Apple'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    signInWithApple,
+    isLoading,
+    isAvailable: Platform.OS === 'ios',
   };
 };

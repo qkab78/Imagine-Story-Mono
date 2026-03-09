@@ -18,15 +18,21 @@ export type SignupData = {
 interface SignupFormProps {
   onSubmit: (data: SignupData) => void;
   onGoogleSignIn?: () => void;
+  onAppleSignIn?: () => void;
   loading?: boolean;
   googleLoading?: boolean;
+  appleLoading?: boolean;
+  showApple?: boolean;
 }
 
 export const SignupForm: React.FC<SignupFormProps> = ({
   onSubmit,
   onGoogleSignIn,
+  onAppleSignIn,
   loading = false,
   googleLoading = false,
+  appleLoading = false,
+  showApple = false,
 }) => {
   const { t } = useAppTranslation('auth');
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -179,15 +185,25 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         compact
       />
 
-      {onGoogleSignIn && (
+      {(onGoogleSignIn || (showApple && onAppleSignIn)) && (
         <>
           <FormDivider />
-          <AuthButton
-            title={t('signup.googleButton')}
-            onPress={onGoogleSignIn}
-            variant="google"
-            loading={googleLoading}
-          />
+          {showApple && onAppleSignIn && (
+            <AuthButton
+              title={t('signup.appleButton')}
+              onPress={onAppleSignIn}
+              variant="apple"
+              loading={appleLoading}
+            />
+          )}
+          {onGoogleSignIn && (
+            <AuthButton
+              title={t('signup.googleButton')}
+              onPress={onGoogleSignIn}
+              variant="google"
+              loading={googleLoading}
+            />
+          )}
         </>
       )}
     </View>

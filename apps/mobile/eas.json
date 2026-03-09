@@ -11,11 +11,20 @@
     "preview": {
       "distribution": "internal"
     },
+    "beta": {
+      "distribution": "store",
+      "channel": "beta",
+      "autoIncrement": true,
+      "ios": {
+        "simulator": false
+      }
+    },
     "production": {
       "autoIncrement": true
     }
   },
   "submit": {
-    "production": {}
+    "production": {},
+    "beta": {}
   }
 }
