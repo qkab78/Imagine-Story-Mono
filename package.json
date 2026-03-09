@@ -9,9 +9,15 @@
     "start:mobile:dev:ios": "cd apps/mobile && pnpm expo run:ios",
     "start:mobile:dev:android": "cd apps/mobile && pnpm expo run:android",
     "build:mobile:dev:ios": "cd apps/mobile && eas build --platform ios --profile development",
-    "build:mobile:dev:android": "cd apps/mobile && eas build --platform android --profile development"
+    "build:mobile:dev:android": "cd apps/mobile && eas build --platform android --profile development",
+    "start:landing:dev": "cd apps/landing && pnpm run dev"
   },
   "keywords": [],
   "author": "Mikabs",
-  "license": "ISC"
+  "license": "ISC",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
 }
