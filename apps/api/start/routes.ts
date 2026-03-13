@@ -34,8 +34,19 @@ const VerifyEmailController = () => import('#auth/controllers/verify_email/verif
 const ResendVerificationController = () => import('#auth/controllers/verify_email/resend_verification_controller')
 const ForgotPasswordController = () => import('#auth/controllers/password/forgot_password_controller')
 const ResetPasswordController = () => import('#auth/controllers/password/reset_password_controller')
+const ContactController = () => import('#contact/contact_controller')
 
-router.get('/', async ({ response }: HttpContext) => {
+// Landing pages (Inertia + React)
+router.on('/').renderInertia('Home')
+router.on('/privacy').renderInertia('Privacy')
+router.on('/terms').renderInertia('Terms')
+router.on('/contact').renderInertia('Contact')
+
+// Contact form submission
+router.post('/api/contact', [ContactController, 'send'])
+
+// API root
+router.get('/api', async ({ response }: HttpContext) => {
   return response.json({ hello: 'world', version: 'v1' })
 })
 

@@ -47,7 +47,8 @@
     "#payments/*": "./app/payments/*.js",
     "#jobs/*": "./app/jobs/*.js",
     "#views/*": "./resources/views/*.js",
-    "#subscription/*": "./app/subscription/*.js"
+    "#subscription/*": "./app/subscription/*.js",
+    "#contact/*": "./app/contact/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
@@ -65,13 +66,17 @@
     "@types/node": "^22.15.30",
     "@types/pdfkit": "^0.17.5",
     "@types/pg": "^8.15.4",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^9.28.0",
     "hot-hook": "^0.4.0",
     "kysely-codegen": "^0.18.5",
     "pino-pretty": "^13.0.0",
     "prettier": "^3.5.3",
     "ts-node-maintained": "^10.9.5",
-    "typescript": "~5.8"
+    "typescript": "~5.8",
+    "vite": "^6.4.1"
   },
   "dependencies": {
     "@adonisjs/ally": "^5.1.1",
@@ -79,12 +84,17 @@
     "@adonisjs/core": "^6.18.0",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/drive": "^3.4.1",
+    "@adonisjs/inertia": "3.1.1",
     "@adonisjs/limiter": "2.4.0",
     "@adonisjs/lucid": "^21.6.1",
     "@adonisjs/mail": "^9.2.2",
     "@adonisjs/redis": "^9.2.0",
+    "@adonisjs/session": "7.5.0",
+    "@adonisjs/vite": "4.0.0",
     "@google-cloud/translate": "^9.3.0",
     "@google/genai": "^1.34.0",
+    "@hookform/resolvers": "^4.1.3",
+    "@inertiajs/react": "^2.3.17",
     "@kitajs/html": "^4.2.9",
     "@kitajs/ts-html-plugin": "^4.1.1",
     "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
@@ -93,6 +103,8 @@
     "@vinejs/vine": "^3.0.1",
     "axios": "^1.9.0",
     "deepl-node": "^1.24.0",
+    "edge.js": "^6.4.0",
+    "i18next": "^25.8.0",
     "ioredis": "^5.6.1",
     "jose": "^6.2.1",
     "kysely": "^0.28.2",
@@ -101,7 +113,12 @@
     "openai": "^5.1.1",
     "pdfkit": "^0.17.2",
     "pg": "^8.16.0",
-    "reflect-metadata": "^0.2.2"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.70.0",
+    "react-i18next": "^16.5.3",
+    "reflect-metadata": "^0.2.2",
+    "zod": "^3.25.76"
   },
   "hotHook": {
     "boundaries": [
