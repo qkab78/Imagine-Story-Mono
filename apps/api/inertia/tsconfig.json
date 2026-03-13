@@ -10,12 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/pages/*": ["./pages/*"],
-      "~/components/*": ["./components/*"]
-    }
+    "noEmit": true
   },
   "include": ["./**/*.ts", "./**/*.tsx"]
 }
