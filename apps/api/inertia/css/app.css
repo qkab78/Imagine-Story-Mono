@@ -918,3 +918,25 @@ select.form-control { cursor: pointer; }
   .contact-body { padding: 40px 20px; }
   .contact-form-wrap { padding: 30px 24px; }
 }
+
+/* Language switcher */
+.lang-switcher {
+  background: transparent;
+  border: 1.5px solid var(--green-mid);
+  color: var(--green-mid);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 8px;
+}
+.lang-switcher:hover {
+  background: var(--green-mid);
+  color: var(--white);
+}
+.legal-nav .lang-switcher {
+  margin-right: auto;
+  margin-left: 16px;
+}

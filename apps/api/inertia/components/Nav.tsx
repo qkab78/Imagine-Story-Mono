@@ -1,8 +1,11 @@
 import { Link } from '@inertiajs/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { t } = useTranslation()
 
   return (
     <nav className="main-nav">
@@ -11,13 +14,14 @@ export function Nav() {
         Mon Petit Conteur
       </Link>
       <ul className={`nav-links${menuOpen ? ' open' : ''}`}>
-        <li><a href="#how">Comment ca marche</a></li>
-        <li><a href="#features">Fonctionnalites</a></li>
-        <li><a href="#pricing">Tarifs</a></li>
-        <li><a href="#faq">FAQ</a></li>
-        <li><Link href="/contact">Contact</Link></li>
+        <li><a href="#how">{t('nav.howItWorks')}</a></li>
+        <li><a href="#features">{t('nav.features')}</a></li>
+        <li><a href="#pricing">{t('nav.pricing')}</a></li>
+        <li><a href="#faq">{t('nav.faq')}</a></li>
+        <li><Link href="/contact">{t('nav.contact')}</Link></li>
       </ul>
-      <a href="#download" className="nav-cta">Telecharger</a>
+      <LanguageSwitcher />
+      <a href="#download" className="nav-cta">{t('nav.download')}</a>
       <button className="nav-hamburger" onClick={() => setMenuOpen(!menuOpen)}>
         <span></span><span></span><span></span>
       </button>
@@ -26,13 +30,16 @@ export function Nav() {
 }
 
 export function LegalNav() {
+  const { t } = useTranslation()
+
   return (
     <nav className="legal-nav">
       <Link href="/" className="nav-logo">
         <div className="logo-icon">&#10024;</div>
         Mon Petit Conteur
       </Link>
-      <Link href="/" className="nav-back">&larr; Retour a l'accueil</Link>
+      <LanguageSwitcher />
+      <Link href="/" className="nav-back">&larr; {t('nav.backToHome')}</Link>
     </nav>
   )
 }
