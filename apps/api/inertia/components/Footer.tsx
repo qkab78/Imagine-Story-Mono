@@ -15,8 +15,8 @@ export function Footer() {
           <div className="footer-col">
             <h4>Application</h4>
             <ul>
-              <li><a href="#features">Fonctionnalites</a></li>
               <li><a href="#how">Comment ca marche</a></li>
+              <li><a href="#features">Fonctionnalites</a></li>
               <li><a href="#pricing">Tarifs</a></li>
               <li><a href="#download">Telecharger</a></li>
             </ul>

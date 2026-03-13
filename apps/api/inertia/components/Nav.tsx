@@ -11,8 +11,8 @@ export function Nav() {
         Mon Petit Conteur
       </Link>
       <ul className={`nav-links${menuOpen ? ' open' : ''}`}>
-        <li><a href="#features">Fonctionnalites</a></li>
         <li><a href="#how">Comment ca marche</a></li>
+        <li><a href="#features">Fonctionnalites</a></li>
         <li><a href="#pricing">Tarifs</a></li>
         <li><a href="#faq">FAQ</a></li>
         <li><Link href="/contact">Contact</Link></li>
