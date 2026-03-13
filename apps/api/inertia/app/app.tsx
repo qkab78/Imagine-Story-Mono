@@ -1,5 +1,6 @@
 import { createInertiaApp } from '@inertiajs/react'
 import { createRoot } from 'react-dom/client'
+import '../lib/i18n'
 import '../css/app.css'
 
 const appName = 'Mon Petit Conteur'

@@ -47,7 +47,8 @@
     "#payments/*": "./app/payments/*.js",
     "#jobs/*": "./app/jobs/*.js",
     "#views/*": "./resources/views/*.js",
-    "#subscription/*": "./app/subscription/*.js"
+    "#subscription/*": "./app/subscription/*.js",
+    "#contact/*": "./app/contact/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
@@ -92,6 +93,7 @@
     "@adonisjs/vite": "4.0.0",
     "@google-cloud/translate": "^9.3.0",
     "@google/genai": "^1.34.0",
+    "@hookform/resolvers": "^4.1.3",
     "@inertiajs/react": "^2.3.17",
     "@kitajs/html": "^4.2.9",
     "@kitajs/ts-html-plugin": "^4.1.1",
@@ -102,6 +104,7 @@
     "axios": "^1.9.0",
     "deepl-node": "^1.24.0",
     "edge.js": "^6.4.0",
+    "i18next": "^25.8.0",
     "ioredis": "^5.6.1",
     "kysely": "^0.28.2",
     "luxon": "^3.6.1",
@@ -111,7 +114,10 @@
     "pg": "^8.16.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "reflect-metadata": "^0.2.2"
+    "react-hook-form": "^7.70.0",
+    "react-i18next": "^16.5.3",
+    "reflect-metadata": "^0.2.2",
+    "zod": "^3.25.76"
   },
   "hotHook": {
     "boundaries": [

@@ -1,6 +1,9 @@
 import { Link } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
 
 export function Footer() {
+  const { t } = useTranslation()
+
   return (
     <footer>
       <div className="footer-inner">
@@ -10,40 +13,40 @@ export function Footer() {
               <div className="logo-icon">&#10024;</div>
               Mon Petit Conteur
             </Link>
-            <p>Des histoires personnalisees et magiques pour eveiller l'imagination de vos enfants, generees par intelligence artificielle.</p>
+            <p>{t('footer.brandDescription')}</p>
           </div>
           <div className="footer-col">
-            <h4>Application</h4>
+            <h4>{t('footer.application')}</h4>
             <ul>
-              <li><a href="#how">Comment ca marche</a></li>
-              <li><a href="#features">Fonctionnalites</a></li>
-              <li><a href="#pricing">Tarifs</a></li>
-              <li><a href="#download">Telecharger</a></li>
+              <li><a href="#how">{t('footer.howItWorks')}</a></li>
+              <li><a href="#features">{t('footer.features')}</a></li>
+              <li><a href="#pricing">{t('footer.pricing')}</a></li>
+              <li><a href="#download">{t('footer.download')}</a></li>
             </ul>
           </div>
           <div className="footer-col">
-            <h4>Support</h4>
+            <h4>{t('footer.support')}</h4>
             <ul>
-              <li><a href="#faq">FAQ</a></li>
-              <li><Link href="/contact">Contact</Link></li>
-              <li><Link href="/contact">Signaler un probleme</Link></li>
+              <li><a href="#faq">{t('footer.faq')}</a></li>
+              <li><Link href="/contact">{t('footer.contact')}</Link></li>
+              <li><Link href="/contact">{t('footer.reportProblem')}</Link></li>
             </ul>
           </div>
           <div className="footer-col">
-            <h4>Legal</h4>
+            <h4>{t('footer.legal')}</h4>
             <ul>
-              <li><Link href="/privacy">Politique de confidentialite</Link></li>
-              <li><Link href="/terms">Conditions d'utilisation</Link></li>
-              <li><Link href="/terms#eula">Contrat de licence (EULA)</Link></li>
+              <li><Link href="/privacy">{t('footer.privacyPolicy')}</Link></li>
+              <li><Link href="/terms">{t('footer.termsOfUse')}</Link></li>
+              <li><Link href="/terms#eula">{t('footer.eula')}</Link></li>
             </ul>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2026 Mon Petit Conteur. Tous droits reserves.</p>
+          <p>&copy; {t('footer.copyright')}</p>
           <div className="footer-legal">
-            <Link href="/privacy">Confidentialite</Link>
-            <Link href="/terms">CGU</Link>
-            <Link href="/contact">Contact</Link>
+            <Link href="/privacy">{t('footer.privacy')}</Link>
+            <Link href="/terms">{t('footer.terms')}</Link>
+            <Link href="/contact">{t('footer.contact')}</Link>
           </div>
         </div>
       </div>
@@ -52,15 +55,17 @@ export function Footer() {
 }
 
 export function SimpleFooter() {
+  const { t } = useTranslation()
+
   return (
     <footer className="simple-footer">
       <div>
-        <Link href="/">Accueil</Link>
-        <Link href="/privacy">Confidentialite</Link>
-        <Link href="/terms">CGU</Link>
-        <Link href="/contact">Contact</Link>
+        <Link href="/">{t('footer.home')}</Link>
+        <Link href="/privacy">{t('footer.privacy')}</Link>
+        <Link href="/terms">{t('footer.terms')}</Link>
+        <Link href="/contact">{t('footer.contact')}</Link>
       </div>
-      <p>&copy; 2026 Mon Petit Conteur. Tous droits reserves.</p>
+      <p>&copy; {t('footer.copyright')}</p>
     </footer>
   )
 }

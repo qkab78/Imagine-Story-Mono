@@ -31,12 +31,16 @@ const PushTokenController = () => import('#users/controllers/push_token_controll
 const GoogleAuthController = () => import('#auth/controllers/social/google_auth_controller')
 const VerifyEmailController = () => import('#auth/controllers/verify_email/verify_email_controller')
 const ResendVerificationController = () => import('#auth/controllers/verify_email/resend_verification_controller')
+const ContactController = () => import('#contact/contact_controller')
 
 // Landing pages (Inertia + React)
 router.on('/').renderInertia('Home')
 router.on('/privacy').renderInertia('Privacy')
 router.on('/terms').renderInertia('Terms')
 router.on('/contact').renderInertia('Contact')
+
+// Contact form submission
+router.post('/api/contact', [ContactController, 'send'])
 
 // API root
 router.get('/api', async ({ response }: HttpContext) => {
