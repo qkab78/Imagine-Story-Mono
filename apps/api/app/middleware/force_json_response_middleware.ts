@@ -5,11 +5,24 @@ import type { NextFn } from '@adonisjs/core/types/http'
  * Updating the "Accept" header to always accept "application/json" response
  * from the server. This will force the internals of the framework like
  * validator errors or auth errors to return a JSON response.
+ *
+ * Landing page routes are excluded so Inertia can return HTML responses.
  */
+const LANDING_PATHS = ['/', '/privacy', '/terms', '/contact']
+
 export default class ForceJsonResponseMiddleware {
   async handle({ request }: HttpContext, next: NextFn) {
-    const headers = request.headers()
-    headers.accept = 'application/json'
+    const url = request.url()
+    const shouldSkip =
+      LANDING_PATHS.includes(url) ||
+      url.startsWith('/assets') ||
+      url.startsWith('/inertia/') ||
+      url.startsWith('/@vite/')
+
+    if (!shouldSkip) {
+      const headers = request.headers()
+      headers.accept = 'application/json'
+    }
 
     return next()
   }

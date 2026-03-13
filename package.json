@@ -13,5 +13,10 @@
   },
   "keywords": [],
   "author": "Mikabs",
-  "license": "ISC"
+  "license": "ISC",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
 }

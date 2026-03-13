@@ -32,7 +32,14 @@ const GoogleAuthController = () => import('#auth/controllers/social/google_auth_
 const VerifyEmailController = () => import('#auth/controllers/verify_email/verify_email_controller')
 const ResendVerificationController = () => import('#auth/controllers/verify_email/resend_verification_controller')
 
-router.get('/', async ({ response }: HttpContext) => {
+// Landing pages (Inertia + React)
+router.on('/').renderInertia('Home')
+router.on('/privacy').renderInertia('Privacy')
+router.on('/terms').renderInertia('Terms')
+router.on('/contact').renderInertia('Contact')
+
+// API root
+router.get('/api', async ({ response }: HttpContext) => {
   return response.json({ hello: 'world', version: 'v1' })
 })
 

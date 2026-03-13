@@ -33,6 +33,9 @@ export default defineConfig({
       environment: ['repl', 'test'],
     },
     () => import('@adonisjs/core/providers/vinejs_provider'),
+    () => import('@adonisjs/core/providers/edge_provider'),
+    () => import('@adonisjs/vite/vite_provider'),
+    () => import('@adonisjs/inertia/inertia_provider'),
     () => import('@adonisjs/cors/cors_provider'),
     () => import('@adonisjs/auth/auth_provider'),
     () => import('#providers/app_provider'),
@@ -97,6 +100,14 @@ export default defineConfig({
     {
       pattern: 'resources/views/**/*.tsx',
       reloadServer: true,
+    },
+    {
+      pattern: 'resources/views/**/*.edge',
+      reloadServer: false,
+    },
+    {
+      pattern: 'public/**',
+      reloadServer: false,
     },
   ],
 })
