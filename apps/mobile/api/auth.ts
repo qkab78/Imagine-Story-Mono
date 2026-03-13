@@ -131,4 +131,52 @@ export const getGoogleRedirectUrl = async (mobileCallbackUrl: string): Promise<G
   return response.json();
 };
 
-export type { GoogleAuthResponse };
+// Apple OAuth
+type AppleAuthPayload = {
+  identityToken: string;
+  fullName?: { firstName?: string | null; lastName?: string | null } | null;
+  email?: string | null;
+};
+
+type AppleAuthResponse = { token: string; user: UserInfo; isNewUser: boolean };
+
+const appleAuthUrl = `${apiUrl}/auth/apple/callback`;
+
+export const authenticateWithApple = async (payload: AppleAuthPayload): Promise<AppleAuthResponse> => {
+  const response = await fetch(appleAuthUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || "Échec de l'authentification Apple");
+  }
+
+  return response.json();
+};
+
+// Password reset
+const forgotPasswordUrl = `${apiUrl}/auth/forgot-password`;
+
+export const forgotPassword = async (email: string): Promise<{ message: string }> => {
+  const response = await fetch(forgotPasswordUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || 'Failed to send reset email');
+  }
+
+  return response.json();
+};
+
+export type { GoogleAuthResponse, AppleAuthResponse };

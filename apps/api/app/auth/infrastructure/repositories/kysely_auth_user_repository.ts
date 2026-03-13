@@ -52,6 +52,17 @@ export class KyselyAuthUserRepository implements IAuthUserRepository {
       .execute()
   }
 
+  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
+    await db
+      .updateTable('users')
+      .set({
+        password: hashedPassword,
+        updated_at: new Date().toISOString(),
+      })
+      .where('id', '=', userId)
+      .execute()
+  }
+
   private toDomain(row: any): AuthUser {
     return AuthUser.create({
       id: row.id,

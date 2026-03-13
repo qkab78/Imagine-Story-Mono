@@ -5,4 +5,5 @@ export abstract class IAuthUserRepository {
   abstract findByEmail(email: string): Promise<AuthUser | null>
   abstract create(user: AuthUser): Promise<AuthUser>
   abstract verifyEmail(userId: string, verifiedAt: Date, newRole: number): Promise<void>
+  abstract updatePassword(userId: string, hashedPassword: string): Promise<void>
 }

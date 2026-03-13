@@ -3,7 +3,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,7 +10,7 @@ import { useRouter } from 'expo-router';
 import { AgeBadge } from '@/components/atoms/auth';
 import { AuthHeader, AuthFooter } from '@/components/molecules/auth';
 import { LoginForm } from '@/components/organisms/auth';
-import { useLogin, useGoogleSignIn } from '@/hooks/useAuth';
+import { useLogin, useGoogleSignIn, useAppleSignIn } from '@/hooks/useAuth';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const LoginScreen = () => {
@@ -19,6 +18,7 @@ const LoginScreen = () => {
   const { t } = useAppTranslation('auth');
   const loginMutation = useLogin();
   const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleSignIn();
+  const { signInWithApple, isLoading: isAppleLoading, isAvailable: isAppleAvailable } = useAppleSignIn();
 
   const handleLogin = (email: string, password: string) => {
     loginMutation.mutate({ email, password });
@@ -29,10 +29,7 @@ const LoginScreen = () => {
   };
 
   const handleForgotPassword = () => {
-    Alert.alert(
-      t('alerts.forgotPasswordTitle'),
-      t('alerts.forgotPasswordMessage')
-    );
+    router.push('/forgot-password');
   };
 
   const handleSignupPress = () => {
@@ -67,9 +64,12 @@ const LoginScreen = () => {
             <LoginForm
               onSubmit={handleLogin}
               onGoogleSignIn={handleGoogleSignIn}
+              onAppleSignIn={signInWithApple}
               onForgotPassword={handleForgotPassword}
               loading={loginMutation.isPending}
               googleLoading={isGoogleLoading}
+              appleLoading={isAppleLoading}
+              showApple={isAppleAvailable}
             />
 
             <AuthFooter

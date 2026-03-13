@@ -29,8 +29,11 @@ const StoryEventsController = () => import('#stories/presenters/story_events.con
 const WidgetControllerPresenter = () => import('#stories/presenters/widget.controller')
 const PushTokenController = () => import('#users/controllers/push_token_controller')
 const GoogleAuthController = () => import('#auth/controllers/social/google_auth_controller')
+const AppleAuthController = () => import('#auth/controllers/social/apple_auth_controller')
 const VerifyEmailController = () => import('#auth/controllers/verify_email/verify_email_controller')
 const ResendVerificationController = () => import('#auth/controllers/verify_email/resend_verification_controller')
+const ForgotPasswordController = () => import('#auth/controllers/password/forgot_password_controller')
+const ResetPasswordController = () => import('#auth/controllers/password/reset_password_controller')
 const ContactController = () => import('#contact/contact_controller')
 
 // Landing pages (Inertia + React)
@@ -140,6 +143,13 @@ router
     // Google OAuth
     router.post('/google/redirect', [GoogleAuthController, 'redirect']).use(authThrottle)
     router.get('/google/callback', [GoogleAuthController, 'callback'])
+
+    // Apple OAuth
+    router.post('/apple/callback', [AppleAuthController, 'callback']).use(authThrottle)
+
+    // Password reset
+    router.post('/forgot-password', [ForgotPasswordController, 'handle']).use(authThrottle)
+    router.post('/reset-password', [ResetPasswordController, 'handle']).use(authThrottle)
 
     // Email verification (public - accessed via email link)
     router.get('/verify-email/:token', [VerifyEmailController, 'verify'])

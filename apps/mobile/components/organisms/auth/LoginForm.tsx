@@ -19,17 +19,23 @@ type LoginData = {
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
   onGoogleSignIn: () => void;
+  onAppleSignIn?: () => void;
   onForgotPassword: () => void;
   loading?: boolean;
   googleLoading?: boolean;
+  appleLoading?: boolean;
+  showApple?: boolean;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
   onGoogleSignIn,
+  onAppleSignIn,
   onForgotPassword,
   loading = false,
   googleLoading = false,
+  appleLoading = false,
+  showApple = false,
 }) => {
   const { t } = useAppTranslation('auth');
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -113,6 +119,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       />
 
       <FormDivider />
+
+      {showApple && onAppleSignIn && (
+        <AuthButton
+          title={t('login.appleButton')}
+          onPress={onAppleSignIn}
+          variant="apple"
+          loading={appleLoading}
+        />
+      )}
 
       <AuthButton
         title={t('login.googleButton')}

@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 import { AgeBadge } from '@/components/atoms/auth';
 import { AuthHeader, AuthFooter } from '@/components/molecules/auth';
 import { SignupForm, type SignupData } from '@/components/organisms/auth';
-import { useRegister, useGoogleSignIn } from '@/hooks/useAuth';
+import { useRegister, useGoogleSignIn, useAppleSignIn } from '@/hooks/useAuth';
 import { useAppTranslation } from '@/hooks/useAppTranslation';
 
 const SignupScreen = () => {
@@ -18,6 +18,7 @@ const SignupScreen = () => {
   const { t } = useAppTranslation('auth');
   const registerMutation = useRegister();
   const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleSignIn();
+  const { signInWithApple, isLoading: isAppleLoading, isAvailable: isAppleAvailable } = useAppleSignIn();
 
   const handleSignup = (data: SignupData) => {
     registerMutation.mutate({
@@ -60,8 +61,11 @@ const SignupScreen = () => {
             <SignupForm
               onSubmit={handleSignup}
               onGoogleSignIn={signInWithGoogle}
+              onAppleSignIn={signInWithApple}
               loading={registerMutation.isPending}
               googleLoading={isGoogleLoading}
+              appleLoading={isAppleLoading}
+              showApple={isAppleAvailable}
             />
 
             <AuthFooter

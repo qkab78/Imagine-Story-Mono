@@ -5,7 +5,7 @@ interface AuthButtonProps {
   title: string;
   emoji?: string;
   onPress: () => void;
-  variant?: 'primary' | 'signup' | 'google';
+  variant?: 'primary' | 'signup' | 'google' | 'apple';
   loading?: boolean;
   compact?: boolean;
   disabled?: boolean;
@@ -20,9 +20,27 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
   compact = false,
   disabled = false,
 }) => {
-  const isGoogleButton = variant === 'google';
+  if (variant === 'apple') {
+    return (
+      <TouchableOpacity
+        style={[styles.appleButton, disabled && styles.buttonDisabled]}
+        onPress={onPress}
+        disabled={disabled || loading}
+        activeOpacity={0.8}
+      >
+        {loading ? (
+          <ActivityIndicator color="#FFFFFF" />
+        ) : (
+          <>
+            <Text style={styles.appleIcon}>{'\uF8FF'}</Text>
+            <Text style={styles.appleText}>{title}</Text>
+          </>
+        )}
+      </TouchableOpacity>
+    );
+  }
 
-  if (isGoogleButton) {
+  if (variant === 'google') {
     return (
       <TouchableOpacity
         style={[styles.googleButton, disabled && styles.buttonDisabled]}
@@ -142,6 +160,27 @@ const styles = StyleSheet.create({
   },
   googleText: {
     color: '#1F3D2B',
+    fontSize: 16,
+    fontWeight: '700',
+    fontFamily: 'Nunito',
+  },
+  appleButton: {
+    width: '100%',
+    paddingVertical: 16,
+    backgroundColor: '#000000',
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  appleIcon: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  appleText: {
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
     fontFamily: 'Nunito',
