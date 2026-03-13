@@ -13,9 +13,13 @@ const LANDING_PATHS = ['/', '/privacy', '/terms', '/contact']
 export default class ForceJsonResponseMiddleware {
   async handle({ request }: HttpContext, next: NextFn) {
     const url = request.url()
-    const isLandingPage = LANDING_PATHS.includes(url) || url.startsWith('/assets')
+    const shouldSkip =
+      LANDING_PATHS.includes(url) ||
+      url.startsWith('/assets') ||
+      url.startsWith('/inertia/') ||
+      url.startsWith('/@vite/')
 
-    if (!isLandingPage) {
+    if (!shouldSkip) {
       const headers = request.headers()
       headers.accept = 'application/json'
     }
