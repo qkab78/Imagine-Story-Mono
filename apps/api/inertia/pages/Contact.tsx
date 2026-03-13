@@ -90,7 +90,7 @@ export default function Contact() {
               <div className="contact-card-content">
                 <h3>Email support</h3>
                 <p>Pour toute demande generale</p>
-                <a href="mailto:support@contesmagiques.app">support@contesmagiques.app</a>
+                <a href="mailto:support@monpetitconteur.app">support@monpetitconteur.app</a>
               </div>
             </div>
             <div className="contact-card">
@@ -98,7 +98,7 @@ export default function Contact() {
               <div className="contact-card-content">
                 <h3>Confidentialite & RGPD</h3>
                 <p>Exercer vos droits sur vos donnees</p>
-                <a href="mailto:privacy@contesmagiques.app">privacy@contesmagiques.app</a>
+                <a href="mailto:privacy@monpetitconteur.app">privacy@monpetitconteur.app</a>
               </div>
             </div>
             <div className="contact-card">
@@ -106,7 +106,7 @@ export default function Contact() {
               <div className="contact-card-content">
                 <h3>Abonnement</h3>
                 <p>Questions de facturation et remboursement</p>
-                <a href="mailto:billing@contesmagiques.app">billing@contesmagiques.app</a>
+                <a href="mailto:billing@monpetitconteur.app">billing@monpetitconteur.app</a>
               </div>
             </div>
             <div className="contact-card">
@@ -114,7 +114,7 @@ export default function Contact() {
               <div className="contact-card-content">
                 <h3>Partenariats & presse</h3>
                 <p>Collaborations et relations medias</p>
-                <a href="mailto:hello@contesmagiques.app">hello@contesmagiques.app</a>
+                <a href="mailto:hello@monpetitconteur.app">hello@monpetitconteur.app</a>
               </div>
             </div>
           </div>
@@ -243,7 +243,7 @@ export default function Contact() {
                     onChange={(e) => setFormData({ ...formData, newsletter: e.target.checked })}
                   />
                   <label htmlFor="newsletter">
-                    Je souhaite recevoir les actualites de Contes Magiques (nouveautes, mises a jour). Desabonnement possible a tout moment.
+                    Je souhaite recevoir les actualites de Mon Petit Conteur (nouveautes, mises a jour). Desabonnement possible a tout moment.
                   </label>
                 </div>
 

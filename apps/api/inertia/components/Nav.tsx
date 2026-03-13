@@ -8,7 +8,7 @@ export function Nav() {
     <nav className="main-nav">
       <Link href="/" className="nav-logo">
         <div className="logo-icon">&#10024;</div>
-        Contes Magiques
+        Mon Petit Conteur
       </Link>
       <ul className={`nav-links${menuOpen ? ' open' : ''}`}>
         <li><a href="#features">Fonctionnalites</a></li>
@@ -30,7 +30,7 @@ export function LegalNav() {
     <nav className="legal-nav">
       <Link href="/" className="nav-logo">
         <div className="logo-icon">&#10024;</div>
-        Contes Magiques
+        Mon Petit Conteur
       </Link>
       <Link href="/" className="nav-back">&larr; Retour a l'accueil</Link>
     </nav>

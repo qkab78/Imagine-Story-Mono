@@ -283,7 +283,7 @@ function FAQ() {
       <div className="section-inner" style={{ textAlign: 'center' }}>
         <div className="section-label">FAQ</div>
         <h2 className="section-title" style={{ margin: '0 auto 10px' }}>Questions frequentes</h2>
-        <p className="section-sub" style={{ margin: '0 auto' }}>Tout ce que vous devez savoir sur Contes Magiques.</p>
+        <p className="section-sub" style={{ margin: '0 auto' }}>Tout ce que vous devez savoir sur Mon Petit Conteur.</p>
         <div className="faq-list" style={{ textAlign: 'left' }}>
           {faqs.map((faq, i) => (
             <div className={`faq-item${openIndex === i ? ' open' : ''}`} key={i}>

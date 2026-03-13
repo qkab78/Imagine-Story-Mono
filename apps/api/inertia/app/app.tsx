@@ -2,7 +2,7 @@ import { createInertiaApp } from '@inertiajs/react'
 import { createRoot } from 'react-dom/client'
 import '../css/app.css'
 
-const appName = 'Contes Magiques'
+const appName = 'Mon Petit Conteur'
 
 createInertiaApp({
   progress: {

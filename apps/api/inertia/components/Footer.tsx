@@ -8,7 +8,7 @@ export function Footer() {
           <div className="footer-brand">
             <Link href="/" className="nav-logo">
               <div className="logo-icon">&#10024;</div>
-              Contes Magiques
+              Mon Petit Conteur
             </Link>
             <p>Des histoires personnalisees et magiques pour eveiller l'imagination de vos enfants, generees par intelligence artificielle.</p>
           </div>
@@ -39,7 +39,7 @@ export function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2026 Contes Magiques. Tous droits reserves.</p>
+          <p>&copy; 2026 Mon Petit Conteur. Tous droits reserves.</p>
           <div className="footer-legal">
             <Link href="/privacy">Confidentialite</Link>
             <Link href="/terms">CGU</Link>
@@ -60,7 +60,7 @@ export function SimpleFooter() {
         <Link href="/terms">CGU</Link>
         <Link href="/contact">Contact</Link>
       </div>
-      <p>&copy; 2026 Contes Magiques. Tous droits reserves.</p>
+      <p>&copy; 2026 Mon Petit Conteur. Tous droits reserves.</p>
     </footer>
   )
 }

@@ -42,11 +42,11 @@ export default function Privacy() {
 
         <div className="legal-section" id="responsable">
           <h2>1. Responsable du traitement</h2>
-          <p>Le responsable du traitement des donnees personnelles collectees via l'application <strong>Contes Magiques</strong> est :</p>
-          <p><strong>Contes Magiques</strong><br />
+          <p>Le responsable du traitement des donnees personnelles collectees via l'application <strong>Mon Petit Conteur</strong> est :</p>
+          <p><strong>Mon Petit Conteur</strong><br />
           [Nom de la societe / Nom du developpeur]<br />
           [Adresse postale complete]<br />
-          Email : <a href="mailto:privacy@contesmagiques.app">privacy@contesmagiques.app</a></p>
+          Email : <a href="mailto:privacy@monpetitconteur.app">privacy@monpetitconteur.app</a></p>
         </div>
 
         <div className="legal-section" id="donnees">
@@ -162,7 +162,7 @@ export default function Privacy() {
             <li><strong>Droit a la limitation :</strong> Demander la limitation du traitement dans certaines circonstances</li>
             <li><strong>Retrait du consentement :</strong> Retirer votre consentement a tout moment</li>
           </ul>
-          <p>Pour exercer ces droits, contactez-nous a : <a href="mailto:privacy@contesmagiques.app">privacy@contesmagiques.app</a>. Nous repondrons dans un delai de 30 jours.</p>
+          <p>Pour exercer ces droits, contactez-nous a : <a href="mailto:privacy@monpetitconteur.app">privacy@monpetitconteur.app</a>. Nous repondrons dans un delai de 30 jours.</p>
           <p>Vous avez egalement le droit d'introduire une reclamation aupres de votre autorite de controle nationale (en France : la <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">CNIL</a>).</p>
         </div>
 
@@ -200,7 +200,7 @@ export default function Privacy() {
         <div className="legal-section" id="contact-priv">
           <h2>12. Contact</h2>
           <p>Pour toute question relative a vos donnees personnelles ou pour exercer vos droits, contactez notre Delegue a la Protection des Donnees (DPO) :</p>
-          <p>&#128231; <a href="mailto:privacy@contesmagiques.app">privacy@contesmagiques.app</a><br />
+          <p>&#128231; <a href="mailto:privacy@monpetitconteur.app">privacy@monpetitconteur.app</a><br />
           &#128238; [Nom de la societe], [Adresse], [Code postal] [Ville], France</p>
           <p>Ou utilisez notre <Link href="/contact">formulaire de contact</Link>.</p>
         </div>

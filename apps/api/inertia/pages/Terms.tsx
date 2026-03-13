@@ -7,7 +7,7 @@ function CGUContent() {
   return (
     <div className="legal-body">
       <div className="info-box">
-        <p>&#128203; <strong>Resume :</strong> Contes Magiques est reserve aux personnes majeures agissant pour leurs enfants. Le contenu genere est a usage personnel et familial uniquement. L'abonnement est gere par Apple.</p>
+        <p>&#128203; <strong>Resume :</strong> Mon Petit Conteur est reserve aux personnes majeures agissant pour leurs enfants. Le contenu genere est a usage personnel et familial uniquement. L'abonnement est gere par Apple.</p>
       </div>
 
       <div className="toc">
@@ -28,7 +28,7 @@ function CGUContent() {
 
       <div className="legal-section" id="acceptation">
         <h2>1. Acceptation des conditions</h2>
-        <p>En telechargeant, installant ou utilisant l'application Contes Magiques, vous acceptez d'etre lie par les presentes Conditions Generales d'Utilisation (CGU). Si vous n'acceptez pas ces conditions, vous devez cesser d'utiliser l'application.</p>
+        <p>En telechargeant, installant ou utilisant l'application Mon Petit Conteur, vous acceptez d'etre lie par les presentes Conditions Generales d'Utilisation (CGU). Si vous n'acceptez pas ces conditions, vous devez cesser d'utiliser l'application.</p>
         <p>Ces CGU s'appliquent conjointement avec notre <Link href="/privacy">Politique de confidentialite</Link> et notre Contrat de licence utilisateur final (EULA) accessible via l'onglet ci-dessus.</p>
         <div className="warning-box">
           <p>&#9888;&#65039; L'application est reservee aux personnes de <strong>18 ans ou plus</strong>. Les mineurs peuvent utiliser l'application sous la supervision directe d'un parent ou tuteur legal.</p>
@@ -37,7 +37,7 @@ function CGUContent() {
 
       <div className="legal-section" id="description">
         <h2>2. Description du service</h2>
-        <p>Contes Magiques est une application mobile disponible sur iOS permettant de :</p>
+        <p>Mon Petit Conteur est une application mobile disponible sur iOS permettant de :</p>
         <ul>
           <li>Creer des histoires personnalisees pour enfants via intelligence artificielle</li>
           <li>Choisir des parametres de personnalisation (heros, theme, langue, style visuel)</li>
@@ -70,7 +70,7 @@ function CGUContent() {
         <ol>
           <li>Ouvrez les Reglages de votre iPhone</li>
           <li>Appuyez sur votre identifiant Apple &gt; Abonnements</li>
-          <li>Selectionnez Contes Magiques et annulez l'abonnement</li>
+          <li>Selectionnez Mon Petit Conteur et annulez l'abonnement</li>
         </ol>
         <p>L'annulation prend effet a la fin de la periode en cours. Aucun remboursement n'est accorde pour la periode deja payee, sauf si Apple en decide autrement conformement a ses politiques.</p>
         <h3>4.4 Renouvellement automatique</h3>
@@ -82,11 +82,11 @@ function CGUContent() {
       <div className="legal-section" id="contenu">
         <h2>5. Contenu genere</h2>
         <h3>5.1 Propriete du contenu</h3>
-        <p>Les histoires creees a partir de vos parametres vous appartiennent pour un usage personnel et familial. Contes Magiques conserve une licence non-exclusive pour ameliorer ses services (de maniere anonymisee).</p>
+        <p>Les histoires creees a partir de vos parametres vous appartiennent pour un usage personnel et familial. Mon Petit Conteur conserve une licence non-exclusive pour ameliorer ses services (de maniere anonymisee).</p>
         <h3>5.2 Qualite du contenu</h3>
         <p>Bien que nous fassions tous nos efforts pour garantir la qualite et la pertinence des histoires generees, le contenu est produit par intelligence artificielle et peut contenir des imperfections. Nous ne garantissons pas que chaque histoire sera parfaitement adaptee a votre enfant.</p>
         <h3>5.3 Signalement de contenu inapproprie</h3>
-        <p>Si une histoire contient du contenu qui vous semble inapproprie, vous pouvez le signaler via la fonctionnalite de signalement integree ou en nous contactant a <a href="mailto:support@contesmagiques.app">support@contesmagiques.app</a>.</p>
+        <p>Si une histoire contient du contenu qui vous semble inapproprie, vous pouvez le signaler via la fonctionnalite de signalement integree ou en nous contactant a <a href="mailto:support@monpetitconteur.app">support@monpetitconteur.app</a>.</p>
       </div>
 
       <div className="legal-section" id="usage">
@@ -105,13 +105,13 @@ function CGUContent() {
 
       <div className="legal-section" id="pi">
         <h2>7. Propriete intellectuelle</h2>
-        <p>L'application, son interface, son logo, ses textes, ses illustrations de l'interface (hors contenu genere) sont proteges par le droit d'auteur et appartiennent a Contes Magiques.</p>
+        <p>L'application, son interface, son logo, ses textes, ses illustrations de l'interface (hors contenu genere) sont proteges par le droit d'auteur et appartiennent a Mon Petit Conteur.</p>
         <p>Vous ne pouvez pas copier, modifier, distribuer ou creer des oeuvres derivees de l'application sans autorisation prealable ecrite.</p>
       </div>
 
       <div className="legal-section" id="responsabilite">
         <h2>8. Limitation de responsabilite</h2>
-        <p>Contes Magiques est fourni "en l'etat". Dans les limites permises par la loi applicable :</p>
+        <p>Mon Petit Conteur est fourni "en l'etat". Dans les limites permises par la loi applicable :</p>
         <ul>
           <li>Nous ne garantissons pas la disponibilite continue et ininterrompue du service</li>
           <li>Nous ne sommes pas responsables des dommages indirects resultant de l'utilisation de l'application</li>
@@ -146,7 +146,7 @@ function EULAContent() {
 
       <div className="legal-section">
         <h2>Contrat de Licence Utilisateur Final (EULA)</h2>
-        <p>Ce Contrat de Licence Utilisateur Final (&laquo; EULA &raquo;) est conclu entre vous et <strong>Contes Magiques</strong> (&laquo; le Concedant &raquo;) concernant votre utilisation de l'application mobile Contes Magiques (&laquo; l'Application &raquo;).</p>
+        <p>Ce Contrat de Licence Utilisateur Final (&laquo; EULA &raquo;) est conclu entre vous et <strong>Mon Petit Conteur</strong> (&laquo; le Concedant &raquo;) concernant votre utilisation de l'application mobile Mon Petit Conteur (&laquo; l'Application &raquo;).</p>
         <p>En telechargeant ou en utilisant l'Application, vous acceptez d'etre lie par les termes du present EULA. Si vous n'acceptez pas ces termes, ne telechargez pas et n'utilisez pas l'Application.</p>
         <p><strong>Note :</strong> Cet EULA complete et ne remplace pas les conditions d'utilisation de l'App Store d'Apple, auxquelles vous avez egalement accepte de vous conformer.</p>
       </div>
@@ -225,7 +225,7 @@ function EULAContent() {
       <div className="legal-section">
         <h2>11. Contact</h2>
         <p>Pour toute question relative a cet EULA, contactez :</p>
-        <p>&#128231; <a href="mailto:legal@contesmagiques.app">legal@contesmagiques.app</a></p>
+        <p>&#128231; <a href="mailto:legal@monpetitconteur.app">legal@monpetitconteur.app</a></p>
       </div>
     </div>
   )
@@ -249,7 +249,7 @@ export default function Terms() {
         <div className="hero-legal-inner">
           <div className="legal-label">Legal</div>
           <h1>Conditions d'utilisation & EULA</h1>
-          <p>En utilisant Contes Magiques, vous acceptez les presentes conditions. Veuillez les lire attentivement.</p>
+          <p>En utilisant Mon Petit Conteur, vous acceptez les presentes conditions. Veuillez les lire attentivement.</p>
           <div className="last-updated">&#128197; Derniere mise a jour : 9 mars 2026</div>
         </div>
       </div>
