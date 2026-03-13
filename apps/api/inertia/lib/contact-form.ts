@@ -7,7 +7,7 @@ export const contactFormSchema = z.object({
   subject: z.string().min(1, 'required'),
   message: z.string().min(20, 'messageMinLength'),
   appVersion: z.string().optional().default(''),
-  privacyConsent: z.literal(true, { errorMap: () => ({ message: 'consentRequired' }) }),
+  privacyConsent: z.boolean().refine((v) => v === true, { message: 'consentRequired' }),
   newsletter: z.boolean().optional().default(false),
 })
 

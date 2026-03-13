@@ -16,7 +16,7 @@ export function useContactForm() {
       subject: '',
       message: '',
       appVersion: '',
-      privacyConsent: false as unknown as true,
+      privacyConsent: false,
       newsletter: false,
     },
   })
