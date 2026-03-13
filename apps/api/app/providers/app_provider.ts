@@ -22,6 +22,7 @@ import { IRevenueCatService } from '#subscription/domain/services/i_revenuecat_s
 import { ISocialAccountRepository } from '#auth/domain/repositories/i_social_account_repository'
 import { IAuthUserRepository } from '#auth/domain/repositories/i_auth_user_repository'
 import { IEmailVerificationTokenRepository } from '#auth/domain/repositories/i_email_verification_token_repository'
+import { IPasswordResetTokenRepository } from '#auth/domain/repositories/i_password_reset_token_repository'
 import { ISocialAuthService } from '#auth/application/services/i_social_auth_service'
 import storageConfig from '#config/storage'
 import env from '#start/env'
@@ -155,6 +156,13 @@ export default class AppProvider {
     this.app.container.singleton(IEmailVerificationTokenRepository, () => {
       return this.app.container.make(KyselyEmailVerificationTokenRepository)
     })
+
+    const { KyselyPasswordResetTokenRepository } =
+      await import('#auth/infrastructure/repositories/kysely_password_reset_token_repository')
+    this.app.container.singleton(IPasswordResetTokenRepository, () => {
+      return this.app.container.make(KyselyPasswordResetTokenRepository)
+    })
+
     this.app.container.singleton(ISocialAuthService, () => {
       return this.app.container.make(AllySocialAuthService)
     })

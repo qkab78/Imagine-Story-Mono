@@ -159,4 +159,24 @@ export const authenticateWithApple = async (payload: AppleAuthPayload): Promise<
   return response.json();
 };
 
+// Password reset
+const forgotPasswordUrl = `${apiUrl}/auth/forgot-password`;
+
+export const forgotPassword = async (email: string): Promise<{ message: string }> => {
+  const response = await fetch(forgotPasswordUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || 'Failed to send reset email');
+  }
+
+  return response.json();
+};
+
 export type { GoogleAuthResponse, AppleAuthResponse };

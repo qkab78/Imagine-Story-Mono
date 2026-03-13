@@ -70,6 +70,9 @@ importers:
       ioredis:
         specifier: ^5.6.1
         version: 5.9.0
+      jose:
+        specifier: ^6.2.1
+        version: 6.2.1
       kysely:
         specifier: ^0.28.2
         version: 0.28.9
@@ -6148,6 +6151,9 @@ packages:
 
   jimp-compact@0.16.1:
     resolution: {integrity: sha512-dZ6Ra7u1G8c4Letq/B5EzAxj4tLFHL+cGtdpR+PVm4yzPDj+lCk+AbivWt1eOM+ikzkowtyV7qSqX6qr3t71Ww==}
+
+  jose@6.2.1:
+    resolution: {integrity: sha512-jUaKr1yrbfaImV7R2TN/b3IcZzsw38/chqMpo2XJ7i2F8AfM/lA4G1goC3JVEwg0H7UldTmSt3P68nt31W7/mw==}
 
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
@@ -16834,6 +16840,8 @@ snapshots:
       - ts-node
 
   jimp-compact@0.16.1: {}
+
+  jose@6.2.1: {}
 
   joycon@3.1.1: {}
 

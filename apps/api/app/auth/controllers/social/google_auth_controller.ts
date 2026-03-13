@@ -10,6 +10,7 @@ import logger from '@adonisjs/core/services/logger'
 const ALLOWED_CALLBACK_PATTERNS = [
   /^myapp:\/\//,
   /^imaginestory:\/\//,
+  /^monpetitconteur:\/\//,
 ]
 
 function isAllowedCallbackUrl(url: string): boolean {

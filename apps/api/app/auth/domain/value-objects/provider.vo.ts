@@ -1,9 +1,9 @@
 import { InvalidValueObjectException } from '#stories/domain/exceptions/invalid_value_object_exception'
 
-export type ProviderType = 'google'
+export type ProviderType = 'google' | 'apple'
 
 export class Provider {
-  private static readonly VALID_PROVIDERS: ProviderType[] = ['google']
+  private static readonly VALID_PROVIDERS: ProviderType[] = ['google', 'apple']
 
   private constructor(private readonly value: ProviderType) {}
 
@@ -18,6 +18,10 @@ export class Provider {
 
   static google(): Provider {
     return new Provider('google')
+  }
+
+  static apple(): Provider {
+    return new Provider('apple')
   }
 
   getValue(): ProviderType {

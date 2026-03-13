@@ -3,7 +3,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -30,10 +29,7 @@ const LoginScreen = () => {
   };
 
   const handleForgotPassword = () => {
-    Alert.alert(
-      t('alerts.forgotPasswordTitle'),
-      t('alerts.forgotPasswordMessage')
-    );
+    router.push('/forgot-password');
   };
 
   const handleSignupPress = () => {
